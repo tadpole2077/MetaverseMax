@@ -1,0 +1,56 @@
+﻿
+Goal: Add new module that displays Land ownership data calling a backend Service
+----------------------------------------------------------------------------------------
+UI:
+* Amend app/nav-menu/nav-menu.component.html,  add new UI link to homepage
+Module:
+* Add new folder app/owner-data
+* Add component(View type) file : owner-data/owner-data.component.html
+* Add component(Controller type) file : owner-data/owner-data.component.ts
+* Add reference to new module (owner-data) within application module ts file (app\module.ts)
+* Add Controler files (OwnerDataController.cs, OwnerData.cs), this is the server side logic for the web serviec http.GET() call from the client.
+
+Table - using at-table
+------------------------------
+* Need to Install >> npm install --save @angular/material @angular/cdk @angular/animations 
+  * or use the NuGet VS >> Angular Materials V1.1.12 , Angular Animate V1.8.2
+* NuGet is not registering the library.. so used npm >> CMD >> D:\0_Development\2_Applications\GitHub\CoinCalc\CoinChart\ClientApp
+	npm install --save @angular/material @angular/cdk
+	npm install --save @angular/animations
+* Issue with UI Error "Can't bind to 'dataSource' since it isn't a known property of 'mat-table'"
+	Need to add MatTableModule within ap.module.ts, plus the link >> import { MatTableModule } from '@angular/material/table';
+* Sorting Module
+	Added matSort directive to the table.
+	Added mat-sort-header to each header.
+	Imported MatSortModule into app.module.ts.
+	Provided the MatSort directive to the table data source.
+
+
+
+Issues:
+-----------------------------------------------------------------------------------------
+UI Error: Error: Cannot match any routes. URL Segment: 'fetch-owner-data'
+Resolved By: 
+* incorrect router link in nav-menu/nav-menu.component.html, problem with [routerLink]="['/fetch-owner-data']
+* Should be [routerLink]="['/owner-data']
+
+UI Error (on click on "Owner data" link) : <body><pre>Cannot GET /ownerdata</pre></body>
+Resolved By: 
+* Missing OwnerDataController.cs files and base class
+* The service call using http.get() within owner-data.component.ts fails as no backend route.
+
+On Public to Web server - SOAP Get calls failing with 404
+Resolved by:
+* On refresh of page fails to route resulting in 404
+* Partial solution here, but does not fix web service 404 https://stackoverflow.com/questions/50601424/asp-net-mvc-with-angular-page-refresh-or-reload-gives-404-error
+* Seems to be a routing issue to the SOAP service controllers https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/routing?view=aspnetcore-5.0#ar
+* SOAP should use attributes (eg verbs GET etc)
+
+Different track - used Fiddler, always got back the index html page regardless of URL seems to be a default response likely error on server causing fault.
+* checking Event logs states.. .NEt app failed, required library hostfxr.dll not found. 
+*  If this is a framework-dependent application, install the runtime in the global location [C:\Program Files\dotnet] or use the DOTNET_ROOT environment variable 
+*  to specify the runtime location or register the runtime location in [HKLM\SOFTWARE\dotnet\Setup\InstalledVersions\x64\InstallLocation].
+	https://aka.ms/dotnet-core-applaunch?missing_runtime=true&arch=x64&rid=win10-x64&apphost_version=5.0.4
+* How to setup routing of API services
+	* https://docs.microsoft.com/en-us/aspnet/web-api/overview/web-api-routing-and-actions/routing-and-action-selection
+

@@ -1,0 +1,79 @@
+@-webkit-keyframes rotation {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+
+  to {
+    -webkit-transform: rotate(359deg);
+  }
+}
+
+.rotate {
+  -webkit-animation: rotation 1s 1 linear;
+}
+
+a {
+  display: inline-block;
+}
+
+.histroyframe {
+  border: 1px;
+  border-color: gray;
+  border-style: solid;
+  box-shadow: 0 5px 10px rgb(0 0 0 / 12%);
+  border-radius: 5px;
+  max-height: 400px;
+  min-height: 50px;
+  width: 400px;
+  position: fixed;
+  z-index: 100;
+  background-color: white;
+  bottom:60px;
+  padding-bottom:10px;
+  left:50%;
+}
+
+.table-container{
+  width:380px;
+  margin: 6px 6px 10px 10px;
+}
+
+tr.mat-header-row{
+    height:38px
+}
+
+.paginatorContainer {
+  width: 360px;
+  height: 22px;
+  margin-top: -8px;
+}
+
+.closeframe {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  color: black;
+}
+  .closeframe:hover {
+    color: orangered;
+  }
+
+.historySummary {
+  font-size: 14px;
+  margin: 6px 8px 0 10px
+}
+
+.historySummary div{
+  line-height: 1.8em;
+}
+
+.totalEle{
+  margin-right: 6px
+}
+
+.summarydata {
+  font-weight: 500;
+}
+.summaryLabel {
+  color: rgba(0, 0, 0, 0.54)
+}

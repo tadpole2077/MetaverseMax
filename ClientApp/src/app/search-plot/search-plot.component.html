@@ -1,0 +1,13 @@
+
+
+<div class="search">
+  <div style="margin-bottom:6px">
+
+    <input matInput class="plotx" placeholder="Plot X" type='text' numbersOnly #plotX (keyup.enter)="GetPlotData({plotX: plotX.value, plotY: plotY.value})" />
+    <input matInput class="ploty" placeholder="Plot Y" type='text' numbersOnly #plotY (keyup.enter)="GetPlotData({plotX: plotX.value, plotY: plotY.value})" />
+
+  </div>
+
+  <i id="searchIcon" class="fas fa-sync-alt" style="margin-left:6px;margin-top:10px;position:absolute;color:white"></i><button id="buttonfind" class="btn btn-primary" style="width:130px;padding-right:4px" (click)="GetPlotData({plotX: plotX.value, plotY: plotY.value})">Find Owner</button>
+
+</div>

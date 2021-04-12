@@ -1,0 +1,32 @@
+@-webkit-keyframes rotation {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+
+  to {
+    -webkit-transform: rotate(359deg);
+  }
+}
+
+.rotate {
+  -webkit-animation: rotation 1s 1 linear;
+}
+
+a {
+  display: inline-block;
+}
+
+.search {
+  float: right;
+  margin-top: -60px;
+  margin-bottom: 6px
+}
+
+.plotx {
+  margin-right: 10px;
+  width: 60px;
+}
+
+.ploty {
+  width: 60px
+}

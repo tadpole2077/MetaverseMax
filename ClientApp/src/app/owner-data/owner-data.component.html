@@ -1,0 +1,109 @@
+<div>
+  <img *ngIf="owner" src="{{ owner.owner_url }}" class="ownerImg" height="160" />
+  <div *ngIf="owner.registered_date" class="slideOutLeft">
+    <p aria-live="polite">
+      Player Registered On:
+      <span>{{ owner.registered_date }}</span>
+    </p>
+    <p aria-live="polite">
+      Last Visit On:
+      <span>{{ owner.last_visit }}</span>
+    </p>
+  </div>
+</div>
+<h1 id="tableLabel">Plot Owner Report</h1>
+
+<p *ngIf="!owner"><em>Loading...</em></p>
+
+<div *ngIf="owner">
+  <p aria-live="polite" style="width:50%">Owner: <strong>{{ owner.owner_name }}</strong></p>
+  <div *ngIf="owner.owner_matic_key !=''">
+    <p aria-live="polite">Owner Key: <strong>MATIC: <a target="_blank" href="https://explorer-mainnet.maticvigil.com/address/{{ owner.owner_matic_key }}/tokens">{{ owner.owner_matic_key }}</a></strong></p>
+
+    <p aria-live="polite">
+      Owner Plots: <strong>{{ owner.plot_count }}</strong>
+      <span style="margin-left:30px">Developed Plots: <strong>{{ owner.developed_plots }}</strong></span>
+      <span style="margin-left:30px">For Sale: <strong>{{ owner.plots_for_sale }}</strong></span>
+    </p>
+
+    <div aria-live="polite" class="districtPlots">
+      <div class="districtHeader">
+        <span class="districtLabel">District Plots:</span>
+        <a role="button" (click)="filterTable($event, 0)" [hidden]="!this.buttonShowAll" class="showAllLink"><span class="districtNum">Show All</span></a>
+      </div>
+      <div class="districtBox">
+        <div class="districtEle" *ngFor="let district of owner.district_plots">
+          <a role="button" (click)="filterTable($event, district.district[0])" class="districtLink"><span class="districtNum">#{{district.district[0]}}:</span></a>
+          <span class="districtCount"> {{district.district[1]}}</span>
+          <span class="districtSell" [hidden]="!district.district[2]">({{district.district[2]}})</span>
+        </div>
+      </div>
+    </div>
+    <div aria-live="polite">Owner Last Plot Action: <strong>{{ owner.last_action }}</strong></div>
+  </div>
+</div>
+
+<app-search-plot (searchPlotEvent)="searchPlot($event)"></app-search-plot>
+
+<div class="table-container" [hidden]="!owner.owner_land">
+
+  <app-prod-history [hidden]="!this.historyShow" (hideHistoryEvent)="hideHistory($event)"></app-prod-history>
+
+  <table mat-table [dataSource]="dataSource" matSort class="table-striped mat-elevation-z8" style="width:100%; display:inline-table">
+    <!--table table-striped-->
+    <ng-container matColumnDef="district_id">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> District # </th>
+      <td mat-cell *matCellDef="let land"><span class="salepos" *ngIf="land.forsale_price>0">{{land.forsale_price.toLocaleString()}}</span> {{land.district_id}} </td>
+    </ng-container>
+    <ng-container matColumnDef="pos_x">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Pos </th>
+      <td mat-cell *matCellDef="let land"> X:{{ land.pos_x}} Y:{{ land.pos_y }}</td>
+    </ng-container>
+    <ng-container matColumnDef="pos_y">
+      <th mat-header-cell *matHeaderCellDef disabled> Link </th>
+      <td mat-cell *matCellDef="let land" class="linkCol"> <a target="_blank" href="https://play.mcp3d.com/tron/land?x={{ land.pos_x }}&y={{ land.pos_y }}">MCP-Tron</a> </td>
+    </ng-container>
+    <ng-container matColumnDef="building_type">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
+      <td mat-cell *matCellDef="let land" class="industryCol">
+        <img src="{{ land.building_img }}" class="industryImg">
+        <span *ngIf="land.building_type!=5 && land.building_type!=3 && land.building_type!=7" class="tableWrapline"> {{ land.building_desc }} </span>
+        <a *ngIf="land.building_type==5 || land.building_type==3 || land.building_type==7" role="button" (click)="showHistory(land.token_id)">
+          <span class="tableWrapline"> {{ land.building_desc }} </span>
+          <div class="magnifyHistoryPositioner"><img src="./assets/MagnifyHistory.png" class="magnifyHistoryIcon" height="34" /></div>
+        </a>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="building_level">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> LvL </th>
+      <td mat-cell *matCellDef="let land" class="boldfield industryLvlCol">{{ land.building_level}}</td>
+    </ng-container>
+    <ng-container matColumnDef="last_action">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Last Action GMT </th>
+      <td mat-cell *matCellDef="let land"> {{ land.last_action }} </td>
+    </ng-container>
+    <ng-container matColumnDef="plot_ip">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> IP </th>
+      <td mat-cell *matCellDef="let land"> {{ land.plot_ip }} </td>
+    </ng-container>
+    <ng-container matColumnDef="ip_bonus">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> +IP Bonus </th>
+      <td mat-cell *matCellDef="let land"> {{ land.ip_bonus }} </td>
+    </ng-container>
+    <ng-container matColumnDef="citizen_count">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Cit. </th>
+      <td mat-cell *matCellDef="let land"> {{ land.citizen_count }}<span *ngIf="land.citizen_count"> X </span><img *ngIf="land.citizen_count" src="{{ land.citizen_url }}" title="Lowest stamina citizen : {{ land.citizen_stamina }}" style="max-width:44px; max-height:44px;" /> </td>
+    </ng-container>
+    <ng-container matColumnDef="token_id">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Token ID </th>
+      <td mat-cell *matCellDef="let land"> {{ land.token_id }}</td>
+    </ng-container>
+    <ng-container matColumnDef="citizen_stamina_alert">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Alerts</th>
+      <td mat-cell *matCellDef="let land"><img *ngIf="land.citizen_stamina_alert" src="./assets/OutOfStamina.png" height="60" class="staminaOutImg"></td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+</div>
