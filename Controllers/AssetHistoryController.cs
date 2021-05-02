@@ -70,7 +70,7 @@ namespace MetaverseMax.Controllers
                              (historyItem.Value<string>("to_address") ?? "").Equals(currectOwner))
                         {
                             HistoryProduction historyProductionDetails = new();
-                            historyProductionDetails.run_datetime = common.TimeFormatStandard(historyItem.Value<string>("event_time") ?? "");                            
+                            historyProductionDetails.run_datetime = common.TimeFormatStandard(historyItem.Value<string>("event_time") ?? "", null);                            
 
                             runInstanceCount++;
 
@@ -100,7 +100,9 @@ namespace MetaverseMax.Controllers
                                 {
                                     buildingType = historyLand.Value<int?>("building_type_id") ?? 0;
 
-                                    historyProductionDetails.efficiency = CalculateEffiency(buildingType, historyLand.Value<int?>("building_level") ?? 0, historyProductionDetails.amount_produced, historyData.Value<int?>("resourceId") ?? 0);
+                                    historyProductionDetails.efficiency_p = CalculateEfficiency_Production(buildingType, historyLand.Value<int?>("building_level") ?? 0, historyProductionDetails.amount_produced, historyData.Value<int?>("resourceId") ?? 0);
+                                    historyProductionDetails.efficiency_m = CalculateEfficiency_MinMax(buildingType, historyLand.Value<int?>("building_level") ?? 0, historyProductionDetails.amount_produced, historyData.Value<int?>("resourceId") ?? 0);
+
                                 }
                             }
 
@@ -130,7 +132,7 @@ namespace MetaverseMax.Controllers
             List<string> formatedTotal = new();
 
             for(int count=0; count < resourceTotal.Count; count++){
-                formatedTotal.Add (string.Concat("[", resourceTotal[count].resouceName, "]", resourceTotal[count].resourceTotal.ToString()));
+                formatedTotal.Add (string.Concat("[", resourceTotal[count].resouceName, "] ", resourceTotal[count].resourceTotal.ToString()));
             }
 
             return formatedTotal;
@@ -154,158 +156,312 @@ namespace MetaverseMax.Controllers
             };
         }
 
-        private static int CalculateEffiency(int buildingType, int buildingLvl, int amount_produced, int buildingProduct)
+        private static int CalculateEfficiency_Production(int buildingType, int buildingLvl, int amount_produced, int buildingProduct)
         {
-            int Effiency = 0;
+            double efficiency = 0;
 
             switch (buildingType)
             {
                 case (int)BUILDINGTYPE_ENUM.RESIDENTIAL:
-                    Effiency = 0;
+                    efficiency = 0;
                     break;
                 case (int)BUILDINGTYPE_ENUM.ENERGY:
                     if (buildingProduct == (int)BUILDING_PRODUCT.WATER)
                     {
-                        Effiency = buildingLvl switch
+                        efficiency = buildingLvl switch
                         {
-                            1 => (amount_produced * 100) / 750,
-                            2 => (amount_produced * 100) / 836,
-                            3 => (amount_produced * 100) / 938,
-                            4 => (amount_produced * 100) / 1071,
-                            5 => (amount_produced * 100) / 1286,
-                            6 => (amount_produced * 100) / 2143,
-                            7 => (amount_produced * 100) / 3321,
+                            1 => (amount_produced * 100d) / 750,
+                            2 => (amount_produced * 100d) / 836,
+                            3 => (amount_produced * 100d) / 938,
+                            4 => (amount_produced * 100d) / 1071,
+                            5 => (amount_produced * 100d) / 1286,
+                            6 => (amount_produced * 100d) / 2143,
+                            7 => (amount_produced * 100d) / 3321,
                             _=> 0
                         };
                     }
                     else if (buildingProduct == (int)BUILDING_PRODUCT.ENERGY)
                     {
-                        Effiency = buildingLvl switch
+                        efficiency = buildingLvl switch
                         {
-                            1 => (amount_produced * 100) / 5000,
-                            2 => (amount_produced * 100) / 5571,
-                            3 => (amount_produced * 100) / 6250,
-                            4 => (amount_produced * 100) / 7143,
-                            5 => (amount_produced * 100) / 8571,
-                            6 => (amount_produced * 100) / 14286,
-                            7 => (amount_produced * 100) / 22143,
+                            1 => (amount_produced * 100d) / 5000,
+                            2 => (amount_produced * 100d) / 5571,
+                            3 => (amount_produced * 100d) / 6250,
+                            4 => (amount_produced * 100d) / 7143,
+                            5 => (amount_produced * 100d) / 8571,
+                            6 => (amount_produced * 100d) / 14286,
+                            7 => (amount_produced * 100d) / 22143,
                             _ => 0
                         };
                     }
                     break;
                 case (int)BUILDINGTYPE_ENUM.COMMERCIAL:
-                    Effiency = 0;
+                    efficiency = 0;
                     break;
                 case (int)BUILDINGTYPE_ENUM.INDUSTRIAL:
                     if (buildingProduct == (int)BUILDING_PRODUCT.METAL)
                     {
-                        Effiency = buildingLvl switch
+                        efficiency = buildingLvl switch
                         {
-                            1 => (amount_produced * 100) / 160,
-                            2 => (amount_produced * 100) / 178,
-                            3 => (amount_produced * 100) / 200,
-                            4 => (amount_produced * 100) / 229,
-                            5 => (amount_produced * 100) / 274,
-                            6 => (amount_produced * 100) / 457,
-                            7 => (amount_produced * 100) / 594,
+                            1 => (amount_produced * 100d) / 160,
+                            2 => (amount_produced * 100d) / 178,
+                            3 => (amount_produced * 100d) / 200,
+                            4 => (amount_produced * 100d) / 229,
+                            5 => (amount_produced * 100d) / 274,
+                            6 => (amount_produced * 100d) / 457,
+                            7 => (amount_produced * 100d) / 594,
                             _ => 0
                         };
                     }
                     else if (buildingProduct == (int)BUILDING_PRODUCT.WOOD)
                     {
-                        Effiency = buildingLvl switch
+                        efficiency = buildingLvl switch
                         {
-                            1 => (amount_produced * 100) / 375,
-                            2 => (amount_produced * 100) / 418,
-                            3 => (amount_produced * 100) / 469,
-                            4 => (amount_produced * 100) / 536,
-                            5 => (amount_produced * 100) / 643,
-                            6 => (amount_produced * 100) / 1071,
-                            7 => (amount_produced * 100) / 1393,
+                            1 => (amount_produced * 100d) / 375,
+                            2 => (amount_produced * 100d) / 418,
+                            3 => (amount_produced * 100d) / 469,
+                            4 => (amount_produced * 100d) / 536,
+                            5 => (amount_produced * 100d) / 643,
+                            6 => (amount_produced * 100d) / 1071,
+                            7 => (amount_produced * 100d) / 1393,
                             _ => 0
                         };
                     }
                     else if (buildingProduct == (int)BUILDING_PRODUCT.SAND)
                     {
-                        Effiency = buildingLvl switch
+                        efficiency = buildingLvl switch
                         {
-                            1 => (amount_produced * 100) / 225,
-                            2 => (amount_produced * 100) / 251,
-                            3 => (amount_produced * 100) / 281,
-                            4 => (amount_produced * 100) / 321,
-                            5 => (amount_produced * 100) / 386,
-                            6 => (amount_produced * 100) / 643,
-                            7 => (amount_produced * 100) / 836,
+                            1 => (amount_produced * 100d) / 225,
+                            2 => (amount_produced * 100d) / 251,
+                            3 => (amount_produced * 100d) / 281,
+                            4 => (amount_produced * 100d) / 321,
+                            5 => (amount_produced * 100d) / 386,
+                            6 => (amount_produced * 100d) / 643,
+                            7 => (amount_produced * 100d) / 836,
                             _ => 0
                         };
                     }
                     else if (buildingProduct == (int)BUILDING_PRODUCT.STONE)
                     {
-                        Effiency = buildingLvl switch
+                        efficiency = buildingLvl switch
                         {
-                            1 => (amount_produced * 100) / 100,
-                            2 => (amount_produced * 100) / 111,
-                            3 => (amount_produced * 100) / 125,
-                            4 => (amount_produced * 100) / 143,
-                            5 => (amount_produced * 100) / 171,
-                            6 => (amount_produced * 100) / 286,
-                            7 => (amount_produced * 100) / 371,
+                            1 => (amount_produced * 100d) / 100,
+                            2 => (amount_produced * 100d) / 111,
+                            3 => (amount_produced * 100d) / 125,
+                            4 => (amount_produced * 100d) / 143,
+                            5 => (amount_produced * 100d) / 171,
+                            6 => (amount_produced * 100d) / 286,
+                            7 => (amount_produced * 100d) / 371,
                             _ => 0
                         };
                     }
                     break;
                 case (int)BUILDINGTYPE_ENUM.OFFICE:
-                    Effiency = 0;
+                    efficiency = 0;
                     break;
                 case (int)BUILDINGTYPE_ENUM.PRODUCTION:
                     if (buildingProduct == (int)BUILDING_PRODUCT.BRICK)
                     {
-                        Effiency = buildingLvl switch
+                        efficiency = buildingLvl switch
                         {
-                            1 => (amount_produced * 100) / 40,
-                            2 => (amount_produced * 100) / 45,
-                            3 => (amount_produced * 100) / 50,
-                            4 => (amount_produced * 100) / 57,
-                            5 => (amount_produced * 100) / 69,
-                            6 => (amount_produced * 100) / 114,
-                            7 => (amount_produced * 100) / 177,
+                            1 => (amount_produced * 100d) / 40,
+                            2 => (amount_produced * 100d) / 45,
+                            3 => (amount_produced * 100d) / 50,
+                            4 => (amount_produced * 100d) / 57,
+                            5 => (amount_produced * 100d) / 69,
+                            6 => (amount_produced * 100d) / 114,
+                            7 => (amount_produced * 100d) / 177,
                             _ => 0
                         };
                     }
                     else if (buildingProduct == (int)BUILDING_PRODUCT.GLASS)
                     {
-                        Effiency = buildingLvl switch
+                        efficiency = buildingLvl switch
                         {
-                            1 => (amount_produced * 100) / 32,
-                            2 => (amount_produced * 100) / 36,
-                            3 => (amount_produced * 100) / 40,
-                            4 => (amount_produced * 100) / 46,
-                            5 => (amount_produced * 100) / 55,
-                            6 => (amount_produced * 100) / 91,
-                            7 => (amount_produced * 100) / 142,
+                            1 => (amount_produced * 100d) / 32,
+                            2 => (amount_produced * 100d) / 36,
+                            3 => (amount_produced * 100d) / 40,
+                            4 => (amount_produced * 100d) / 46,
+                            5 => (amount_produced * 100d) / 55,
+                            6 => (amount_produced * 100d) / 91,
+                            7 => (amount_produced * 100d) / 142,
                             _ => 0
                         };
                     }
                     else if (buildingProduct == (int)BUILDING_PRODUCT.STEEL || buildingProduct == (int)BUILDING_PRODUCT.CONCRETE)
                     {
-                        Effiency = buildingLvl switch
+                        efficiency = buildingLvl switch
                         {
-                            1 => (amount_produced * 100) / 8,
-                            2 => (amount_produced * 100) / 9,
-                            3 => (amount_produced * 100) / 10,
-                            4 => (amount_produced * 100) / 12,
-                            5 => (amount_produced * 100) / 14,
-                            6 => (amount_produced * 100) / 23,
-                            7 => (amount_produced * 100) / 35,
+                            1 => (amount_produced * 100d) / 8,
+                            2 => (amount_produced * 100d) / 9,
+                            3 => (amount_produced * 100d) / 10,
+                            4 => (amount_produced * 100d) / 12,
+                            5 => (amount_produced * 100d) / 14,
+                            6 => (amount_produced * 100d) / 23,
+                            7 => (amount_produced * 100d) / 35,
                             _ => 0
                         };
                     }
                     break;
                 default:
-                    Effiency = 0;
+                    efficiency = 0;
                     break;
             }
-            return Effiency;
+            return (int)Math.Round(efficiency);
+        }
+
+        private static int CalculateEfficiency_MinMax(int buildingType, int buildingLvl, int amount_produced, int buildingProduct)
+        {
+            double efficiency = 0.0;
+
+            switch (buildingType)
+            {
+                case (int)BUILDINGTYPE_ENUM.RESIDENTIAL:
+                    efficiency = 0;
+                    break;
+                case (int)BUILDINGTYPE_ENUM.ENERGY:
+                    if (buildingProduct == (int)BUILDING_PRODUCT.WATER)
+                    {
+                        efficiency = buildingLvl switch
+                        {
+                            1 => (amount_produced - (int)MIN_WATER_ENUM.LEVEL_1) * 100d / (750 - (int)MIN_WATER_ENUM.LEVEL_1),
+                            2 => (amount_produced - (int)MIN_WATER_ENUM.LEVEL_2) * 100d / (836 - (int)MIN_WATER_ENUM.LEVEL_2),
+                            3 => (amount_produced - (int)MIN_WATER_ENUM.LEVEL_3) * 100d / (938 - (int)MIN_WATER_ENUM.LEVEL_3),
+                            4 => (amount_produced - (int)MIN_WATER_ENUM.LEVEL_4) * 100d / (1071 - (int)MIN_WATER_ENUM.LEVEL_4),
+                            5 => (amount_produced - (int)MIN_WATER_ENUM.LEVEL_5) * 100d / (1286 - (int)MIN_WATER_ENUM.LEVEL_5),
+                            6 => (amount_produced - (int)MIN_WATER_ENUM.LEVEL_6) * 100d / (2143 - (int)MIN_WATER_ENUM.LEVEL_6),
+                            7 => (amount_produced - (int)MIN_WATER_ENUM.LEVEL_7) * 100d / (3321 - (int)MIN_WATER_ENUM.LEVEL_7),
+                            _ => 0
+                        };
+                    }
+                    else if (buildingProduct == (int)BUILDING_PRODUCT.ENERGY)
+                    {
+                        efficiency = buildingLvl switch
+                        {
+                            1 => (amount_produced - (int)MIN_ENERGY_ENUM.LEVEL_1) * 100d /( 5000 - (int)MIN_ENERGY_ENUM.LEVEL_1),
+                            2 => (amount_produced - (int)MIN_ENERGY_ENUM.LEVEL_2) * 100d /( 5571 - (int)MIN_ENERGY_ENUM.LEVEL_2),
+                            3 => (amount_produced - (int)MIN_ENERGY_ENUM.LEVEL_3) * 100d /( 6250 - (int)MIN_ENERGY_ENUM.LEVEL_3),
+                            4 => (amount_produced - (int)MIN_ENERGY_ENUM.LEVEL_4) * 100d /( 7143 - (int)MIN_ENERGY_ENUM.LEVEL_4),
+                            5 => (amount_produced - (int)MIN_ENERGY_ENUM.LEVEL_5) * 100d /( 8571 - (int)MIN_ENERGY_ENUM.LEVEL_5),
+                            6 => (amount_produced - (int)MIN_ENERGY_ENUM.LEVEL_6) * 100d / (14286 - (int)MIN_ENERGY_ENUM.LEVEL_6),
+                            7 => (amount_produced - (int)MIN_ENERGY_ENUM.LEVEL_7) * 100d / (22143 - (int)MIN_ENERGY_ENUM.LEVEL_7),
+                            _ => 0
+                        };
+                    }
+                    break;
+                case (int)BUILDINGTYPE_ENUM.COMMERCIAL:
+                    efficiency = 0;
+                    break;
+                case (int)BUILDINGTYPE_ENUM.INDUSTRIAL:
+                    if (buildingProduct == (int)BUILDING_PRODUCT.METAL)
+                    {
+                        efficiency = buildingLvl switch
+                        {
+                            1 => (amount_produced - (int)MIN_METAL_ENUM.LEVEL_1) * 100d / (160 - (int)MIN_METAL_ENUM.LEVEL_1),
+                            2 => (amount_produced - (int)MIN_METAL_ENUM.LEVEL_2) * 100d / (178 - (int)MIN_METAL_ENUM.LEVEL_2),
+                            3 => (amount_produced - (int)MIN_METAL_ENUM.LEVEL_3) * 100d / (200 - (int)MIN_METAL_ENUM.LEVEL_3),
+                            4 => (amount_produced - (int)MIN_METAL_ENUM.LEVEL_4) * 100d / (229 - (int)MIN_METAL_ENUM.LEVEL_4),
+                            5 => (amount_produced - (int)MIN_METAL_ENUM.LEVEL_5) * 100d / (274 - (int)MIN_METAL_ENUM.LEVEL_5),
+                            6 => (amount_produced - (int)MIN_METAL_ENUM.LEVEL_6) * 100d / (457 - (int)MIN_METAL_ENUM.LEVEL_6),
+                            7 => (amount_produced - (int)MIN_METAL_ENUM.LEVEL_7) * 100d / (594 - (int)MIN_METAL_ENUM.LEVEL_7),
+                            _ => 0
+                        };
+                    }
+                    else if (buildingProduct == (int)BUILDING_PRODUCT.WOOD)
+                    {
+                        efficiency = buildingLvl switch
+                        {
+                            1 => (amount_produced - (int)MIN_WOOD_ENUM.LEVEL_1) * 100d / (375 - (int)MIN_WOOD_ENUM.LEVEL_1),
+                            2 => (amount_produced - (int)MIN_WOOD_ENUM.LEVEL_2) * 100d / (418 - (int)MIN_WOOD_ENUM.LEVEL_2),
+                            3 => (amount_produced - (int)MIN_WOOD_ENUM.LEVEL_3) * 100d / (469 - (int)MIN_WOOD_ENUM.LEVEL_3),
+                            4 => (amount_produced - (int)MIN_WOOD_ENUM.LEVEL_4) * 100d / (536 - (int)MIN_WOOD_ENUM.LEVEL_4),
+                            5 => (amount_produced - (int)MIN_WOOD_ENUM.LEVEL_5) * 100d / (643 - (int)MIN_WOOD_ENUM.LEVEL_5),
+                            6 => (amount_produced - (int)MIN_WOOD_ENUM.LEVEL_6) * 100d / (1071 - (int)MIN_WOOD_ENUM.LEVEL_6),
+                            7 => (amount_produced - (int)MIN_WOOD_ENUM.LEVEL_7) * 100d / (1393 - (int)MIN_WOOD_ENUM.LEVEL_7),
+                            _ => 0
+                        };
+                    }
+                    else if (buildingProduct == (int)BUILDING_PRODUCT.SAND)
+                    {
+                        efficiency = buildingLvl switch
+                        {
+                            1 => (amount_produced - (int)MIN_SAND_ENUM.LEVEL_1) * 100d / (225 - (int)MIN_SAND_ENUM.LEVEL_1),
+                            2 => (amount_produced - (int)MIN_SAND_ENUM.LEVEL_2) * 100d / (251 - (int)MIN_SAND_ENUM.LEVEL_2),
+                            3 => (amount_produced - (int)MIN_SAND_ENUM.LEVEL_3) * 100d / (281 - (int)MIN_SAND_ENUM.LEVEL_3),
+                            4 => (amount_produced - (int)MIN_SAND_ENUM.LEVEL_4) * 100d / (321 - (int)MIN_SAND_ENUM.LEVEL_4),
+                            5 => (amount_produced - (int)MIN_SAND_ENUM.LEVEL_5) * 100d / (386 - (int)MIN_SAND_ENUM.LEVEL_5),
+                            6 => (amount_produced - (int)MIN_SAND_ENUM.LEVEL_6) * 100d / (643 - (int)MIN_SAND_ENUM.LEVEL_6),
+                            7 => (amount_produced - (int)MIN_SAND_ENUM.LEVEL_7) * 100d / (836 - (int)MIN_SAND_ENUM.LEVEL_7),
+                            _ => 0
+                        };
+                    }
+                    else if (buildingProduct == (int)BUILDING_PRODUCT.STONE)
+                    {
+                        efficiency = buildingLvl switch
+                        {
+                            1 => (amount_produced - (int)MIN_STONE_ENUM.LEVEL_1) * 100d / (100 - (int)MIN_STONE_ENUM.LEVEL_1),
+                            2 => (amount_produced - (int)MIN_STONE_ENUM.LEVEL_2) * 100d / (111 - (int)MIN_STONE_ENUM.LEVEL_2),
+                            3 => (amount_produced - (int)MIN_STONE_ENUM.LEVEL_3) * 100d / (125 - (int)MIN_STONE_ENUM.LEVEL_3),
+                            4 => (amount_produced - (int)MIN_STONE_ENUM.LEVEL_4) * 100d / (143 - (int)MIN_STONE_ENUM.LEVEL_4),
+                            5 => (amount_produced - (int)MIN_STONE_ENUM.LEVEL_5) * 100d / (171 - (int)MIN_STONE_ENUM.LEVEL_5),
+                            6 => (amount_produced - (int)MIN_STONE_ENUM.LEVEL_6) * 100d / (286 - (int)MIN_STONE_ENUM.LEVEL_6),
+                            7 => (amount_produced - (int)MIN_STONE_ENUM.LEVEL_7) * 100d / (371 - (int)MIN_STONE_ENUM.LEVEL_7),
+                            _ => 0
+                        };
+                    }
+                    break;
+                case (int)BUILDINGTYPE_ENUM.OFFICE:
+                    efficiency = 0;
+                    break;
+                case (int)BUILDINGTYPE_ENUM.PRODUCTION:
+                    if (buildingProduct == (int)BUILDING_PRODUCT.BRICK)
+                    {
+                        efficiency = buildingLvl switch
+                        {
+                            1 => (amount_produced - (int)MIN_BRICK_ENUM.LEVEL_1) * 100d / (40 - (int)MIN_BRICK_ENUM.LEVEL_1),
+                            2 => (amount_produced - (int)MIN_BRICK_ENUM.LEVEL_2) * 100d / (45 - (int)MIN_BRICK_ENUM.LEVEL_2),
+                            3 => (amount_produced - (int)MIN_BRICK_ENUM.LEVEL_3) * 100d / (50 - (int)MIN_BRICK_ENUM.LEVEL_3),
+                            4 => (amount_produced - (int)MIN_BRICK_ENUM.LEVEL_4) * 100d / (57 - (int)MIN_BRICK_ENUM.LEVEL_4),
+                            5 => (amount_produced - (int)MIN_BRICK_ENUM.LEVEL_5) * 100d / (69 - (int)MIN_BRICK_ENUM.LEVEL_5),
+                            6 => (amount_produced - (int)MIN_BRICK_ENUM.LEVEL_6) * 100d / (114 - (int)MIN_BRICK_ENUM.LEVEL_6),
+                            7 => (amount_produced - (int)MIN_BRICK_ENUM.LEVEL_7) * 100d / (177 - (int)MIN_BRICK_ENUM.LEVEL_7),
+                            _ => 0
+                        };
+                    }
+                    else if (buildingProduct == (int)BUILDING_PRODUCT.GLASS)
+                    {
+                        efficiency = buildingLvl switch
+                        {
+                            1 => (amount_produced - (int)MIN_GLASS_ENUM.LEVEL_1) * 100d / (32 - (int)MIN_GLASS_ENUM.LEVEL_1),
+                            2 => (amount_produced - (int)MIN_GLASS_ENUM.LEVEL_2) * 100d / (36 - (int)MIN_GLASS_ENUM.LEVEL_2),
+                            3 => (amount_produced - (int)MIN_GLASS_ENUM.LEVEL_3) * 100d / (40 - (int)MIN_GLASS_ENUM.LEVEL_3),
+                            4 => (amount_produced - (int)MIN_GLASS_ENUM.LEVEL_4) * 100d / (46 - (int)MIN_GLASS_ENUM.LEVEL_4),
+                            5 => (amount_produced - (int)MIN_GLASS_ENUM.LEVEL_5) * 100d / (55 - (int)MIN_GLASS_ENUM.LEVEL_5),
+                            6 => (amount_produced - (int)MIN_GLASS_ENUM.LEVEL_6) * 100d / (91 - (int)MIN_GLASS_ENUM.LEVEL_6),
+                            7 => (amount_produced - (int)MIN_GLASS_ENUM.LEVEL_7) * 100d / (142 - (int)MIN_GLASS_ENUM.LEVEL_7),
+                            _ => 0
+                        };
+                    }
+                    else if (buildingProduct == (int)BUILDING_PRODUCT.STEEL || buildingProduct == (int)BUILDING_PRODUCT.CONCRETE)
+                    {
+                        efficiency = buildingLvl switch
+                        {
+                            1 => (amount_produced - (int)MIN_CONCRETE_ENUM.LEVEL_1) * 100d / (8 - (int)MIN_CONCRETE_ENUM.LEVEL_1),
+                            2 => (amount_produced - (int)MIN_CONCRETE_ENUM.LEVEL_2) * 100d / (9 - (int)MIN_CONCRETE_ENUM.LEVEL_3),
+                            3 => (amount_produced - (int)MIN_CONCRETE_ENUM.LEVEL_3) * 100d / (10 - (int)MIN_CONCRETE_ENUM.LEVEL_3),
+                            4 => (amount_produced - (int)MIN_CONCRETE_ENUM.LEVEL_4) * 100d / (12 - (int)MIN_CONCRETE_ENUM.LEVEL_4),
+                            5 => (amount_produced - (int)MIN_CONCRETE_ENUM.LEVEL_5) * 100d / (14 - (int)MIN_CONCRETE_ENUM.LEVEL_5),
+                            6 => (amount_produced - (int)MIN_CONCRETE_ENUM.LEVEL_6) * 100d / (23 - (int)MIN_CONCRETE_ENUM.LEVEL_6),
+                            7 => (amount_produced - (int)MIN_CONCRETE_ENUM.LEVEL_7) * 100d / (35 - (int)MIN_CONCRETE_ENUM.LEVEL_7),
+                            _ => 0
+                        };
+                    }
+                    break;
+                default:
+                    efficiency = 0;
+                    break;
+            }
+            return (int)Math.Round(efficiency);
         }
     }
 }

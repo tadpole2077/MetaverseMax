@@ -1,0 +1,346 @@
+
+.header {
+  /* Dark Header - User preference
+    padding: 10px 16px;
+    background: #555;
+    color: #f1f1f1;*/
+}
+
+/*@media (min-width: 1200px) {
+  td.mat-cell {
+    font-size: .8em;
+  }
+}*/
+
+.adIcon {
+  font-size: 2.3rem;
+  color: red;
+  position: absolute;
+  margin-left: 8px;
+  margin-top: -6px;
+}
+  .adIcon:hover {
+    color: greenyellow
+  }
+
+.ownerInfo {
+  margin-top: 1.2rem;
+  margin-bottom: 1.4rem;
+  height:90px;
+}
+  .ownerdata {
+    margin-left: .3rem;
+    position: absolute;
+    display: inline-block;
+  }
+  .ownerdata div{
+      line-height: 1.8rem;
+  }
+
+  .ownerImgPos {
+    vertical-align: top;
+    display: inline-block;
+  }
+
+.districtImg {
+  float: right;
+  margin-top: -30px;
+  z-index: 10;
+  position: relative;
+}
+.slideOutLeft {
+  float: right;
+  margin-right: -70px;
+  width: 180px;
+  height: 110px;
+  z-index: 1;
+  border: 1px;
+  border-color: gray;
+  border-style: solid;
+  box-shadow: 0 5px 10px rgb(0 0 0 / 12%);
+  border-radius: 5px;
+  background-color: white;
+  position: relative;
+  font-size: .9em;
+  opacity: 0;
+  visibility: hidden;
+  -webkit-transition: opacity 600ms, visibility 600ms;
+  transition: opacity 600ms, visibility 600ms;
+  padding-left:2px;
+}
+.slideOutLeft span {
+  display:block;
+  font-weight: bold;
+}
+
+.districtImg:hover + .slideOutLeft {
+  visibility: visible;
+  opacity: 1;
+  display: block;
+}
+
+.searchDistrict {
+  float: right;
+  margin-top: -60px;
+  margin-bottom: 6px;
+  z-index: 101;
+  position: relative;
+}
+
+
+/***District Section***/
+.showAllLink {
+  display: block;
+  opacity: .7;
+  font-weight: bold;
+  width: 70px
+}
+
+.districtHeader {
+  display: inline-block;
+  vertical-align: top;
+  margin-top:2px
+}
+
+.districtPlots {
+  margin-bottom: 1rem;
+  padding-top:0
+}
+
+.districtLabel {
+ 
+  vertical-align: top;
+  margin-right: .4rem
+}
+
+.districtLink{
+    opacity:.7
+}
+
+.districtBox {
+  width: 50%;
+  display: inline-block
+}
+
+.districtEle {
+  font-weight: bold;
+  width: 100px;
+  display: inline-block;
+  margin-bottom: .1rem;
+  padding: 1px;
+  text-align: center;
+  border: 1px;
+  border-style:ridge
+}
+
+.districtEleActive {
+  border: 1px;
+  border-color: gray;
+  border-style: solid;
+  box-shadow: 0 5px 10px rgb(0 0 0 / 12%);
+  border-radius: 5px;
+}
+  .districtEleActive .districtLink{
+      opacity:1
+  }
+
+.districtNum {
+  color: darkslateblue
+}
+
+.districtSell {
+  color: darkred;
+  opacity:.7
+}
+
+.districtCount{
+    opacity:.7
+}
+.RemoveOpacity{
+    opacity:1
+}
+
+
+
+/*** TABLE ***/
+.mat-table {
+  width: 100%;
+  display: inline-table;
+}
+.mat-header-row {
+  height: 3.8rem;
+}
+
+.table-container {
+  max-height: calc(100vh - 155px);
+  clear: both;
+  /* or height: calc(100vh - 155px);
+    depending on your need change overflow: auto;*/
+}
+
+table:last-child {
+  margin-bottom: 30px;
+}
+
+th.mat-header-cell {
+  color: inherit;
+  font-size: .9rem;
+  font-weight: bold;
+  vertical-align: middle !important;
+  padding-top:.6rem;
+}
+  th.mat-header-cell img{
+      margin-right:2px
+  }
+
+td.mat-cell {
+  font-size: inherit;
+  font-weight: 500;
+  vertical-align: middle;
+  height: 72px;
+  padding-right: .2em;
+}
+
+td.boldfield {
+  font-weight: bold;
+}
+
+.ownerImgCol{
+  display:inline-block;
+  margin-top: -14px;
+}
+
+.maticLinkCol{
+  display:inline-block
+}
+
+.tableWrapline {
+  display: inline-block;
+  margin-left: 4px;
+  vertical-align: middle;
+  width: 76px;
+}
+
+.linkCol{
+    margin-left:1em;
+}
+
+th.mat-sort-header-sorted {
+  color: black;
+}
+.plotCount {
+  display: block;
+  vertical-align: middle;
+  position: absolute;
+  margin-top: -46px;
+  margin-left: 8px;
+}
+
+/*** Table Flex columns ***/
+.mat-column-owner_nickname {
+  flex: 0 0 360px;
+  min-width: 240px;
+}
+  .mat-column-owner_nickname a {
+    padding-right: .4rem
+  }
+
+th.mat-column-owned_plots{
+  text-align: center;
+  padding-top: 0;
+}
+.mat-column-energy_count, .mat-column-industry_count, .mat-column-production_count, .mat-column-office_count, .mat-column-residential_count, .mat-column-poi_count, .mat-column-commercial_count, .mat-column-municipal_count {
+  text-align: center;
+  margin-top: .6rem;
+}
+.mat-column-energy_count, .mat-column-industry_count, .mat-column-production_count, .mat-column-office_count, .mat-column-residential_count, .mat-column-poi_count, .mat-column-commercial_count, .mat-column-municipal_count {
+  margin-top: .2rem;
+}
+
+/*** Link underline amine ***/
+a {
+  position: relative;
+  /*color: #000;*/
+  text-decoration: none;
+  /*opacity: .7*/
+}
+
+  a.lineAnim:hover {
+    color: #000;
+    opacity: 1;
+  }
+
+  a.lineAnim::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #000;
+    visibility: hidden;
+    transform: scaleX(0);
+    transition: all 0.3s ease-in-out 0s;
+  }
+
+  a.lineAnim:hover::before {
+    visibility: visible;
+    transform: scaleX(1);
+  }
+
+
+/*** MOBILE ***/
+@media only screen and (max-width: 1320px) {
+  .magnifyHistoryIcon {
+    height: 20px;
+  }
+}
+
+@media only screen and (max-width: 1090px) {
+  th.mat-header-cell {
+    font-size: .8em;
+  }
+
+  td.mat-cell {
+    font-size: .9em;
+  }
+
+  .mat-column-owner_nickname{
+      min-width:135px
+  }
+  .mat-column-owner_nickname a {
+    padding-left: 3px;
+    padding-right: 5px;    
+  }
+  .mat-column-owner_nickname span {
+    font-size: .8em;    
+  }
+    .mat-column-owner_nickname img {
+      margin-right:0px;
+      margin-left:-10px;
+      height:40px
+    }
+
+}
+
+/*** Hide short text by default (resolution > 1200px) ***/
+      .short-text {
+  display: none;
+}
+
+/*** When resolution <= 1200px, hide full text and show short text ***/
+@media (max-width: 1200px) {
+
+  h3{
+      font-size:1.4rem
+  }
+
+  .short-text
+  {
+    display: inline-block;
+  }
+
+  .long-text {
+    display: none;
+  }
+}

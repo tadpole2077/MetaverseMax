@@ -1,6 +1,9 @@
+using MetaverseMax.Controllers;
+using MetaverseMax.Database;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,13 +11,14 @@ using Microsoft.Extensions.Hosting;
 namespace MetaverseMax
 {
     public class Startup
-    {
+    {        
+        public IConfiguration Configuration { get; }
+
         public Startup(IConfiguration configuration)
         {
+            // Hook into the appsettings.json file to pull database and app settings used by services - within published site pulling from web.config
             Configuration = configuration;
-        }
-
-        public IConfiguration Configuration { get; }
+        }        
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // The third segment, {id?} is used for an optional id. The ? in {id?} makes it optional. id is used to map to a model entity.
@@ -26,7 +30,11 @@ namespace MetaverseMax
             {
                 configuration.RootPath = "ClientApp/dist";
             });
+
+            string connectionString = Configuration.GetConnectionString("DatabaseConnection");
+            services.AddDbContext<MetaverseMaxDbContext>(options => options.UseSqlServer(connectionString));
         }
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -73,6 +81,7 @@ namespace MetaverseMax
                     spa.UseAngularCliServer(npmScript: "start");
                 }
             });
+
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -7,21 +8,56 @@ namespace MetaverseMax.ServiceClass
 {
     public class Common
     {
-        public string TimeFormatStandard(string sourceTime)
+        public string TimeFormatStandard(string sourceTime, DateTime? dtSourceTime)
         {
-            string timeFormated;
+            string timeFormated = string.Empty;
+            DateTime? dtConvertedTime = null;
+
             if (sourceTime == null)
             {
                 timeFormated = "Not Found";
             }
             else
             {
-                DateTime dtDateTime = new DateTime(Convert.ToInt32(sourceTime.Substring(6, 4)), Convert.ToInt32(sourceTime.Substring(0, 2)), Convert.ToInt32(sourceTime.Substring(3, 2)));
-                timeFormated = string.Concat(dtDateTime.ToString("yyyy/MMM/dd"), " ", sourceTime[12..]);
-                //timeFormated = (DateTime)sourceTime).ToString("yyyy/MMM/dd HH:mm:ss");
+                dtConvertedTime = TimeFormatStandardDT(sourceTime, dtSourceTime);
+                if (dtConvertedTime != null)
+                {
+                    timeFormated = ((DateTime)dtConvertedTime).ToString("yyyy/MMM/dd HH:mm:ss");
+                }
+            }
+            
+            return timeFormated;
+        }
+        public DateTime? TimeFormatStandardDT(string sourceTime, DateTime? dtSourceTime)
+        {            
+            DateTime? dateTimeUTC = null;
+            DateTime? gmtDateTime = null;
+
+            if (!string.IsNullOrEmpty(sourceTime))
+            {
+                dateTimeUTC = DateTime.ParseExact(sourceTime,
+                    "MM/dd/yyyy HH:mm:ss",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+            }
+            else if (dtSourceTime == null)  // No Datetime passed, or string time - return null - assign null to db as safest option. 
+            {
+                dateTimeUTC = null;
+            }
+            else
+            {
+                dateTimeUTC = DateTime.SpecifyKind((DateTime)dtSourceTime, DateTimeKind.Utc);                    
             }
 
-            return timeFormated;
+            // Convert from UTC to Local GMT, and format.
+            if (dateTimeUTC != null)
+            {
+                string gmtTimeZoneKey = "GMT Standard Time";
+                TimeZoneInfo gmtTimeZone = TimeZoneInfo.FindSystemTimeZoneById(gmtTimeZoneKey);
+                gmtDateTime = TimeZoneInfo.ConvertTimeFromUtc((DateTime)dateTimeUTC, gmtTimeZone);
+            }
+
+            return gmtDateTime;
         }
 
         public string WalletConvert(string maticKey)
@@ -66,7 +102,8 @@ namespace MetaverseMax.ServiceClass
             {
                 System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
                 dtDateTime = dtDateTime.AddSeconds((double)unixTimeStamp).ToLocalTime();
-                dateFormated = dtDateTime.ToString("yyyy/MMM/dd HH:mm:ss");
+                dateFormated = TimeFormatStandard("", dtDateTime);
+
             }
             else
             {

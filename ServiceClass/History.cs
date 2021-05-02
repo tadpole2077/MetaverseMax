@@ -10,7 +10,8 @@ namespace MetaverseMax.ServiceClass
         public string run_datetime { get; set; }
         public int amount_produced { get; set; }
         public string buildingProduct { get; set; }
-        public int efficiency { get; set; }
+        public int efficiency_p { get; set; }
+        public int efficiency_m { get; set; }
     }
 
     public class BuildingHistory

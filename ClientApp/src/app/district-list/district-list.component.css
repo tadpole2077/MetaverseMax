@@ -1,0 +1,464 @@
+
+.header {
+  /* Dark Header - User preference
+    padding: 10px 16px;
+    background: #555;
+    color: #f1f1f1;*/
+}
+
+/*@media (min-width: 1200px) {
+  td.mat-cell {
+    font-size: .8em;
+  }
+}*/
+
+.adIcon {
+  font-size: 2.2rem;
+  color: red;
+  position: absolute;
+  margin-left: 8px;
+  margin-top: -6px;
+}
+  .adIcon:hover {
+    color: greenyellow
+  }
+
+
+/*** Top Right Avator ***/
+.defaultAvatorImg {
+  float: right;
+  margin-top: -10px;
+  z-index: 10;
+  position: relative;
+}
+
+.slideOutLeft {
+  float: right;
+  margin-right: -70px;
+  width: 180px;
+  height: 110px;
+  z-index: 1;
+  border: 1px;
+  border-color: gray;
+  border-style: solid;
+  box-shadow: 0 5px 10px rgb(0 0 0 / 12%);
+  border-radius: 5px;
+  background-color: white;
+  position: relative;
+  font-size: .9em;
+  opacity: 0;
+  visibility: hidden;
+  -webkit-transition: opacity 600ms, visibility 600ms;
+  transition: opacity 600ms, visibility 600ms;
+  padding-left: 2px;
+}
+
+  .slideOutLeft span {
+    display: block;
+    font-weight: bold;
+  }
+
+.defaultAvatorImg:hover + .slideOutLeft {
+  visibility: visible;
+  opacity: 1;
+  display: block;
+}
+
+.searchDistrict {
+  float: right;
+  margin-top: .6rem;
+  margin-bottom: 6px
+}
+.searchBlock{
+    float:right;
+    width:160px;
+}
+
+
+
+
+
+
+.ownerInfo {
+  margin-top: 1.2rem;
+  margin-bottom: 1.4rem;
+}
+  .ownerdata {
+    margin-left: 4px;
+    position: absolute;
+    display: inline-block;
+  }
+  .ownerdata div{
+      line-height: 1.6rem;
+  }
+
+  .ownerImgPos {
+    vertical-align: top;
+    display: inline-block;
+  }
+
+.districtImg {
+  float: right;
+  margin-top: -10px;
+  z-index: 10;
+  position: relative;
+}
+.slideOutLeft {
+  float: right;
+  margin-right: -70px;
+  width: 180px;
+  height: 110px;
+  z-index: 1;
+  border: 1px;
+  border-color: gray;
+  border-style: solid;
+  box-shadow: 0 5px 10px rgb(0 0 0 / 12%);
+  border-radius: 5px;
+  background-color: white;
+  position: relative;
+  font-size: .9em;
+  opacity: 0;
+  visibility: hidden;
+  -webkit-transition: opacity 600ms, visibility 600ms;
+  transition: opacity 600ms, visibility 600ms;
+  padding-left:2px;
+}
+.slideOutLeft span {
+  display:block;
+  font-weight: bold;
+}
+
+.districtImg:hover + .slideOutLeft {
+  visibility: visible;
+  opacity: 1;
+  display: block;
+}
+
+
+
+/***District Section***/
+.showAllLink {
+  display: block;
+  opacity: .7;
+  font-weight: bold;
+  width: 70px
+}
+
+.districtHeader {
+  display: inline-block;
+  vertical-align: top;
+  margin-top:2px
+}
+
+.districtPlots {
+  margin-bottom: 1rem;
+  padding-top:0
+}
+
+.districtLabel {
+ 
+  vertical-align: top;
+  margin-right: .4rem
+}
+
+.districtLink{
+    opacity:.7
+}
+
+.districtBox {
+  width: 50%;
+  display: inline-block
+}
+
+.districtEle {
+  font-weight: bold;
+  width: 100px;
+  display: inline-block;
+  margin-bottom: .1rem;
+  padding: 1px;
+  text-align: center;
+  border: 1px;
+  border-style:ridge
+}
+
+.districtEleActive {
+  border: 1px;
+  border-color: gray;
+  border-style: solid;
+  box-shadow: 0 5px 10px rgb(0 0 0 / 12%);
+  border-radius: 5px;
+}
+  .districtEleActive .districtLink{
+      opacity:1
+  }
+
+.districtNum {
+  color: darkslateblue
+}
+
+.districtSell {
+  color: darkred;
+  opacity:.7
+}
+
+.districtCount{
+    opacity:.7
+}
+.RemoveOpacity{
+    opacity:1
+}
+
+
+
+
+/*** TABLE ***/
+.mat-table {
+  width: 100%;
+  display: inline-table;
+}
+
+.table-container {
+  position: relative;
+  max-height: calc(100vh - 155px);
+  clear: both;
+  /* or height: calc(100vh - 155px);
+    depending on your need change overflow: auto;*/
+}
+
+table:last-child {
+  margin-bottom: 30px;
+}
+
+th.mat-header-cell {
+  color: inherit;
+  font-size: .9rem;
+  font-weight: bold;
+  vertical-align: middle !important;
+}
+  th.mat-header-cell img{
+      margin-right:2px
+  }
+
+.mat-column-header-row-second-group, .mat-column-header-row-third-group {
+  text-align: center
+}
+.mat-column-header-row-second-group {  
+  border-right: 1px dotted gray;
+  border-left: 1px dotted gray;
+}
+th.mat-column-construction_residential_tax {
+  border-right: 1px dotted gray;
+}
+th.mat-column-construction_energy_tax {
+  border-left: 1px dotted gray;
+}
+
+
+td.mat-cell {
+  font-size: .9rem;
+  font-weight:500;
+  vertical-align: middle;
+  height: 72px;
+  padding-right: .2em;
+}
+
+td.boldfield {
+  font-weight: bold;
+}
+
+.ownerImgCol{
+  display:inline-block;
+  margin-top: -12px;
+}
+
+.maticLinkCol {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 60%;
+  text-overflow: ellipsis;
+  padding-right: 0;
+  vertical-align: middle;
+  padding-left: 6px;
+}
+
+
+.mat-column-citizen_stamina_alert{
+    max-width:64px;
+}
+
+.tableWrapline {
+  display: inline-block;
+  margin-left: 4px;
+  vertical-align: middle;
+  width: 76px;
+}
+
+.linkCol{
+    margin-left:1em;
+}
+
+th.mat-sort-header-sorted {
+  color: black;
+}
+
+
+/*** Table Flex columns ***/
+.mat-column-owner_nickname {
+  flex: 0 0 360px;
+  min-width:240px;
+}
+  .mat-column-owner_nickname a {
+    padding-right: .4rem
+  }
+
+th.mat-column-district_id span{
+  margin-left: -10px;
+  margin-right:10px
+}
+
+.mat-column-plots_claimed {
+  text-align: center
+}
+
+.taxColCell{
+  text-align: center;  
+}
+  .taxColCell span {    
+    margin-left: -16px;
+  }
+
+/*** set width proportional : 9x Tax (45), 2x Plots(16), 1xOwner(19), 1xName(11), 1xDistrict(9).***/
+.mat-column-plots_claimed, .mat-column-land_count{
+  width: 8%
+}
+.taxColCell {
+  width: 5%
+}
+.mat-column-owner_name{
+  width:19%
+}
+.mat-column-district_name{
+  width:11%
+}
+.mat-column-district_id{
+  width: 9%
+}
+
+
+/*** Link underline amine ***/
+a {
+  position: relative;
+  /*color: #000;*/
+  text-decoration: none;
+  /*opacity: .7*/
+}
+
+  a.lineAnim:hover {
+    color: #000;
+    opacity: 1;
+  }
+
+  a.lineAnim::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #000;
+    visibility: hidden;
+    transform: scaleX(0);
+    transition: all 0.3s ease-in-out 0s;
+  }
+
+  a.lineAnim:hover::before {
+    visibility: visible;
+    transform: scaleX(1);
+  }
+
+
+/*** MOBILE ***/
+@media only screen and (max-width: 1320px) {
+  .magnifyHistoryIcon {
+    height: 20px;
+  }
+
+  .taxCol span {
+    position: absolute;
+    margin-top: -72px;
+    margin-left: 14px;
+  }
+
+  .mat-column-header-row-second-group, .mat-column-header-row-third-group{
+      padding-bottom:10px;
+  }
+  .maticLinkCol{
+      padding-right:4px;
+      width:90%;
+  }
+  .mat-row{
+      height:5rem;
+  }
+  .ownerImgCol{
+      margin-top:2px;
+      height:50px;
+  }
+  .mat-column-land_count span{
+      margin-right:.6rem;
+  }
+  
+}
+
+@media only screen and (max-width: 1090px) {
+  th.mat-header-cell {
+    font-size: .8em;
+  }
+
+  td.mat-cell {
+    font-size: .8em;
+    font-weight: 500;
+  }
+
+  .mat-column-owner_nickname{
+      min-width:135px
+  }
+  .mat-column-owner_nickname a {
+    padding-left: 3px;
+    padding-right: 5px;    
+  }
+  .mat-column-owner_nickname span {
+    font-size: .8em;    
+  }
+    .mat-column-owner_nickname img {
+      margin-right:0px;
+      margin-left:-10px;
+      height:40px
+    }
+
+  .mat-column-district_id a{
+    margin-left: -10px;
+  }
+}
+
+/*** Hide short text by default (resolution > 1200px) ***/
+.short-text {
+  display: none;
+}
+
+/*** When resolution <= 1200px, hide full text and show short text ***/
+@media (max-width: 1200px) {
+
+  h3{
+      font-size:1.4rem
+  }
+
+  .short-text
+  {
+    display: inline-block;
+  }
+
+  .long-text {
+    display: none;
+  }
+}

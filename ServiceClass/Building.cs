@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MetaverseMax.ServiceClass
 {
-     public class Building
+    public class Building
      {
         public int GetSalePrice(JToken saleData)
         {
@@ -49,16 +49,39 @@ namespace MetaverseMax.ServiceClass
             switch (buildingType)
             {
                 case (int)BUILDINGTYPE_ENUM.RESIDENTIAL:
-                    if (buildingLvl <= 5)
+                    buildingImg = buildingID switch
                     {
-                        //buildingImg = "29";
-                        buildingImg = string.Concat("https://play.mcp3d.com/assets/images/buildings/Residential2_LVL", Convert.ToString(buildingLvl), "-1.png");
-                    }
-                    else
-                    {
-                        buildingImg = string.Concat("https://play.mcp3d.com/assets/images/buildings/Residential2_Mega-1.png");
-                    }
-                    break;
+                        (int)BUILDING_SUBTYPE.COMDOMINIUM => buildingLvl switch
+                        {
+                            <= 5 => "https://play.mcp3d.com/assets/images/buildings/Residential3_LVL" + Convert.ToString(buildingLvl) + "-1.png",
+                            6 => "https://play.mcp3d.com/assets/images/buildings/Residential3_Huge-1.png",
+                            7 => "https://play.mcp3d.com/assets/images/buildings/Residential3_Mega-1.png",
+                            _ => "https://play.mcp3d.com/assets/images/buildings/Residential3_LVL1-1.png"
+                        },
+                        (int)BUILDING_SUBTYPE.APARTMENTS => buildingLvl switch
+                        {
+                            <= 5 => "https://play.mcp3d.com/assets/images/buildings/Residential1_LVL" + Convert.ToString(buildingLvl) + "-1.png",
+                            6 => "https://play.mcp3d.com/assets/images/buildings/Residential1_Huge-1.png",
+                            7 => "https://play.mcp3d.com/assets/images/buildings/Residential1_Mega-1.png",
+                            _ => "https://play.mcp3d.com/assets/images/buildings/Residential1_LVL1-1.png"
+                        },
+                        (int)BUILDING_SUBTYPE.VILLA => buildingLvl switch
+                        {
+                            <= 5 => "https://play.mcp3d.com/assets/images/buildings/Residential2_LVL" + Convert.ToString(buildingLvl) + "-1.png",
+                            6 => "https://play.mcp3d.com/assets/images/buildings/Residential2_Huge-1.png",
+                            7 => "https://play.mcp3d.com/assets/images/buildings/Residential2_Mega-1.png",
+                            _ => "https://play.mcp3d.com/assets/images/buildings/Residential2_LVL1-1.png"
+                        },
+                        _ => buildingLvl switch
+                        {
+                            <= 5 => "https://play.mcp3d.com/assets/images/buildings/Residential3_LVL" + Convert.ToString(buildingLvl) + "-1.png",
+                            6 => "https://play.mcp3d.com/assets/images/buildings/Residential3_Huge-1.png",
+                            7 => "https://play.mcp3d.com/assets/images/buildings/Residential3_Mega-1.png",
+                            _ => "https://play.mcp3d.com/assets/images/buildings/Residential3_LVL1-1.png"
+                        },
+                    };
+                    break; //buildingImg = "29";
+
                 case (int)BUILDINGTYPE_ENUM.ENERGY:
                     buildingImg = buildingID switch
                     {
@@ -83,9 +106,9 @@ namespace MetaverseMax.ServiceClass
                             7 => "https://play.mcp3d.com/assets/images/buildings/Energy_ThermalPower_Mega-1.png",
                             _ => "https://play.mcp3d.com/assets/images/buildings/Energy_ThermalPower_LVL1-1.png"
                         },
-                    };                    
-                    //buildingImg = "5";                   
-                    break;
+                    };                                                          
+                    break;//buildingImg = "5"; 
+
                 case (int)BUILDINGTYPE_ENUM.COMMERCIAL:
                     buildingImg = buildingID switch
                     {
@@ -110,10 +133,9 @@ namespace MetaverseMax.ServiceClass
                             7 => "https://play.mcp3d.com/assets/images/buildings/Blockmart_V2_Mega-1.png",
                             _ => "https://play.mcp3d.com/assets/images/buildings/Blockmart_V2_LVL1-1.png"
                         },
-                    };
+                    };                    
+                    break; //buildingImg = "64";
 
-                    //buildingImg = "64";
-                    break;
                 case (int)BUILDINGTYPE_ENUM.INDUSTRIAL:
                     buildingImg = buildingID switch
                     {
@@ -140,22 +162,34 @@ namespace MetaverseMax.ServiceClass
                         },
                     };                  
                     break;
-                case (int)BUILDINGTYPE_ENUM.OFFICE:
-                    if (buildingLvl <= 5)
-                    {
-                        buildingImg = string.Concat("https://play.mcp3d.com/assets/images/buildings/OfficeRing_LVL", Convert.ToString(buildingLvl), "-1.png");
-                        //buildingImg = "30";
-                    }
-                    else if (buildingLvl == 6)
-                    {
-                        buildingImg = "https://play.mcp3d.com/assets/images/buildings/OfficeBlock_Huge-1.png";
-                    }
-                    else if (buildingLvl == 7)
-                    {
-                        buildingImg = "https://play.mcp3d.com/assets/images/buildings/OfficeRing_Mega-1.png";
-                    }
-                    break;
 
+                case (int)BUILDINGTYPE_ENUM.OFFICE:
+                    buildingImg = buildingID switch
+                    {
+                        (int)BUILDING_SUBTYPE.OFFICE_BLOCK => buildingLvl switch
+                        {
+                            <= 5 => "https://play.mcp3d.com/assets/images/buildings/OfficeRing_LVL" + Convert.ToString(buildingLvl) + "-1.png",
+                            6 => "https://play.mcp3d.com/assets/images/buildings/OfficeRing_Huge-1.png",
+                            7 => "https://play.mcp3d.com/assets/images/buildings/OfficeRing_Mega-1.png",
+                            _ => "https://play.mcp3d.com/assets/images/buildings/OfficeRing_LVL1-1.png"
+                        },
+                        (int)BUILDING_SUBTYPE.BUSINESS_CENTER => buildingLvl switch
+                        {
+                            <= 5 => "https://play.mcp3d.com/assets/images/buildings/OfficeBlock_LVL" + Convert.ToString(buildingLvl) + "-1.png",
+                            6 => "https://play.mcp3d.com/assets/images/buildings/OfficeBlock_Huge-1.png",
+                            7 => "https://play.mcp3d.com/assets/images/buildings/OfficeBlock_Mega-1.png",
+                            _ => "https://play.mcp3d.com/assets/images/buildings/OfficeBlock_LVL1-1.png"
+                        },
+                        _ => buildingLvl switch
+                        {
+                            <= 5 => "https://play.mcp3d.com/assets/images/buildings/OfficeRing_LVL" + Convert.ToString(buildingLvl) + "-1.png",
+                            6 => "https://play.mcp3d.com/assets/images/buildings/OfficeRing_Huge-1.png",
+                            7 => "https://play.mcp3d.com/assets/images/buildings/OfficeRing_Mega-1.png",
+                            _ => "https://play.mcp3d.com/assets/images/buildings/OfficeRing_LVL1-1.png"
+                        },
+                    };
+                    break;// buildingImg = "30";
+                    
                 case (int)BUILDINGTYPE_ENUM.PRODUCTION:
                     buildingImg = buildingID switch
                     {
@@ -190,8 +224,38 @@ namespace MetaverseMax.ServiceClass
                     };               
                     break;
 
-                case (int)BUILDINGTYPE_ENUM.MUNICIPAL:                    
-                    buildingImg = "28";
+                case (int)BUILDINGTYPE_ENUM.MUNICIPAL:
+                    buildingImg = buildingID switch
+                    {
+                        (int)BUILDING_SUBTYPE.HOSPITAL => buildingLvl switch
+                        {
+                            <= 5 => "https://play.mcp3d.com/assets/images/buildings/Hospital_V2_LVL" + Convert.ToString(buildingLvl) + "-1.png",
+                            6 => "https://play.mcp3d.com/assets/images/buildings/Hospital_V2_Huge-1.png",
+                            7 => "https://play.mcp3d.com/assets/images/buildings/Hospital_V2_Mega-1.png",
+                            _ => "https://play.mcp3d.com/assets/images/buildings/Hospital_V2_LVL1-1.png"
+                        },
+                        (int)BUILDING_SUBTYPE.POLICE => buildingLvl switch
+                        {
+                            <= 5 => "https://play.mcp3d.com/assets/images/buildings/PoliceDept_V2_LVL" + Convert.ToString(buildingLvl) + "-1.png",
+                            6 => "https://play.mcp3d.com/assets/images/buildings/PoliceDept_V2_Huge-1.png",
+                            7 => "https://play.mcp3d.com/assets/images/buildings/PoliceDept_V2_Mega-1.png",
+                            _ => "https://play.mcp3d.com/assets/images/buildings/PoliceDept_V2_LVL1-1.png"
+                        },
+                        (int)BUILDING_SUBTYPE.FIRE_STATION => buildingLvl switch
+                        {
+                            <= 5 => "https://play.mcp3d.com/assets/images/buildings/FireDept_V2_LVL" + Convert.ToString(buildingLvl) + "-1.png",
+                            6 => "https://play.mcp3d.com/assets/images/buildings/FireDept_V2_Huge-1.png",
+                            7 => "https://play.mcp3d.com/assets/images/buildings/FireDept_V2_Mega-1.png",
+                            _ => "https://play.mcp3d.com/assets/images/buildings/FireDept_V2_LVL1-1.png"
+                        },
+                        _ => buildingLvl switch
+                        {
+                            <= 5 => "https://play.mcp3d.com/assets/images/buildings/Hospital_V2_LVL" + Convert.ToString(buildingLvl) + "-1.png",
+                            6 => "https://play.mcp3d.com/assets/images/buildings/Hospital_V2_Huge-1.png",
+                            7 => "https://play.mcp3d.com/assets/images/buildings/Hospital_V2_Mega-1.png",
+                            _ => "https://play.mcp3d.com/assets/images/buildings/Hospital_V2_LVL1-1.png"
+                        },
+                    }; // buildingImg = "28";
                     break;
 
                 case (int)BUILDINGTYPE_ENUM.POI:                    
@@ -245,52 +309,6 @@ namespace MetaverseMax.ServiceClass
             };
             return buildingTypeDesc;
         }
-    }
-    public enum BUILDINGTYPE_ENUM
-    {
-        RESIDENTIAL = 1,
-        ENERGY = 3,
-        COMMERCIAL = 4,
-        INDUSTRIAL = 5,
-        OFFICE = 6,
-        PRODUCTION = 7,
-        MUNICIPAL = 8,
-        POI = 100
-    }
-
-    public enum BUILDING_PRODUCT
-    {
-        WOOD = 1,
-        SAND = 2,        
-        STONE = 3,
-        METAL = 4,
-        BRICK = 5,
-        GLASS = 6,
-        WATER = 7,        
-        ENERGY = 8,
-        STEEL = 9,
-        CONCRETE =10
-    }
-
-    public enum BUILDING_SUBTYPE  //MCP.building_id
-    {   
-        COMDOMINIUM = 1,
-        APARTMENTS = 2,
-        POLICE =4,
-        FIRE_STATION = 5,
-        HOSPITAL = 6,
-        SUPERMARKET =7,
-        TRADE_CENTER =8,
-        CONCRETE_PLANT =9,
-        FACTORY = 10,
-        WATER_PLANT = 11,
-        POWER_PLANT = 12,
-        SMELTER_PLANT = 13,
-        MIXING_PLANT = 14,
-        BUSINESS_CENTER = 15,
-        OFFICE_BLOCK = 16,
-        GLASSWORKS =17,
-        BRICKWORKS = 18,
     }
 
 }

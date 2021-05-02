@@ -31,22 +31,29 @@ namespace MetaverseMax.Controllers
         //[Route("api/ownerdata/")]
         //[HttpGet("{plotX}/{plotY}")]
         //[Route("ownerdata")]
+        //[HttpGet]
         [HttpGet]
-        public OwnerData Get([FromQuery] string plotX, [FromQuery] string plotY)
+        public OwnerData Get(string plotX, string plotY)
         {
-            _ = GetFromLandCoord(Convert.ToInt32(plotX), Convert.ToInt32(plotY));
-            _ = GetOwnerLands();
-
+            int returnCode = GetFromLandCoord(Convert.ToInt32(plotX), Convert.ToInt32(plotY));
+            if (returnCode != -1)
+            {
+                _ = GetOwnerLands();
+            }
             return ownerData;
         }
 
-        /*[HttpGet]
-        public OwnerData Get()
+        [HttpGet("GetUsingMatic")]       
+        public OwnerData GetUsingMatic(string owner_matic_key)
         {
-            _ = GetFromLandCoord(424, 266);
-            _ = GetOwnerLands();
+            int returnCode = GetFromMaticKey(owner_matic_key);
+            if (returnCode != -1)
+            {
+                _ = GetOwnerLands();
+            }
+
             return ownerData;
-        }*/
+        }
 
         private int GetOwnerLands()
         {
@@ -125,10 +132,83 @@ namespace MetaverseMax.Controllers
             return 0;
         }
 
+
+        private int GetFromMaticKey(string ownerMaticKey)
+        {
+            String content = string.Empty;
+            Citizen citizen = new();
+            byte[] byteArray;
+            WebRequest request;
+            Stream dataStream;
+            int returnCode = 0;
+
+            try
+            {
+                //ownerData.wallet_public = WalletConvert(jsonContent.Value<string>("owner") ?? string.Empty);
+                if (string.IsNullOrEmpty(ownerMaticKey) || ownerMaticKey.Equals("Not Found"))
+                {
+                    AssignUnknownOwner();
+                    returnCode = -1;
+                }
+                else
+                {
+                    // POST from User/Get REST WS
+                    byteArray = Encoding.ASCII.GetBytes("{\"address\": \"" + ownerMaticKey + "\",\"dapper\": false,\"sign\": null }");
+                    request = WebRequest.Create("https://ws-tron.mcp3d.com/user/get");
+                    request.Method = "POST";
+                    request.ContentType = "application/json";
+
+                    dataStream = request.GetRequestStream();
+                    dataStream.Write(byteArray, 0, byteArray.Length);
+                    dataStream.Close();
+
+                    // Ensure correct dispose of WebRespose IDisposable class even if exception
+                    using (WebResponse response = request.GetResponse())
+                    {
+                        StreamReader reader = new(response.GetResponseStream());
+                        content = reader.ReadToEnd();
+                    }
+                    if (content.Length == 0)
+                    {
+                        ownerData.owner_name = string.Concat("Owner not Found matching Matic key ", ownerMaticKey);
+                        returnCode = -1;
+                    }
+                    else{
+                        ownerData.owner_matic_key = ownerMaticKey;
+                        JObject jsonContent = JObject.Parse(content);
+
+                        ownerData.owner_name = jsonContent.Value<string>("avatar_name") ?? "Not Found";
+                        ownerData.owner_url = citizen.AssignDefaultOwnerImg(jsonContent.Value<string>("avatar_id") ?? "");
+
+                        ownerData.registered_date = common.TimeFormatStandard(jsonContent.Value<string>("registered"), null);
+                        ownerData.last_visit = common.TimeFormatStandard(jsonContent.Value<string>("last_visited"), null);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                string log = ex.Message;
+            }
+
+            return returnCode;
+        }
+
+        private int AssignUnknownOwner()
+        {
+            Citizen citizen = new();
+            ownerData.owner_matic_key = "Owner not Found";
+            ownerData.last_action = "Empty Plot, It could be Yours today!";
+            ownerData.owner_url = citizen.AssignDefaultOwnerImg("0");
+
+            return 0;
+        }
+
         private int GetFromLandCoord(int posX, int posY)
         {
             String content = string.Empty;
             Citizen citizen = new();
+            int returnCode = 0;
+
             try
             {
                 // POST from Land/Get REST WS
@@ -150,36 +230,12 @@ namespace MetaverseMax.Controllers
                 if (content.Length == 0)
                 {
                     ownerData.owner_name = "Plot does not exist";
+                    returnCode = -1;
                 }
                 else {
                     JObject jsonContent = JObject.Parse(content);
-
-                    ownerData.owner_name = jsonContent.Value<string>("owner_nickname") ?? "Not Found";
-                    ownerData.owner_url = citizen.AssignDefaultOwnerImg(jsonContent.Value<string>("owner_avatar_id") ?? "");
                     ownerData.owner_matic_key = jsonContent.Value<string>("owner") ?? "Not Found";
-                    //ownerData.wallet_public = WalletConvert(jsonContent.Value<string>("owner") ?? string.Empty);
-
-
-                    // POST from User/Get REST WS
-                    byteArray = Encoding.ASCII.GetBytes("{\"address\": \"" + ownerData.owner_matic_key + "\",\"dapper\": false,\"sign\": null }");
-                    request = WebRequest.Create("https://ws-tron.mcp3d.com/user/get");
-                    request.Method = "POST";
-                    request.ContentType = "application/json";
-
-                    dataStream = request.GetRequestStream();
-                    dataStream.Write(byteArray, 0, byteArray.Length);
-                    dataStream.Close();
-
-                    // Ensure correct dispose of WebRespose IDisposable class even if exception
-                    using (WebResponse response = request.GetResponse())
-                    {
-                        StreamReader reader = new(response.GetResponseStream());
-                        content = reader.ReadToEnd();
-                    }
-                    jsonContent = JObject.Parse(content);
-
-                    ownerData.registered_date = common.TimeFormatStandard(jsonContent.Value<string>("registered"));
-                    ownerData.last_visit = common.TimeFormatStandard(jsonContent.Value<string>("last_visited"));
+                    GetFromMaticKey(ownerData.owner_matic_key); 
                 }
             }
             catch (Exception ex)
@@ -187,7 +243,7 @@ namespace MetaverseMax.Controllers
                 string log = ex.Message;
             }
 
-            return 0;
+            return returnCode;
         }       
 
     }

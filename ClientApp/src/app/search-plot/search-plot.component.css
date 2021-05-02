@@ -30,3 +30,11 @@ a {
 .ploty {
   width: 60px
 }
+
+.searchIcon {
+  margin-left: 6px;
+  margin-top: 10px;
+  position: absolute;
+  color: white
+}
+
