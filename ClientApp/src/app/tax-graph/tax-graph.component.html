@@ -1,0 +1,21 @@
+
+<div class="taxGraphDistrict">
+  <ngx-charts-bar-vertical-2d [view]="view"
+                              [scheme]="colorScheme"
+                              [results]="multi"
+                              [gradient]="gradient"
+                              [xAxis]="showXAxis"
+                              [yAxis]="showYAxis"
+                              [legend]="showLegend"
+                              [showXAxisLabel]="showXAxisLabel"
+                              [showYAxisLabel]="showYAxisLabel"
+                              [showDataLabel]="showDataLabel"
+                              [xAxisLabel]="xAxisLabel"
+                              [yAxisLabel]="yAxisLabel"
+                              [legendTitle]="legendTitle"
+                              [yAxisTickFormatting]="setPrecentLabel"
+                              (select)="onSelect($event)"
+                              (activate)="onActivate($event)"
+                              (deactivate)="onDeactivate($event)">
+  </ngx-charts-bar-vertical-2d>
+</div>

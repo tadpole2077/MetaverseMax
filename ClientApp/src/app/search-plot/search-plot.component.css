@@ -9,16 +9,40 @@
 }
 
 .rotate {
-  -webkit-animation: rotation 1s 1 linear;
+  -webkit-animation: rotation 1s 22 linear;
 }
 
 a {
   display: inline-block;
 }
 
+/* Border */
+.mat-form-field-appearance-outline .mat-form-field-outline {
+  /*color: white;*/
+}
+/* Font color */
+input.mat-input-element {
+  /*color: white;*/
+}
+::ng-deep .mat-focused .mat-form-field-label {
+  /*change color of label*/
+  color: #1b6ec2 !important;
+}
+
+::ng-deep.mat-form-field-underline {
+  /*change color of underline*/
+  /* background-color: #1b6ec2 !important;*/
+}
+
+::ng-deep.mat-form-field-ripple {
+  /*change color of underline when focused*/
+  background-color: #1b6ec2 !important;
+}
+
 .search {
+  clear: both;
   float: right;
-  margin-top: -60px;
+  margin-top: 10px;
   margin-bottom: 6px
 }
 
@@ -36,5 +60,21 @@ a {
   margin-top: 10px;
   position: absolute;
   color: white
+}
+
+.btn-primary {
+  -webkit-animation: glowBtn 1.4s ease-in-out infinite alternate;
+  -moz-animation: glowBtn 1.4s ease-in-out infinite alternate;
+  animation: glowBtn 1.4s ease-in-out infinite alternate;
+}
+
+@-webkit-keyframes glowBtn {
+  from {
+    box-shadow: 0 0 3px #fff, 0 0 6px #fff, 0 0 9px #fff, 0 0 12px #fff;
+  }
+
+  to {
+    box-shadow: 0 0 3px #1b6ec2, 0 0 6px #1b6ec2, 0 0 9px #1b6ec2, 0 0 8px #1b6ec2;
+  }
 }
 

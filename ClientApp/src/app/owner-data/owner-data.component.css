@@ -48,7 +48,9 @@
   opacity: 1;
   display: block;
 }
-
+.showMaticKeyLarge {
+  font-size: .8rem;
+}
 
 /***District Section***/
 .showAllLink {
@@ -65,6 +67,7 @@
 }
 
 .districtPlots {
+  margin-top: .2rem;
   margin-bottom: 1rem;
   padding-top:0
 }
@@ -121,9 +124,12 @@
 .RemoveOpacity{
     opacity:1
 }
+.lastPlotAction {
+  white-space: pre;
+}
 
-/*** Building Type Filter ***/
-.typeFilter{
+  /*** Building Type Filter ***/
+  .typeFilter{
     position:absolute;
     right:0;
     margin-top:0;
@@ -258,6 +264,10 @@ td.boldfield {
 th.mat-sort-header-sorted {
   color: black;
 }
+td.mat-column-district_id {
+  text-align:center;
+}
+
 
 /*Sale Sign*/
 .salepos {
@@ -295,8 +305,63 @@ th.mat-sort-header-sorted {
   opacity: 1
 }
 
+.showMaticKeySmall {
+  display: none;
+}
+
+.maticLabel {
+  font-weight: 500
+}
+.ownerPlotSection div{
+  display: inline-block;
+  margin-right: 30px
+}
+
+
+
+
 @media only screen and (max-width: 1320px) {
   .magnifyHistoryIcon {
     height: 20px;
+  }
+}
+
+@media only screen and (max-width: 850px) {
+  .showMaticKeySmall {
+    display: inline-block;
+    z-index: 30
+  }
+  .showMaticKeyLarge{
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 415px) {
+  .h3{
+    font-size: 1.5rem;
+  }
+  plotSearchComponent {
+    position: absolute;
+    right: 0;
+  }
+  .ownerImg {
+    height: 100px;    
+  }
+
+  .ownerSection{
+    font-size:.8rem;
+  }
+  .districtBox{
+      width:unset;
+  }
+  .typeFilter{
+      visibility:hidden;
+  }
+  .ownerPlotSection{
+     
+  }
+  .mat-expansion-panel-header-title span {
+    font-weight: 500;
+    font-size: .8rem;
   }
 }

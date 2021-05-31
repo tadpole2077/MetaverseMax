@@ -121,7 +121,13 @@ export class DistrictNotificationComponent implements AfterViewInit {
   searchDistrict(district_id: string) {
 
     let params = new HttpParams();
-    params = params.append('district_id', district_id);
+    //params = params.append('district_id', district_id);
+    params = params.append('id', 'OrdersQuery');
+    params = params.append('id', 'OrdersQuery');
+
+    let url = "https://api.opensea.io/graphql/";
+
+
 
     this.httpClient.get<District>(this.baseUrl + 'api/district/GetMCP', { params: params })
       .subscribe((result: District) => {

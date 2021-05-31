@@ -73,9 +73,11 @@ namespace MetaverseMax.Database
             return foundPlot == null ? new Plot() : foundPlot;
         }
 
+
         public static async void PollWorldPlots(object parameters)
         {
             MetaverseMaxDbContext _context = null;
+            PlotDB plotDB;
             int x = 0, y =0;
 
             try
@@ -90,6 +92,7 @@ namespace MetaverseMax.Database
 
                 DbContextOptionsBuilder<MetaverseMaxDbContext> options = new();
                 _context = new MetaverseMaxDbContext(options.UseSqlServer(dbConnectionString).Options);
+                plotDB = new PlotDB(_context);
 
                 // 250,000 plot locations - 1 second per plot - 69 hours. 100ms wait per plot = 7hrs.
                 // Iterate though each of the plots in the target zone, add or update db row to match
@@ -99,7 +102,7 @@ namespace MetaverseMax.Database
                     {                        
                         await Task.Delay(jobInterval);      // Typically minimum interval using this Delay thread method is about 1.5 seconds
 
-                        AddPlot(x, y, _context);
+                        plotDB.AddOrUpdatePlot(x, y, _context, 0, true);
 
                     }
                 }
@@ -117,10 +120,11 @@ namespace MetaverseMax.Database
             return;
         }
 
-        private static int AddPlot(int pos_x, int pos_y, MetaverseMaxDbContext _context)
+        public int AddOrUpdatePlot(int pos_x, int pos_y, MetaverseMaxDbContext _context, int plotId, bool saveEvent)
         {
             byte[] byteArray = Encoding.ASCII.GetBytes("{\"x\": \"" + pos_x.ToString() + "\",\"y\": \"" + pos_y.ToString() + "\"}");
             string content = string.Empty;
+            Plot plotMatched;
 
             try
             {
@@ -153,33 +157,64 @@ namespace MetaverseMax.Database
                 {
                     JObject jsonContent = JObject.Parse(content);
 
-                    _context.plot.Add(new Plot()
+                    // Based on the calleers passed plotId, either add a new plot or update an existing plot record.
+                    if (plotId == 1) {
+
+                        _context.plot.Add(new Plot()
+                        {
+                            cell_id = jsonContent.Value<int?>("cell_id") ?? 0,
+                            district_id = jsonContent.Value<int?>("region_id") ?? 0,
+                            land_type = jsonContent.Value<int?>("land_type") ?? 0,
+                            pos_x = pos_x,
+                            pos_y = pos_y,
+                            last_updated = DateTime.Now,
+                            current_price = 0,
+                            unclaimed_plot = string.IsNullOrEmpty(jsonContent.Value<string>("owner")),
+                            owner_nickname = jsonContent.Value<string>("owner_nickname"),
+                            owner_matic = jsonContent.Value<string>("owner"),
+                            owner_avatar_id = jsonContent.Value<int>("owner_avatar_id"),
+                            resources = jsonContent.Value<int?>("resources") ?? 0,
+                            building_id = jsonContent.Value<int?>("building_id") ?? 0,
+                            building_level = jsonContent.Value<int?>("building_level") ?? 0,
+                            building_type_id = jsonContent.Value<int?>("building_type_id") ?? 0,
+                            token_id = jsonContent.Value<int?>("token_id") ?? 0,
+                            on_sale = jsonContent.Value<bool?>("on_sale") ?? false,
+                            abundance = jsonContent.Value<int?>("abundance") ?? 0
+                        });
+                    }
+                    else
                     {
-                        cell_id = jsonContent.Value<int?>("cell_id") ?? 0,
-                        district_id = jsonContent.Value<int?>("region_id") ?? 0,
-                        land_type = jsonContent.Value<int?>("land_type") ?? 0,
-                        pos_x = pos_x,
-                        pos_y = pos_y,
-                        last_updated = DateTime.Now,
-                        current_price = 0,
-                        unclaimed_plot = string.IsNullOrEmpty(jsonContent.Value<string>("owner")),
-                        owner_nickname = jsonContent.Value<string>("owner_nickname"),
-                        owner_matic = jsonContent.Value<string>("owner"),
-                        owner_avatar_id = jsonContent.Value<int>("owner_avatar_id"),
-                        resources = jsonContent.Value<int?>("resources") ?? 0,
-                        building_id = jsonContent.Value<int?>("building_id") ?? 0,
-                        building_level = jsonContent.Value<int?>("building_level") ?? 0,
-                        building_type_id = jsonContent.Value<int?>("building_type_id") ?? 0,
-                        token_id = jsonContent.Value<int?>("token_id") ?? 0,
-                        on_sale = jsonContent.Value<bool?>("on_sale") ?? false,
-                        abundance = jsonContent.Value<int?>("abundance") ?? 0
-                    });
+                        plotMatched = _context.plot.Find(plotId);
+
+                        plotMatched.last_updated = DateTime.Now;
+                        plotMatched.current_price = 0;
+                        plotMatched.unclaimed_plot = string.IsNullOrEmpty(jsonContent.Value<string>("owner"));
+                        plotMatched.owner_nickname = jsonContent.Value<string>("owner_nickname");
+                        plotMatched.owner_matic = jsonContent.Value<string>("owner");
+                        plotMatched.owner_avatar_id = jsonContent.Value<int>("owner_avatar_id");
+                        plotMatched.resources = jsonContent.Value<int?>("resources") ?? 0;
+                        plotMatched.building_id = jsonContent.Value<int?>("building_id") ?? 0;
+                        plotMatched.building_level = jsonContent.Value<int?>("building_level") ?? 0;
+                        plotMatched.building_type_id = jsonContent.Value<int?>("building_type_id") ?? 0;
+                        plotMatched.token_id = jsonContent.Value<int?>("token_id") ?? 0;
+                        plotMatched.on_sale = jsonContent.Value<bool?>("on_sale") ?? false;
+                        plotMatched.abundance = jsonContent.Value<int?>("abundance") ?? 0;
+                    }
                 }
-                _context.SaveChanges();
+
+                if (saveEvent)
+                {
+                    _context.SaveChanges();
+                }
             }
             catch (Exception ex)
             {
                 string log = ex.Message;
+                if (_context != null)
+                {
+                    _context.LogEvent(String.Concat("AddOrUpdatePlot() : Error Adding/update Plot X:", pos_x, " Y:", pos_y));
+                    _context.LogEvent(log);
+                }
             }
 
             return 0;

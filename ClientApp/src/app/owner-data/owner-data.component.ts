@@ -104,7 +104,7 @@ export class OwnerDataComponent implements AfterViewInit {
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumns: string[] = ['district_id', 'pos_x', 'pos_y', 'building_type', 'building_level', 'last_action', 'plot_ip', 'ip_bonus', 'citizen_count', 'token_id', 'citizen_stamina_alert' ];
  
-  constructor(private route: ActivatedRoute, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private renderer: Renderer, private elem: ElementRef)
+  constructor(public router: Router, private route: ActivatedRoute, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private renderer: Renderer, private elem: ElementRef)
   {
     this.httpClient = http;
     this.baseUrl = baseUrl;
@@ -122,15 +122,14 @@ export class OwnerDataComponent implements AfterViewInit {
       owner_land: null      
     };
 
+  }
+
+  ngAfterViewInit() {
+
     let requestOwnerMatic = this.route.snapshot.queryParams["matic"];
     if (requestOwnerMatic) {
       this.searchOwnerbyMatic(requestOwnerMatic);
     }
-
-  }
-
-  ngAfterViewInit() {
-    //this.dataSource.sort = this.sort;
   }
 
 
@@ -138,6 +137,9 @@ export class OwnerDataComponent implements AfterViewInit {
 
     let params = new HttpParams();
     params = params.append('owner_matic_key', ownerMatic);
+
+    var rotateEle = document.getElementById("searchIcon");
+    rotateEle.classList.add("rotate");
     
     this.httpClient.get<OwnerData>(this.baseUrl + 'api/ownerdata/getusingmatic', { params: params })
       .subscribe((result: OwnerData) => {
@@ -153,6 +155,7 @@ export class OwnerDataComponent implements AfterViewInit {
 
         this.buttonShowAll = false;
         this.removeLinkHighlight(".districtEleActive, .activeFilter");
+        rotateEle.classList.remove("rotate");
 
       }, error => console.error(error));
 
@@ -181,17 +184,22 @@ export class OwnerDataComponent implements AfterViewInit {
           this.dataSource = new MatTableDataSource<OwnerLandData>(this.owner.owner_land);
 
           this.dataSource.sort = this.sort;
+
+          //Update URL to show friendly url to this player report
+          this.router.navigate(['/owner-data'], { queryParams: { matic: this.owner.owner_matic_key } });
         }
 
         this.buttonShowAll = false;
         this.removeLinkHighlight(".districtEleActive, .activeFilter");
 
-        plotPos.rotateEle.classList.remove("rotate");
+        plotPos.rotateEle.classList.remove("rotate");        
 
       }, error => console.error(error));
 
     return;
   }
+
+
   // Filter By District, and By Building Type [Storing pior District filter and using if found]
   filterTable(event, filterValue: number, buildingType: number) {
 

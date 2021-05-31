@@ -9,6 +9,8 @@ import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { HomeComponent } from './home/home.component';
 import { SearchPlotComponent } from './search-plot/search-plot.component';
 import { SearchDistrictComponent } from './search-district/search-district.component';
+import { TaxGraphComponent } from './tax-graph/tax-graph.component';
+import { FundGraphComponent } from './fund-graph/fund-graph.component';
 import { NoteModalComponent } from './note-modal/note-modal.component';
 import { OwnerDataComponent } from './owner-data/owner-data.component';
 import { ProdHistoryComponent } from './production-history/prod-history.component';
@@ -20,9 +22,12 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatExpansionModule, MatInputModule, MatIconModule, MatCheckboxModule } from '@angular/material';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NumberDirective } from './numberonly.directive';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 @NgModule({
   declarations: [
@@ -31,6 +36,8 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
     HomeComponent,
     SearchPlotComponent,
     SearchDistrictComponent,
+    TaxGraphComponent,
+    FundGraphComponent,
     OwnerDataComponent,
     NoteModalComponent,
     ProdHistoryComponent,
@@ -46,8 +53,14 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
     MatTableModule,
     MatSortModule,
     MatPaginatorModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatExpansionModule,
+    MatIconModule,
+    MatCheckboxModule,
     DragDropModule,
     NgbDropdownModule,
+    NgxChartsModule,
     RouterModule.forRoot([
       { path: '', component: HomeComponent, pathMatch: 'full' },
       { path: 'owner-data', component: OwnerDataComponent },

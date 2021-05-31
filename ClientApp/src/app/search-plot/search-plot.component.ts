@@ -1,4 +1,5 @@
 import { Component, Output, EventEmitter } from '@angular/core';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-search-plot',

@@ -13,7 +13,11 @@ namespace MetaverseMax.Database
 
         public virtual DbSet<District> district { get; set; }
 
+        public virtual DbSet<DistrictFund> districtFund { get; set; }
+
         public virtual DbSet<DistrictContent> districtContent { get; set; }
+
+        //public virtual DbSet<DistrictUpdateInstance> districtUpdateInstance { get; set; }
 
         public virtual DbSet<OwnerSummaryDistrict> ownerSummaryDistrict { get; set; }
 
@@ -26,21 +30,35 @@ namespace MetaverseMax.Database
 
         public int LogEvent(string logDetail)
         {
+            MetaverseMaxDbContext _contextEvent = null;
+
+            // Event log should used a separate context in case problem thrown with a prior call to SaveChanges
             try
             {
-                eventLog.Add(new EventLog()
+                DbContextOptionsBuilder<MetaverseMaxDbContext> options = new();
+                _contextEvent = new MetaverseMaxDbContext(options.UseSqlServer(Database.GetConnectionString()).Options);
+
+                _contextEvent.eventLog.Add(new EventLog()
                 {
                     detail = logDetail,
                     recorded_time = DateTime.Now
                 });
 
-                SaveChanges();
+                _contextEvent.SaveChanges();
             }
             catch (Exception ex)
             {
             }
             return 0;
         }
-            
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<DistrictFund>().Property(p => p.balance).HasPrecision(12, 6);
+            modelBuilder.Entity<DistrictFund>().Property(p => p.balance).HasPrecision(12, 6);
+
+            base.OnModelCreating(modelBuilder);
+        }
+
     }
 }

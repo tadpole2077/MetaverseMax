@@ -8,6 +8,8 @@ namespace MetaverseMax.ServiceClass
     public class DistrictWeb
     {
         public int update_instance { get; set; }
+        public string last_updateFormated { get; set; }
+        public DateTime last_update{ get; set; }        
         public int district_id { get; set; }
         public string district_name { get; set; }
         public string owner_name { get; set; }
@@ -45,6 +47,11 @@ namespace MetaverseMax.ServiceClass
         public string promotion { get; set; }
         public string promotion_start { get; set; }
         public string promotion_end { get; set; }
+
+        public NgxChart produceTax { get; set; }
+        public NgxChart constructTax { get; set; }
+        public NgxChart fundHistory { get; set; }
+        public NgxChart distributeHistory { get; set; }
 
     }
 }

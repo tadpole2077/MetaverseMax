@@ -61,3 +61,10 @@ a {
   .adSummary div {
     line-height: 1.8em;
   }
+
+@media only screen and (max-width: 415px) {
+  .adframe{
+      left:0;
+      width:98%;      
+  }
+}

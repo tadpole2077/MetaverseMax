@@ -39,7 +39,9 @@ interface District {
   promotion: string;
   promotion_start: string;
   promotion_end: string;
+
 }
+
 
 
 @Component({

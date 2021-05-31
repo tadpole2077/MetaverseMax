@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Component, Output, EventEmitter, Inject } from '@angular/core';
 import { NgbDropdown } from '@ng-bootstrap/ng-bootstrap';
+import { Router, ActivatedRoute, Params } from '@angular/router';
 
 
 @Component({
@@ -16,7 +17,7 @@ export class SearchDistrictComponent {
 
   @Output() searchDistrictEvent = new EventEmitter<any>();
 
-  constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
+  constructor(public router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
 
     this.httpClient = http;
     this.baseUrl = baseUrl;
@@ -46,7 +47,8 @@ export class SearchDistrictComponent {
 
     //plotPos.rotateEle = document.getElementById("searchIcon")
     //plotPos.rotateEle.classList.add("rotate");
-      
+          
+    this.router.navigate(['/district-summary'], { queryParams: { district_id: districtId } });
     this.searchDistrictEvent.emit(districtId);
   }
 

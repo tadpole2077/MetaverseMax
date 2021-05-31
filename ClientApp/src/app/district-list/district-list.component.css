@@ -11,7 +11,6 @@
     font-size: .8em;
   }
 }*/
-
 .adIcon {
   font-size: 2.2rem;
   color: red;
@@ -22,6 +21,7 @@
   .adIcon:hover {
     color: greenyellow
   }
+
 
 
 /*** Top Right Avator ***/
@@ -54,7 +54,9 @@
 }
 
   .slideOutLeft span {
-    display: block;
+    display: block;   
+  }
+  .slideOutLeft p span:nth-child(2) {
     font-weight: bold;
   }
 
@@ -253,10 +255,9 @@ th.mat-column-construction_energy_tax {
   border-left: 1px dotted gray;
 }
 
-
 td.mat-cell {
   font-size: .9rem;
-  font-weight:500;
+  font-weight: 500;
   vertical-align: middle;
   height: 72px;
   padding-right: .2em;
@@ -281,10 +282,23 @@ td.boldfield {
   vertical-align: middle;
   padding-left: 6px;
 }
+  .maticLinkCol span {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 100%;
+  }
 
+td.mat-column-district_name, td.mat-column-owner_name {
+  padding-right: .4rem
+}
 
-.mat-column-citizen_stamina_alert{
-    max-width:64px;
+.mat-column-citizen_stamina_alert {
+  max-width: 64px;
+}
+
+.mat-column-district_name span {
+  margin-right: .4rem;
 }
 
 .tableWrapline {
@@ -377,6 +391,11 @@ a {
     transform: scaleX(1);
   }
 
+/*** Hide short text by default (resolution > 1200px) ***/
+.short-text {
+  display: none;
+}
+
 
 /*** MOBILE ***/
 @media only screen and (max-width: 1320px) {
@@ -391,26 +410,66 @@ a {
   }
 
   .mat-column-header-row-second-group, .mat-column-header-row-third-group{
-      padding-bottom:10px;
+    padding-bottom:10px;
   }
+
   .maticLinkCol{
-      padding-right:4px;
-      width:90%;
+    padding-right:4px;
   }
+
   .mat-row{
-      height:5rem;
+    height:5rem;
   }
-  .ownerImgCol{
-      margin-top:2px;
-      height:50px;
+
+  .ownerImgCol{      
+    height:50px;
+    margin-top: -4px;
   }
-  .mat-column-land_count span{
-      margin-right:.6rem;
+
+  .mat-column-land_count span {
+    margin-left: .2rem;
+    margin-right: .4rem;
   }
-  
+
+  .mysteryImg {
+    margin-top: 2px !important;
+    height: 44px;
+  }
 }
 
-@media only screen and (max-width: 1090px) {
+/*** When resolution <= 1200px, hide full text and show short text ***/
+@media (max-width: 1200px) {
+
+  .maticLinkCol span {
+    width: 4rem;
+  }
+
+  h3 {
+    font-size: 1.4rem
+  }
+
+  .short-text {
+    display: inline-block;
+  }
+
+  .long-text {
+    display: none;
+  }
+}
+
+@media (max-width: 1090px) {
+
+  td.mat-column-district_name, td.mat-column-owner_name {
+    padding-right: .2rem
+  }
+
+  td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type, th.mat-header-cell:last-of-type{
+    padding-right:0px
+  }
+  .maticLinkCol span {
+    width: 3rem;
+  }
+
   th.mat-header-cell {
     font-size: .8em;
   }
@@ -441,24 +500,18 @@ a {
   }
 }
 
-/*** Hide short text by default (resolution > 1200px) ***/
-.short-text {
-  display: none;
-}
+@media (max-width: 850px) {
 
-/*** When resolution <= 1200px, hide full text and show short text ***/
-@media (max-width: 1200px) {
-
-  h3{
-      font-size:1.4rem
-  }
-
-  .short-text
-  {
-    display: inline-block;
-  }
-
-  .long-text {
-    display: none;
+  .maticLinkCol span {
+    width: 2rem;
   }
 }
+@media (max-width: 360px) {
+  .defaultAvatorImg{
+      height: 120px;
+  }
+}
+
+
+
+

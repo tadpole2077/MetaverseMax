@@ -23,21 +23,21 @@
     </ng-container>
     <ng-container matColumnDef="district_name">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> <span>Name</span><span class="short-text"></span></th>
-      <td mat-cell *matCellDef="let district">  {{ district.district_name}} </td>
+      <td mat-cell *matCellDef="let district"><span>{{ district.district_name }}</span></td>
     </ng-container>
 
     <ng-container matColumnDef="owner_name">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Owner </th><!-- start="asc"-->
       <td mat-cell *matCellDef="let district">
         <img *ngIf="district.owner_avatar_id>0" src="https://mcp3d.com/tron/api/image/citizen/{{ district.owner_avatar_id }}" class="ownerImgCol" height="60" />
-        <img *ngIf="district.owner_avatar_id==0" src="./images/MysteryOwner.png" class="ownerImgCol" height="50" style="margin-top:0" />
+        <img *ngIf="district.owner_avatar_id==0" src="./images/MysteryOwner.png" class="ownerImgCol mysteryImg" height="50" style="margin-top:0;margin-left:-5px" />
 
         <a class="nav-link text-dark lineAnim maticLinkCol" [routerLink]="['/owner-data']" [queryParams]="{matic: district.owner_matic}" title="{{ district.owner_name }}">
           <span class="long-text" *ngIf="district.owner_name!=''">{{ district.owner_name.substring(0,16) }}</span>
           <span class="short-text" *ngIf="district.owner_name!=''">{{ district.owner_name.substring(0,9) }}</span>
 
           <span class="long-text" *ngIf="district.owner_name==''">{{ district.owner_matic.substring(0,14) }}</span>
-          <span class="short-text" *ngIf="district.owner_name==''">{{ district.owner_matic.substring(0,8)}}</span>
+          <span class="short-text" *ngIf="district.owner_name==''">{{ district.owner_matic.substring(0,10) }}</span>
         </a>
       </td>
     </ng-container>
@@ -57,35 +57,35 @@
         <img src="https://play.mcp3d.com/assets/images/buildings/Energy_ThermalPower_LVL1-1.png" height="30" />
         <span>E</span>
       </th>
-      <td mat-cell *matCellDef="let district" class="taxColCell"><span>{{ district.construction_energy_tax }}</span></td>
+      <td mat-cell *matCellDef="let district" class="taxColCell"><span>{{ district.construction_energy_tax }}%</span></td>
     </ng-container>
     <ng-container matColumnDef="construction_industry_production_tax">
       <th mat-header-cell *matHeaderCellDef mat-sort-header title="Industry & Production" class="taxCol">
         <img src="https://play.mcp3d.com/assets/images/buildings/MetalSmelterFactory_V2_LVL1-1.png" height="30" />
         <span>I+P</span>
       </th>
-      <td mat-cell *matCellDef="let district" class="taxColCell"><span>{{ district.construction_industry_production_tax }}</span></td>
+      <td mat-cell *matCellDef="let district" class="taxColCell"><span>{{ district.construction_industry_production_tax }}%</span></td>
     </ng-container>
     <ng-container matColumnDef="construction_commercial_tax">
       <th mat-header-cell *matHeaderCellDef mat-sort-header title="Office & Commercial" class="taxCol">
         <img src="https://play.mcp3d.com/assets/images/buildings/OfficeRing_LVL1-1.png" height="30" />
         <span>O+C</span>
       </th>
-      <td mat-cell *matCellDef="let district" class="taxColCell"><span>{{ district.construction_commercial_tax }}</span></td>
+      <td mat-cell *matCellDef="let district" class="taxColCell"><span>{{ district.construction_commercial_tax }}%</span></td>
     </ng-container>
     <ng-container matColumnDef="construction_municipal_tax">
       <th mat-header-cell *matHeaderCellDef mat-sort-header title="Municipal" class="taxCol">
         <img src="https://play.mcp3d.com/assets/images/buildings/Hospital_V2_LVL1-1.png" height="30" />
         <span>M</span>
       </th>
-      <td mat-cell *matCellDef="let district" class="taxColCell"><span>{{ district.construction_municipal_tax }}</span></td>
+      <td mat-cell *matCellDef="let district" class="taxColCell"><span>{{ district.construction_municipal_tax }}%</span></td>
     </ng-container>
     <ng-container matColumnDef="construction_residential_tax">
       <th mat-header-cell *matHeaderCellDef mat-sort-header title="Residential" class="taxCol">
         <img src="https://play.mcp3d.com/assets/images/buildings/Residential3_LVL1-1.png" height="30" />
         <span>R</span>
       </th>
-      <td mat-cell *matCellDef="let district" class="taxColCell"><span>{{ district.construction_residential_tax }}</span></td>
+      <td mat-cell *matCellDef="let district" class="taxColCell"><span>{{ district.construction_residential_tax }}%</span></td>
     </ng-container>
 
     <!-- Production -->
@@ -94,28 +94,28 @@
         <img src="https://play.mcp3d.com/assets/images/buildings/Energy_ThermalPower_LVL1-1.png" height="30" />
         <span>E</span>
       </th>
-      <td mat-cell *matCellDef="let district" class="taxColCell"><span>{{ district.energy_tax }}</span></td>
+      <td mat-cell *matCellDef="let district" class="taxColCell"><span>{{ district.energy_tax }}%</span></td>
     </ng-container>
     <ng-container matColumnDef="production_tax">
       <th mat-header-cell *matHeaderCellDef mat-sort-header title="Industry & Production" class="taxCol">
         <img src="https://play.mcp3d.com/assets/images/buildings/MetalSmelterFactory_V2_LVL1-1.png" height="30" />
         <span>I+P</span>
       </th>
-      <td mat-cell *matCellDef="let district" class="taxColCell"><span>{{ district.production_tax }}</span></td>
+      <td mat-cell *matCellDef="let district" class="taxColCell"><span>{{ district.production_tax }}%</span></td>
     </ng-container>
     <ng-container matColumnDef="commercial_tax">
       <th mat-header-cell *matHeaderCellDef mat-sort-header title="Office & Commercial" class="taxCol">
         <img src="https://play.mcp3d.com/assets/images/buildings/OfficeRing_LVL1-1.png" height="30" />
         <span>O+C</span>
       </th>
-      <td mat-cell *matCellDef="let district" class="taxColCell"><span>{{ district.commercial_tax }}</span></td>
+      <td mat-cell *matCellDef="let district" class="taxColCell"><span>{{ district.commercial_tax }}%</span></td>
     </ng-container>
     <ng-container matColumnDef="citizen_tax">
       <th mat-header-cell *matHeaderCellDef mat-sort-header title="Citizen" class="taxCol">
         <img src="https://play.mcp3d.com/assets/images/buildings/Residential3_LVL1-1.png" height="30" />
         <span>C</span>
       </th>
-      <td mat-cell *matCellDef="let district" class="taxColCell"><span>{{ district.citizen_tax }}</span></td>
+      <td mat-cell *matCellDef="let district" class="taxColCell"><span>{{ district.citizen_tax }}%</span></td>
     </ng-container>
 
 

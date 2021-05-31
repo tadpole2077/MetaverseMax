@@ -1,5 +1,7 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using MetaverseMax.ServiceClass;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,6 +59,27 @@ namespace MetaverseMax.Database
             return matchedDistrict;
         }
 
+        //Get District snapshot from 1 month prior to extract prior district tax attributes
+        public District DistrictGet_History1Mth(int districtId)
+        {
+            District matchedDistrict = new();
+
+            try
+            {
+                matchedDistrict = _context.district.Where(x => x.district_id == districtId && x.last_update <= DateTime.Now.AddMonths(-1))
+                    .OrderByDescending(x => x.update_instance)
+                    .FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                string log = ex.Message;
+                _context.LogEvent(String.Concat("DistrictDB::DistrictGet() : Error Getting district_id = ", districtId));
+                _context.LogEvent(log);
+            }
+
+            return matchedDistrict;
+        }
+
         public DistrictContent DistrictContentGet(int districtId)
         {
             DistrictContent matchedDistrictContent = new();
@@ -73,6 +96,87 @@ namespace MetaverseMax.Database
             }
 
             return matchedDistrictContent;
+        }
+
+        public IEnumerable<District> DistrictGetAll_Latest()
+        {
+            List<District> districtList = new();
+            try
+            {
+                //IEnumerable<District> test = 
+                districtList = _context.district.FromSqlInterpolated($"sp_get_all_district_latest").AsNoTracking().ToList();
+                // AsNoTracking() will not track changes to the entity data, used for read-only scenarios, can not use SaveChanges(). likely results in min overhead on retriving and use of entity
+
+                var x = districtList.Count();
+                
+                // Call sproc to get list of latest districts with matching UpdateInstance keys needed to pull the correct set of owner summary records.
+                //districtList = _context.district.FromSqlInterpolated<District>($"EXEC sp_get_all_district_latest")
+                //    .ToList();
+
+            }
+            catch (Exception ex)
+            {
+                string log = ex.Message;
+                _context.LogEvent(String.Concat("DistrictDB::DistrictGetAll_Latest() : Error executing sproc sp_get_all_district_latest"));
+                _context.LogEvent(log);
+            }
+
+            return districtList.ToArray();
+        }
+
+        public bool UpdateDistrictByToken(JToken districtToken)
+        {            
+            District district = new();
+            Common common = new();
+
+            try
+            {
+                district.district_id = districtToken.Value<int?>("region_id") ?? 0;
+                district.district_matic_key = districtToken.Value<string>("address");
+
+                district.owner_name = districtToken.Value<string>("owner_nickname") ?? "Not Found";
+                district.owner_avatar_id = districtToken.Value<int?>("owner_avatar_id") ?? 0;
+                district.owner_matic = districtToken.Value<string>("address") ?? "Not Found";
+
+                district.active_from = common.TimeFormatStandardDT(districtToken.Value<string>("active_from") ?? "", null);
+                district.plots_claimed = districtToken.Value<int?>("claimed_cnt") ?? 0;
+                district.building_count = districtToken.Value<int?>("buildings_cnt") ?? 0;
+                district.land_count = districtToken.Value<int?>("lands") ?? 0;
+
+                district.energy_tax = districtToken.Value<int?>("energy_tax") ?? 0;
+                district.production_tax = districtToken.Value<int?>("production_tax") ?? 0;
+                district.commercial_tax = districtToken.Value<int?>("commercial_tax") ?? 0;
+                district.citizen_tax = districtToken.Value<int?>("citizens_tax") ?? 0;              // Note that MCP uses citizens_tax - plural form.  In MetaverseMap using standard of singular naming system wide, only when using collections in code may use plural - but usually use List and keep singular name
+
+                JToken constructionTax = districtToken.Value<JToken>("construction_taxes");
+                if (constructionTax != null && constructionTax.HasValues)
+                {
+                    district.construction_energy_tax = constructionTax.Value<int?>(0) ?? 0;
+                    district.construction_industry_production_tax = constructionTax.Value<int?>(1) ?? 0;
+                    district.construction_residential_tax = constructionTax.Value<int?>(2) ?? 0;
+                    district.construction_commercial_tax = constructionTax.Value<int?>(3) ?? 0;
+                    district.construction_municipal_tax = constructionTax.Value<int?>(4) ?? 0;
+                }
+
+                district.distribution_period = districtToken.Value<int?>("distribution_period") ?? 0;
+                district.insurance_commission = districtToken.Value<int?>("insurance_commission") ?? 0;
+
+                district.resource_zone = districtToken.Value<int?>("resources") ?? 0;
+
+                DistrictUpdate(district);
+
+            }
+            catch (Exception ex)
+            {
+                string log = ex.Message;
+                if (_context != null)
+                {
+                    _context.LogEvent(String.Concat("UpdateDistrictByToken() : Error District_id: ", district.district_id.ToString()));
+                    _context.LogEvent(log);
+                }
+            }
+
+            return true;
         }
 
         public int DistrictUpdate( District district )

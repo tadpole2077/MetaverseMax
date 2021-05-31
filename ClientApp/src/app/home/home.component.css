@@ -1,0 +1,74 @@
+body {
+}
+.homeContent {
+  padding-left: .2rem;
+}
+.logoImg {
+  position: absolute;
+  margin-left: 310px;
+  top: 64px
+}
+
+.widgetLogo-6zH6Nv:hover {
+  opacity: .6;
+}
+
+.widget-szj0pM a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.widgetLogo-6zH6Nv {
+  background: url("../../assets/discordLogo.svg") 50% no-repeat;
+  width: 104px;
+  height: 24px;
+  background-size: 110px 20px;
+  display: inline-block;
+  -webkit-transition: opacity .25s ease-out;
+  transition: opacity .25s ease-out;
+}
+
+.discordButton {
+  background-color: #7289da;
+  display: inline-block;
+  height: 28px;
+  margin-right: 10px;
+  padding: 2px;
+  border-radius: 4px;
+  vertical-align: top;
+}
+
+@media only screen and (max-width: 415px) {
+  H2{
+    font-size: 1.5rem;
+  }
+  H3{
+    font-size: .9rem;
+  }
+  H5 {
+    font-size: .8rem;
+  }
+  .logoImg{
+    right: .1rem;
+    height: 80px;
+  }
+  .homeContent {
+    font-size: .7rem;
+  }
+  .btn-primary {
+    font-size: .7rem;
+  }
+  .promoImg {
+    max-width: 340px;
+    height: auto;
+  }
+  #twitter-widget-0{
+      font-size:.7rem;
+  }
+  .twitter-follow-button{
+      data-width: 100px
+  }
+  [data-size="large"] {
+    font-size: .8rem
+  }
+}

@@ -142,4 +142,10 @@
         LEVEL_6 = 6,
         LEVEL_7 = 9
     }
+
+    public enum WORLD_TYPE
+    {
+        TRON = 1,
+        ETH = 2
+    }
 }

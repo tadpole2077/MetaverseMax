@@ -1,0 +1,30 @@
+﻿
+Tables:
+1) District
+2) DistrictContent
+3) DistrictUpdateInstance
+4) OwnerSummaryDistrict
+5) Plots
+
+
+Relationships
+1) DistrictContent 1 : ~ District
+2) District 1 : 1 DistrictUpdateInstance
+3) District 1 : ~ OwnerSummaryDistrict
+4) Plot 1 : ~ OwnerSummaryDistrict
+
+
+Details:
+1) As District get updated per night/Sync internal, the prior District data is retained for history comparision within the District table
+So multiple version of district, each with unique DistrictUpdateInstance Key, same district_id, different District_key id( seems like waste on this)
+
+2) When a nightly district Sync occurs:
+	a) District Tbl : New district record is gerenated first per district - new DistrictUpdateInstance key added per district row.
+	b) OwnerSummaryDistrict : new owner summary record generated per owner, for each district, matching new districtUpdateInstance, scanning the plot table (which should also be updated/sync before the district updates process starts) 
+
+3) Identify the latest set of district updates, which will allow pull of matching set of owners summary records - for that specific instance,  supports new owners, and dropped owners per district. 
+* Owners only drop out if also missing from history shown on table (so depending on current, - 1x week, -1x month)
+
+
+Possible fix/improvements
+1) Dont really need the DistrictUpdateInstance table currently, but might be useful in the future to record, instance run time details, maybe to eval changes between distrist updates to reduce repetitive load on system runtime.

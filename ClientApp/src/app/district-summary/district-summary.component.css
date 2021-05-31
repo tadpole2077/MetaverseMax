@@ -25,7 +25,6 @@
 
 .ownerInfo {
   margin-top: 1.2rem;
-  margin-bottom: 1.4rem;
   height:90px;
 }
   .ownerdata {
@@ -41,26 +40,46 @@
     vertical-align: top;
     display: inline-block;
   }
+.districtOwnerLink{
+    display:inline-block;
+}
+  .districtOwnerLink strong {
+    color:#0366d6;
+  }
 
+
+.districtImgContainer {
+  position: absolute;
+  right: 20%;
+  margin-top: -16px;
+  z-index: 10;
+  width: 400px;
+  height: 160px;
+  overflow-y: hidden
+}
+.innerDistrictImgContainer{
+  width:300px;
+  float:right;
+}
 .districtImg {
   float: right;
-  margin-top: -30px;
+  margin-top: -50px;
   z-index: 10;
-  position: relative;
 }
+
 .slideOutLeft {
-  float: right;
-  margin-right: -70px;
+  position:absolute;
+  top:0;
+  margin-left: -80px;
   width: 180px;
   height: 110px;
-  z-index: 1;
+  z-index: -1;
   border: 1px;
   border-color: gray;
   border-style: solid;
   box-shadow: 0 5px 10px rgb(0 0 0 / 12%);
   border-radius: 5px;
   background-color: white;
-  position: relative;
   font-size: .9em;
   opacity: 0;
   visibility: hidden;
@@ -68,10 +87,13 @@
   transition: opacity 600ms, visibility 600ms;
   padding-left:2px;
 }
-.slideOutLeft span {
-  display:block;
-  font-weight: bold;
-}
+  .slideOutLeft span {
+    display: block;
+  }
+
+  .slideOutLeft p span:nth-child(2) {
+    font-weight: bold;
+  }
 
 .districtImg:hover + .slideOutLeft {
   visibility: visible;
@@ -79,16 +101,25 @@
   display: block;
 }
 
+
 .searchDistrict {
   float: right;
-  margin-top: -60px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  margin-top: 10px;
   z-index: 101;
   position: relative;
 }
 
 
 /***District Section***/
+.districtHeader{
+  position:absolute;
+
+}
+.districtDetailsSection{
+  padding-top:30px;
+}
+
 .showAllLink {
   display: block;
   opacity: .7;
@@ -154,13 +185,97 @@
 }
 
 .districtCount{
-    opacity:.7
+  opacity:.7
 }
 .RemoveOpacity{
-    opacity:1
+  opacity:1
 }
 
 
+.districtPlotSection {
+  clear: both;
+  width: 14rem;
+}
+
+.plotCountFieldA {
+  width: 7rem;
+  display: inline-block;
+}
+
+.plotCountFieldB {
+  display: inline-block;
+}
+
+.plotCountFieldC {
+  margin-left: 3.5rem;
+  display: inline-block;
+}
+
+.districtInfoBlock {
+  margin-left: 10px;
+  width: 38rem
+}
+.districtInfoBlock div:first-child{
+    margin-bottom:.4rem;
+}
+
+.taxGraphDistrictConstruct {
+  display: inline-block;
+  width: 430px;
+  height: 210px
+}
+.taxGraphDistrictProduce {
+  display: inline-block;
+  /*width: 330px; /* Less then actual size, used to force 2nd grid to stay on same line until legend is nearly hiden*/
+  width: 420px;
+  height: 210px
+}
+.fundGraph {
+  display: inline-block;
+  width: 416px;
+  height: 200px;
+}
+.distributeGraph {
+  display: inline-block;
+  width: 416px;
+  height: 200px;
+}
+.ngx-charts-axis-label{
+  font-weight: 600;
+}
+.fundSection{
+  min-height: 250px;
+}
+.fundGraph, .distributeGraph {
+  display: inline-block;
+  max-height: 200px;
+  /*overflow-y: hidden;*/
+}
+.fundDataBlock {
+  width: 28rem;
+  text-align: center;
+  margin-bottom: .2rem;
+  margin-top: .6rem;
+  float:right
+}
+
+
+.arrivalCheckboxDiv{
+  margin-left: 1rem;
+  display: inline-block;
+  font-size:.8rem;
+}
+.arrivalCheckboxMonth{
+  margin-left:1rem;
+}
+::ng-deep .mat-checkbox-checked.mat-accent .mat-checkbox-ripple .mat-ripple-element {
+  opacity: 0.03 !important;
+  background-color: #005691 !important;
+}
+
+::ng-deep .mat-checkbox-checked.mat-accent .mat-checkbox-background, .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background {
+  background-color: #1b6ec2;
+}
 
 /*** TABLE ***/
 .mat-table {
@@ -174,6 +289,8 @@
 .table-container {
   max-height: calc(100vh - 155px);
   clear: both;
+  margin-top: .8rem;
+  display: inline-table;
   /* or height: calc(100vh - 155px);
     depending on your need change overflow: auto;*/
 }
@@ -205,15 +322,6 @@ td.boldfield {
   font-weight: bold;
 }
 
-.ownerImgCol{
-  display:inline-block;
-  margin-top: -14px;
-}
-
-.maticLinkCol{
-  display:inline-block
-}
-
 .tableWrapline {
   display: inline-block;
   margin-left: 4px;
@@ -242,19 +350,95 @@ th.mat-sort-header-sorted {
   min-width: 240px;
 }
   .mat-column-owner_nickname a {
-    padding-right: .4rem
+    display:inline-block;
+    padding-right: 0;
+    padding-left: .6rem;
+  }
+    .mat-column-owner_nickname a span {
+      width:8rem;
+      display:inline-block;
+      white-space: nowrap;
+      overflow: hidden !important;
+      text-overflow: ellipsis;     
+    }
+
+      .mat-column-owner_nickname a span:hover {
+        white-space: unset;
+        text-overflow: unset;
+        transition: 1s;
+      }
+
+  .mat-column-owner_nickname img {    
+    display: inline-block;
+    vertical-align:sub
   }
 
 th.mat-column-owned_plots{
   text-align: center;
   padding-top: 0;
 }
-.mat-column-energy_count, .mat-column-industry_count, .mat-column-production_count, .mat-column-office_count, .mat-column-residential_count, .mat-column-poi_count, .mat-column-commercial_count, .mat-column-municipal_count {
-  text-align: center;
-  margin-top: .6rem;
+.mat-column-owned_plots{
+    text-align: center;
 }
 .mat-column-energy_count, .mat-column-industry_count, .mat-column-production_count, .mat-column-office_count, .mat-column-residential_count, .mat-column-poi_count, .mat-column-commercial_count, .mat-column-municipal_count {
+  text-align: center;
   margin-top: .2rem;
+}
+.header-count .long-text {
+  font-size: .7rem;
+}
+
+<i class="fas fa-plane-arrival" > </i >
+/* Table filter Input */
+::ng-deep .mat-focused .mat-form-field-label {
+  /*change color of label*/
+  color: #1b6ec2 !important;
+}
+
+::ng-deep.mat-form-field-underline {
+  /*change color of underline*/
+ /* background-color: #1b6ec2 !important;*/
+}
+
+::ng-deep.mat-form-field-ripple {
+  /*change color of underline when focused*/
+  background-color: #1b6ec2 !important;  
+}
+
+.arrivalIcon {
+  color: #1b6ec2;
+  font-size: 1.4rem;
+  margin-right: .5rem;
+  margin-left: -1.2rem;
+  margin-top: -16px;
+  vertical-align: text-top;
+  -webkit-animation: glow 1s ease-in-out infinite alternate;
+  -moz-animation: glow 1s ease-in-out infinite alternate;
+  animation: glow 1s ease-in-out infinite alternate;
+}
+@-webkit-keyframes glow {
+  from {
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #1b6ec2, 0 0 25px #1b6ec2, 0 0 30px #1b6ec2, 0 0 33px #fff;
+  }
+
+  to {
+    text-shadow: 0 0 10px #fff, 0 0 15px #FFF, 0 0 20px #ff4da6, 0 0 25px #ff4da6, 0 0 30px #ff4da6, 0 0 35px #ff4da6, 0 0 40px #fff;
+  }
+}
+
+.adIcon {
+  -webkit-animation: glowAd 1.2s ease-in-out infinite alternate;
+  -moz-animation: glowAd 1.2s ease-in-out infinite alternate;
+  animation: glowAd 1.2s ease-in-out infinite alternate;
+}
+@-webkit-keyframes glowAd {
+  from {
+    text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 14px #fff, 0 0 16px red, 0 0 18px red, 0 0 20px #fff,0 0 23px #fff;
+  }
+
+  to {
+    text-shadow: 0 0 4px #fff, 0 0 10px #FFF, 0 0 12px #fff, 0 0 15px #fff, 0 0 18px #fff, 0 0 21px #fff;
+  }
 }
 
 /*** Link underline amine ***/
@@ -266,7 +450,8 @@ a {
 }
 
   a.lineAnim:hover {
-    color: #000;
+    /*color: #000;*/
+    color: #1b6ec2;
     opacity: 1;
   }
 
@@ -277,7 +462,8 @@ a {
     height: 2px;
     bottom: 0;
     left: 0;
-    background-color: #000;
+    background-color: #1b6ec2;
+    /*background-color: #000;*/
     visibility: hidden;
     transform: scaleX(0);
     transition: all 0.3s ease-in-out 0s;
@@ -289,14 +475,66 @@ a {
   }
 
 
+/*** Hide short text by default (resolution > 1200px) ***/
+.short-text {
+  display: none;
+}
+
+.showMaticKeySmall {
+  display: none;
+}
+
+.maticLabel {
+  font-weight: 500
+}
+
+
 /*** MOBILE ***/
+@media only screen and (max-width: 2100px) {
+  .districtImgContainer {
+    right: 16%;
+  }
+}
+
+@media only screen and (max-width: 1800px) {
+  .districtImgContainer {
+    right: 9%;
+  }
+}
+
 @media only screen and (max-width: 1320px) {
+  .districtImgContainer {
+    right: 7%;
+  }
   .magnifyHistoryIcon {
     height: 20px;
+  }
+
+}
+/*** When resolution <= 1200px, hide full text and show short text ***/
+@media (max-width: 1200px) {
+  h3 {
+    font-size: 1.4rem
+  }
+
+  .short-text {
+    display: inline-block;
+  }
+
+  .long-text {
+    display: none;
   }
 }
 
 @media only screen and (max-width: 1090px) {
+
+  .districtImg {
+    height: 230px
+  }
+  .innerDistrictImgContainer{
+      width:260px;
+  }
+
   th.mat-header-cell {
     font-size: .8em;
   }
@@ -304,43 +542,128 @@ a {
   td.mat-cell {
     font-size: .9em;
   }
-
-  .mat-column-owner_nickname{
-      min-width:135px
-  }
-  .mat-column-owner_nickname a {
-    padding-left: 3px;
-    padding-right: 5px;    
-  }
-  .mat-column-owner_nickname span {
-    font-size: .8em;    
-  }
-    .mat-column-owner_nickname img {
-      margin-right:0px;
-      margin-left:-10px;
-      height:40px
+    td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type, th.mat-header-cell:last-of-type {
+      padding-right: 0px
     }
 
-}
-
-/*** Hide short text by default (resolution > 1200px) ***/
-      .short-text {
-  display: none;
-}
-
-/*** When resolution <= 1200px, hide full text and show short text ***/
-@media (max-width: 1200px) {
-
-  h3{
-      font-size:1.4rem
+  .mat-column-owner_nickname{
+      min-width: 10rem;
+  }
+  .mat-column-owner_nickname a span {
+    width: 4.3rem;
+  }
+    .mat-column-owner_nickname a {
+      padding-left: 3px;
+      padding-right: 5px;    
+    }
+    .mat-column-owner_nickname span {
+      width: 4.3rem;
+    }
+  .mat-column-owner_nickname img {
+    margin-right:0px;
+    margin-left:-10px;
+    height:46px
   }
 
-  .short-text
-  {
+}
+
+@media only screen and (max-width: 850px) {
+
+  .mat-column-owner_nickname {
+    min-width: 8rem;
+  }
+
+  td.mat-column-owner_nickname {    
+    font-size: .8rem;
+  }
+  .mat-column-owner_nickname a span {
+    width: 4rem;
+  }
+  .mat-column-owner_nickname a span.maticLink {
+    width: 3.5rem;
+  }
+
+  .districtOwnerMatic {
+    display: none
+  }
+
+  .showMaticKeySmall {
     display: inline-block;
+    z-index: 30
+  }
+}
+
+@media only screen and (max-width: 415px) {
+  h3 {
+    font-size: 1.3rem;
   }
 
-  .long-text {
-    display: none;
+  .districtImgContainer {
+    text-align: center;
+    position: relative;
+    right: unset;
+    width: unset;
+    margin-top: -20px;
+    margin-bottom: 8px;
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .innerDistrictImgContainer {
+    float: unset;
+    clear: both;
+    width: auto;
+  }
+
+  .districtImg {
+    height: 190px;
+    margin-top: unset;
+    float: none;
+    width: auto;
+  }
+
+  .slideOutLeft {
+    margin-left: unset;
+  }
+
+  .taxGraphDistrict {
+    margin-left: -28px !important;
+  }
+
+  .taxGraphDistrictConstruct {
+    width: 370px;
+  }
+
+  .taxGraphDistrictProduce {
+    width: 370px;
+  }
+  .searchDistrict{
+    position:absolute;
+    top:60px;
+    right:10px;
+  }
+  .fundGraph{
+    margin-left:-20px;
+    width:390px;   
+  }
+  .distributeGraph {
+    margin-top:1.4rem;
+    margin-left: -20px;
+    width: 390px;
+  }
+
+  .districtInfoBlock{
+    margin-left:-1rem;
+  }
+  .mat-column-owner_nickname a span.maticLink {
+    width: 2.5rem;
+  }
+  div.mat-form-field-infix {
+    width: 140px;
+  }
+  .mat-expansion-panel-header-title span {
+    font-weight: 500;
+    font-size: .8rem;
   }
 }

@@ -60,5 +60,10 @@ namespace MetaverseMax.Database
         [Column("commercial_count")]
         public int commercial_count { get; set; }
 
+        [Column("new_owner")]
+        public bool? new_owner { get; set; }
+
+        [Column("new_owner_month")]
+        public bool? new_owner_month { get; set; }
     }
 }

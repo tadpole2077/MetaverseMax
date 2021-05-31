@@ -28,8 +28,10 @@ export class NoteModalComponent implements PipeTransform, AfterViewInit {
   }
 
   public adShow(passedText: string, startDate: string, endDate: string) {
+
     this.displayDateTitle = startDate.substring(0, 11) + (endDate == "" ? "" : " - " + endDate.substring(0,11));
     this.displayTextSafe = this.displayDateTitle + "<br\>" + passedText;
+
     return;
   }
 

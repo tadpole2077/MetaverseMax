@@ -1,58 +1,16 @@
-import { Component, Inject, ViewChild, EventEmitter, Renderer, ElementRef } from '@angular/core';
+import { Component, Inject, ViewChild, EventEmitter, Renderer, ElementRef, ViewChildren } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule, MatExpansionModule, MatIconModule, MatCheckboxModule, MatCheckboxChange, MatCheckbox } from '@angular/material';
 import { AfterViewInit } from '@angular/core';
 import { NoteModalComponent } from '../note-modal/note-modal.component';
-
-// Service Interfaces
-export interface OwnerSummary {
-  summary_id: number,
-  district_id: number;
-  owner_matic: string;
-  owner_nickname: string;
-  owner_avatar_id: number;
-  owned_plots: number;
-  energy_count: number;
-  industry_count: number;
-  residential_count: number;
-  production_count: number;
-  office_count: number;
-  municipal_count: number;
-  poi_count: number;
-  empty_count: number;
-  update_instance: string;
-  commercial_count: number; 
-}
-
-interface District {
-  update_instance: number;
-  district_id: number;
-  district_name: string;
-  land_count: number;
-  building_count: number;
-  plots_claimed: number;
-  energy_count: number;
-  industry_count: number;
-  production_count: number;
-  office_count: number;
-  commercial_count: number;
-  municipal_count: number;
-  owner_name: string;
-  owner_avatar_id: number;
-  owner_url: string;
-  owner_matic: string;
-  active_from: string;
-  energy_tax: number;
-  production_tax: number;
-  commercial_tax: number;
-  citizens_tax: number;
-  promotion: string;
-  promotion_start: string;
-  promotion_end: string;
-}
-
+import { TaxGraphComponent } from '../tax-graph/tax-graph.component';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { OwnerSummary, District } from './data-district-interface';
+import { GraphData } from '../common/graph-interface';
 
 @Component({
   selector: 'district-summary-data',
@@ -64,24 +22,40 @@ export class DistrictSummaryComponent implements AfterViewInit {
   httpClient: HttpClient;
   baseUrl: string;
 
+  DistrictInterface: any;
+
   public district: District;
+
   public ownerSummary: OwnerSummary[] = new Array();        //Holds Owner Summary collection used by table
+  public ownerSummaryNewArrivals_Week: OwnerSummary[] = new Array();
+  public ownerSummaryNewArrivals_Month: OwnerSummary[] = new Array();
+
   public adShow: boolean = false;
+  public showArrivalMonth: boolean = false;
+  public CONSTRUCT = "CONSTRUCT";
+  public PRODUCE = "PRODUCE";
 
   dataSourceOwnerSummary = new MatTableDataSource(null);
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(NoteModalComponent, { static: true }) child: NoteModalComponent;
+  @ViewChild(NoteModalComponent, { static: true }) childNote: NoteModalComponent;
+
+  @ViewChild("graphConstruct", { static: true }) childGraphConstruct: TaxGraphComponent;
+  @ViewChild("graphProduce", { static: true }) childGraphProduce: TaxGraphComponent;
+  @ViewChild("graphFund", { static: true }) childGraphFund: TaxGraphComponent;
+  @ViewChild("graphDistribute", { static: true }) childGraphDistribute: TaxGraphComponent;
+  @ViewChild("arrivalsWeek", { static: true } as any) arrivalsWeek: MatCheckbox;
+
 
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
-  displayedColumnsOwners: string[] = ['owner_nickname', 'owned_plots', 'energy_count', 'industry_count', 'production_count', 'residential_count', 'office_count', 'poi_count', 'commercial_count', 'municipal_count' ];
- 
-  constructor(private route: ActivatedRoute, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private renderer: Renderer, private elem: ElementRef)
-  {
+  displayedColumnsOwners: string[] = ['owner_nickname', 'owned_plots', 'energy_count', 'industry_count', 'production_count', 'residential_count', 'office_count', 'poi_count', 'commercial_count', 'municipal_count'];
+
+  constructor(private route: ActivatedRoute, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private renderer: Renderer, private elem: ElementRef) {
     this.httpClient = http;
     this.baseUrl = baseUrl;
     this.district = {
       update_instance: 0,
-      district_name:"",
+      last_updateFormated: "",
+      district_name: "",
       district_id: 0,
       owner_name: "Search for an Owner, Enter Plot X and Y position, click Find Owner.",
       owner_avatar_id: 0,
@@ -95,7 +69,7 @@ export class DistrictSummaryComponent implements AfterViewInit {
       office_count: 0,
       commercial_count: 0,
       municipal_count: 0,
-      energy_tax:0,
+      energy_tax: 0,
       production_tax: 0,
       commercial_tax: 0,
       citizens_tax: 0,
@@ -103,7 +77,12 @@ export class DistrictSummaryComponent implements AfterViewInit {
       plots_claimed: 0,
       promotion: "",
       promotion_start: "",
-      promotion_end:""
+      promotion_end: "",
+      distribution_period: 0,
+      produceTax: null,
+      constructTax: null,
+      fundHistory: null,
+      distributeHistory: null
     };
 
     // CHECK request Parameter, search by districtId
@@ -118,26 +97,33 @@ export class DistrictSummaryComponent implements AfterViewInit {
   }
 
   // Single parameter struct containing 2 members, pushed by component search-plot
-  searchDistrict(district_id: number ) {
+  searchDistrict(district_id: number) {
 
     let params = new HttpParams();
     params = params.append('district_id', district_id.toString());
     this.adShow = false;
-
+    
     this.httpClient.get<District>(this.baseUrl + 'api/district', { params: params })
-      .subscribe((result: District) => {
+      .subscribe((result: District) => {        
 
         this.district = result;
         this.searchOwnerSummaryDistrict(district_id, this.district.update_instance);
+
+        this.arrivalsWeek.checked = false;
         this.removeLinkHighlight();
+
+        this.childGraphConstruct.loadGraph(this.district.constructTax);
+        this.childGraphProduce.loadGraph(this.district.produceTax);
+        this.childGraphFund.loadGraph(this.district.fundHistory);
+        this.childGraphDistribute.loadGraph(this.district.distributeHistory);
         //plotPos.rotateEle.classList.remove("rotate");
 
       }, error => console.error(error));
 
-    
+
     return;
   }
-  
+
 
   removeLinkHighlight() {
 
@@ -159,7 +145,9 @@ export class DistrictSummaryComponent implements AfterViewInit {
     let params = new HttpParams();
     params = params.append('district_id', districtId.toString());
     params = params.append('update_instance', updateInstance.toString());
-
+    this.ownerSummary = new Array();
+    this.ownerSummaryNewArrivals_Week = new Array();
+    this.ownerSummaryNewArrivals_Month = new Array();
 
     this.httpClient.get<OwnerSummary[]>(this.baseUrl + 'api/ownersummary', { params: params })
       .subscribe((result: OwnerSummary[]) => {
@@ -174,14 +162,48 @@ export class DistrictSummaryComponent implements AfterViewInit {
         this.removeLinkHighlight();
         //plotPos.rotateEle.classList.remove("rotate");
 
+        // Store new arrivals for use on filter
+        this.ownerSummary.forEach(summary => {
+          if (summary.new_owner == true) {
+            this.ownerSummaryNewArrivals_Week.push(summary);
+          }
+          if (summary.new_owner_month == true) {
+            this.ownerSummaryNewArrivals_Month.push(summary);
+          }          
+        });
+
       }, error => console.error(error));
 
     return;
   }
 
+  filterArrivalsWeek(eventCheckbox: MatCheckboxChange) {
+
+    if (eventCheckbox.checked) {
+      this.dataSourceOwnerSummary = new MatTableDataSource<OwnerSummary>(this.ownerSummaryNewArrivals_Week);
+    }
+    else {
+      this.dataSourceOwnerSummary = new MatTableDataSource<OwnerSummary>(this.ownerSummary);
+    }
+    this.dataSourceOwnerSummary.sort = this.sort;
+  }
+
+  filterArrivalsMonth(eventCheckbox: MatCheckboxChange) {
+    
+    if (eventCheckbox.checked) {
+      this.dataSourceOwnerSummary = new MatTableDataSource<OwnerSummary>(this.ownerSummaryNewArrivals_Month);
+      this.showArrivalMonth = true;
+    }
+    else {
+      this.dataSourceOwnerSummary = new MatTableDataSource<OwnerSummary>(this.ownerSummary);
+      this.showArrivalMonth = false;
+    }
+    this.dataSourceOwnerSummary.sort = this.sort;
+  }
+
   // District ad modal popup shown - user can close or move it
   showAd(promotionText: string, promotionStart: string, promotionEnd: string) {
-    this.child.adShow(promotionText, promotionStart, promotionEnd);
+    this.childNote.adShow(promotionText, promotionStart, promotionEnd);
     this.adShow = true;
 
     return;
@@ -189,5 +211,9 @@ export class DistrictSummaryComponent implements AfterViewInit {
 
   hideAd(componentVisible: boolean) {
     this.adShow = !componentVisible;
+  }
+
+  public applyFilter = (value: string) => {
+    this.dataSourceOwnerSummary.filter = value.trim().toLocaleLowerCase();
   }
 }

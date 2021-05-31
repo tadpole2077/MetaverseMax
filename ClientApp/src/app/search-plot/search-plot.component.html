@@ -2,12 +2,16 @@
 
 <div class="search">
   <div style="margin-bottom:6px">
-
-    <input matInput class="plotx" placeholder="Plot X" type='text' numbersOnly #plotX (keyup.enter)="GetPlotData({plotX: plotX.value, plotY: plotY.value})" />
-    <input matInput class="ploty" placeholder="Plot Y" type='text' numbersOnly #plotY (keyup.enter)="GetPlotData({plotX: plotX.value, plotY: plotY.value})" />
-
+    <div fxLayout fxLayoutAlign="center center">
+      <mat-form-field fxFlex="20%" [style.width.rem]=6>
+        <input matInput class="plotx" placeholder="Plot X" type='text' numbersOnly #plotX (keyup.enter)="GetPlotData({plotX: plotX.value, plotY: plotY.value})" />
+      </mat-form-field>
+      <mat-form-field fxFlex="20%" [style.margin-left.rem]=1 [style.width.rem]=6>
+        <input matInput class="ploty" placeholder="Plot Y" type='text' numbersOnly #plotY (keyup.enter)="GetPlotData({plotX: plotX.value, plotY: plotY.value})" />
+      </mat-form-field>
+    </div>
   </div>
-
-  <i id="searchIcon" class="fas fa-sync-alt searchIcon" style=""></i><button id="buttonfind" class="btn btn-primary" style="width:130px;padding-right:4px" (click)="GetPlotData({plotX: plotX.value, plotY: plotY.value})">Find Owner</button>
-
+  <div style="float:right">
+    <i id="searchIcon" class="fas fa-sync-alt searchIcon" style=""></i><button id="buttonfind" class="btn btn-primary" style="width:130px;padding-right:4px" (click)="GetPlotData({plotX: plotX.value, plotY: plotY.value})">Find Owner</button>
+  </div>
 </div>

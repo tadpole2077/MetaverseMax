@@ -126,7 +126,14 @@ namespace MetaverseMax.Controllers
             }
             else
             {
-                ownerData.last_action = "Empty Plot, It could be Yours today!";
+                if ( string.Equals(ownerData.owner_matic_key, "Owner not Found") )
+                {
+                    ownerData.last_action = "Empty Plot, It could be Yours today!";
+                }
+                else
+                {
+                    ownerData.last_action = "This player owns no land plots in Tron World";
+                }
             }
 
             return 0;

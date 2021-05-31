@@ -18,6 +18,12 @@ namespace MetaverseMax.Database
         [Column("district_id")]
         public int district_id { get; set; }
 
+        [Column("last_update")]
+        public DateTime last_update { get; set; }
+
+        [Column("update_instance")]
+        public int? update_instance { get; set; }
+
         [Column("owner_name")]
         public string owner_name { get; set; }
 
@@ -101,16 +107,10 @@ namespace MetaverseMax.Database
         public string district_matic_key { get; set; }
 
         [Column("distribution_period")]
-        public int distribution_period { get; set; }
+        public int? distribution_period { get; set; }
 
         [Column("insurance_commission")]
         public int insurance_commission { get; set; }
-
-        [Column("last_update")]
-        public DateTime last_update { get; set; }
-
-        [Column("update_instance")]
-        public int update_instance { get; set; }
 
     }
 }
