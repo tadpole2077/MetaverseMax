@@ -56,6 +56,7 @@ input.mat-input-element {
 }
 
 .searchIcon {
+  font-size:1.1rem;
   margin-left: 6px;
   margin-top: 10px;
   position: absolute;
@@ -75,6 +76,12 @@ input.mat-input-element {
 
   to {
     box-shadow: 0 0 3px #1b6ec2, 0 0 6px #1b6ec2, 0 0 9px #1b6ec2, 0 0 8px #1b6ec2;
+  }
+}
+
+@media only screen and (max-width: 415px) {
+  .search {
+    margin-top: unset;
   }
 }
 

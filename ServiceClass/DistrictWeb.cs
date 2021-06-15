@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MetaverseMax.Database;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -52,6 +53,9 @@ namespace MetaverseMax.ServiceClass
         public NgxChart constructTax { get; set; }
         public NgxChart fundHistory { get; set; }
         public NgxChart distributeHistory { get; set; }
+
+        public IEnumerable<Perk> perkSchema { get; set; }
+        public IEnumerable<DistrictPerk> districtPerk { get; set; }
 
     }
 }

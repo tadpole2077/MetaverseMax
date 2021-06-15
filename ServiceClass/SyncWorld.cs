@@ -60,9 +60,13 @@ namespace MetaverseMax.ServiceClass
             DistrictDB districtDB;
             DistrictFundManage districtFundManage;
             DistrictWebMap districtWebMap;
-            List<District> districtList;
+            DistrictPerkManage districtPerkManage;
+            DistrictPerkDB districtPerkDB;
 
-            int x = 0, y = 0, districtId = 0, saveCounter = 1;
+            List<District> districtList;
+            List<DistrictPerk> districtPerkList;
+
+            int x = 0, y = 0, districtId = 0, saveCounter = 1, updateInstance = 0;
             List<Plot> plotList;
 
             try
@@ -75,13 +79,22 @@ namespace MetaverseMax.ServiceClass
                 DbContextOptionsBuilder<MetaverseMaxDbContext> options = new();                
                 _context = new MetaverseMaxDbContext(options.UseSqlServer(dbConnectionString).Options);
 
+                districtPerkManage = new(_context);
                 districtFundManage = new(_context);
+                districtPerkDB = new(_context);
                 districtWebMap = new(_context);
                 districtDB = new(_context);
                 plotDB = new(_context);
 
                 districtList = districtDB.DistrictGetAll_Latest().ToList();
 
+                // Store copy of current plots as archived plot state
+                plotDB.ArchivePlots();
+
+                // Get district perks
+                districtPerkList = districtPerkManage.GetPerks().ToList();
+
+                // Iterate each district, update all buildable plots within the district then sync district owners, and funds.
                 for (int index = 0; index < districtList.Count; index++)
                 {
                     districtId = districtList[index].district_id;
@@ -92,7 +105,7 @@ namespace MetaverseMax.ServiceClass
 
                         plotDB.AddOrUpdatePlot(plotList[plotIndex].pos_x, plotList[plotIndex].pos_y, _context, plotList[plotIndex].plot_id, false);
 
-                        await Task.Delay(jobInterval);      // Typically minimum interval using this Delay thread method is about 1.5 seconds
+                        await Task.Delay(jobInterval);      // Typically minimum interval using this Delay thread method is about 1.5 seconds = 1500
 
                         saveCounter++;
 
@@ -105,15 +118,27 @@ namespace MetaverseMax.ServiceClass
                     }
 
                     // Save any pending plots before district sproc calls.
-                    _context.SaveChanges();
+                    _context.SaveChanges();                    
 
                     // All plots for district now updated, ready to sync district details with MCP, and generation a new set of owner summary records.
-                    districtWebMap.UpdateDistrict( districtId );
+                    updateInstance = districtWebMap.UpdateDistrict( districtId );
 
                     // Sync Funding for current district
                     districtFundManage.UpdateFundPriorDay(districtId);
+
+                    // Assign Distrist update instance to related district perks (if any)
+                    for (int perkIndex = 0; perkIndex < districtPerkList.Count; perkIndex++) 
+                    {
+                        if (districtPerkList[perkIndex].district_id == districtId)
+                        {
+                            districtPerkList[perkIndex].update_instance = updateInstance;
+                        }
+                    }
+
                 }
 
+                // Save Perk list after all districts updated.
+                districtPerkDB.Save( districtPerkList );
             }
             catch (Exception ex)
             {

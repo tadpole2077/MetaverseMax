@@ -1,6 +1,6 @@
 import { Component, Inject, ViewChild, EventEmitter, Renderer, ElementRef } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Router, ActivatedRoute, Params } from '@angular/router';
+import { NavigationEnd, NavigationStart, RouterEvent, Router, ActivatedRoute, Params } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { AfterViewInit } from '@angular/core';
@@ -85,10 +85,11 @@ export class OwnerDataComponent implements AfterViewInit {
   private currentDistrictFilter: number = 0;
   private buttonShowAll: boolean = false;
   public historyShow: boolean = false;
+  private subscriptionRouterEvent: any;
 
   dataSource = new MatTableDataSource(null);
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(ProdHistoryComponent, { static: true }) child: ProdHistoryComponent;
+  @ViewChild(ProdHistoryComponent, { static: true }) prodHistory: ProdHistoryComponent;
 
   // ViewChild used for these elements to provide for rapid element attribute changes without need for scanning DOM and readability.
   @ViewChild('emptyPlotFilter', { static: false}) emptyPlotFilter: ElementRef;
@@ -108,30 +109,67 @@ export class OwnerDataComponent implements AfterViewInit {
   {
     this.httpClient = http;
     this.baseUrl = baseUrl;
+    this.setInitVar();       
+
+    // Check on URL change due to movement between features
+    this.subscriptionRouterEvent = this.router.events.subscribe((event: RouterEvent) => {
+      //console.log('current route: ', router.url.toString());
+
+      if (event instanceof NavigationEnd) {
+        // CASE reset the search to empty when moving from My Portfolio to Owner Report
+        if (this.router.url.startsWith("/owner-data")) {
+          this.triggerSearchByMatic();
+        }
+      }
+    });
+  }
+
+  ngAfterViewInit() {
+
+  }
+
+  ngOnDestroy() {
+    //Prevent multi subscriptions relating to router change events
+    if (this.subscriptionRouterEvent) {
+      this.subscriptionRouterEvent.unsubscribe();
+    }
+  }
+
+  // Trigger used on page load, or on URL change - moving between My portfolio and Owner Report features
+  triggerSearchByMatic() {
+    this.prodHistory.setHide();
+
+    let requestOwnerMatic = this.route.snapshot.queryParams["matic"];
+    if (requestOwnerMatic) {
+      this.searchOwnerbyMatic(requestOwnerMatic);
+    }
+    else {
+      // CASE reset the search to empty when moving from My Portfolio to Owner Report
+      this.setInitVar();
+      this.dataSource = new MatTableDataSource(null);
+      this.filterLandByDistrict = new Array();
+      this.currentDistrictFilter = 0;
+      this.buttonShowAll = false;
+      this.hideBuildingFilter(this.owner.owner_land);
+
+    }
+  }
+
+  setInitVar() {
     this.owner = {
       owner_name: "Search for an Owner, Enter Plot X and Y position, click Find Owner.",
       owner_url: "https://mcp3d.com/tron/api/image/citizen/0",
       owner_matic_key: "",
       last_action: "",
       registered_date: "",
-      last_visit:"",
+      last_visit: "",
       plot_count: 0,
       developed_plots: 0,
       plots_for_sale: 0,
       district_plots: null,
-      owner_land: null      
+      owner_land: null
     };
-
   }
-
-  ngAfterViewInit() {
-
-    let requestOwnerMatic = this.route.snapshot.queryParams["matic"];
-    if (requestOwnerMatic) {
-      this.searchOwnerbyMatic(requestOwnerMatic);
-    }
-  }
-
 
   searchOwnerbyMatic(ownerMatic: string) {
 
@@ -350,7 +388,7 @@ export class OwnerDataComponent implements AfterViewInit {
 
   showHistory(asset_id: number, pos_x: number, pos_y: number) {
     
-    this.child.searchHistory(asset_id, pos_x, pos_y);
+    this.prodHistory.searchHistory(asset_id, pos_x, pos_y);
     this.historyShow = true;
   }
 

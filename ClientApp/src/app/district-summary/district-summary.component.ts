@@ -25,13 +25,14 @@ export class DistrictSummaryComponent implements AfterViewInit {
   DistrictInterface: any;
 
   public district: District;
+  public fundtotal: number;
 
   public ownerSummary: OwnerSummary[] = new Array();        //Holds Owner Summary collection used by table
   public ownerSummaryNewArrivals_Week: OwnerSummary[] = new Array();
   public ownerSummaryNewArrivals_Month: OwnerSummary[] = new Array();
 
   public adShow: boolean = false;
-  public showArrivalMonth: boolean = false;
+  public showArrivalMonth: boolean = true;
   public CONSTRUCT = "CONSTRUCT";
   public PRODUCE = "PRODUCE";
 
@@ -44,6 +45,7 @@ export class DistrictSummaryComponent implements AfterViewInit {
   @ViewChild("graphFund", { static: true }) childGraphFund: TaxGraphComponent;
   @ViewChild("graphDistribute", { static: true }) childGraphDistribute: TaxGraphComponent;
   @ViewChild("arrivalsWeek", { static: true } as any) arrivalsWeek: MatCheckbox;
+  @ViewChild("arrivalsMonth", { static: true } as any) arrivalsMonth: MatCheckbox;
 
 
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
@@ -82,7 +84,9 @@ export class DistrictSummaryComponent implements AfterViewInit {
       produceTax: null,
       constructTax: null,
       fundHistory: null,
-      distributeHistory: null
+      distributeHistory: null,
+      perkSchema: null,
+      districtPerk: null
     };
 
     // CHECK request Parameter, search by districtId
@@ -110,13 +114,22 @@ export class DistrictSummaryComponent implements AfterViewInit {
         this.searchOwnerSummaryDistrict(district_id, this.district.update_instance);
 
         this.arrivalsWeek.checked = false;
+        this.arrivalsMonth.checked = false;
         this.removeLinkHighlight();
 
-        this.childGraphConstruct.loadGraph(this.district.constructTax);
-        this.childGraphProduce.loadGraph(this.district.produceTax);
-        this.childGraphFund.loadGraph(this.district.fundHistory);
-        this.childGraphDistribute.loadGraph(this.district.distributeHistory);
+        if (this.district.district_id != 0) {
+          this.childGraphConstruct.loadGraph(this.district.constructTax);
+          this.childGraphProduce.loadGraph(this.district.produceTax);
+          this.childGraphFund.loadGraph(this.district.fundHistory);
+          this.childGraphDistribute.loadGraph(this.district.distributeHistory);
+        }
         //plotPos.rotateEle.classList.remove("rotate");
+
+        // Extract last fund total amount and display
+        if (this.district.fundHistory) {
+          let fund = this.district.fundHistory.graphColumns[0].series;
+          this.fundtotal = fund[fund.length - 1].value;
+        }
 
       }, error => console.error(error));
 
@@ -151,6 +164,7 @@ export class DistrictSummaryComponent implements AfterViewInit {
 
     this.httpClient.get<OwnerSummary[]>(this.baseUrl + 'api/ownersummary', { params: params })
       .subscribe((result: OwnerSummary[]) => {
+
         this.ownerSummary = result;
 
         if (this.ownerSummary) {
@@ -179,6 +193,8 @@ export class DistrictSummaryComponent implements AfterViewInit {
 
   filterArrivalsWeek(eventCheckbox: MatCheckboxChange) {
 
+    this.arrivalsMonth.checked = false;
+
     if (eventCheckbox.checked) {
       this.dataSourceOwnerSummary = new MatTableDataSource<OwnerSummary>(this.ownerSummaryNewArrivals_Week);
     }
@@ -189,14 +205,16 @@ export class DistrictSummaryComponent implements AfterViewInit {
   }
 
   filterArrivalsMonth(eventCheckbox: MatCheckboxChange) {
-    
+
+    this.arrivalsWeek.checked = false;
+
     if (eventCheckbox.checked) {
       this.dataSourceOwnerSummary = new MatTableDataSource<OwnerSummary>(this.ownerSummaryNewArrivals_Month);
-      this.showArrivalMonth = true;
+      //this.showArrivalMonth = true;
     }
     else {
       this.dataSourceOwnerSummary = new MatTableDataSource<OwnerSummary>(this.ownerSummary);
-      this.showArrivalMonth = false;
+      //this.showArrivalMonth = false;
     }
     this.dataSourceOwnerSummary.sort = this.sort;
   }

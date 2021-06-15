@@ -29,6 +29,8 @@ import { NumberDirective } from './numberonly.directive';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 
+import { Globals } from './common/global-var';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -70,7 +72,7 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
     ]),
     BrowserAnimationsModule
   ],
-  providers: [],
+  providers: [ Globals ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

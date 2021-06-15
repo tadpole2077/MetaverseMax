@@ -48,7 +48,7 @@ namespace MetaverseMax.ServiceClass
 
             switch (buildingType)
             {
-                case (int)BUILDINGTYPE_ENUM.RESIDENTIAL:
+                case (int)BUILDING_TYPE.RESIDENTIAL:
                     buildingImg = buildingID switch
                     {
                         (int)BUILDING_SUBTYPE.COMDOMINIUM => buildingLvl switch
@@ -82,7 +82,7 @@ namespace MetaverseMax.ServiceClass
                     };
                     break; //buildingImg = "29";
 
-                case (int)BUILDINGTYPE_ENUM.ENERGY:
+                case (int)BUILDING_TYPE.ENERGY:
                     buildingImg = buildingID switch
                     {
                         (int)BUILDING_SUBTYPE.WATER_PLANT => buildingLvl switch
@@ -109,7 +109,7 @@ namespace MetaverseMax.ServiceClass
                     };                                                          
                     break;//buildingImg = "5"; 
 
-                case (int)BUILDINGTYPE_ENUM.COMMERCIAL:
+                case (int)BUILDING_TYPE.COMMERCIAL:
                     buildingImg = buildingID switch
                     {
                         (int)BUILDING_SUBTYPE.TRADE_CENTER => buildingLvl switch
@@ -136,7 +136,7 @@ namespace MetaverseMax.ServiceClass
                     };                    
                     break; //buildingImg = "64";
 
-                case (int)BUILDINGTYPE_ENUM.INDUSTRIAL:
+                case (int)BUILDING_TYPE.INDUSTRIAL:
                     buildingImg = buildingID switch
                     {
                         (int)BUILDING_SUBTYPE.SMELTER_PLANT => buildingLvl switch
@@ -163,7 +163,7 @@ namespace MetaverseMax.ServiceClass
                     };                  
                     break;
 
-                case (int)BUILDINGTYPE_ENUM.OFFICE:
+                case (int)BUILDING_TYPE.OFFICE:
                     buildingImg = buildingID switch
                     {
                         (int)BUILDING_SUBTYPE.OFFICE_BLOCK => buildingLvl switch
@@ -190,7 +190,7 @@ namespace MetaverseMax.ServiceClass
                     };
                     break;// buildingImg = "30";
                     
-                case (int)BUILDINGTYPE_ENUM.PRODUCTION:
+                case (int)BUILDING_TYPE.PRODUCTION:
                     buildingImg = buildingID switch
                     {
                         (int)BUILDING_SUBTYPE.GLASSWORKS => buildingLvl switch
@@ -214,6 +214,13 @@ namespace MetaverseMax.ServiceClass
                             7 => "https://play.mcp3d.com/assets/images/buildings/ConcreteMill_Mega-1.png",
                             _ => "https://play.mcp3d.com/assets/images/buildings/ConcreteMill_LVL1-1.png"
                         },
+                        (int)BUILDING_SUBTYPE.FACTORY => buildingLvl switch
+                        {
+                            <= 5 => "https://play.mcp3d.com/assets/images/buildings/Factory_V2_LVL" + Convert.ToString(buildingLvl) + "-1.png",
+                            6 => "https://play.mcp3d.com/assets/images/buildings//Factory_V2_Huge-1.png",
+                            7 => "https://play.mcp3d.com/assets/images/buildings/Factory_V2_Mega-1.png",
+                            _ => "https://play.mcp3d.com/assets/images/buildings/Factory_V2_LVL1-1.png"
+                        },
                         _ => buildingLvl switch
                         {
                             <= 5 => "https://play.mcp3d.com/assets/images/buildings/BrickFactory_V2_LVL" + Convert.ToString(buildingLvl) + "-1.png",
@@ -224,7 +231,7 @@ namespace MetaverseMax.ServiceClass
                     };               
                     break;
 
-                case (int)BUILDINGTYPE_ENUM.MUNICIPAL:
+                case (int)BUILDING_TYPE.MUNICIPAL:
                     buildingImg = buildingID switch
                     {
                         (int)BUILDING_SUBTYPE.HOSPITAL => buildingLvl switch
@@ -258,7 +265,7 @@ namespace MetaverseMax.ServiceClass
                     }; // buildingImg = "28";
                     break;
 
-                case (int)BUILDINGTYPE_ENUM.POI:                    
+                case (int)BUILDING_TYPE.POI:                    
                     buildingImg = buildingID switch
                     {
                         100 => "./images/OfficeMonument.PNG",

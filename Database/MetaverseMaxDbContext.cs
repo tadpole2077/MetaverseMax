@@ -15,11 +15,15 @@ namespace MetaverseMax.Database
 
         public virtual DbSet<DistrictFund> districtFund { get; set; }
 
+        public virtual DbSet<DistrictPerk> districtPerk { get; set; }
+
         public virtual DbSet<DistrictContent> districtContent { get; set; }
 
         //public virtual DbSet<DistrictUpdateInstance> districtUpdateInstance { get; set; }
 
         public virtual DbSet<OwnerSummaryDistrict> ownerSummaryDistrict { get; set; }
+
+        public virtual DbSet<Owner> owner { get; set; }
 
         public virtual DbSet<EventLog> eventLog { get; set; }
 

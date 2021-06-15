@@ -22,12 +22,14 @@ namespace MetaverseMax.ServiceClass
             districtDB = new(_serviceContext);
         }
 
-        public DistrictWeb MapData_DistrictWeb(District district, District districtHistory_1Mth)
+        public DistrictWeb MapData_DistrictWeb(District district, District districtHistory_1Mth, bool perksDetail)
         {
             DistrictWeb districtWeb, districtWebHistory = new();                    
             DistrictContent districtContent = new();
             TaxGraph districtTaxGraph;
             DistrictFundManage districtFundManage;
+            DistrictPerkManage districtPerkManage = new(_context);
+            PerkSchema perkSchema = new();
 
             districtWeb = MapData_DistrictWebAttributes(district);
             districtWebHistory = MapData_DistrictWebAttributes(districtHistory_1Mth ?? district);
@@ -53,6 +55,13 @@ namespace MetaverseMax.ServiceClass
             districtWeb.fundHistory = districtFundManage.FundChartData(districtFundList);
             districtWeb.distributeHistory = districtFundManage.DistributeChartData(districtFundList);
 
+            // District Perks
+            if (perksDetail)
+            {
+                districtWeb.perkSchema = PerkSchema.perkList.perk;
+            }
+            districtWeb.districtPerk = districtPerkManage.GetPerks(district.district_id, district.update_instance);
+
             return districtWeb;
         }
 
@@ -61,7 +70,7 @@ namespace MetaverseMax.ServiceClass
             DistrictWeb districtWeb = new();
             Citizen citizen = new();            
             
-            districtWeb.update_instance = district.update_instance ?? 0;
+            districtWeb.update_instance = district.update_instance;
             districtWeb.last_update = district.last_update;
             districtWeb.last_updateFormated = common.TimeFormatStandard("", district.last_update);
             districtWeb.district_id = district.district_id;
@@ -100,13 +109,13 @@ namespace MetaverseMax.ServiceClass
             return districtWeb;
         }
 
-        public bool UpdateDistrict(int district_id)
+        public int UpdateDistrict(int district_id)
         {
             District district = new();
             Citizen citizen = new();
             string content = string.Empty;
             Common common = new();
-            bool returnCode = false;
+            int returnCode = 0;
 
             try
             {

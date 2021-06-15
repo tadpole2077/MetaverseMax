@@ -29,7 +29,18 @@ namespace MetaverseMax.Controllers
             _context = context;
             districtDB = new(_context);
         }
-        
+
+        [HttpGet("GetPerksAll")]
+        public IActionResult GetPerksAll()
+        {
+            DistrictPerkManage districtPerkManage = new(_context);
+            if (ModelState.IsValid)
+            {
+                return Ok(districtPerkManage.GetPerks());
+            }
+            return BadRequest("Get District Perks All request is invalid");
+        }
+
         [HttpGet]
         public IActionResult Get([FromQuery] QueryParametersDistrict parameters)
         {            
@@ -82,11 +93,11 @@ namespace MetaverseMax.Controllers
         }
 
         [HttpGet("UpdateAllOpenedDistricts")]
-        public IActionResult UpdateAllOpenedDistricts()
+        public IActionResult UpdateAllOpenedDistricts(QueryParametersSecurity parametersSecurity)
         {
             if (ModelState.IsValid)
             {
-                return Ok( UpdateAllDistricts() );
+                return Ok( UpdateAllDistricts(parametersSecurity.secure_token) );
             }
             return BadRequest("District update action is invalid");
         }
@@ -99,7 +110,7 @@ namespace MetaverseMax.Controllers
             List<District> districtList = new();
             List<DistrictWeb> districtWebList = new();
             DistrictWebMap districtWebMap = new(_context);
-
+            bool perksDetail = false;
 
             try
             {
@@ -107,7 +118,7 @@ namespace MetaverseMax.Controllers
                 foreach(District district in districtList)
                 {
 
-                    districtWebList.Add(districtWebMap.MapData_DistrictWeb(district, null));
+                    districtWebList.Add(districtWebMap.MapData_DistrictWeb(district, null, perksDetail));
                 }
             }
             catch (Exception ex)
@@ -215,6 +226,7 @@ namespace MetaverseMax.Controllers
             
             string content = string.Empty;
             Common common = new();
+            bool perksDetail = true;
 
             try
             {
@@ -224,11 +236,12 @@ namespace MetaverseMax.Controllers
 
                 if (district.district_id == 0)
                 {
+
                     district.owner_name = "Unclaimed District";
                 }
                 else
                 {
-                    districtWeb = districtWebMap.MapData_DistrictWeb(district, districtHistory_1Mth);                    
+                    districtWeb = districtWebMap.MapData_DistrictWeb(district, districtHistory_1Mth, perksDetail);                    
                 }
             }
             catch (Exception ex)
@@ -311,7 +324,7 @@ namespace MetaverseMax.Controllers
         }
 
         // Update All active districts from MCP REST WS, update owner summary per district using local db plot data
-        private int UpdateAllDistricts()
+        private int UpdateAllDistricts(string secureToken)
         {
             DistrictDB districtDB;
             JToken districtToken;
@@ -320,6 +333,13 @@ namespace MetaverseMax.Controllers
             int districtUpdateCount = 0;
             try
             {
+                // As this service could be abused as a DDOS a security token is needed.
+                if (!secureToken.Equals("JUST_SIMPLE_CHECK123"))
+                {
+                    return districtUpdateCount;
+                    ;
+                }
+
                 districtDB = new DistrictDB(_context);
 
                 // POST from Land/Get REST WS

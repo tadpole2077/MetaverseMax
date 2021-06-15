@@ -36,10 +36,20 @@
   }
 
   .legend-title-text, .taxGraphDistrict text{
-    font-size: .7rem !important;
+    font-size: .6rem !important;
   }
-  .ng-star-inserted title{
-      display:none;
-    
+  .legend-labels {
+    margin-left: -.4rem;
+  }
+  .chart-legend .legend-label-text {
+    font-size: .6rem !important;
+    overflow: unset !important;
+  }
+  .chart-legend .legend-label-color{
+    width:8px !important;
+  }
+
+  .ng-star-inserted title {
+    display: none;
   }
 }

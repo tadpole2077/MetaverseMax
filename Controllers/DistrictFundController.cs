@@ -29,7 +29,6 @@ namespace MetaverseMax.Controllers
 
         }
 
-
         [HttpGet("UpdateAllDistrictsFund")]
         public IActionResult UpdateAllDistrictsFund([FromQuery] QueryParametersSecurity parameters)
         {
@@ -38,7 +37,7 @@ namespace MetaverseMax.Controllers
             {
                 return Ok(districtFundManage.UpdateFundAll(parameters) );
             }
-            return BadRequest("All District Fund update action is invalid");
+            return BadRequest("All District Fund update request is invalid");
         }
 
         [HttpGet]
@@ -49,7 +48,7 @@ namespace MetaverseMax.Controllers
             {
                 return Ok(districtFundManage.GetHistory(parameters.district_id, parameters.daysHistory));
             }
-            return BadRequest("Get District Fund history action is invalid");
+            return BadRequest("Get District Fund history request is invalid");
         }
     }
 }

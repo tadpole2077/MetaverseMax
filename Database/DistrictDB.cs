@@ -56,7 +56,7 @@ namespace MetaverseMax.Database
                 _context.LogEvent(log);
             }
 
-            return matchedDistrict;
+            return matchedDistrict ?? new District();
         }
 
         //Get District snapshot from 1 month prior to extract prior district tax attributes
@@ -124,10 +124,11 @@ namespace MetaverseMax.Database
             return districtList.ToArray();
         }
 
-        public bool UpdateDistrictByToken(JToken districtToken)
+        public int UpdateDistrictByToken(JToken districtToken)
         {            
             District district = new();
             Common common = new();
+            int returnCode = 0;
 
             try
             {
@@ -163,7 +164,7 @@ namespace MetaverseMax.Database
 
                 district.resource_zone = districtToken.Value<int?>("resources") ?? 0;
 
-                DistrictUpdate(district);
+                returnCode = DistrictUpdate(district);
 
             }
             catch (Exception ex)
@@ -176,12 +177,12 @@ namespace MetaverseMax.Database
                 }
             }
 
-            return true;
+            return returnCode;
         }
 
         public int DistrictUpdate( District district )
         {
-            int result;
+            int result, instance = 0;
             try
             {
 
@@ -197,7 +198,7 @@ namespace MetaverseMax.Database
                 result = _context.Database.ExecuteSqlRaw("EXEC @update_instance = dbo.sp_update_district_summary @district_id", new[] { districtParameter, updateInstance });
 
                 //Use the new update_instance returned from summary sproc and assign to new district row.
-                district.update_instance = (int)updateInstance.Value;
+                district.update_instance = instance = (int)updateInstance.Value;
                 district.last_update = DateTime.Now;
                 _context.district.Add(district);
                 _context.SaveChanges();
@@ -215,7 +216,7 @@ namespace MetaverseMax.Database
                 _context.LogEvent(log);
             }
 
-            return 0;
+            return instance;
         }
 
         public int DistrictAddOrUpdate(District district)

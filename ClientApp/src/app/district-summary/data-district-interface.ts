@@ -54,6 +54,23 @@ interface District {
   constructTax: GraphData;
   fundHistory: GraphData;
   distributeHistory: GraphData;
+
+  perkSchema: PerkSchema[];
+  districtPerk: DistrictPerk[];
+}
+
+interface PerkSchema {
+  perk_id: number;
+  perk_name: string;
+  perk_desc: string;
+  level_Symbol: string;
+  level_values: number[];
+  level_max: number;
+}
+
+interface DistrictPerk {
+  perk_id: number;
+  perk_level: number;
 }
 
 export { 

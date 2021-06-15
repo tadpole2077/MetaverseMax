@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using MetaverseMax.ServiceClass;
+using SimpleBase;
+using MetaverseMax.Database;
 
 namespace MetaverseMax.Controllers
 {
@@ -19,40 +21,89 @@ namespace MetaverseMax.Controllers
     public class OwnerDataController : ControllerBase
     {
         private readonly ILogger<OwnerDataController> _logger;
+        private readonly MetaverseMaxDbContext _context;
 
         private OwnerData ownerData = new();
         private Common common = new();
 
-        public OwnerDataController(ILogger<OwnerDataController> logger)
+        public OwnerDataController(MetaverseMaxDbContext context, ILogger<OwnerDataController> logger)
         {
             _logger = logger;
+            _context = context;
+
         }
-        //[ActionName("FOO")]   only used if call is api/owenerdata/foo
-        //[Route("api/ownerdata/")]
-        //[HttpGet("{plotX}/{plotY}")]
-        //[Route("ownerdata")]
-        //[HttpGet]
+
         [HttpGet]
-        public OwnerData Get(string plotX, string plotY)
+        public IActionResult Get([FromQuery] QueryParametersOwnerData parameters )
         {
-            int returnCode = GetFromLandCoord(Convert.ToInt32(plotX), Convert.ToInt32(plotY));
-            if (returnCode != -1)
+
+            if (ModelState.IsValid)
             {
-                _ = GetOwnerLands();
+                if ( GetFromLandCoord(parameters.plotX, parameters.plotY) != -1) {
+                    _ = GetOwnerLands();
+                }
+                
+                return Ok(ownerData);
             }
-            return ownerData;
+
+            return BadRequest("Call is invalid");       // 400 Error   
         }
 
         [HttpGet("GetUsingMatic")]       
-        public OwnerData GetUsingMatic(string owner_matic_key)
+        public IActionResult GetUsingMatic([FromQuery] QueryParametersOwnerDataMatic parameters)
         {
-            int returnCode = GetFromMaticKey(owner_matic_key);
-            if (returnCode != -1)
+
+            if (ModelState.IsValid)
             {
-                _ = GetOwnerLands();
+                if (GetFromMaticKey(parameters.owner_matic_key) != -1)
+                {
+                    _ = GetOwnerLands();
+                }
+
+                return Ok(ownerData);
             }
 
-            return ownerData;
+            return BadRequest("Call is invalid");       // 400 Error   
+        }
+
+        [HttpGet("CheckHasPortfolio")]
+        public IActionResult CheckHasPortfolio([FromQuery] QueryParametersOwnerDataTron parameters)
+        {
+
+            if (ModelState.IsValid)
+            {               
+
+                return Ok(CheckLocalDB_OwnerTron(parameters.owner_tron_public));
+            }
+
+            return BadRequest("Call is invalid");       // 400 Error   
+        }
+
+        private OwnerAccount CheckLocalDB_OwnerTron(string tronPublic)
+        {
+            string maticKey = string.Empty;
+            OwnerAccount ownerAccount = new();
+            OwnerManage owner = new OwnerManage(_context);
+
+            // Check if passed string is valid Tron key
+            if (tronPublic == "false")
+            {
+                ownerAccount.matic_key = "Not Found";
+                return ownerAccount;
+            }            
+
+            // Base58 Public Tron to Hex Conversion.
+            // Span<byte> is analogous to byte[] in usage but allows the library
+            // to avoid unnecessary memory copy operations unless needed.
+            // you can also use "Ripple" or "Flickr" as decoder flavors            
+            Span<byte> result = Base58.Bitcoin.Decode(tronPublic);
+            Span<byte> resultParsed = result;
+            resultParsed = resultParsed.Slice(1, result.Length - 5);
+            ownerAccount.checked_matic_key = string.Concat("0x", Convert.ToHexString(resultParsed)).ToLower();
+
+            ownerAccount = owner.FindOwnerByMatic(ownerAccount.checked_matic_key, tronPublic);
+
+            return ownerAccount;
         }
 
         private int GetOwnerLands()
@@ -138,7 +189,6 @@ namespace MetaverseMax.Controllers
 
             return 0;
         }
-
 
         private int GetFromMaticKey(string ownerMaticKey)
         {

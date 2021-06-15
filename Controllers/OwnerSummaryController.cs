@@ -10,18 +10,6 @@ using Microsoft.Extensions.Logging;
 
 namespace MetaverseMax.Controllers
 {
-    // Model Binding Class for Controller Parameters
-    public class QueryParametersDistrictOwner
-    {
-        // Using BingRequired attribute and not Required as it forces a specific use of a parameter name
-        [BindRequired]
-        public int district_id { get; set; }
-
-        [BindRequired]
-        public int update_instance { get; set; }
-
-    }
-
     [ApiController]
     [Route("api/[controller]")]
     public class OwnerSummaryController : Controller

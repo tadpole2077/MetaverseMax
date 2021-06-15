@@ -23,7 +23,10 @@
     </ng-container>
     <ng-container matColumnDef="district_name">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> <span>Name</span><span class="short-text"></span></th>
-      <td mat-cell *matCellDef="let district"><span>{{ district.district_name }}</span></td>
+      <td mat-cell *matCellDef="let district">
+        <div><span>{{ district.district_name }}</span></div>
+        <div><span class="perkCell">Perks: <span class="perkCount">{{ district.districtPerk ? district.districtPerk.length : 0 }}</span></span></div>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="owner_name">

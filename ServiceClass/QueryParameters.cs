@@ -7,6 +7,42 @@ using System.Threading.Tasks;
 namespace MetaverseMax.ServiceClass
 {
     // Model Binding Class for Controller Parameters
+    public class QueryParametersDistrictOwner
+    {
+        // Using BingRequired attribute and not Required as it forces a specific use of a parameter name
+        [BindRequired]
+        public int district_id { get; set; }
+
+        [BindRequired]
+        public int update_instance { get; set; }
+
+    }
+
+    public class QueryParametersOwnerData
+    {
+        // Using BingRequired attribute and not Required as it forces a specific use of a parameter name
+        [BindRequired]
+        public int plotX { get; set; }
+
+        [BindRequired]
+        public int plotY { get; set; }
+    }
+
+    public class QueryParametersOwnerDataMatic
+    {
+        // Using BingRequired attribute and not Required as it forces a specific use of a parameter name
+        [BindRequired]
+        public string owner_matic_key { get; set; }
+
+    }
+
+    public class QueryParametersOwnerDataTron
+    {
+        // Using BingRequired attribute and not Required as it forces a specific use of a parameter name
+        [BindRequired]
+        public string owner_tron_public { get; set; }
+
+    }
 
     public class QueryParametersSecurity
     {

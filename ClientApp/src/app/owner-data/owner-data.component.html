@@ -18,21 +18,32 @@
 <p *ngIf="!owner"><em>Loading...</em></p>
 
 <div *ngIf="owner">
-  <p class="ownerSection" aria-live="polite" style="width:50%">
-    Owner: <strong>{{ owner.owner_name }}</strong>
-  </p>
+  <div class="ownerSection" aria-live="polite" style="width:50%">
+    Owner: <span>{{ owner.owner_name }}</span>
+  </div>
 
   <div *ngIf="owner.owner_matic_key !=''">
-    <p aria-live="polite">
+    <div class="ownerKey" aria-live="polite">
       Owner Key:
       <a class="showMaticKeySmall" target="_blank" href="https://explorer-mainnet.maticvigil.com/address/{{ owner.owner_matic }}/tokens">Matic Explorer</a>
       <a class="showMaticKeyLarge lineAnim" target="_blank" href="https://explorer-mainnet.maticvigil.com/address/{{ owner.owner_matic_key }}/tokens">( MATIC ) {{ owner.owner_matic_key }}</a>
-    </p>
+    </div>
 
     <div class="ownerPlotSection" aria-live="polite">
-      <div>Owner Plots: <strong>{{ owner.plot_count }}</strong></div>
-      <div><span>Developed Plots: <strong>{{ owner.developed_plots }}</strong></span></div>
-      <div><span>For Sale: <strong>{{ owner.plots_for_sale }}</strong></span></div>
+      <div>
+        <span class="mediaLarge">Owner Plots: </span>
+        <span class="media415">Owned:</span>
+        <strong>{{ owner.plot_count }}</strong>
+      </div>
+      <div>
+        <span class="mediaLarge">Developed Plots: </span>
+        <span class="media415">Developed: </span>
+        <strong>{{ owner.developed_plots }}</strong>
+      </div>
+      <div>
+        <span>For Sale: </span>
+        <span><strong>{{ owner.plots_for_sale }}</strong></span>
+      </div>
     </div>
 
     <div aria-live="polite" class="districtPlots">

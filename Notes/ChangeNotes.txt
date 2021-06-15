@@ -14,11 +14,14 @@ Table - using at-table
 ------------------------------
 * Need to Install >> npm install --save @angular/material @angular/cdk @angular/animations 
   * or use the NuGet VS >> Angular Materials V1.1.12 , Angular Animate V1.8.2
+
 * NuGet is not registering the library.. so used npm >> CMD >> D:\0_Development\2_Applications\GitHub\CoinCalc\CoinChart\ClientApp
 	npm install --save @angular/material @angular/cdk
 	npm install --save @angular/animations
+
 * Issue with UI Error "Can't bind to 'dataSource' since it isn't a known property of 'mat-table'"
 	Need to add MatTableModule within ap.module.ts, plus the link >> import { MatTableModule } from '@angular/material/table';
+
 * Sorting Module
 	Added matSort directive to the table.
 	Added mat-sort-header to each header.
@@ -30,6 +33,7 @@ Table - using at-table
 Issues:
 -----------------------------------------------------------------------------------------
 UI Error: Error: Cannot match any routes. URL Segment: 'fetch-owner-data'
+
 Resolved By: 
 * incorrect router link in nav-menu/nav-menu.component.html, problem with [routerLink]="['/fetch-owner-data']
 * Should be [routerLink]="['/owner-data']

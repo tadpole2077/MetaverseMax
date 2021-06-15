@@ -51,6 +51,12 @@
 .showMaticKeyLarge {
   font-size: .8rem;
 }
+.ownerSection span{
+  font-weight: 500;
+}
+.ownerSection, .ownerKey, .ownerPlotSection {
+  line-height: 1.8rem;
+}
 
 /***District Section***/
 .showAllLink {
@@ -318,7 +324,9 @@ td.mat-column-district_id {
 }
 
 
-
+.media415 {
+  display: none;
+}
 
 @media only screen and (max-width: 1320px) {
   .magnifyHistoryIcon {
@@ -337,28 +345,59 @@ td.mat-column-district_id {
 }
 
 @media only screen and (max-width: 415px) {
-  .h3{
-    font-size: 1.5rem;
-  }
-  plotSearchComponent {
-    position: absolute;
-    right: 0;
-  }
-  .ownerImg {
-    height: 100px;    
+  .media415 {
+    display: unset
   }
 
-  .ownerSection{
-    font-size:.8rem;
+  .mediaLarge {
+    display: none
   }
-  .districtBox{
-      width:unset;
+
+  h3 {
+    font-size: 1.3rem;
   }
-  .typeFilter{
-      visibility:hidden;
+
+  .plotSearchComponent {
+    position: absolute;
+    right: 8px;
+  }
+
+  .ownerImg {
+    height: 100px;
+  }
+
+  .ownerKey {
+    font-size: .8rem;
+  }
+
+  .search {
+    margin-top: unset;
+  }
+
+  .ownerSection, .ownerPlotSection, .lastPlotAction {
+    font-size: .8rem;
+  }
+
+  .ownerSection, .ownerKey, .ownerPlotSection {
+    line-height: 1.5rem;
+  }
+
+  .districtHeader{
+    font-size: .8rem;
+    font-weight: 600;
+  }
+  .districtBox {
+    width: unset;
+  }
+  .districtPlots{
+    margin-top: 1rem;
+  }
+
+  .typeFilter {
+    visibility: hidden;
   }
   .ownerPlotSection{
-     
+    margin-top:10rem
   }
   .mat-expansion-panel-header-title span {
     font-weight: 500;

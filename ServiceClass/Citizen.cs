@@ -40,37 +40,37 @@ namespace MetaverseMax.ServiceClass
             {
                 count = buildingType switch
                 {
-                    (int)BUILDINGTYPE_ENUM.RESIDENTIAL =>
+                    (int)BUILDING_TYPE.RESIDENTIAL =>
                         citizens.Where(
                             row => (row.Value<int?>("stamina") ?? 0) <= 200
                             ).Count(),
 
-                    (int)BUILDINGTYPE_ENUM.OFFICE =>
+                    (int)BUILDING_TYPE.OFFICE =>
                         citizens.Where(
                             row => (row.Value<int?>("stamina") ?? 0) <= 50
                             ).Count(),
 
-                    (int)BUILDINGTYPE_ENUM.COMMERCIAL =>
+                    (int)BUILDING_TYPE.COMMERCIAL =>
                         citizens.Where(
                         row => (row.Value<int?>("stamina") ?? 0) <= 10
                         ).Count(),
 
-                    (int)BUILDINGTYPE_ENUM.MUNICIPAL =>
+                    (int)BUILDING_TYPE.MUNICIPAL =>
                         citizens.Where(
                         row => (row.Value<int?>("stamina") ?? 0) <= 20
                         ).Count(),
 
-                    (int)BUILDINGTYPE_ENUM.INDUSTRIAL =>
+                    (int)BUILDING_TYPE.INDUSTRIAL =>
                         citizens.Where(
                         row => (row.Value<int?>("stamina") ?? 0) <= 25
                         ).Count(),
 
-                    (int)BUILDINGTYPE_ENUM.PRODUCTION =>
+                    (int)BUILDING_TYPE.PRODUCTION =>
                          citizens.Where(
                          row => (row.Value<int?>("stamina") ?? 0) <= 100
                          ).Count(),
 
-                    (int)BUILDINGTYPE_ENUM.ENERGY =>
+                    (int)BUILDING_TYPE.ENERGY =>
                         citizens.Where(
                         row => (row.Value<int?>("stamina") ?? 0) <= 30
                         ).Count(),

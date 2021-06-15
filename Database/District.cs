@@ -22,7 +22,7 @@ namespace MetaverseMax.Database
         public DateTime last_update { get; set; }
 
         [Column("update_instance")]
-        public int? update_instance { get; set; }
+        public int update_instance { get; set; }
 
         [Column("owner_name")]
         public string owner_name { get; set; }

@@ -292,6 +292,22 @@ td.boldfield {
 td.mat-column-district_name, td.mat-column-owner_name {
   padding-right: .4rem
 }
+td.mat-column-district_name div:first-child{
+  margin-top:-.9rem
+}
+.perkCell {
+  position: absolute;
+  color: limegreen;
+}
+.perkCount {
+  font-weight: 800;
+  color: gold;
+  background-color: #121888;
+  border-radius: 50%;
+  width: 1.5rem;
+  display: inline-block;
+  text-align: center;
+}
 
 .mat-column-citizen_stamina_alert {
   max-width: 64px;
@@ -506,9 +522,15 @@ a {
     width: 2rem;
   }
 }
-@media (max-width: 360px) {
+@media (max-width: 415px) {
+  h6 {
+    font-size: .8rem;
+  }
   .defaultAvatorImg{
-      height: 120px;
+    height: 100px;
+  }
+  .ownerImg{
+    height: 100px
   }
 }
 

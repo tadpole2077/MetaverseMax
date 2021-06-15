@@ -1,5 +1,9 @@
 body {
 }
+h3{
+  font-size:1.5rem;
+}
+
 .homeContent {
   padding-left: .2rem;
 }
@@ -38,36 +42,104 @@ body {
   vertical-align: top;
 }
 
+.actionPanel { 
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  column-gap: 1rem;
+  margin-top: .4rem;
+  margin-bottom:.4rem;
+}
+
+.action {
+  background-color: rgba(196, 198, 209, 0.2);
+  background-clip: border-box;
+  border: 1px solid rgba(0,0,0,.125);
+  border-radius: .25rem;
+  
+  display: flex;
+  justify-content: center;
+  flex-direction:column;
+  align-items:center;
+
+  flex-grow: 1;
+  flex-basis: auto;
+  min-width: 200px;
+  height: 5rem;
+  padding: .5rem;
+  margin-bottom: .8rem;
+}
+
+  .action span {
+    margin-top: .2rem;
+    display: block;
+    font-weight: 500;
+    font-size: .9rem;
+    color: #1b6ec2;
+  }
+  .action i {
+    margin-top: .3rem;
+    color: #1b6ec2;
+    font-size: 2.3rem;
+  }
+  .action:hover {
+    text-decoration: none;
+    background-color: #1b6ec2;
+    cursor: pointer;
+  }
+    .action:hover i, .action:hover span {
+      color: white;
+      cursor: pointer;
+    }
+
+
 @media only screen and (max-width: 415px) {
-  H2{
+  H2 {
     font-size: 1.5rem;
   }
-  H3{
+
+  H3 {
     font-size: .9rem;
   }
+
   H5 {
     font-size: .8rem;
   }
-  .logoImg{
+
+  .logoImg {
     right: .1rem;
     height: 80px;
   }
+
   .homeContent {
     font-size: .7rem;
   }
+
+  ul {
+    padding-inline-start: 14px;
+  }
+  .introList li {
+    margin-bottom:.4rem;
+  }
+
   .btn-primary {
     font-size: .7rem;
   }
+
   .promoImg {
     max-width: 340px;
     height: auto;
   }
-  #twitter-widget-0{
-      font-size:.7rem;
+
+  #twitter-widget-0 {
+    font-size: .7rem;
   }
-  .twitter-follow-button{
-      data-width: 100px
+
+  .twitter-follow-button {
+    data-width: 100px
   }
+
   [data-size="large"] {
     font-size: .8rem
   }

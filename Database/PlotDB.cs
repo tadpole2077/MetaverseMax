@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -73,6 +74,27 @@ namespace MetaverseMax.Database
             return foundPlot == null ? new Plot() : foundPlot;
         }
 
+        public int ArchivePlots()
+        {
+            int result = 0;
+            try
+            {
+
+                //SqlParameter districtParameter = new SqlParameter("@district_id", district.district_id);
+                
+                //exec sproc - create a dup set of plots within Archive table if not previously archived.
+                result = _context.Database.ExecuteSqlRaw("EXEC dbo.sp_archive_plots");            
+
+            }
+            catch (Exception ex)
+            {
+                string log = ex.Message;
+                _context.LogEvent(String.Concat("PlotDB::ArchivePlots() : Error Archiving Plots using sproc sp_archive_plots "));
+                _context.LogEvent(log);
+            }
+
+            return result;
+        }
 
         public static async void PollWorldPlots(object parameters)
         {

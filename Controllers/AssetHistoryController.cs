@@ -162,10 +162,10 @@ namespace MetaverseMax.Controllers
 
             switch (buildingType)
             {
-                case (int)BUILDINGTYPE_ENUM.RESIDENTIAL:
+                case (int)BUILDING_TYPE.RESIDENTIAL:
                     efficiency = 0;
                     break;
-                case (int)BUILDINGTYPE_ENUM.ENERGY:
+                case (int)BUILDING_TYPE.ENERGY:
                     if (buildingProduct == (int)BUILDING_PRODUCT.WATER)
                     {
                         efficiency = buildingLvl switch
@@ -195,10 +195,10 @@ namespace MetaverseMax.Controllers
                         };
                     }
                     break;
-                case (int)BUILDINGTYPE_ENUM.COMMERCIAL:
+                case (int)BUILDING_TYPE.COMMERCIAL:
                     efficiency = 0;
                     break;
-                case (int)BUILDINGTYPE_ENUM.INDUSTRIAL:
+                case (int)BUILDING_TYPE.INDUSTRIAL:
                     if (buildingProduct == (int)BUILDING_PRODUCT.METAL)
                     {
                         efficiency = buildingLvl switch
@@ -256,10 +256,10 @@ namespace MetaverseMax.Controllers
                         };
                     }
                     break;
-                case (int)BUILDINGTYPE_ENUM.OFFICE:
+                case (int)BUILDING_TYPE.OFFICE:
                     efficiency = 0;
                     break;
-                case (int)BUILDINGTYPE_ENUM.PRODUCTION:
+                case (int)BUILDING_TYPE.PRODUCTION:
                     if (buildingProduct == (int)BUILDING_PRODUCT.BRICK)
                     {
                         efficiency = buildingLvl switch
@@ -316,10 +316,10 @@ namespace MetaverseMax.Controllers
 
             switch (buildingType)
             {
-                case (int)BUILDINGTYPE_ENUM.RESIDENTIAL:
+                case (int)BUILDING_TYPE.RESIDENTIAL:
                     efficiency = 0;
                     break;
-                case (int)BUILDINGTYPE_ENUM.ENERGY:
+                case (int)BUILDING_TYPE.ENERGY:
                     if (buildingProduct == (int)BUILDING_PRODUCT.WATER)
                     {
                         efficiency = buildingLvl switch
@@ -349,10 +349,10 @@ namespace MetaverseMax.Controllers
                         };
                     }
                     break;
-                case (int)BUILDINGTYPE_ENUM.COMMERCIAL:
+                case (int)BUILDING_TYPE.COMMERCIAL:
                     efficiency = 0;
                     break;
-                case (int)BUILDINGTYPE_ENUM.INDUSTRIAL:
+                case (int)BUILDING_TYPE.INDUSTRIAL:
                     if (buildingProduct == (int)BUILDING_PRODUCT.METAL)
                     {
                         efficiency = buildingLvl switch
@@ -410,10 +410,10 @@ namespace MetaverseMax.Controllers
                         };
                     }
                     break;
-                case (int)BUILDINGTYPE_ENUM.OFFICE:
+                case (int)BUILDING_TYPE.OFFICE:
                     efficiency = 0;
                     break;
-                case (int)BUILDINGTYPE_ENUM.PRODUCTION:
+                case (int)BUILDING_TYPE.PRODUCTION:
                     if (buildingProduct == (int)BUILDING_PRODUCT.BRICK)
                     {
                         efficiency = buildingLvl switch
