@@ -12,6 +12,7 @@ import { SearchDistrictComponent } from './search-district/search-district.compo
 import { TaxGraphComponent } from './tax-graph/tax-graph.component';
 import { FundGraphComponent } from './fund-graph/fund-graph.component';
 import { NoteModalComponent } from './note-modal/note-modal.component';
+import { OfferModalComponent } from './offer-modal/offer-modal.component';
 import { OwnerDataComponent } from './owner-data/owner-data.component';
 import { ProdHistoryComponent } from './production-history/prod-history.component';
 import { DistrictListComponent } from './district-list/district-list.component';
@@ -42,6 +43,7 @@ import { Globals } from './common/global-var';
     FundGraphComponent,
     OwnerDataComponent,
     NoteModalComponent,
+    OfferModalComponent,
     ProdHistoryComponent,
     DistrictListComponent,
     DistrictSummaryComponent,

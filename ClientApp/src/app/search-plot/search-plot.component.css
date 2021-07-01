@@ -39,6 +39,11 @@ input.mat-input-element {
   background-color: #1b6ec2 !important;
 }
 
+#buttonfind {
+  width: 130px;
+  padding-right: 4px
+}
+
 .search {
   clear: both;
   float: right;

@@ -58,6 +58,71 @@
   line-height: 1.8rem;
 }
 
+.blink {
+  animation: blinker 1.5s step-start both;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Alert Buttons */
+.alertBtns {
+  margin: .5rem 0 .5rem;
+}
+.offerBtnDiv{
+  display:inline-block;
+}
+
+.alertBtns button {
+  margin-right: 20px;
+  width: 130px;
+  padding-right: 0px;
+  font-size: .7rem;
+  padding-left: 20px;
+}
+
+
+.alertBtns .fa-ambulance {
+  font-size: 1rem;
+  margin-left: 8px;
+  margin-top: 8px;
+  position: absolute;
+  color: white
+}
+.alertBtns .fa-comments-dollar {
+  font-size: 1.1rem;
+  margin-left: 10px;
+  margin-top: 6px;
+  position: absolute;
+  color: white
+}
+
+.btnAlert {
+  -webkit-animation: glowBtnAlert 1.4s ease-in-out infinite alternate;
+  -moz-animation: glowBtnAlert 1.4s ease-in-out infinite alternate;
+  animation: glowBtnAlert 1.4s ease-in-out infinite alternate;
+  background-color: crimson;
+  border-color: #B60024;
+}
+.alertBtns button.btnAlert:active {
+  background-color: #B60024;
+  border-color: #B60024;
+}
+
+@-webkit-keyframes glowBtnAlert {
+  from {
+    box-shadow: 0 0 3px #fff, 0 0 6px #fff, 0 0 9px #fff, 0 0 12px #fff;
+  }
+
+  to {
+    box-shadow: 0 0 3px crimson, 0 0 6px crimson, 0 0 9px crimson, 0 0 8px crimson;
+  }
+}
+
+
 /***District Section***/
 .showAllLink {
   display: block;
@@ -374,6 +439,9 @@ td.mat-column-district_id {
     margin-top: unset;
   }
 
+  .ownerPlotSection {
+    margin-top: 6rem
+  }
   .ownerSection, .ownerPlotSection, .lastPlotAction {
     font-size: .8rem;
   }
@@ -382,7 +450,15 @@ td.mat-column-district_id {
     line-height: 1.5rem;
   }
 
-  .districtHeader{
+  .offerBtnDiv{
+    display: block;
+    margin-top: .8rem
+  }
+  .alertBtns .fa-comments-dollar {
+    margin-left: 8px;
+  }
+
+  .districtHeader {
     font-size: .8rem;
     font-weight: 600;
   }
@@ -396,11 +472,20 @@ td.mat-column-district_id {
   .typeFilter {
     visibility: hidden;
   }
-  .ownerPlotSection{
-    margin-top:10rem
-  }
+  
   .mat-expansion-panel-header-title span {
     font-weight: 500;
     font-size: .8rem;
   }
+  .salepos {
+    font-size: .7rem;
+    margin-left: -40px;
+  }
+  .salepos::before {
+    height: 38px;
+    width: 56px;
+    margin-top: -18px;
+    margin-left: -18px;
+  }
+
 }

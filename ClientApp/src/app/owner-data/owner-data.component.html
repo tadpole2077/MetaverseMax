@@ -17,17 +17,26 @@
 
 <p *ngIf="!owner"><em>Loading...</em></p>
 
-<div *ngIf="owner">
-  <div class="ownerSection" aria-live="polite" style="width:50%">
-    Owner: <span>{{ owner.owner_name }}</span>
+<div>
+  <div #ownerSection class="ownerSection" aria-live="polite" style="width:50%">
+    Owner: <span>{{ owner.owner_name == "" ? "(unknown)" : owner.owner_name  }}</span>
   </div>
 
-  <div *ngIf="owner.owner_matic_key !=''">
+  <div [hidden]="owner.plot_count == -1">
     <div class="ownerKey" aria-live="polite">
       Owner Key:
-      <a class="showMaticKeySmall" target="_blank" href="https://explorer-mainnet.maticvigil.com/address/{{ owner.owner_matic }}/tokens">Matic Explorer</a>
+      <a class="showMaticKeySmall" target="_blank" href="https://explorer-mainnet.maticvigil.com/address/{{ owner.owner_matic_key }}/tokens">Matic Explorer</a>
       <a class="showMaticKeyLarge lineAnim" target="_blank" href="https://explorer-mainnet.maticvigil.com/address/{{ owner.owner_matic_key }}/tokens">( MATIC ) {{ owner.owner_matic_key }}</a>
     </div>
+
+    <div class="alertBtns">
+      <i class="fas fa-ambulance" style=""></i><button #lowStaminaBtn class="btn btn-primary" (click)="sortTableStamina()">{{ owner.stamina_alert_count }} X Low Stamina</button>
+
+      <div class="offerBtnDiv">
+        <i class="fas fa-comments-dollar" style=""></i><button #offerDetailsBtn class="btn btn-primary offerDetailsBtn" (click)="showOffer(1,1,1)">{{ owner.offer_count }} X Active Offers</button>
+      </div>
+    </div>
+    <app-offer-modal [hidden]="!this.offerShow" (hideOfferEvent)="hideOffer($event)"></app-offer-modal>
 
     <div class="ownerPlotSection" aria-live="polite">
       <div>
@@ -59,13 +68,15 @@
         </div>
       </div>
     </div>
-    <div class="lastPlotAction" aria-live="polite">Owner Last Plot Action: <strong>{{ owner.last_action }}</strong></div>
   </div>
 </div>
+
+<div [hidden]="!owner.last_action" class="lastPlotAction" aria-live="polite">Owner Last Plot Action: <strong>{{ owner.last_action }}</strong></div>
 
 <div class="table-container" [hidden]="!owner.owner_land">
 
   <app-prod-history [hidden]="!this.historyShow" (hideHistoryEvent)="hideHistory($event)"></app-prod-history>
+
   <div class="typeFilter">
     <div #emptyPlotFilter><a role="button" (click)="filterTable($event, 0, BUILDING.EMPTYPLOT)"><img src="https://mcp3d.com/api/image/land/2" /></a></div>
     <div #industrialFilter><a role="button" (click)="filterTable($event, 0, BUILDING.INDUSTRIAL)"><img src="https://play.mcp3d.com/assets/images/buildings/MetalSmelterFactory_V2_LVL1-1.png" /></a></div>
@@ -77,13 +88,14 @@
     <div #municipalFilter><a role="button" (click)="filterTable($event, 0, BUILDING.MUNICIPAL)"><img src="https://play.mcp3d.com/assets/images/buildings/Hospital_V2_LVL4-1.png" /></a></div>
     <div #aoiFilter><a role="button" (click)="filterTable($event, 0, BUILDING.AOI)"><img src="./images/IndustrialMonument.PNG" /></a></div>
   </div>
+
   <table mat-table [dataSource]="dataSource" matSort matSortStart="desc" class="table-striped mat-elevation-z8" style="width:100%; display:inline-table">
     <!--table table-striped-->
     <ng-container matColumnDef="district_id">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> District # </th>
       <td mat-cell *matCellDef="let land">
         <span class="salepos" *ngIf="land.forsale_price>0">{{land.forsale_price.toLocaleString()}}</span>
-        <a class="lineAnim" [routerLink]="['/district-summary']" [queryParams]="{district_id: land.district_id}" title="{{ land.district_id }}"><strong>{{ land.district_id }}</strong></a>        
+        <a class="lineAnim" [routerLink]="['/district-summary']" [queryParams]="{district_id: land.district_id}" title="{{ land.district_id }}"><strong>{{ land.district_id }}</strong></a>
       </td>
     </ng-container>
     <ng-container matColumnDef="pos_x">
@@ -97,12 +109,15 @@
     <ng-container matColumnDef="building_type">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
       <td mat-cell *matCellDef="let land" class="industryCol">
+
         <img src="{{ land.building_img }}" class="industryImg">
         <span *ngIf="land.building_type!=5 && land.building_type!=3 && land.building_type!=7" class="tableWrapline"> {{ land.building_desc }} </span>
+
         <a class="lineAnim" *ngIf="land.building_type==5 || land.building_type==3 || land.building_type==7" role="button" (click)="showHistory(land.token_id,land.pos_x,land.pos_y)">
           <span class="tableWrapline"> {{ land.building_desc }} </span>
           <div class="magnifyHistoryPositioner"><img src="./assets/MagnifyHistory.png" class="magnifyHistoryIcon" height="34" /></div>
         </a>
+
       </td>
     </ng-container>
     <ng-container matColumnDef="building_level">

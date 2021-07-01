@@ -66,7 +66,7 @@ namespace MetaverseMax.Database
                 string log = ex.Message;
                 if (_context != null)
                 {
-                    _context.LogEvent(String.Concat("UpdateDistrictFundByToken() : Error Token data : ", districtToken.ToString()));
+                    _context.LogEvent(String.Concat("DistrictFundDB.UpdateDistrictFundByToken() : Error Token data : ", districtToken.ToString()));
                     _context.LogEvent(log);
                 }
             }
@@ -99,7 +99,7 @@ namespace MetaverseMax.Database
                 string log = ex.Message;
                 if (_context != null)
                 {
-                    _context.LogEvent(String.Concat("AddOrUpdateDistrictFundByToken() : Error Token data : ", districtToken.ToString()));
+                    _context.LogEvent(String.Concat("DistrictFundDB.AddOrUpdateDistrictFundByToken() : Error Token data : ", districtToken.ToString()));
                     _context.LogEvent(log);
                 }
             }

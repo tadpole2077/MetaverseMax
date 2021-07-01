@@ -147,6 +147,7 @@ namespace MetaverseMax.Database
             byte[] byteArray = Encoding.ASCII.GetBytes("{\"x\": \"" + pos_x.ToString() + "\",\"y\": \"" + pos_y.ToString() + "\"}");
             string content = string.Empty;
             Plot plotMatched;
+            Citizen citizen = new();
 
             try
             {
@@ -180,7 +181,7 @@ namespace MetaverseMax.Database
                     JObject jsonContent = JObject.Parse(content);
 
                     // Based on the calleers passed plotId, either add a new plot or update an existing plot record.
-                    if (plotId == 1) {
+                    if (plotId == 0) {
 
                         _context.plot.Add(new Plot()
                         {
@@ -201,8 +202,16 @@ namespace MetaverseMax.Database
                             building_type_id = jsonContent.Value<int?>("building_type_id") ?? 0,
                             token_id = jsonContent.Value<int?>("token_id") ?? 0,
                             on_sale = jsonContent.Value<bool?>("on_sale") ?? false,
-                            abundance = jsonContent.Value<int?>("abundance") ?? 0
-                        });
+                            abundance = jsonContent.Value<int?>("abundance") ?? 0,
+
+                            influence = jsonContent.Value<int?>("influence") ?? 0,
+                            influence_bonus = jsonContent.Value<int?>("influence_bonus") ?? 0,
+                            influence_poi_bonus = jsonContent.Value<Boolean?>("influence_poi_bonus") ?? false,
+                            production_poi_bonus = jsonContent.Value<string>("production_poi_bonus"),
+                            is_perk_activated = jsonContent.Value<Boolean?>("is_perk_activated") ?? false,
+
+                            low_stamina_alert = citizen.CheckCitizenStamina(jsonContent.Value<JArray>("citizens"), jsonContent.Value<int?>("building_type_id") ?? 0)
+                    });
                     }
                     else
                     {
@@ -221,6 +230,14 @@ namespace MetaverseMax.Database
                         plotMatched.token_id = jsonContent.Value<int?>("token_id") ?? 0;
                         plotMatched.on_sale = jsonContent.Value<bool?>("on_sale") ?? false;
                         plotMatched.abundance = jsonContent.Value<int?>("abundance") ?? 0;
+
+                        plotMatched.influence = jsonContent.Value<int?>("influence") ?? 0;
+                        plotMatched.influence_bonus = jsonContent.Value<int?>("influence_bonus") ?? 0;
+                        plotMatched.influence_poi_bonus = jsonContent.Value<Boolean?>("influence_poi_bonus") ?? false;
+                        plotMatched.production_poi_bonus = jsonContent.Value<string>("production_poi_bonus");
+                        plotMatched.is_perk_activated = jsonContent.Value<Boolean?>("is_perk_activated") ?? false;
+                        
+                        plotMatched.low_stamina_alert = citizen.CheckCitizenStamina(jsonContent.Value<JArray>("citizens"), plotMatched.building_type_id);
                     }
                 }
 

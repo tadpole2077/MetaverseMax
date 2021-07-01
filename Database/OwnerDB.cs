@@ -3,15 +3,37 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MetaverseMax.ServiceClass;
+using Microsoft.EntityFrameworkCore;
 
 namespace MetaverseMax.Database
 {
     public class OwnerDB
     {
         private readonly MetaverseMaxDbContext _context;
+        
         public OwnerDB(MetaverseMaxDbContext _parentContext)
         {
             _context = _parentContext;
+        }
+
+        public Owner GetOwner(string ownerMatickey)
+        {
+            Owner owner = new();
+            try
+            {
+                owner = _context.owner.Where(o => o.owner_matic_key == ownerMatickey).FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                string log = ex.Message;
+                if (_context != null)
+                {
+                    _context.LogEvent(String.Concat("OwnerDB::GetOwner() : Error getting Owner with MaticKey = ", ownerMatickey));
+                    _context.LogEvent(log);
+                }
+            }
+
+            return owner;
         }
 
         public Dictionary<string, string> GetOwners(WORLD_TYPE world)
@@ -56,8 +78,28 @@ namespace MetaverseMax.Database
                 }
             }
 
-
             return true; 
+        }
+
+        public int SyncOwner()
+        {
+            int result = 0, returnCode =0;
+            try
+            {                            
+                result = _context.Database.ExecuteSqlRaw("EXEC dbo.sp_archive_plots");
+
+            }
+            catch (Exception ex)
+            {
+                string log = ex.Message;
+                if (_context != null)
+                {
+                    _context.LogEvent(String.Concat("OwnerDB::SyncOwner() : Error sync owners after nightly sync "));
+                    _context.LogEvent(log);
+                }
+            }
+
+            return returnCode;
         }
 
     }

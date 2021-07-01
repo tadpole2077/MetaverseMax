@@ -44,6 +44,16 @@ namespace MetaverseMax.ServiceClass
 
     }
 
+    public class QueryParametersOwnerOffer
+    {
+        [BindRequired]
+        public bool active { get; set; }
+
+        [BindRequired]
+        public string matic_key { get; set; }
+
+    }
+
     public class QueryParametersSecurity
     {
         [BindRequired]

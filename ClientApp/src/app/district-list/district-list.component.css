@@ -307,11 +307,17 @@ td.mat-column-district_name div:first-child{
   width: 1.5rem;
   display: inline-block;
   text-align: center;
+  position: absolute;
+  margin-top: -1px;
+  margin-left: 3px;
 }
+  .perkCountZero{
+    background-color:royalblue;
+  }
 
-.mat-column-citizen_stamina_alert {
-  max-width: 64px;
-}
+  .mat-column-citizen_stamina_alert {
+    max-width: 64px;
+  }
 
 .mat-column-district_name span {
   margin-right: .4rem;

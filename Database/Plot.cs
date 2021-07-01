@@ -72,5 +72,23 @@ namespace MetaverseMax.Database
 
         [Column("abundance")]
         public int? abundance { get; set; }
+
+        [Column("influence")]
+        public int? influence { get; set; }
+
+        [Column("influence_bonus")]
+        public int? influence_bonus { get; set; }
+
+        [Column("influence_poi_bonus")]
+        public Boolean? influence_poi_bonus { get; set; }
+
+        [Column("production_poi_bonus")]
+        public string production_poi_bonus { get; set; }
+
+        [Column("is_perk_activated")]
+        public Boolean? is_perk_activated { get; set; }
+
+        [Column("low_stamina_alert")]
+        public Boolean? low_stamina_alert { get; set; }
     }
 }

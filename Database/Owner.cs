@@ -19,7 +19,10 @@ namespace MetaverseMax.Database
         public string owner_tron_key { get; set; }
 
         [Column("owner_name")]
-        public string? owner_name { get; set; }
+        public string owner_name { get; set; }
+
+        [Column("avatar_id")]
+        public int? avatar_id { get; set; }
 
         [Column("type")]
         public int? type { get; set; }

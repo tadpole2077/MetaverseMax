@@ -54,6 +54,8 @@
     <TypeScriptCompile Remove="ClientApp\src\app\district-summary\district-summary.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\fund-graph\fund-graph.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\note-modal\note-modal.component.ts" />
+    <TypeScriptCompile Remove="ClientApp\src\app\offer-modal\offer-modal.component.ts" />
+    <TypeScriptCompile Remove="ClientApp\src\app\owner-data\owner-interface.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\production-history\prod-history.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\search-district\search-district.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\tax-graph\tax-graph.component.ts" />

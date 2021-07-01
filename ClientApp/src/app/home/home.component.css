@@ -6,7 +6,9 @@ h3{
 
 .homeContent {
   padding-left: .2rem;
+  padding-bottom: 1.2rem;
 }
+
 .logoImg {
   position: absolute;
   margin-left: 310px;
@@ -93,6 +95,51 @@ h3{
       cursor: pointer;
     }
 
+#introBlock {
+  margin-bottom: 6rem
+}
+
+.partnerLink {
+  border-style: solid;
+  border-radius: 6px;
+  border-color: #1b6ec2;
+  box-shadow: 4px 4px 5px 0px rgb(0 0 0 / 50%);
+  height: 48px;
+  display: inline-block;
+  width: 170px;
+  padding-top: 4px;
+  text-align: center;
+  vertical-align: top;
+  color: #1b6ec2;
+  margin-right: 3rem;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+  .partnerLink:hover {
+    animation: glowBtn 1.4s ease-in-out infinite alternate;
+    text-decoration: none;
+  }
+
+@-webkit-keyframes glowBtn {
+  from {
+    box-shadow: 0 0 3px #fff, 0 0 6px #fff, 0 0 9px #fff, 0 0 12px #fff;
+  }
+
+  to {
+    box-shadow: 0 0 3px #1b6ec2, 0 0 6px #1b6ec2, 0 0 9px #1b6ec2, 0 0 8px #1b6ec2;
+  }
+}
+.partnerLink .mat-icon {
+  font-size:30px;
+  margin-top:.1rem
+}
+.partnerLink span {
+  margin-left: .8rem;
+  line-height: 2.2rem;
+  vertical-align: bottom;
+  font-weight: 500
+}
 
 @media only screen and (max-width: 415px) {
   H2 {
@@ -143,4 +190,10 @@ h3{
   [data-size="large"] {
     font-size: .8rem
   }
+
+  #introBlock {
+    margin-bottom: 3rem
+  }
+
+
 }

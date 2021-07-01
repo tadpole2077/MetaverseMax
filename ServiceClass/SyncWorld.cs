@@ -62,6 +62,8 @@ namespace MetaverseMax.ServiceClass
             DistrictWebMap districtWebMap;
             DistrictPerkManage districtPerkManage;
             DistrictPerkDB districtPerkDB;
+            OwnerManage ownerManage;
+            OwnerOfferDB ownerOfferDB;
 
             List<District> districtList;
             List<DistrictPerk> districtPerkList;
@@ -85,6 +87,8 @@ namespace MetaverseMax.ServiceClass
                 districtWebMap = new(_context);
                 districtDB = new(_context);
                 plotDB = new(_context);
+                ownerManage = new(_context);
+                ownerOfferDB = new(_context);
 
                 districtList = districtDB.DistrictGetAll_Latest().ToList();
 
@@ -134,11 +138,23 @@ namespace MetaverseMax.ServiceClass
                             districtPerkList[perkIndex].update_instance = updateInstance;
                         }
                     }
-
+                    // Save Perk list after each district update, to better support live use of db during sync.
+                    districtPerkDB.Save(districtPerkList);
+                    districtPerkList.Clear();
                 }
 
-                // Save Perk list after all districts updated.
-                districtPerkDB.Save( districtPerkList );
+                ownerManage.SyncOwner();        // New owners found from nightly sync
+
+                // Add/deactive Owner Offers                             
+                Dictionary<string, string> ownersList = ownerManage.GetOwners(true);  // Refresh list after nightly sync
+                ownerOfferDB.SetOffersInactive();
+
+                foreach (string maticKey in ownersList.Keys)
+                {
+                    ownerManage.GetOwnerOffer(true, maticKey);
+                    await Task.Delay(100);      // 100ms delay to help prevent server side kicks.
+                }
+
             }
             catch (Exception ex)
             {

@@ -6,67 +6,9 @@ import { MatSort } from '@angular/material/sort';
 import { AfterViewInit } from '@angular/core';
 import { element } from 'protractor';
 import { ProdHistoryComponent } from '../production-history/prod-history.component';
-
-// Service Interfaces
-export interface OwnerLandData {
-  district_id: number;
-  pos_x: number;
-  pos_y: number;
-  building_type: number;
-  building_desc: string;
-  building_img: string;
-  last_action: string;
-  plot_ip: number;
-  ip_bonus: number;
-  token_id: number;
-  building_level: number;
-  citizen_count: number;
-  citizen_url: string;
-  citizen_stamina: number;
-  citizen_stamina_alert: boolean;
-  forsale: boolean;
-  forsale_price: number;
-  alert: boolean;
-}
-
-interface OwnerData {
-  owner_name: string;
-  owner_url: string;
-  owner_matic_key: string;
-  last_action: string;
-  registered_date: string;
-  last_visit: string;
-  plot_count: number;
-  developed_plots: number;
-  plots_for_sale: number;
-  district_plots: DistrictPlot[];
-  owner_land: OwnerLandData[];
-}
-
-interface  PlotPosition{
-  plotX: string,
-  plotY: string,
-  rotateEle: Element
-}
-
-interface DistrictPlot {
-  district: number[];
-}
-
-const BUILDING = {
-  NO_FILTER: -1,
-  EMPTYPLOT: 0,
-  RESIDENTIAL: 1,
-  ENERGY: 3,
-  COMMERCIAL: 4,
-  INDUSTRIAL: 5,
-  OFFICE: 6,
-  PRODUCTION: 7,
-  MUNICIPAL: 8,
-  AOI:100
-}
-
-
+import { OfferModalComponent } from '../offer-modal/offer-modal.component';
+import { MatButton } from '@angular/material';
+import { OwnerLandData, OwnerData, PlotPosition, BUILDING } from './owner-interface';
 
 
 @Component({
@@ -83,13 +25,15 @@ export class OwnerDataComponent implements AfterViewInit {
   public owner: OwnerData;
   public filterLandByDistrict: OwnerLandData[] = new Array();
   private currentDistrictFilter: number = 0;
-  private buttonShowAll: boolean = false;
+  public buttonShowAll: boolean = false;
   public historyShow: boolean = false;
+  public offerShow: boolean = false;
   private subscriptionRouterEvent: any;
 
   dataSource = new MatTableDataSource(null);
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(ProdHistoryComponent, { static: true }) prodHistory: ProdHistoryComponent;
+  @ViewChild(OfferModalComponent, { static: true }) offerModal: OfferModalComponent;
 
   // ViewChild used for these elements to provide for rapid element attribute changes without need for scanning DOM and readability.
   @ViewChild('emptyPlotFilter', { static: false}) emptyPlotFilter: ElementRef;
@@ -100,7 +44,11 @@ export class OwnerDataComponent implements AfterViewInit {
   @ViewChild('officeFilter',{ static: false }) officeFilter: ElementRef;
   @ViewChild('residentialFilter', { static: false }) residentialFilter: ElementRef;
   @ViewChild('commercialFilter', { static: false }) commercialFilter: ElementRef;
-  @ViewChild('aoiFilter',{ static: false }) aoiFilter: ElementRef;
+  @ViewChild('aoiFilter', { static: false }) aoiFilter: ElementRef;
+  @ViewChild('lowStaminaBtn', { static: false }) lowStaminaBtn: ElementRef;
+  @ViewChild('offerDetailsBtn', { static: false }) offerDetailsBtn: ElementRef;
+  @ViewChild('ownerSection', { static: false }) ownerSection: ElementRef;
+
 
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumns: string[] = ['district_id', 'pos_x', 'pos_y', 'building_type', 'building_level', 'last_action', 'plot_ip', 'ip_bonus', 'citizen_count', 'token_id', 'citizen_stamina_alert' ];
@@ -137,9 +85,12 @@ export class OwnerDataComponent implements AfterViewInit {
 
   // Trigger used on page load, or on URL change - moving between My portfolio and Owner Report features
   triggerSearchByMatic() {
+
     this.prodHistory.setHide();
+    this.offerShow = false;
 
     let requestOwnerMatic = this.route.snapshot.queryParams["matic"];
+
     if (requestOwnerMatic) {
       this.searchOwnerbyMatic(requestOwnerMatic);
     }
@@ -163,9 +114,12 @@ export class OwnerDataComponent implements AfterViewInit {
       last_action: "",
       registered_date: "",
       last_visit: "",
-      plot_count: 0,
+      plot_count: -1,
       developed_plots: 0,
       plots_for_sale: 0,
+      stamina_alert_count: 0,
+      offer_count: 0,
+      owner_offer: null,
       district_plots: null,
       owner_land: null
     };
@@ -191,6 +145,20 @@ export class OwnerDataComponent implements AfterViewInit {
           this.dataSource.sort = this.sort;
         }
 
+        if (this.owner.stamina_alert_count == 0) {
+          this.lowStaminaBtn.nativeElement.classList.remove("btnAlert");
+        }
+        else {
+          this.lowStaminaBtn.nativeElement.classList.add("btnAlert");
+        }
+
+        if (this.owner.offer_count == 0) {
+          this.offerDetailsBtn.nativeElement.classList.remove("btnAlert");
+        }
+        else {
+          this.offerDetailsBtn.nativeElement.classList.add("btnAlert");
+        }          
+
         this.buttonShowAll = false;
         this.removeLinkHighlight(".districtEleActive, .activeFilter");
         rotateEle.classList.remove("rotate");
@@ -207,13 +175,18 @@ export class OwnerDataComponent implements AfterViewInit {
     params = params.append('plotX', plotPos.plotX);
     params = params.append('plotY', plotPos.plotY);
 
-    if (plotPos) {
-      //wsParameters = JSON.stringify([{ plotX: plotPos.plotX, plotY: plotPos.plotY }])
+    // Check if no X Y , then skip and blink instructions.
+    if (plotPos.plotX == '' || plotPos.plotY == '') {
+      this.ownerSection.nativeElement.classList.remove("blink");      
+      plotPos.rotateEle.classList.remove("rotate");
+      this.ownerSection.nativeElement.classList.add("blink");
+      return;
     }
 
     //this.httpClient.get<OwnerData>(this.baseUrl + 'ownerdata/Get?plotX=' + encodeURIComponent(plotPos.plotX) + '&plotY=' + encodeURIComponent(plotPos.plotY))
     this.httpClient.get<OwnerData>(this.baseUrl + 'api/ownerdata', { params: params })
       .subscribe((result: OwnerData) => {
+
         this.owner = result;
 
         this.hideBuildingFilter(this.owner.owner_land);
@@ -223,7 +196,7 @@ export class OwnerDataComponent implements AfterViewInit {
 
           this.dataSource.sort = this.sort;
 
-          //Update URL to show friendly url to this player report
+          // Update URL to show friendly url to this player report
           this.router.navigate(['/owner-data'], { queryParams: { matic: this.owner.owner_matic_key } });
         }
 
@@ -232,11 +205,22 @@ export class OwnerDataComponent implements AfterViewInit {
 
         plotPos.rotateEle.classList.remove("rotate");        
 
-      }, error => console.error(error));
+      },
+      error => {
+        console.error(error)
+      }
+     );
 
     return;
   }
 
+  sortTableStamina() {
+
+    this.sort.sort({ id: 'citizen_stamina_alert', start: 'desc', disableClear: true });
+
+    return;
+  }
+  
 
   // Filter By District, and By Building Type [Storing pior District filter and using if found]
   filterTable(event, filterValue: number, buildingType: number) {
@@ -373,7 +357,7 @@ export class OwnerDataComponent implements AfterViewInit {
             break;
           }
           case BUILDING.AOI: {
-            this.aoiFilter.nativeElement.classList.remove("hideFilter");
+            this.aoiFilter.nativeElement.classList.remove("hideFilter");            
             break;
           }
           default: {         
@@ -395,4 +379,21 @@ export class OwnerDataComponent implements AfterViewInit {
   hideHistory(componentVisible: boolean) {
     this.historyShow = !componentVisible;
   }
+
+  showOffer(asset_id: number, pos_x: number, pos_y: number) {
+
+    if (this.offerShow == true || this.owner.offer_count == 0) {
+      this.offerShow = false;
+    }
+    else {
+      this.offerModal.loadTable(this.owner.owner_offer);
+      this.offerShow = true;
+    }
+
+  }
+
+  hideOffer(componentVisible: boolean) {
+    this.offerShow = !componentVisible;
+  }
+
 }

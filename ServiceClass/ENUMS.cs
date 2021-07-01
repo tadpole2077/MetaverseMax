@@ -1,5 +1,15 @@
 ﻿namespace MetaverseMax.ServiceClass
 {
+    public enum TOKEN_TYPE
+    {
+        PLOT = 1,
+        DISTRICT = 2,
+        CITIZEN = 4,
+        PET = 5,
+        APPLICATION = 6,
+        RESOURCE = 7,
+        CAR = 8
+    }
     public enum DISTRICT_PERKS
     {
         TWINS_RESIDENTIAL = 1,

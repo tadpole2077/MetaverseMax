@@ -17,6 +17,8 @@ https://fontawesome.com/v5.15/icons/search-location?style=solid
 <i class="fas fa-plane-arrival arrivalIcon">
 <i class="fas fa-landmark"></i>
 <i class="fas fa-search-location"></i>
+<i class="fas fa-ambulance"></i>
+<i class="fas fa-comments-dollar"></i>
 
 
 Add FontAwesome to app.
