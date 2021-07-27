@@ -35,7 +35,9 @@ interface OwnerData
   plots_for_sale: number;
   stamina_alert_count: number;
   offer_count: number;
+  offer_sold_count: number;
   owner_offer: Offer[];
+  owner_offer_sold: Offer[];
   district_plots: DistrictPlot[];
   owner_land: OwnerLandData[];
 }

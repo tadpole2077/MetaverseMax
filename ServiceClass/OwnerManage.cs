@@ -109,6 +109,7 @@ namespace MetaverseMax.ServiceClass
             OwnerOfferDB ownerOfferDB = new(_context);
             List<OwnerOffer> ownerOfferList = new();
             List<Offer> offerList = new();
+            bool sold = !active;
 
             try
             {
@@ -116,7 +117,7 @@ namespace MetaverseMax.ServiceClass
 
                 foreach (OwnerOffer offer in ownerOfferList)
                 {
-                    if (offer.active == active)
+                    if (offer.active == active && offer.sold == sold)
                     {
                         Owner owner = ownerDB.GetOwner(offer.buyer_matic_key);
 
@@ -132,8 +133,10 @@ namespace MetaverseMax.ServiceClass
                             token_id = offer.token_id,
                             token_district = offer.plot_district,
                             token_pos_x = offer.plot_x,
-                            token_pos_y = offer.plot_y
-                        }); ;                        
+                            token_pos_y = offer.plot_y,
+                            sold = offer.sold,
+                            sold_date = offer.sold_date == null ? "" : ((DateTime)offer.sold_date).ToString("yyyy/MMM/dd")
+                        });                     
                     }
                 }
             }
@@ -210,10 +213,11 @@ namespace MetaverseMax.ServiceClass
 
                             JObject sale_data = offers[index].Value<JObject>("sale_data");
                             ownerOffer.buyer_matic_key = sale_data.Value<string>("buyer");
-                            ownerOffer.buyer_offer = sale_data.Value<int>("value")/1000000; //Tron to Trx
+                            ownerOffer.buyer_offer = sale_data.Value<decimal>("value") / 1000000; //Tron to Trx
 
                             JObject data = offers[index].Value<JObject>("data");
-                            if (data != null && data.Count > 0) {
+                            if (data != null && data.Count > 0)
+                            {
 
                                 JObject token_info = data.Value<JObject>("token_info");
                                 if (token_info != null && token_info.Count > 0)
@@ -226,6 +230,39 @@ namespace MetaverseMax.ServiceClass
 
                             ownerOfferDB.AddorUpdate(ownerOffer);
                             returnCode++;
+                        }
+                        else if (offers[index].Value<bool>("is_active") == false && (offers[index].Value<int?>("is_cancelled") ?? 0) == 0)
+                        {
+                            ownerOffer = new OwnerOffer();
+                            ownerOffer.token_owner_matic_key = maticKey;
+                            ownerOffer.active = false;
+
+                            ownerOffer.offer_id = offers[index].Value<int?>("id") ?? 0;
+                            ownerOffer.offer_date = common.TimeFormatStandardDT(offers[index].Value<string>("event_time"), null);
+
+                            ownerOffer.token_id = offers[index].Value<int?>("token_id") ?? 0;
+                            ownerOffer.token_type = offers[index].Value<int?>("token_type") ?? 0;
+
+                            JObject sale_data = offers[index].Value<JObject>("sale_data");
+                            ownerOffer.buyer_matic_key = sale_data.Value<string>("buyer");
+                            ownerOffer.buyer_offer = sale_data.Value<decimal>("value") / 1000000; //Tron to Trx
+
+                            JObject data = offers[index].Value<JObject>("data");
+                            if (data != null && data.Count > 0)
+                            {
+
+                                JObject token_info = data.Value<JObject>("token_info");
+                                if (token_info != null && token_info.Count > 0)
+                                {
+                                    ownerOffer.plot_district = token_info.Value<int?>("region_id") ?? 0;
+                                    ownerOffer.plot_x = token_info.Value<int?>("x") ?? 0;
+                                    ownerOffer.plot_y = token_info.Value<int?>("y") ?? 0;
+                                }
+                            }
+                            ownerOffer.sold = true;
+                            ownerOffer.sold_date = common.TimeFormatStandardDT(offers[index].Value<string>("sale_time"), null);
+
+                            ownerOfferDB.AddorUpdate(ownerOffer);
                         }
                     }
                 }
@@ -434,6 +471,9 @@ namespace MetaverseMax.ServiceClass
                         ownerData.owner_offer = GetOfferLocal(true, ownerMaticKey);
                         ownerData.offer_count = ownerData.owner_offer == null ? 0 : ownerData.owner_offer.Count();
 
+                        ownerData.owner_offer_sold = GetOfferLocal(false, ownerMaticKey);
+                        ownerData.offer_sold_count = ownerData.owner_offer_sold == null ? 0 : ownerData.owner_offer_sold.Count();
+
                     }
                 }
             }
@@ -443,6 +483,67 @@ namespace MetaverseMax.ServiceClass
             }
 
             return returnCode;
+        }
+
+        public IEnumerable<Pet> GetPetMCP(string ownerMaticKey)
+        {
+            PetDB petDB = new(_context);
+            String content = string.Empty;
+            int returnCode = 0;
+            List<Pet> petList = new();
+
+            try
+            {
+                // POST from Land/Get REST WS
+                byte[] byteArray = Encoding.ASCII.GetBytes("{\"address\": \"" + ownerMaticKey + "\",\"filter\": {\"qualifications\":0}}");
+                WebRequest request = WebRequest.Create("https://ws-tron.mcp3d.com/user/assets/pets");
+                request.Method = "POST";
+                request.ContentType = "application/json";
+
+                Stream dataStream = request.GetRequestStream();
+                dataStream.Write(byteArray, 0, byteArray.Length);
+                dataStream.Close();
+
+                // Ensure correct dispose of WebRespose IDisposable class even if exception
+                using (WebResponse response = request.GetResponse())
+                {
+                    StreamReader reader = new(response.GetResponseStream());
+                    content = reader.ReadToEnd();
+                }
+
+                if (content.Length == 0)
+                {
+                    returnCode = -1;
+                }
+                else
+                {
+                    JArray pets = JArray.Parse(content);
+
+                    for (int index = 0; index < pets.Count; index++)
+                    {
+                        petList.Add(new Pet() {
+                            token_owner_matic_key = ownerMaticKey,
+                            pet_id = pets[index].Value<int?>("pet_id") ?? 0,
+                            bonus_id = pets[index].Value<int?>("bonus_id") ?? 0,
+                            bonus_level = pets[index].Value<int?>("bonus_level") ?? 0,
+                            pet_look = pets[index].Value<int?>("look") ?? 0
+                        });
+                    }
+
+                    petDB.AddorUpdate(petList, ownerMaticKey);
+                }
+            }
+            catch (Exception ex)
+            {
+                string log = ex.Message;
+                if (_context != null)
+                {
+                    _context.LogEvent(String.Concat("OwnerMange.GetPet() : Error on WS calls for owner matic : ", ownerMaticKey));
+                    _context.LogEvent(log);
+                }
+            }
+
+            return petList.ToArray();
         }
 
         private int AssignUnknownOwner()

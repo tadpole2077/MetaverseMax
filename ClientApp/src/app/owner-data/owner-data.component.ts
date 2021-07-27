@@ -119,7 +119,9 @@ export class OwnerDataComponent implements AfterViewInit {
       plots_for_sale: 0,
       stamina_alert_count: 0,
       offer_count: 0,
+      offer_sold_count: 0,
       owner_offer: null,
+      owner_offer_sold: null,
       district_plots: null,
       owner_land: null
     };
@@ -143,6 +145,14 @@ export class OwnerDataComponent implements AfterViewInit {
           this.dataSource = new MatTableDataSource<OwnerLandData>(this.owner.owner_land);
 
           this.dataSource.sort = this.sort;
+
+          // Add custom date column sort
+          this.dataSource.sortingDataAccessor = (item: OwnerLandData, property) => {
+            switch (property) {
+              case 'last_action': return item.last_action == "Empty Plot" ? new Date(0) : new Date(item.last_action);
+              default: return item[property];
+            }
+          };
         }
 
         if (this.owner.stamina_alert_count == 0) {
@@ -380,13 +390,13 @@ export class OwnerDataComponent implements AfterViewInit {
     this.historyShow = !componentVisible;
   }
 
-  showOffer(asset_id: number, pos_x: number, pos_y: number) {
+  showOffer() {
 
-    if (this.offerShow == true || this.owner.offer_count == 0) {
+    if (this.offerShow == true) { // || this.owner.offer_count == 0) {
       this.offerShow = false;
     }
     else {
-      this.offerModal.loadTable(this.owner.owner_offer);
+      this.offerModal.loadTable(this.owner.owner_offer, this.owner.owner_offer_sold);
       this.offerShow = true;
     }
 

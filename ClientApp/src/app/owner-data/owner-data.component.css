@@ -344,7 +344,7 @@ td.mat-column-district_id {
 .salepos {
   position: absolute;
   margin-left: -66px;
-  z-index: 1;
+  z-index: 100;
 }
 
   .salepos::before {

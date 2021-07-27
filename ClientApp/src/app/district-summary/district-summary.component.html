@@ -4,7 +4,7 @@
 <div class="districtImgContainer">
   <div class="innerDistrictImgContainer">
     <img *ngIf="district" src="https://play.mcp3d.com/assets/images/districts/TRX/{{ district.district_id }}.png" class="districtImg" height="240" />
-    <div *ngIf="district.active_from" class="slideOutLeft">
+    <div *ngIf="district" class="slideOutLeft">
       <p aria-live="polite">
         <span>District Opened On:</span>
         <span>{{ district.active_from.substring(0,17) }}</span>

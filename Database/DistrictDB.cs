@@ -18,7 +18,7 @@ namespace MetaverseMax.Database
             _context = _parentContext;
         }
 
-        public DbSet<District> Districts { get; set; }   // Links to a specific table in DB
+        public DbSet<District> district { get; set; }   // Links to a specific table in DB
 
         public IEnumerable<District> DistrictGetAll(bool isOpened)
         {
@@ -33,8 +33,11 @@ namespace MetaverseMax.Database
         {
             List<int> districtList;
 
-            districtList = _context.district.OrderBy(x => x.district_id)
-                  .Select(r => r.district_id).Distinct().ToList();
+            districtList = _context.district
+                           .Select(r => r.district_id)
+                           .Distinct()
+                           .OrderBy(r => ((uint)r))
+                           .ToList();
             
             return districtList.ToArray();
         }

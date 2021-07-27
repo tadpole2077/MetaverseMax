@@ -33,7 +33,7 @@
       <i class="fas fa-ambulance" style=""></i><button #lowStaminaBtn class="btn btn-primary" (click)="sortTableStamina()">{{ owner.stamina_alert_count }} X Low Stamina</button>
 
       <div class="offerBtnDiv">
-        <i class="fas fa-comments-dollar" style=""></i><button #offerDetailsBtn class="btn btn-primary offerDetailsBtn" (click)="showOffer(1,1,1)">{{ owner.offer_count }} X Active Offers</button>
+        <i class="fas fa-comments-dollar" style=""></i><button #offerDetailsBtn class="btn btn-primary offerDetailsBtn" (click)="showOffer()">{{ owner.offer_count }} X Active Offers</button>
       </div>
     </div>
     <app-offer-modal [hidden]="!this.offerShow" (hideOfferEvent)="hideOffer($event)"></app-offer-modal>

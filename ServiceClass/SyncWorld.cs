@@ -65,8 +65,9 @@ namespace MetaverseMax.ServiceClass
             OwnerManage ownerManage;
             OwnerOfferDB ownerOfferDB;
 
-            List<District> districtList;
-            List<DistrictPerk> districtPerkList;
+            List<DistrictName> districtList;
+            List<DistrictPerk> districtPerkListMCP;
+            List<DistrictPerk> districtPerkList = new();
 
             int x = 0, y = 0, districtId = 0, saveCounter = 1, updateInstance = 0;
             List<Plot> plotList;
@@ -90,13 +91,15 @@ namespace MetaverseMax.ServiceClass
                 ownerManage = new(_context);
                 ownerOfferDB = new(_context);
 
-                districtList = districtDB.DistrictGetAll_Latest().ToList();
+                // Update All Districts from MCP, as a new district may have opened.
+                districtList = districtWebMap.GetDistrictsFromMCP(true);
+                //districtList = districtDB.DistrictGetAll_Latest().ToList();
 
                 // Store copy of current plots as archived plot state
                 plotDB.ArchivePlots();
 
                 // Get district perks
-                districtPerkList = districtPerkManage.GetPerks().ToList();
+                districtPerkListMCP = districtPerkManage.GetPerks().ToList();
 
                 // Iterate each district, update all buildable plots within the district then sync district owners, and funds.
                 for (int index = 0; index < districtList.Count; index++)
@@ -131,11 +134,16 @@ namespace MetaverseMax.ServiceClass
                     districtFundManage.UpdateFundPriorDay(districtId);
 
                     // Assign Distrist update instance to related district perks (if any)
-                    for (int perkIndex = 0; perkIndex < districtPerkList.Count; perkIndex++) 
+                    for (int perkIndex = 0; perkIndex < districtPerkListMCP.Count; perkIndex++) 
                     {
-                        if (districtPerkList[perkIndex].district_id == districtId)
+                        if (districtPerkListMCP[perkIndex].district_id == districtId)
                         {
-                            districtPerkList[perkIndex].update_instance = updateInstance;
+                            districtPerkList.Add(new DistrictPerk() {
+                                district_id = districtId,
+                                perk_id = districtPerkListMCP[perkIndex].perk_id,
+                                perk_level = districtPerkListMCP[perkIndex].perk_level,
+                                update_instance = updateInstance
+                            });
                         }
                     }
                     // Save Perk list after each district update, to better support live use of db during sync.
@@ -152,6 +160,8 @@ namespace MetaverseMax.ServiceClass
                 foreach (string maticKey in ownersList.Keys)
                 {
                     ownerManage.GetOwnerOffer(true, maticKey);
+                    ownerManage.GetPetMCP(maticKey);
+
                     await Task.Delay(100);      // 100ms delay to help prevent server side kicks.
                 }
 

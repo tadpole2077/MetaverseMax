@@ -71,7 +71,9 @@ namespace MetaverseMax.Database
                 }
                 else
                 {
-                    storedOffer.active = true;
+                    storedOffer.active = ownerOffer.active;
+                    storedOffer.sold = ownerOffer.sold;
+                    storedOffer.sold_date = ownerOffer.sold_date;
                 }
                 _context.SaveChanges();
 

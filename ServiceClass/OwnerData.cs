@@ -19,7 +19,9 @@ namespace MetaverseMax.ServiceClass
         public int plots_for_sale { get; set; }
         public int stamina_alert_count { get; set; }
         public int offer_count { get; set; }
+        public int offer_sold_count { get; set; }
         public IEnumerable<Offer> owner_offer { get; set; }
+        public IEnumerable<Offer> owner_offer_sold { get; set; }
 
         public IEnumerable<DistrictPlot> district_plots { get; set; }
 

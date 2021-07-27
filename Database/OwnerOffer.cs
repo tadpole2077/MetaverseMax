@@ -48,5 +48,12 @@ namespace MetaverseMax.Database
         [Column("plot_district")]
         public int plot_district { get; set; }
 
+        [Column("sold")]
+        public bool sold { get; set; }
+
+        [Column("sold_date")]
+        public DateTime? sold_date { get; set; }
+        
+
     }
 }

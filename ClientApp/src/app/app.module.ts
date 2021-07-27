@@ -24,7 +24,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatExpansionModule, MatInputModule, MatIconModule, MatCheckboxModule } from '@angular/material';
+import { MatExpansionModule, MatInputModule, MatIconModule, MatCheckboxModule, MatTabsModule } from '@angular/material';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NumberDirective } from './numberonly.directive';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
@@ -62,6 +62,7 @@ import { Globals } from './common/global-var';
     MatExpansionModule,
     MatIconModule,
     MatCheckboxModule,
+    MatTabsModule,
     DragDropModule,
     NgbDropdownModule,
     NgxChartsModule,

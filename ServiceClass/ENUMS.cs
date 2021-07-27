@@ -1,5 +1,15 @@
 ﻿namespace MetaverseMax.ServiceClass
 {
+    public enum PET_BONUS_TYPE
+    {
+        CHARISMA = 1,
+        LUCK = 2,
+        AGILITY = 3,
+        STRENGTH = 4,
+        ENDURANCE= 5,
+        INTEL = 6
+    }
+
     public enum TOKEN_TYPE
     {
         PLOT = 1,

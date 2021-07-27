@@ -3,57 +3,116 @@
 <div class="offerFrame" cdkDrag style="display:inline-table;text-align:left;">
 
   <a class="closeframe" (click)="setHide()"><i class="far fa-window-close fa-2x" role="button"></i></a>
-  <div *ngIf="offers" class="countOffer">Offers :<span>{{ offers.length }}</span></div>
 
-  <div class="offerTable" [hidden]="!offers">
+  <div class="offerTable">
 
-    <div class="table-container" [hidden]="!offers">
+    <mat-tab-group class="m-t-30" [selectedIndex]="1">
+      <mat-tab label="{{ offers == null ? 0 : offers.length }} Active Offers">
 
-      <table mat-table [dataSource]="dataSource" matSort class="table-striped mat-elevation-z8" style="display:inline-table">
-        <!--table table-striped-->
-        <ng-container matColumnDef="offer_date">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Date </th>
-          <td mat-cell *matCellDef="let offer"> {{ offer.offer_date }}</td>
-        </ng-container>
+        <div class="table-container" [hidden]="!offers">
 
-        <ng-container matColumnDef="buyer_matic_key">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Buyer </th>
-          <td mat-cell *matCellDef="let offer">
-            <img *ngIf="offer.buyer_avatar_id>0" src="https://mcp3d.com/tron/api/image/citizen/{{ offer.buyer_avatar_id }}" class="ownerImgCol" height="42" />
-            <img *ngIf="offer.buyer_avatar_id==0" src="./images/MysteryOwner.png" class="ownerImgCol" height="33" style="margin-top:-4px" />
+          <table mat-table [dataSource]="dataSource" matSort #sorterOffer="matSort" class="table-striped mat-elevation-z8" style="display:inline-table">
+          <!--table table-striped-->
+          <ng-container matColumnDef="offer_date">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Date </th>
+            <td mat-cell *matCellDef="let offer"> {{ offer.offer_date }}</td>
+          </ng-container>
 
-            <a class="nav-link text-dark lineAnim" [routerLink]="['/owner-data']" [queryParams]="{matic: offer.buyer_matic_key}" title="{{ offer.buyer_owner_name }}">
-              <span *ngIf="offer.buyer_owner_name!=''">{{ offer.buyer_owner_name }}</span>
-              <span class="maticLink" *ngIf="offer.buyer_owner_name ==''">{{ offer.buyer_matic_key.substring(0,14) }}</span>
-            </a>
-          </td>
-        </ng-container>
+          <ng-container matColumnDef="buyer_matic_key">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Buyer </th>
+            <td mat-cell *matCellDef="let offer">
+              <img *ngIf="offer.buyer_avatar_id>0" src="https://mcp3d.com/tron/api/image/citizen/{{ offer.buyer_avatar_id }}" class="ownerImgCol" height="42" />
+              <img *ngIf="offer.buyer_avatar_id==0" src="./images/MysteryOwner.png" class="ownerImgCol" height="33" style="margin-top:-4px" />
 
-        <ng-container matColumnDef="buyer_offer">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Amount </th>
-          <td mat-cell *matCellDef="let offer"> {{ offer.buyer_offer }} </td>
-        </ng-container>
+              <a class="nav-link text-dark lineAnim" [routerLink]="['/owner-data']" [queryParams]="{matic: offer.buyer_matic_key}" title="{{ offer.buyer_owner_name }}">
+                <span *ngIf="offer.buyer_owner_name!=''">{{ offer.buyer_owner_name }}</span>
+                <span class="maticLink" *ngIf="offer.buyer_owner_name ==''">{{ offer.buyer_matic_key.substring(0,14) }}</span>
+              </a>
+            </td>
+          </ng-container>
 
-        <ng-container matColumnDef="token_type">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
-          <td mat-cell *matCellDef="let offer"> {{ offer.token_type }} </td>
-        </ng-container>
+          <ng-container matColumnDef="buyer_offer">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Amount </th>
+            <td mat-cell *matCellDef="let offer"> {{ offer.buyer_offer }} </td>
+          </ng-container>
 
-        <ng-container matColumnDef="token_district">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header> District </th>
-          <td mat-cell *matCellDef="let offer">
-            {{ offer.token_district }}
-            <a [hidden]="!offer.token_pos_x" class="lineAnim" target="_blank" href="https://play.mcp3d.com/tron/land?x={{ offer.token_pos_x }}&y={{ offer.token_pos_y }}"> (X:{{ offer.token_pos_x }} Y:{{ offer.token_pos_y }})</a>
-          </td>
+          <ng-container matColumnDef="token_type">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
+            <td mat-cell *matCellDef="let offer"> {{ offer.token_type }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="token_district">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> District </th>
+            <td mat-cell *matCellDef="let offer">
+              {{ offer.token_district }}
+              <a [hidden]="!offer.token_pos_x" class="lineAnim" target="_blank" href="https://play.mcp3d.com/tron/land?x={{ offer.token_pos_x }}&y={{ offer.token_pos_y }}"> (X:{{ offer.token_pos_x }} Y:{{ offer.token_pos_y }})</a>
+            </td>
 
 
-        </ng-container>
+          </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      </table>
-      <mat-paginator [hidden]="hidePaginator" [pageSize]="5" [hidePageSize] [showFirstLastButtons] class="paginatorContainer"></mat-paginator>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+          <mat-paginator #paginatorOffer="matPaginator" [hidden]="hidePaginator" [pageSize]="5" [hidePageSize] [showFirstLastButtons] class="paginatorContainer" style="max-height:40px"></mat-paginator>
 
-    </div>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="{{ offersSold == null ? 0 : offersSold.length }} Sale Agreed">
+
+        <div class="offerTable" [hidden]="!offers">      
+          <div class="table-container" [hidden]="!offers">
+
+            <table mat-table [dataSource]="dataSourceSold" matSort #sorterSold="matSort" class="table-striped mat-elevation-z8" style="display:inline-table">
+              <!--table table-striped-->
+              <ng-container matColumnDef="offer_date">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Date </th>
+                <td mat-cell *matCellDef="let offer"> {{ offer.offer_date }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="buyer_matic_key">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Buyer </th>
+                <td mat-cell *matCellDef="let offer">
+                  <img *ngIf="offer.buyer_avatar_id>0" src="https://mcp3d.com/tron/api/image/citizen/{{ offer.buyer_avatar_id }}" class="ownerImgCol" height="42" />
+                  <img *ngIf="offer.buyer_avatar_id==0" src="./images/MysteryOwner.png" class="ownerImgCol" height="33" style="margin-top:-4px" />
+
+                  <a class="nav-link text-dark lineAnim" [routerLink]="['/owner-data']" [queryParams]="{matic: offer.buyer_matic_key}" title="{{ offer.buyer_owner_name }}">
+                    <span *ngIf="offer.buyer_owner_name!=''">{{ offer.buyer_owner_name }}</span>
+                    <span class="maticLink" *ngIf="offer.buyer_owner_name ==''">{{ offer.buyer_matic_key.substring(0,14) }}</span>
+                  </a>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="buyer_offer">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Amount </th>
+                <td mat-cell *matCellDef="let offer"> {{ offer.buyer_offer }} </td>
+              </ng-container>
+
+              <ng-container matColumnDef="token_type">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
+                <td mat-cell *matCellDef="let offer"> {{ offer.token_type }} </td>
+              </ng-container>
+
+              <ng-container matColumnDef="token_district">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> District </th>
+                <td mat-cell *matCellDef="let offer">
+                  {{ offer.token_district }}
+                  <a [hidden]="!offer.token_pos_x" class="lineAnim" target="_blank" href="https://play.mcp3d.com/tron/land?x={{ offer.token_pos_x }}&y={{ offer.token_pos_y }}"> (X:{{ offer.token_pos_x }} Y:{{ offer.token_pos_y }})</a>
+                </td>
+
+
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+            <mat-paginator #paginatorSold="matPaginator" [hidden]="hidePaginatorSold" [pageSize]="5" [hidePageSize] [showFirstLastButtons] class="paginatorContainer" style="max-height:40px"></mat-paginator>
+
+          </div>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
   </div>
 </div>

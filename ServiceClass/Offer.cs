@@ -28,5 +28,10 @@ namespace MetaverseMax.ServiceClass
         public int token_pos_x { get; set; }
 
         public int token_pos_y { get; set; }
+
+        public bool sold { get; set; }
+
+        public string sold_date { get; set; }
+
     }
 }

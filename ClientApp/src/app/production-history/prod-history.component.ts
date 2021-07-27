@@ -87,6 +87,15 @@ export class ProdHistoryComponent implements AfterViewInit {
             this.dataSourceHistory.paginator.firstPage();
           }
           this.dataSourceHistory.sort = this.sort;
+
+          // Add custom date column sort
+          this.dataSourceHistory.sortingDataAccessor = (item: Detail, property) => {
+            switch (property) {
+              case 'run_datetime': return item.run_datetime == "Empty Plot" ? new Date(0) : new Date(item.run_datetime);
+              default: return item[property];
+            }
+          };
+
         }
         else {
           this.dataSourceHistory = new MatTableDataSource<Detail>(null);

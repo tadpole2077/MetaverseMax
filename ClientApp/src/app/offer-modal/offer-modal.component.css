@@ -48,18 +48,20 @@ a {
   margin-top: 8px;
 }
 
-.table-container {  
-  margin: 40px 6px 10px 10px;
+.table-container {
+  margin: 0px 6px 0px 10px;
+  padding-top: 20px;
 }
 
 tr.mat-header-row{
-    height:38px
+  height:38px
 }
 
 .paginatorContainer {
   width: 360px;
-  height: 22px;
+  height: 42px;
   margin-top: -8px;
+  overflow: hidden;
 }
 
 .closeframe {
@@ -67,7 +69,7 @@ tr.mat-header-row{
   top: 6px;
   right: 6px;
   color: black;
-  z-index:1001;
+  z-index: 1001;
 }
   .closeframe:hover {
     color: orangered;
@@ -115,7 +117,6 @@ td.mat-column-buyer_matic_key {
   }
 
     .mat-column-buyer_matic_key a span:hover {
-      white-space: unset;
       text-overflow: unset;
       transition: 1s;
     }
@@ -179,4 +180,9 @@ td.mat-column-token_district {
     font-size: .74rem;
     font-weight: 500;
   }
+
+  td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type, th.mat-header-cell:last-of-type{
+    padding-right:10px
+  }
+
 }

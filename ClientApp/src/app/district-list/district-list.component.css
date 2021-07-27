@@ -352,6 +352,9 @@ th.mat-column-district_id span{
   margin-left: -10px;
   margin-right:10px
 }
+td.mat-column-district_id a{
+  font-weight:600
+}
 
 .mat-column-plots_claimed {
   text-align: center

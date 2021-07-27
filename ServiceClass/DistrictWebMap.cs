@@ -161,5 +161,94 @@ namespace MetaverseMax.ServiceClass
 
             return returnCode;
         }
+
+        public List<DistrictName> GetDistrictsFromMCP(bool isOpened)
+        {
+            List<DistrictName> districtList = new();
+            string content = string.Empty;
+            try
+            {
+                // POST from Land/Get REST WS
+                byte[] byteArray = Encoding.ASCII.GetBytes("{}");
+                WebRequest request = WebRequest.Create("https://ws-tron.mcp3d.com/regions/list");
+                request.Method = "POST";
+                request.ContentType = "application/json";
+
+                Stream dataStream = request.GetRequestStream();
+                dataStream.Write(byteArray, 0, byteArray.Length);
+                dataStream.Close();
+
+                // Ensure correct dispose of WebRespose IDisposable class even if exception
+                using (WebResponse response = request.GetResponse())
+                {
+                    StreamReader reader = new(response.GetResponseStream());
+                    content = reader.ReadToEnd();
+                }
+
+                if (content.Length == 0)
+                {
+                    districtList.Add(new DistrictName { district_id = 0, district_name = "Loading Issue" });
+                }
+                else
+                {
+                    JObject jsonContent = JObject.Parse(content);
+                    JArray districts = jsonContent.Value<JArray>("stat");
+                    if (districts != null && districts.HasValues)
+                    {
+                        for (int index = 0; index < districts.Count; index++)
+                        {
+                            JToken districtToken = districts[index];
+                            districtList.Add(new DistrictName()
+                            {
+                                district_id = districtToken.Value<int?>("region_id") ?? 0,
+                                district_name = ""
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                string log = ex.Message;
+                if (_context != null)
+                {
+                    _context.LogEvent(String.Concat("DistrictWebMap::GetDistrictsFromMCP() : Error "));
+                    _context.LogEvent(log);
+                }
+            }
+
+            return districtList;
+        }
+
+
+        // Get all districts from local db : used by district_list component
+        public IEnumerable<DistrictWeb> GetDistrictAll(bool isOpened)
+        {
+            List<District> districtList = new();
+            List<DistrictWeb> districtWebList = new();
+            DistrictWebMap districtWebMap = new(_context);
+            bool perksDetail = false;
+
+            try
+            {
+                districtList = districtDB.DistrictGetAll_Latest().ToList();
+                foreach (District district in districtList)
+                {
+
+                    districtWebList.Add(districtWebMap.MapData_DistrictWeb(district, null, perksDetail));
+                }
+            }
+            catch (Exception ex)
+            {
+                string log = ex.Message;
+                if (_context != null)
+                {
+                    _context.LogEvent(String.Concat("DistrictWebMap::GetDistrictAll() : Error "));
+                    _context.LogEvent(log);
+                }
+            }
+
+            return districtWebList.ToArray();
+        }
     }
 }
