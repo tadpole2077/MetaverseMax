@@ -38,6 +38,7 @@ interface OwnerData
   offer_sold_count: number;
   owner_offer: Offer[];
   owner_offer_sold: Offer[];
+  pet_count: number;
   district_plots: DistrictPlot[];
   owner_land: OwnerLandData[];
 }
@@ -70,6 +71,19 @@ interface DistrictPlot
   district: number[];
 }
 
+interface Pet {
+  token_id: number;
+  trait: string;
+  level: number;
+  name: string;
+}
+interface PortfolioPet {
+  pet_count: number;
+  pet: Pet[];
+}
+
+
+
 const BUILDING = {
   NO_FILTER: -1,
   EMPTYPLOT: 0,
@@ -91,5 +105,7 @@ export
   Offer,
   PlotPosition,
   DistrictPlot,
+  Pet,
+  PortfolioPet,
   BUILDING
 }

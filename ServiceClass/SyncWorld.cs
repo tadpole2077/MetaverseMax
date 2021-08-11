@@ -64,6 +64,7 @@ namespace MetaverseMax.ServiceClass
             DistrictPerkDB districtPerkDB;
             OwnerManage ownerManage;
             OwnerOfferDB ownerOfferDB;
+            PetDB petDB;
 
             List<DistrictName> districtList;
             List<DistrictPerk> districtPerkListMCP;
@@ -90,6 +91,7 @@ namespace MetaverseMax.ServiceClass
                 plotDB = new(_context);
                 ownerManage = new(_context);
                 ownerOfferDB = new(_context);
+                petDB = new(_context);
 
                 // Update All Districts from MCP, as a new district may have opened.
                 districtList = districtWebMap.GetDistrictsFromMCP(true);
@@ -161,6 +163,7 @@ namespace MetaverseMax.ServiceClass
                 {
                     ownerManage.GetOwnerOffer(true, maticKey);
                     ownerManage.GetPetMCP(maticKey);
+                    petDB.UpdatePetCount();
 
                     await Task.Delay(100);      // 100ms delay to help prevent server side kicks.
                 }

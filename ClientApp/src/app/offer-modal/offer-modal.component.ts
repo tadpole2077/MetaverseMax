@@ -5,7 +5,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTabGroup } from '@angular/material';
 import { DragDrop } from '@angular/cdk/drag-drop';
-import { Offer, OwnerLandData, OwnerData, PlotPosition, BUILDING } from '../owner-data/owner-interface';
+import { Offer } from '../owner-data/owner-interface';
 
 
 @Component({

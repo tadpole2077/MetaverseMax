@@ -19,10 +19,16 @@ namespace MetaverseMax.ServiceClass
             return (int)(salePriceLarge / 1000000);
         }
 
+        // Create an array of districts with summary data matching plots owned by player
         public IEnumerable<DistrictPlot> DistrictPlots(IEnumerable<OwnerLand> ownerLands)
         {
 
-            int[] districts = ownerLands.GroupBy(row => row.district_id).Select(row => row.FirstOrDefault()).Select(row => row.district_id).ToArray();
+            int[] districts = ownerLands.GroupBy(row => row.district_id)
+                                        .Select(row => row.FirstOrDefault())
+                                        .OrderBy(row => row.district_id)
+                                        .Select(row => row.district_id)                                        
+                                        .ToArray();
+            
             DistrictPlot[] districtPlots = new DistrictPlot[districts.Length];
             int count = 0;
 
@@ -37,7 +43,7 @@ namespace MetaverseMax.ServiceClass
                 count++;
             }
 
-            districtPlots = districtPlots.OrderByDescending(row => row.district[1]).ToArray();
+            //districtPlots = districtPlots.OrderByDescending(row => row.district[1]).ToArray();
    
             return districtPlots;
         }

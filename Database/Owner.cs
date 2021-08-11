@@ -41,5 +41,12 @@ namespace MetaverseMax.Database
 
         [Column("active_tron")]
         public bool active_tron { get; set; }
+
+        [Column("pet_count")]
+        public int? pet_count { get; set; }
+
+        [Column("citizen_count")]
+        public int? citizen_count { get; set; }
+
     }
 }

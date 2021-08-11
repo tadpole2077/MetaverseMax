@@ -16,7 +16,7 @@ namespace MetaverseMax.Database
         public int pet_key { get; set; }
 
         [Column("token_id")]
-        public int pet_id { get; set; }
+        public int token_id { get; set; }
 
         [Column("bonus_id")]
         public int bonus_id { get; set; }

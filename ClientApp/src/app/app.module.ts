@@ -12,6 +12,7 @@ import { SearchDistrictComponent } from './search-district/search-district.compo
 import { TaxGraphComponent } from './tax-graph/tax-graph.component';
 import { FundGraphComponent } from './fund-graph/fund-graph.component';
 import { NoteModalComponent } from './note-modal/note-modal.component';
+import { PetModalComponent } from './pet-modal/pet-modal.component';
 import { OfferModalComponent } from './offer-modal/offer-modal.component';
 import { OwnerDataComponent } from './owner-data/owner-data.component';
 import { ProdHistoryComponent } from './production-history/prod-history.component';
@@ -29,6 +30,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NumberDirective } from './numberonly.directive';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { ClipboardModule } from '@angular/cdk/clipboard';
 
 import { Globals } from './common/global-var';
 
@@ -43,6 +45,7 @@ import { Globals } from './common/global-var';
     FundGraphComponent,
     OwnerDataComponent,
     NoteModalComponent,
+    PetModalComponent,
     OfferModalComponent,
     ProdHistoryComponent,
     DistrictListComponent,
@@ -73,7 +76,8 @@ import { Globals } from './common/global-var';
       { path: 'district-summary', component: DistrictSummaryComponent },
       { path: 'district-notification', component: DistrictNotificationComponent }
     ]),
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    ClipboardModule
   ],
   providers: [ Globals ],
   bootstrap: [AppComponent]

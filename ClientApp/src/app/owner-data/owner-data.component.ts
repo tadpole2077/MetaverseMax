@@ -7,6 +7,7 @@ import { AfterViewInit } from '@angular/core';
 import { element } from 'protractor';
 import { ProdHistoryComponent } from '../production-history/prod-history.component';
 import { OfferModalComponent } from '../offer-modal/offer-modal.component';
+import { PetModalComponent } from '../pet-modal/pet-modal.component';
 import { MatButton } from '@angular/material';
 import { OwnerLandData, OwnerData, PlotPosition, BUILDING } from './owner-interface';
 
@@ -28,12 +29,14 @@ export class OwnerDataComponent implements AfterViewInit {
   public buttonShowAll: boolean = false;
   public historyShow: boolean = false;
   public offerShow: boolean = false;
+  public petShow: boolean = false;
   private subscriptionRouterEvent: any;
 
   dataSource = new MatTableDataSource(null);
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(ProdHistoryComponent, { static: true }) prodHistory: ProdHistoryComponent;
   @ViewChild(OfferModalComponent, { static: true }) offerModal: OfferModalComponent;
+  @ViewChild(PetModalComponent, { static: true }) petModal: PetModalComponent;  
 
   // ViewChild used for these elements to provide for rapid element attribute changes without need for scanning DOM and readability.
   @ViewChild('emptyPlotFilter', { static: false}) emptyPlotFilter: ElementRef;
@@ -122,6 +125,7 @@ export class OwnerDataComponent implements AfterViewInit {
       offer_sold_count: 0,
       owner_offer: null,
       owner_offer_sold: null,
+      pet_count: 0,
       district_plots: null,
       owner_land: null
     };
@@ -388,6 +392,20 @@ export class OwnerDataComponent implements AfterViewInit {
 
   hideHistory(componentVisible: boolean) {
     this.historyShow = !componentVisible;
+  }
+
+  hidePet(componentVisible: boolean) {
+    this.petShow = !componentVisible;
+  }  
+
+  showPet() {
+    if (this.petShow == true) { // || this.owner.offer_count == 0) {
+      this.petShow = false;
+    }
+    else {
+      this.petModal.searchPets(this.owner.owner_matic_key);
+      this.petShow = true;
+    }
   }
 
   showOffer() {

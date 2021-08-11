@@ -1,5 +1,19 @@
 ﻿namespace MetaverseMax.ServiceClass
 {
+    public enum PET_LOOK
+    {
+        BULLDOG = 1,
+        CORGI_DOG = 2,
+        LABRADOR = 3,
+        MASTIFF_DOG = 4,
+        WHIPPET_DOG = 5,
+        PARROT = 6,
+        LION = 12,
+        RED_DRAGON = 15,
+        CHAMELEON = 16,
+        BEETLE = 256
+    }
+
     public enum PET_BONUS_TYPE
     {
         CHARISMA = 1,

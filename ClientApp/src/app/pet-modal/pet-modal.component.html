@@ -1,0 +1,42 @@
+
+
+<div class="modalFrame" cdkDrag style="display:inline-table;text-align:left;">
+
+  <a class="closeframe" (click)="setHide()"><i class="far fa-window-close fa-2x" role="button"></i></a>
+  <div class="count" *ngIf="portfolioPet">Pets : <span>{{portfolioPet.pet_count}}</span></div>
+  <div class="offerBtnDiv">
+    <i class="fas fa-clipboard" style=""></i><button class="btn btn-primary" [cdkCopyToClipboard]="dataSource">Copy All to Clipboard</button>
+  </div>
+
+  <div class="table-container">
+
+    <table mat-table [dataSource]="dataSource" matSort class="table-striped mat-elevation-z8" style="display:inline-table">
+      <!--table table-striped-->
+      <ng-container matColumnDef="token_id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+        <td mat-cell *matCellDef="let pet"> {{ pet.token_id }} </td>
+      </ng-container>
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
+        <td mat-cell *matCellDef="let pet">
+          <img src="https://mcp3d.com/tron/api/image/pet/{{ pet.token_id }}" class="ownerImgCol" height="38" />
+          <span>{{ pet.name }}</span>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="trait">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Trait </th>
+        <td mat-cell *matCellDef="let pet"> {{ pet.trait}}</td>
+      </ng-container>
+      <ng-container matColumnDef="level">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Level </th>
+        <td mat-cell *matCellDef="let pet">+{{ pet.level }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+    <mat-paginator [hidden]="hidePaginator" [pageSize]="5" [hidePageSize] [showFirstLastButtons] class="paginatorContainer"></mat-paginator>
+
+  </div>
+
+</div>

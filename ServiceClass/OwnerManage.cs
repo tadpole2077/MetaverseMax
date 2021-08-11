@@ -167,6 +167,7 @@ namespace MetaverseMax.ServiceClass
             return tokenType;
         }
 
+        // Get from MCP 3rd tier services
         public int GetOwnerOffer(bool activeOffer, string maticKey)
         {
             String content = string.Empty;
@@ -424,8 +425,10 @@ namespace MetaverseMax.ServiceClass
             int returnCode = 0;
 
             try
-            {
+            {                
                 OwnerOfferDB ownerOfferDB = new(_context);
+                OwnerDB ownerDB = new(_context);
+                Owner owner = ownerDB.GetOwner(ownerMaticKey);
 
                 //ownerData.wallet_public = WalletConvert(jsonContent.Value<string>("owner") ?? string.Empty);
                 if (string.IsNullOrEmpty(ownerMaticKey) || ownerMaticKey.Equals("Not Found"))
@@ -474,6 +477,9 @@ namespace MetaverseMax.ServiceClass
                         ownerData.owner_offer_sold = GetOfferLocal(false, ownerMaticKey);
                         ownerData.offer_sold_count = ownerData.owner_offer_sold == null ? 0 : ownerData.owner_offer_sold.Count();
 
+                        ownerData.pet_count = owner.pet_count ?? 0;
+                        ownerData.citizen_count = owner.citizen_count ?? 0;
+
                     }
                 }
             }
@@ -485,9 +491,70 @@ namespace MetaverseMax.ServiceClass
             return returnCode;
         }
 
+        public OwnerPet GetPet(string ownerMaticKey)
+        {
+            OwnerPet ownerPet = new();
+            PetDB petDB = new(_context);
+            List<Pet> petList = new();
+            List<PetWeb> petWeb = new();
+
+            try
+            {
+                petList = petDB.GetOwnerPet(ownerMaticKey);
+                ownerPet.pet_count = petList.Count;
+                
+                foreach (Pet pet in petList)
+                {
+                    petWeb.Add(new PetWeb
+                    {
+                        token_id = pet.token_id,
+                        level = pet.bonus_level,
+                        trait = pet.bonus_id switch
+                        {
+                            (int)PET_BONUS_TYPE.AGILITY => "Agility",
+                            (int)PET_BONUS_TYPE.CHARISMA => "Charisma",
+                            (int)PET_BONUS_TYPE.ENDURANCE => "Endurance",
+                            (int)PET_BONUS_TYPE.INTEL => "Intel",
+                            (int)PET_BONUS_TYPE.LUCK => "Luck",
+                            (int)PET_BONUS_TYPE.STRENGTH => "Strength",
+                            _ => "Unknown"
+                        },
+                        name = pet.pet_look switch
+                        {
+                            1 => "Bulldog",
+                            2 => "Corgi Dog",
+                            3 => "Labrador",
+                            4 => "Mastiff Dog",
+                            5 => "Whippet Dog",
+                            6 => "Parrot",
+                            12 => "Lion",
+                            15 => "Red Dragon",
+                            16 => "Chameleon",
+                            256 => "Beetle",
+                            _ => "Unknown"
+                        }
+                    });
+                }
+
+                ownerPet.pet = petWeb;
+            }
+            catch (Exception ex)
+            {
+                string log = ex.Message;
+                if (_context != null)
+                {
+                    _context.LogEvent(String.Concat("OwnerMange.GetPet() : Error on WS calls for owner matic : ", ownerMaticKey));
+                    _context.LogEvent(log);
+                }
+            }
+
+            return ownerPet;
+        }
+
         public IEnumerable<Pet> GetPetMCP(string ownerMaticKey)
         {
             PetDB petDB = new(_context);
+            OwnerDB ownerDB = new(_context);
             String content = string.Empty;
             int returnCode = 0;
             List<Pet> petList = new();
@@ -523,14 +590,14 @@ namespace MetaverseMax.ServiceClass
                     {
                         petList.Add(new Pet() {
                             token_owner_matic_key = ownerMaticKey,
-                            pet_id = pets[index].Value<int?>("pet_id") ?? 0,
+                            token_id = pets[index].Value<int?>("pet_id") ?? 0,
                             bonus_id = pets[index].Value<int?>("bonus_id") ?? 0,
                             bonus_level = pets[index].Value<int?>("bonus_level") ?? 0,
                             pet_look = pets[index].Value<int?>("look") ?? 0
                         });
                     }
 
-                    petDB.AddorUpdate(petList, ownerMaticKey);
+                    petDB.AddorUpdate(petList, ownerMaticKey);                    
                 }
             }
             catch (Exception ex)
@@ -538,7 +605,7 @@ namespace MetaverseMax.ServiceClass
                 string log = ex.Message;
                 if (_context != null)
                 {
-                    _context.LogEvent(String.Concat("OwnerMange.GetPet() : Error on WS calls for owner matic : ", ownerMaticKey));
+                    _context.LogEvent(String.Concat("OwnerMange.GetPetMCP() : Error on WS calls for owner matic : ", ownerMaticKey));
                     _context.LogEvent(log);
                 }
             }
@@ -557,6 +624,7 @@ namespace MetaverseMax.ServiceClass
 
             return 0;
         }
+
     }
    
 }

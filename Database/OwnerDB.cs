@@ -86,7 +86,7 @@ namespace MetaverseMax.Database
             int result = 0, returnCode =0;
             try
             {                            
-                result = _context.Database.ExecuteSqlRaw("EXEC dbo.sp_archive_plots");
+                result = _context.Database.ExecuteSqlRaw("EXEC dbo.sp_owner_sync");
 
             }
             catch (Exception ex)

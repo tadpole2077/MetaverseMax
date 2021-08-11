@@ -56,7 +56,7 @@ namespace MetaverseMax.Controllers
 
             if (ModelState.IsValid)
             {
-                return Ok(ownerManage.GetPetMCP(parameters.owner_matic_key));
+                return Ok(ownerManage.GetPet(parameters.owner_matic_key));
             }
 
             return BadRequest("Call is invalid");       // 400 Error   
