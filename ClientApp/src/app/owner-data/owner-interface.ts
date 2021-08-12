@@ -39,6 +39,7 @@ interface OwnerData
   owner_offer: Offer[];
   owner_offer_sold: Offer[];
   pet_count: number;
+  citizen_count: number;
   district_plots: DistrictPlot[];
   owner_land: OwnerLandData[];
 }

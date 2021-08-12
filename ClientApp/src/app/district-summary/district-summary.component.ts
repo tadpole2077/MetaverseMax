@@ -1,10 +1,11 @@
-import { Component, Inject, ViewChild, EventEmitter, Renderer, ElementRef, ViewChildren } from '@angular/core';
+import { Component, Inject, ViewChild, EventEmitter, ElementRef, ViewChildren } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule, MatExpansionModule, MatIconModule, MatCheckboxModule, MatCheckboxChange, MatCheckbox } from '@angular/material';
+/*import { MatInputModule, MatExpansionModule, MatIconModule, MatCheckboxModule, MatCheckboxChange, MatCheckbox } from '@angular/material';*/
+import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { AfterViewInit } from '@angular/core';
 import { NoteModalComponent } from '../note-modal/note-modal.component';
 import { TaxGraphComponent } from '../tax-graph/tax-graph.component';
@@ -51,7 +52,7 @@ export class DistrictSummaryComponent implements AfterViewInit {
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumnsOwners: string[] = ['owner_nickname', 'owned_plots', 'energy_count', 'industry_count', 'production_count', 'residential_count', 'office_count', 'poi_count', 'commercial_count', 'municipal_count'];
 
-  constructor(private route: ActivatedRoute, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private renderer: Renderer, private elem: ElementRef) {
+  constructor(private route: ActivatedRoute, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef) {
     this.httpClient = http;
     this.baseUrl = baseUrl;
     this.district = {

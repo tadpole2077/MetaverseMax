@@ -530,7 +530,7 @@ namespace MetaverseMax.ServiceClass
                             12 => "Lion",
                             15 => "Red Dragon",
                             16 => "Chameleon",
-                            256 => "Beetle",
+                            254 => "Beetle",
                             _ => "Unknown"
                         }
                     });

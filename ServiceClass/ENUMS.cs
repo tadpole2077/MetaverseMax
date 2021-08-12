@@ -11,7 +11,7 @@
         LION = 12,
         RED_DRAGON = 15,
         CHAMELEON = 16,
-        BEETLE = 256
+        BEETLE = 254
     }
 
     public enum PET_BONUS_TYPE

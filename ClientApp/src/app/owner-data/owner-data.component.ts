@@ -1,4 +1,4 @@
-import { Component, Inject, ViewChild, EventEmitter, Renderer, ElementRef } from '@angular/core';
+import { Component, Inject, ViewChild, EventEmitter, ElementRef } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { NavigationEnd, NavigationStart, RouterEvent, Router, ActivatedRoute, Params } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
@@ -8,7 +8,7 @@ import { element } from 'protractor';
 import { ProdHistoryComponent } from '../production-history/prod-history.component';
 import { OfferModalComponent } from '../offer-modal/offer-modal.component';
 import { PetModalComponent } from '../pet-modal/pet-modal.component';
-import { MatButton } from '@angular/material';
+import { MatButton } from '@angular/material/button';
 import { OwnerLandData, OwnerData, PlotPosition, BUILDING } from './owner-interface';
 
 
@@ -56,7 +56,7 @@ export class OwnerDataComponent implements AfterViewInit {
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumns: string[] = ['district_id', 'pos_x', 'pos_y', 'building_type', 'building_level', 'last_action', 'plot_ip', 'ip_bonus', 'citizen_count', 'token_id', 'citizen_stamina_alert' ];
  
-  constructor(public router: Router, private route: ActivatedRoute, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private renderer: Renderer, private elem: ElementRef)
+  constructor(public router: Router, private route: ActivatedRoute, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef)
   {
     this.httpClient = http;
     this.baseUrl = baseUrl;
@@ -126,6 +126,7 @@ export class OwnerDataComponent implements AfterViewInit {
       owner_offer: null,
       owner_offer_sold: null,
       pet_count: 0,
+      citizen_count: 0,
       district_plots: null,
       owner_land: null
     };
@@ -406,6 +407,10 @@ export class OwnerDataComponent implements AfterViewInit {
       this.petModal.searchPets(this.owner.owner_matic_key);
       this.petShow = true;
     }
+  }
+
+  showCitizen() {
+
   }
 
   showOffer() {
