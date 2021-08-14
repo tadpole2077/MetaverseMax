@@ -5,7 +5,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { DragDrop } from '@angular/cdk/drag-drop';
 import { PortfolioPet, Pet } from '../owner-data/owner-interface';
-import { ClipboardModule } from '@angular/cdk/clipboard';
+import { Clipboard } from '@angular/cdk/clipboard';
 
 //let HISTORY_ASSETS: Detail[] = null;
 
@@ -32,11 +32,10 @@ export class PetModalComponent implements AfterViewInit {
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumns: string[] = ['token_id', 'name', 'trait', 'level'];
 
-  constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string) {//, cdr: ChangeDetectorRef) {
+  constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string, private clipboard: Clipboard) {
 
     this.httpClient = http;
     this.baseUrl = baseUrl;
-    this.setInitVar();
 
     this.portfolioPet = null;
 
@@ -51,29 +50,37 @@ export class PetModalComponent implements AfterViewInit {
     //this.dataSourceHistory.paginator = this.paginator;
   }
 
+  copyData() {
+    let parseData: string = "";
+    let counter: number = 0;
+    let header: string = "";
+    let copyDataset = this.portfolioPet.pet;
 
-  setInitVar() {
+    this.displayedColumns.forEach(function (key, value) {
+      parseData += key + "\t";
+    });
+    parseData += String.fromCharCode(13) + String.fromCharCode(10);
 
-    /** this.owner = {
-      owner_name: "Search for an Owner, Enter Plot X and Y position, click Find Owner.",
-      owner_url: "https://mcp3d.com/tron/api/image/citizen/0",
-      owner_matic_key: "",
-      last_action: "",
-      registered_date: "",
-      last_visit: "",
-      plot_count: -1,
-      developed_plots: 0,
-      plots_for_sale: 0,
-      stamina_alert_count: 0,
-      offer_count: 0,
-      offer_sold_count: 0,
-      owner_offer: null,
-      owner_offer_sold: null,
-      district_plots: null,
-      owner_land: null
-    }; **/
+    // Iterate though each table row
+    for (counter = 0; counter < copyDataset.length; counter++) {
+
+      //iterate though each field find match in datasource
+      this.displayedColumns.forEach(function (key, value) {
+        // find match and store
+        for (var prop in copyDataset[counter]) {
+          if (prop == key) {
+            parseData += copyDataset[counter][prop] + "\t";
+          }
+        }
+
+      });
+      parseData += String.fromCharCode(13) + String.fromCharCode(10)
+    }
+
+    this.clipboard.copy(parseData);
+
+    return;
   }
-
 
   public searchPets(maticKey: string) {
 
@@ -110,7 +117,4 @@ export class PetModalComponent implements AfterViewInit {
     this.hidePetEvent.emit(true);
   }
 
-  test() {
-
-  }
 }

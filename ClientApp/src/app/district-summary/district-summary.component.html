@@ -64,6 +64,23 @@
         <app-tax-graph #graphConstruct class="taxGraphDistrictConstruct" [graph_type]="CONSTRUCT"></app-tax-graph>
         <app-tax-graph #graphProduce class="taxGraphDistrictProduce" [graph_type]="PRODUCE"></app-tax-graph>
 
+        <mat-accordion class="example-headers-align" multi>
+
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                <mat-icon>history</mat-icon>
+                <span style="margin-left:.2rem">Tax Change History</span>
+              </mat-panel-title>
+              <mat-panel-description>
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+            <div>
+
+            </div>
+          </mat-expansion-panel>
+
+        </mat-accordion>
       </div>
     </mat-expansion-panel>
 
@@ -112,6 +129,7 @@
           <span style="">{{district.perkSchema[perk.perk_id - 1].perk_desc}}</span>
         </div>
       </div>
+
     </mat-expansion-panel>
     <mat-expansion-panel expanded="true">
       <mat-expansion-panel-header>

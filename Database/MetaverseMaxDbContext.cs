@@ -19,6 +19,8 @@ namespace MetaverseMax.Database
 
         public virtual DbSet<DistrictContent> districtContent { get; set; }
 
+        public virtual DbSet<DistrictTaxChange> districtTaxChange { get; set; }
+
         //public virtual DbSet<DistrictUpdateInstance> districtUpdateInstance { get; set; }
 
         public virtual DbSet<OwnerSummaryDistrict> ownerSummaryDistrict { get; set; }

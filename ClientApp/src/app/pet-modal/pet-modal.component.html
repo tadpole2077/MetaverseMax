@@ -4,8 +4,8 @@
 
   <a class="closeframe" (click)="setHide()"><i class="far fa-window-close fa-2x" role="button"></i></a>
   <div class="count" *ngIf="portfolioPet">Pets : <span>{{portfolioPet.pet_count}}</span></div>
-  <div class="offerBtnDiv">
-    <i class="fas fa-clipboard" style=""></i><button class="btn btn-primary" [cdkCopyToClipboard]="dataSource">Copy All to Clipboard</button>
+  <div class="topBtnDiv">
+    <i class="fas fa-clipboard" style=""></i><button class="copy btn btn-primary" (click)="copyData()">Copy All to Clipboard</button>
   </div>
 
   <div class="table-container">

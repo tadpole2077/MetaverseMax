@@ -58,6 +58,7 @@ namespace MetaverseMax.ServiceClass
             MetaverseMaxDbContext _context = null;
             PlotDB plotDB;
             DistrictDB districtDB;
+            DistrictTaxChangeDB districtTaxChangeDB;
             DistrictFundManage districtFundManage;
             DistrictWebMap districtWebMap;
             DistrictPerkManage districtPerkManage;
@@ -88,6 +89,7 @@ namespace MetaverseMax.ServiceClass
                 districtPerkDB = new(_context);
                 districtWebMap = new(_context);
                 districtDB = new(_context);
+                districtTaxChangeDB = new(_context);
                 plotDB = new(_context);
                 ownerManage = new(_context);
                 ownerOfferDB = new(_context);
@@ -167,6 +169,8 @@ namespace MetaverseMax.ServiceClass
 
                     await Task.Delay(100);      // 100ms delay to help prevent server side kicks.
                 }
+
+                districtTaxChangeDB.UpdateTaxChanges();
 
             }
             catch (Exception ex)

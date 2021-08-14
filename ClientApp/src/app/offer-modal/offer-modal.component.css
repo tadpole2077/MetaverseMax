@@ -17,6 +17,7 @@ a {
 }
 
 .offerFrame {
+  margin-top:3px;
   text-align: left;
   min-height: 50px;
   border: solid 1px #ccc;

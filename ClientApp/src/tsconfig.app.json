@@ -6,6 +6,9 @@
   },
   "exclude": [
     "src/test.ts",
-    "**/*.spec.ts"
+    "**/*.spec.ts",
+    "src/app/fund-graph/data-fund-test.ts",
+    "src/app/tax-graph/data-construct.ts",
+    "src/app/tax-graph/data-produce.ts"
   ]
 }

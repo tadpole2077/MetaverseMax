@@ -74,10 +74,11 @@ interface DistrictPlot
 
 interface Pet {
   token_id: number;
-  trait: string;
-  level: number;
   name: string;
+  trait: string;
+  level: number;  
 }
+
 interface PortfolioPet {
   pet_count: number;
   pet: Pet[];

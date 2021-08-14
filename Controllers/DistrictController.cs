@@ -30,6 +30,17 @@ namespace MetaverseMax.Controllers
             districtDB = new(_context);
         }
 
+        [HttpGet("GetTaxChange")]
+        public IActionResult GetTaxChange([FromQuery] QueryParametersDistrict parameters)
+        {
+            DistrictWebMap districtWebMap = new(_context);
+            if (ModelState.IsValid)
+            {
+                return Ok(districtWebMap.GetTaxChange(parameters.district_id));
+            }
+            return BadRequest("Get District Tax changes request is invalid");
+        }
+
         [HttpGet("GetPerksAll")]
         public IActionResult GetPerksAll()
         {
@@ -75,10 +86,11 @@ namespace MetaverseMax.Controllers
 
         [HttpGet("GetDistrictId_List")]
         public IActionResult GetDistrictId_List([FromQuery] QueryParametersDistrictGetOpened parameters)
-        {     
+        {
+            DistrictWebMap districtWebMap = new(_context);
             if (ModelState.IsValid)
             {
-                return Ok( GetDistrictIdList(parameters.opened) );
+                return Ok( districtWebMap.GetDistrictIdList(parameters.opened) );
             }
             return BadRequest("District list request is invalid");
         }
@@ -103,30 +115,7 @@ namespace MetaverseMax.Controllers
             }
             return BadRequest("District update action is invalid");
         }
-
-
-
-        private IEnumerable<int> GetDistrictIdList(bool isOpened)
-        {
-            List<int> districtIDList = new();
-
-            try
-            {                
-                districtIDList = districtDB.DistrictId_GetList().ToList();
-
-            }
-            catch (Exception ex)
-            {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("GetDistrictIDList() : Error "));
-                    _context.LogEvent(log);
-                }
-            }
-
-            return districtIDList.ToArray();
-        }     
+     
 
         private DistrictWeb GetDistrict(int district_id)
         {

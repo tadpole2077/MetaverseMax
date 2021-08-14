@@ -22,6 +22,49 @@ namespace MetaverseMax.ServiceClass
             districtDB = new(_serviceContext);
         }
 
+        public IEnumerable<DistrictTaxChange> GetTaxChange(int districtId)
+        {
+            List<DistrictTaxChange> taxChangeList = new();
+            DistrictTaxChangeDB districtTaxChangeDB = new(_context);
+
+            try
+            {
+                taxChangeList = districtTaxChangeDB.GetTaxChange(districtId);
+            }
+            catch (Exception ex)
+            {
+                string log = ex.Message;
+                if (_context != null)
+                {
+                    _context.LogEvent(String.Concat("DistrictWebMap::GetTaxChange() : Error for district ", districtId ));
+                    _context.LogEvent(log);
+                }
+            }
+
+            return taxChangeList.ToArray();
+        }
+
+        public IEnumerable<int> GetDistrictIdList(bool isOpened)
+        {
+            List<int> districtIDList = new();
+
+            try
+            {
+                districtIDList = districtDB.DistrictId_GetList().ToList();
+            }
+            catch (Exception ex)
+            {
+                string log = ex.Message;
+                if (_context != null)
+                {
+                    _context.LogEvent(String.Concat("DistrictWebMap.GetDistrictIDList() : Error "));
+                    _context.LogEvent(log);
+                }
+            }
+
+            return districtIDList.ToArray();
+        }
+
         public DistrictWeb MapData_DistrictWeb(District district, District districtHistory_1Mth, bool perksDetail)
         {
             DistrictWeb districtWeb, districtWebHistory = new();                    
@@ -219,7 +262,6 @@ namespace MetaverseMax.ServiceClass
 
             return districtList;
         }
-
 
         // Get all districts from local db : used by district_list component
         public IEnumerable<DistrictWeb> GetDistrictAll(bool isOpened)
