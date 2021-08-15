@@ -110,6 +110,10 @@
   position: relative;
 }
 
+#TaxChangeAccordion .mat-expansion-panel-header {
+  background: none
+}
+
 
 /***District Section***/
 .districtHeader{

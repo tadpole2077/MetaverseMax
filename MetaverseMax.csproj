@@ -15,9 +15,9 @@
 
   <ItemGroup>
     <PackageReference Include="EntityFramework" Version="6.4.4" />
-    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.9" />
     <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="4.2.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -59,6 +59,7 @@
     <TypeScriptCompile Remove="ClientApp\src\app\pet-modal\pet-modal.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\production-history\prod-history.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\search-district\search-district.component.ts" />
+    <TypeScriptCompile Remove="ClientApp\src\app\tax-change\tax-change.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\tax-graph\tax-graph.component.ts" />
   </ItemGroup>
 

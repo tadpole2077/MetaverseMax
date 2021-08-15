@@ -73,7 +73,15 @@ interface DistrictPerk {
   perk_level: number;
 }
 
+interface TaxChange {
+  change_date: string;
+  tax_type: string;
+  change_desc: string;
+  change_owner: string;
+}
+
 export { 
   OwnerSummary,
-  District
+  District,
+  TaxChange
 }

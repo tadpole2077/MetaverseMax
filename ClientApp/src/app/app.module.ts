@@ -10,6 +10,7 @@ import { HomeComponent } from './home/home.component';
 import { SearchPlotComponent } from './search-plot/search-plot.component';
 import { SearchDistrictComponent } from './search-district/search-district.component';
 import { TaxGraphComponent } from './tax-graph/tax-graph.component';
+import { TaxChangeComponent } from './tax-change/tax-change.component';
 import { FundGraphComponent } from './fund-graph/fund-graph.component';
 import { NoteModalComponent } from './note-modal/note-modal.component';
 import { PetModalComponent } from './pet-modal/pet-modal.component';
@@ -46,6 +47,7 @@ import { Globals } from './common/global-var';
     SearchPlotComponent,
     SearchDistrictComponent,
     TaxGraphComponent,
+    TaxChangeComponent,
     FundGraphComponent,
     OwnerDataComponent,
     NoteModalComponent,

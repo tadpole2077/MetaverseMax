@@ -9,9 +9,9 @@ import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { AfterViewInit } from '@angular/core';
 import { NoteModalComponent } from '../note-modal/note-modal.component';
 import { TaxGraphComponent } from '../tax-graph/tax-graph.component';
-import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { TaxChangeComponent } from '../tax-change/tax-change.component';
 import { OwnerSummary, District } from './data-district-interface';
-import { GraphData } from '../common/graph-interface';
+
 
 @Component({
   selector: 'district-summary-data',
@@ -25,6 +25,7 @@ export class DistrictSummaryComponent implements AfterViewInit {
 
   DistrictInterface: any;
 
+  public requestDistrictId: number;
   public district: District;
   public fundtotal: number;
 
@@ -47,7 +48,7 @@ export class DistrictSummaryComponent implements AfterViewInit {
   @ViewChild("graphDistribute", { static: true }) childGraphDistribute: TaxGraphComponent;
   @ViewChild("arrivalsWeek", { static: true } as any) arrivalsWeek: MatCheckbox;
   @ViewChild("arrivalsMonth", { static: true } as any) arrivalsMonth: MatCheckbox;
-
+  @ViewChild("taxChange", { static: true }) taxChange: TaxChangeComponent;
 
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumnsOwners: string[] = ['owner_nickname', 'owned_plots', 'energy_count', 'industry_count', 'production_count', 'residential_count', 'office_count', 'poi_count', 'commercial_count', 'municipal_count'];
@@ -91,9 +92,9 @@ export class DistrictSummaryComponent implements AfterViewInit {
     };
 
     // CHECK request Parameter, search by districtId
-    let requestDistrictId = this.route.snapshot.queryParams["district_id"];
-    if (requestDistrictId) {
-      this.searchDistrict(requestDistrictId);
+    this.requestDistrictId = this.route.snapshot.queryParams["district_id"];
+    if (this.requestDistrictId) {
+      this.searchDistrict(this.requestDistrictId);
     }
   }
 
@@ -138,7 +139,6 @@ export class DistrictSummaryComponent implements AfterViewInit {
     return;
   }
 
-
   removeLinkHighlight() {
 
     // Highlight current filter, and remove prior link highlight
@@ -151,7 +151,6 @@ export class DistrictSummaryComponent implements AfterViewInit {
     }
     return;
   }
-
 
   // Single parameter struct containing 2 members, pushed by component search-plot
   searchOwnerSummaryDistrict(districtId: number, updateInstance:number) {
@@ -235,4 +234,9 @@ export class DistrictSummaryComponent implements AfterViewInit {
   public applyFilter = (value: string) => {
     this.dataSourceOwnerSummary.filter = value.trim().toLocaleLowerCase();
   }
+
+  loadTaxChange() {
+    this.taxChange.getTaxChange(this.requestDistrictId);
+  }
+
 }

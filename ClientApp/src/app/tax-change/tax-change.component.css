@@ -1,0 +1,142 @@
+@-webkit-keyframes rotation {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+
+  to {
+    -webkit-transform: rotate(359deg);
+  }
+}
+
+.rotate {
+  -webkit-animation: rotation 1s 1 linear;
+}
+
+a {
+  display: inline-block;
+}
+
+.table-container {
+  margin: 0 6px 0px 10px;
+}
+
+tr.mat-header-row{
+  height:38px
+}
+
+.paginatorContainer {
+  width: 360px;
+  height: 42px;
+  margin-top: -8px;
+  overflow: hidden;
+}
+
+
+.offerTable {
+  font-size: 14px;
+  margin: 6px 8px 0 10px
+}
+
+  .offerTable div {
+    line-height: 1.8em;
+  }
+
+.totalEle{
+  margin-right: 6px
+}
+
+
+td.mat-column-buyer_matic_key {
+  vertical-align: bottom;
+  padding-right: .3rem;
+}
+
+
+.mat-column-buyer_matic_key a {
+  display: inline-block;
+  padding: unset;
+  vertical-align: text-bottom;
+  margin-left: 2.1rem;
+}
+
+  .mat-column-buyer_matic_key a span {
+    width: 4rem;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+  }
+
+    .mat-column-buyer_matic_key a span:hover {
+      text-overflow: unset;
+      transition: 1s;
+    }
+
+.mat-column-buyer_matic_key img {
+  display: inline-block;
+  vertical-align: super;
+}
+
+.mat-column-offer_date{
+  padding-left: 10px;
+  padding-right: 14px;
+}
+
+td.mat-column-buyer_offer{
+  text-align:center
+}
+
+.ownerImgCol {
+  position: absolute;
+  margin-top: -10px;
+  margin-left:-.1rem;
+}
+
+.mat-column-token_district{
+  padding-left: .3rem;
+  text-align: center;
+}
+td.mat-column-token_district {
+  padding-left: .6rem;
+}
+
+
+
+
+@media only screen and (max-width: 415px) {
+  .offerFrame {
+    left: 1%;
+    bottom: unset;
+  }
+
+  .table-container {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .mat-column-buyer_matic_key a span {
+    width: 2.4rem;
+  }
+
+  .mat-column-buyer_matic_key a span.maticLink {
+    width: 2.5rem;
+  }  
+
+  .mat-column-offer_date {
+    padding-left: 12px !important
+  }
+  .mat-column-token_district, td.mat-column-token_district {
+    padding-left: 0;
+    padding-right: 8px;
+  }
+
+  td.mat-cell {
+    font-size: .74rem;
+    font-weight: 500;
+  }
+
+  td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type, th.mat-header-cell:last-of-type{
+    padding-right:10px
+  }
+
+}
