@@ -29,6 +29,12 @@ namespace MetaverseMax.Database
 
         public virtual DbSet<OwnerOffer> ownerOffer { get; set; }
 
+        public virtual DbSet<Citizen> citizen { get; set; }
+
+        public virtual DbSet<OwnerCitizen> ownerCitizen { get; set; }
+
+        public virtual DbSet<OwnerCitizenExt> OwnerCitizenExt { get; set; }
+
         public virtual DbSet<Pet> pet { get; set; }
 
         public virtual DbSet<EventLog> eventLog { get; set; }

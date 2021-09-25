@@ -72,13 +72,10 @@ tr.mat-header-row{
   color: black;
   z-index: 1001;
 }
-  .closeframe:hover {
-    color: orangered;
-  }
 
 .offerTable {
   font-size: 14px;
-  margin: 6px 8px 0 10px
+  margin: 0.2rem .4rem 0 .4rem
 }
 
   .offerTable div {

@@ -30,23 +30,24 @@
     </div>
 
     <div class="alertBtns">
-      <i class="fas fa-ambulance" style=""></i><button #lowStaminaBtn class="btn btn-primary" (click)="sortTableStamina()">{{ owner.stamina_alert_count }} X Low Stamina</button>
+      <i class="fas fa-ambulance" style=""></i><button #lowStaminaBtn mat-raised-button color="primary" (click)="sortTableStamina()">{{ owner.stamina_alert_count }} X Low Stamina</button>
 
       <div class="offerBtnDiv">
-        <i class="fas fa-comments-dollar" style=""></i><button #offerDetailsBtn class="btn btn-primary" (click)="showOffer()">{{ owner.offer_count }} X Active Offers</button>
+        <i class="fas fa-comments-dollar" style=""></i><button #offerDetailsBtn mat-raised-button color="primary" (click)="showOffer()">{{ owner.offer_count }} X Active Offers</button>
       </div>
 
       <div class="offerBtnDiv">
-        <i class="fas fa-paw" style=""></i><button #petBtn class="btn btn-primary smallBtn" (click)="showPet()">{{ owner.pet_count }} X Pets</button>
+        <i class="fas fa-paw" style=""></i><button #petBtn mat-raised-button color="primary" class="smallBtn" (click)="showPet()">{{ owner.pet_count }} X Pets</button>
       </div>
 
       <div class="offerBtnDiv">
-        <i class="fas fa-users" style=""></i><button #citizenBtn class="btn btn-primary smallBtn" (click)="showCitizen()">{{ owner.citizen_count }} X Citizen</button>
+        <i class="fas fa-users" style=""></i><button #citizenBtn mat-raised-button color="primary" class="smallBtn" (click)="showCitizen()">{{ owner.citizen_count }} X Citizen</button>
       </div>
     </div>
 
     <app-offer-modal [hidden]="!this.offerShow" (hideOfferEvent)="hideOffer($event)"></app-offer-modal>
     <app-pet-modal [hidden]="!this.petShow" (hidePetEvent)="hidePet($event)"></app-pet-modal>
+    <app-citizen-modal [hidden]="!this.citizenShow" (hideCitizenEvent)="hideCitizen($event)"></app-citizen-modal>
 
     <div class="ownerPlotSection" aria-live="polite">
       <div>
@@ -105,6 +106,7 @@
       <th mat-header-cell *matHeaderCellDef mat-sort-header> District # </th>
       <td mat-cell *matCellDef="let land">
         <span class="salepos" *ngIf="land.forsale_price>0">{{land.forsale_price.toLocaleString()}}</span>
+        <img class="rented" *ngIf="land.rented==true" src="./images/rented.png" />
         <a class="lineAnim" [routerLink]="['/district-summary']" [queryParams]="{district_id: land.district_id}" title="{{ land.district_id }}"><strong>{{ land.district_id }}</strong></a>
       </td>
     </ng-container>

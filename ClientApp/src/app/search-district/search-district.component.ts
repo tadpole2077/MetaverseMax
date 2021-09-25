@@ -43,7 +43,7 @@ export class SearchDistrictComponent {
     return;
   }
 
-  GetDistrictData(districtId:number) {
+  getDistrictData(districtId:number) {
 
     //plotPos.rotateEle = document.getElementById("searchIcon")
     //plotPos.rotateEle.classList.add("rotate");

@@ -31,7 +31,7 @@
 
   <div id="introBlock">
     <ul class="introList">
-      <li>Beta Version 0.11 (2021_07_08) : Features may become unstable at any time due to active development</li>
+      <li>Beta Version 0.12 (2021_09_14) : Features may become unstable at any time due to active development</li>
       <li>Initial features tools are for MEGA WORLD. Specifically Tron World during early Beta</li>
       <li>If you love our tools, encourage us to keep on developing them for MCP World. A donation of Energy, Water, any materials or Trx keeps the dev production run going and fueled on coffee!</li>
       <li>Donate to our either our In-Game or Tron Trx account (click to copy): <button class="btn btn-primary" (click)="copyMessage('TWpDTFNtM7qQr9vKNJBxhsed7TTwZsyCPu')" title="click to copy">TWpDTFNtM7qQr9vKNJBxhsed7TTwZsyCPu</button></li>
@@ -51,141 +51,190 @@
         </mat-panel-description>
       </mat-expansion-panel-header>
 
-      <div>
-        <h3>District Summary [Release 0.11 Beta] (2021_07_08)</h3>
-        <h5>My Portfolio / Owner Report : Offer Alerts</h5>
-        <img src="./assets/user_guide_sold_sml.png" class="promoImg" style="" height="150" />
-        <ul>
-          <li>Offer panel now includes all sold assets (offer approved).</li>
-          <li>Useful to identify if an owner is active and accepting offers, identify the acceptable price range on similar plots</li>
-          <li>The offer table is the first to support sorting by date, rolling out to other tool tables shortly</li>
-        </ul>
-      </div>
+      <ng-template matExpansionPanelContent>
 
-      <div>
-        <h3>District Summary [Release 0.10 Beta] (2021_07_01)</h3>
-        <h5>My Portfolio / Owner Report : Offer & Stamina Alerts</h5>
-        <img src="./assets/user_guide_deal.png" class="promoImg" style="" height="150" />
-        <ul>
-          <li>Alert buttons for Stamina and Offers, when alerts are found the button glows Red, showing the amount of alerts.</li>
-          <li>Alert button Click > Stamina > to show all Plots with Alerts at the top of the plot table (useful with large portfolios)</li>
-          <li>Alert button Click > Offer > to show all Active Offers sent to this owner in a pop up style floating and movable panel.</li>
-          <li>Offer Table, is ordered by newest offer first, support all offer token types, offer amount, and direct link to open the target plot in world.</li>
-          <li>Table is sortable, pagination at the bottom, enabled when more then 5 active offers are found.</li>
-        </ul>
-      </div>
+        <div>
+          <h3>District Summary [Release 0.12 Beta] (2021_09_14)</h3>
+          <h5>My Portfolio / Owner Report : Pets & Citizens </h5>
+          <img src="./assets/user-guide-cit-eff-sml.png" class="promoImg" style="margin-right:1rem" height="150" />
+          <img src="./assets/user-guide-cit-trait-sml.png" class="promoImg" style="margin-right: 1rem" height="150" />
+          <img src="./assets/user-guide-pet.png" class="promoImg" style="" height="150" />
+          <ul style="margin-top:.6rem">
+            <li>Pet and Citizen Panel showing relevant details on owned assets.</li>
+            <li>Citizen panel supports 2 views: Traits & Efficiency%</li>
+            <li>Use the Citizen panel to evaluate suitibility per building type</li>
+            <li>'Copy to Clipboard' data formatted for import into spreadsheets</li>
+          </ul>
+          <h5>District Report : Tax Change History </h5>
+          <img src="./assets/user_guide_district_tax_change.png" class="promoImg" style="" height="150" />
+          <ul>
+            <li>History of Tax changes, % change, who and when.</li>
+            <li>Use to evaluate stability of a districts Taxes.</li>
+            <li>Note district taxes can only change once per 30 day period</li>
+          </ul>
+        </div>
 
-      <div style="margin-top:50px">
-        <h3>District Summary [Release 0.9 Beta] (2021_06_14)</h3>
-        <h5>District Perks & My Portfolio:</h5>
-        <img src="./assets/user_guide_portfolio_sml.png" class="promoImg" style="" height="150" />
-        <img src="./assets/user_guide_perks_sml.png" class="promoImg" style="" height="150" />
-        <p>My Portfolio links directly to the account report matching the Active TronLink Wallet</p>
-        <ul>
-          <li>Within District List feature - a count of Perks is now shown for each district</li>
-          <li>Within District Report - a new perks panal shows the active perks for that district. This panel is not shown is no perks are active</li>
-          <li>My Portfolio features, are only active if the TronLink is enabled</li>
-          <li>District Report > New Arrivals, now offers filtering by arrivals in the last week or month period</li>
-        </ul>
-      </div>
+        <div>
+          <h3>District Summary [Release 0.12 Beta] (2021_09_14)</h3>
+          <h5>My Portfolio / Owner Report : Pets &Aacute; Citizens </h5>
+          <img src="./assets/user-guide-cit-eff-sml.png" class="promoImg" style="margin-right:1rem" height="150" />
+          <img src="./assets/user-guide-cit-trait-sml.png" class="promoImg" style="margin-right: 1rem" height="150" />
+          <img src="./assets/user-guide-pet.png" class="promoImg" style="" height="150" />
+          <ul style="margin-top:.6rem">
+            <li>Pet and Citizen Panel showing relevant details on owned assets.</li>
+            <li>Citizen panel supports 2 views: Traits & Efficiency%</li>
+            <li>Use the Citizen panel to evaluate suitibility per building type</li>
+            <li>'Copy to Clipboard' data formatted for import into spreadsheets</li>
+          </ul>
+          <h5>District Report : Tax Change History </h5>
+          <img src="./assets/user_guide_district_tax_change.png" class="promoImg" style="" height="150" />
+          <ul style="margin-top:.6rem">
+            <li>History of Tax changes, % change, who and when.</li>
+            <li>Use to evaluate stability of a districts Taxes.</li>
+            <li>Note district taxes can only change once per 30 day period</li>
+          </ul>
+        </div>
 
-      <div style="margin-top:50px">
-        <h3>District Summary [Release 0.8 Beta] (25/05/2021)</h3>
-        <h5>District Fund, Tax and Owner list:</h5>
-        <img src="./assets/user_guide_district_summary_sml.png" class="promoImg" style="" height="294" />
-        <p>Open areas of interest, funds, promotions, tax rate details, owner information</p>
-        <ul>
-          <li>Listing of all district owners and the district plots and building they own</li>
-          <li>District Tax and local funding details (1 year history), interactive chart</li>
-          <li>Identify new arrival owners in the last week (and prior month coming soon)</li>
-          <li>Table support Search and filter by an owner and sorting by column</li>
-          <li>Owner table displaing plots built per Building type, per owner</li>
-          <li>Districts with active promotions a flashing Ad icon, click to display the promo details</li>
-          <li>Links to owners and district open the corresponding owner report, bookmark the friendly URL link or use within discord or messages</li>
-        </ul>
-      </div>
+        <div>
+          <h3>District Summary [Release 0.11 Beta] (2021_07_08)</h3>
+          <h5>My Portfolio / Owner Report : Offer Alerts</h5>
+          <img src="./assets/user_guide_sold_sml.png" class="promoImg" style="" height="150" />
+          <ul style="margin-top:.6rem">
+            <li>Offer panel now includes all sold assets (offer approved).</li>
+            <li>Useful to identify if an owner is active and accepting offers, identify the acceptable price range on similar plots</li>
+            <li>The offer table is the first to support sorting by date, rolling out to other tool tables shortly</li>
+          </ul>
+        </div>
 
-      <div style="margin-top:50px">
-        <h3>
-          District Features [Release 0.7 Beta] (13/May/2021)
-        </h3>
-        <h5>List of All Active Districts:</h5>
-        <img src="./assets/user_guide_district_graphs.png" class="promoImg" style="" height="170" />
-        <img src="./assets/user_guide_district_plots.png" class="promoImg" style="" height="100" />
-        <p>Select a District from the dropdown list to open the District Report</p>
-        <ul>
-          <li>Identify district with lowest tax rate to either build or produce by sorting on tax column</li>
-          <li>Tax rates displayed are from a full nightly data sync of the world</li>
-          <li>District report displays the current Tax Rates and pior months rates, use to identify stable rates and recent changes</li>
-          <li>All data within the district list and reported is synced each night with MCP world, you can find the last sync time by hovering over the district land image</li>
-        </ul>
-        <p>Identify the optimal district to build and produce matching your desired buildout plan, review historic and current taxes and promotions before you commit </p>
-      </div>
+        <div>
+          <h3>District Summary [Release 0.10 Beta] (2021_07_01)</h3>
+          <h5>My Portfolio / Owner Report : Offer & Stamina Alerts</h5>
+          <img src="./assets/user_guide_deal.png" class="promoImg" style="" height="150" />
+          <ul>
+            <li>Alert buttons for Stamina and Offers, when alerts are found the button glows Red, showing the amount of alerts.</li>
+            <li>Alert button Click > Stamina > to show all Plots with Alerts at the top of the plot table (useful with large portfolios)</li>
+            <li>Alert button Click > Offer > to show all Active Offers sent to this owner in a pop up style floating and movable panel.</li>
+            <li>Offer Table, is ordered by newest offer first, support all offer token types, offer amount, and direct link to open the target plot in world.</li>
+            <li>Table is sortable, pagination at the bottom, enabled when more then 5 active offers are found.</li>
+          </ul>
+        </div>
 
-      <div style="margin-top:50px">
-        <h3>Plot Owner Report - User Guide [Release 0.5 Beta] (10/Apr/2021)</h3>
-        <h5>Production efficiency and history feature:</h5>
-        <img src="./assets/user-guide-production1.png" style="" height="220" />
-        <img src="./assets/user-guide-production2.png" style="" height="220" />
-        <p>Click on the building type link on each row to open the history pop-up.</p>
-        <ul>
-          <li>Lighting fast evaluation of all production run history since ownership of a selected Industry, Energy or Production building.</li>
-          <li>2 types of efficienccy % evaluation : EFF(P), EFF(M) </li>
-          <li>EFF(P) - % based on total production starting zero </li>
-          <li>EFF(M) - % based on Min to Max, removing the base rate from the evaluation, each resouce has a different base, Wood having the larged base and easiest to produce</li>
-          <li>Use the P vs M comparision to identify the resouces where improved cits or applicances would have a bigger impact on production</li>
-          <li>3 colour indicator of efficiency rating per run : red <50%, orange 50% to 80%, green>80%</li>
-          <li>Total runs and breakdown of total production per product since ownership</li>
-          <li>table pagination, sorting</li>
-          <li>Popup can be dragged and moved to optional position on page, new postion is reused on next use</li>
-        </ul>
-        <p>Find the the building lifetime ROI, variance between different product efficiency with same cits and IP, optimal building upgrades and citizen assignment per product type, track how the successful players produce, impact from IP change ... </p>
-      </div>
+        <div style="margin-top:50px">
+          <h3>District Summary [Release 0.9 Beta] (2021_06_14)</h3>
+          <h5>District Perks & My Portfolio:</h5>
+          <img src="./assets/user_guide_portfolio_sml.png" class="promoImg" style="" height="150" />
+          <img src="./assets/user_guide_perks_sml.png" class="promoImg" style="" height="150" />
+          <p>My Portfolio links directly to the account report matching the Active TronLink Wallet</p>
+          <ul>
+            <li>Within District List feature - a count of Perks is now shown for each district</li>
+            <li>Within District Report - a new perks panal shows the active perks for that district. This panel is not shown is no perks are active</li>
+            <li>My Portfolio features, are only active if the TronLink is enabled</li>
+            <li>District Report > New Arrivals, now offers filtering by arrivals in the last week or month period</li>
+          </ul>
+        </div>
 
-      <div style="margin-top:80px">
-        <h5>Stamina Alert feature:</h5>
-        <img src="./assets/user-guide-stamina.png" style="" height="100" />
-        <p>Get the Max output from your buildings! Identify all your building containing low stamina citizens</p>
-        <p>Alert icon displays in right most column when minimum thresholds breached per building. Column is sortable.</p>
-        <p>On all buildings containing 1 or more citizens, icon of citizen with lowest stamina is shown, hover to find value</p>
-        <ul>
-          <li>Background: When stamina falls below a certain threshold building production output reduces for that building.</li>
-          <li>Each Citizen within the building is evaluated, any below threshold will trigger the alert</li>
-          <li>Each building type has a custom minimum stamina threshold:</li>
-          <li>* Residential <=200</li>
-          <li>* Office <=50</li>
-          <li>* Commercial <= 10</li>
-          <li>* Municipal <=20</li>
-          <li>* Industrial <=50</li>
-          <li>* Production <=100</li>
-          <li>* Energy <=30</li>
-          <li>* Any other future new building type <=100  (default until specific threshold set in app)</li>
-        </ul>
-      </div>
+        <div style="margin-top:50px">
+          <h3>District Summary [Release 0.8 Beta] (25/05/2021)</h3>
+          <h5>District Fund, Tax and Owner list:</h5>
+          <img src="./assets/user_guide_district_summary_sml.png" class="promoImg" style="" height="294" />
+          <p>Open areas of interest, funds, promotions, tax rate details, owner information</p>
+          <ul>
+            <li>Listing of all district owners and the district plots and building they own</li>
+            <li>District Tax and local funding details (1 year history), interactive chart</li>
+            <li>Identify new arrival owners in the last week (and prior month coming soon)</li>
+            <li>Table support Search and filter by an owner and sorting by column</li>
+            <li>Owner table displaing plots built per Building type, per owner</li>
+            <li>Districts with active promotions a flashing Ad icon, click to display the promo details</li>
+            <li>Links to owners and district open the corresponding owner report, bookmark the friendly URL link or use within discord or messages</li>
+          </ul>
+        </div>
 
-      <div style="margin-top:80px">
-        <h5>Extensive Portfolio filtering :</h5>
-        <img src="./assets/user-guide-filter1.png" style="" height="180" />
-        <p>Filter by Building Type</p>
-        <p>Fast flexible filtering of plots, just select the bulding type you want to focus on.</p>
-        <ul>
-          <li>9 Building types to filter by</li>
-          <li>Click to active building filter, click again to deactivate or 'Select all', building filter resets on next use of district filter </li>
-          <li>Works in tandem with district filter</li>
-          <li>Showing only filter building types matching buildings found within the current user portfolio</li>
-        </ul>
-      </div>
+        <div style="margin-top:50px">
+          <h3>
+            District Features [Release 0.7 Beta] (13/May/2021)
+          </h3>
+          <h5>List of All Active Districts:</h5>
+          <img src="./assets/user_guide_district_graphs.png" class="promoImg" style="" height="170" />
+          <img src="./assets/user_guide_district_plots.png" class="promoImg" style="" height="100" />
+          <p>Select a District from the dropdown list to open the District Report</p>
+          <ul>
+            <li>Identify district with lowest tax rate to either build or produce by sorting on tax column</li>
+            <li>Tax rates displayed are from a full nightly data sync of the world</li>
+            <li>District report displays the current Tax Rates and pior months rates, use to identify stable rates and recent changes</li>
+            <li>All data within the district list and reported is synced each night with MCP world, you can find the last sync time by hovering over the district land image</li>
+          </ul>
+          <p>Identify the optimal district to build and produce matching your desired buildout plan, review historic and current taxes and promotions before you commit </p>
+        </div>
 
-      <div style="margin-top:80px">
-        <h5>Player Activity Info :</h5>
-        <img src="./assets/user-guide-user.png" style="" height="100" />
-        <p>Are they an active Player?</p>
-        <p>Hover over the player avator image to find out</p>
-        <ul>
-          <li>Useful when making offers, dont waste your time and coin with inactive accounts</li>
-          <li>Help identify bogus puppet accounts, bot accounts and more</li>
-        </ul>
-      </div>
+        <div style="margin-top:50px">
+          <h3>Plot Owner Report - User Guide [Release 0.5 Beta] (10/Apr/2021)</h3>
+          <h5>Production efficiency and history feature:</h5>
+          <img src="./assets/user-guide-production1.png" style="" height="220" />
+          <img src="./assets/user-guide-production2.png" style="" height="220" />
+          <p>Click on the building type link on each row to open the history pop-up.</p>
+          <ul>
+            <li>Lighting fast evaluation of all production run history since ownership of a selected Industry, Energy or Production building.</li>
+            <li>2 types of efficienccy % evaluation : EFF(P), EFF(M) </li>
+            <li>EFF(P) - % based on total production starting zero </li>
+            <li>EFF(M) - % based on Min to Max, removing the base rate from the evaluation, each resouce has a different base, Wood having the larged base and easiest to produce</li>
+            <li>Use the P vs M comparision to identify the resouces where improved cits or applicances would have a bigger impact on production</li>
+            <li>3 colour indicator of efficiency rating per run : red <50%, orange 50% to 80%, green>80%</li>
+            <li>Total runs and breakdown of total production per product since ownership</li>
+            <li>table pagination, sorting</li>
+            <li>Popup can be dragged and moved to optional position on page, new postion is reused on next use</li>
+          </ul>
+          <p>Find the the building lifetime ROI, variance between different product efficiency with same cits and IP, optimal building upgrades and citizen assignment per product type, track how the successful players produce, impact from IP change ... </p>
+        </div>
+
+        <div style="margin-top:80px">
+          <h5>Stamina Alert feature:</h5>
+          <img src="./assets/user-guide-stamina.png" style="" height="100" />
+          <p>Get the Max output from your buildings! Identify all your building containing low stamina citizens</p>
+          <p>Alert icon displays in right most column when minimum thresholds breached per building. Column is sortable.</p>
+          <p>On all buildings containing 1 or more citizens, icon of citizen with lowest stamina is shown, hover to find value</p>
+          <ul>
+            <li>Background: When stamina falls below a certain threshold building production output reduces for that building.</li>
+            <li>Each Citizen within the building is evaluated, any below threshold will trigger the alert</li>
+            <li>Each building type has a custom minimum stamina threshold:</li>
+            <li>* Residential <=200</li>
+            <li>* Office <=50</li>
+            <li>* Commercial <= 10</li>
+            <li>* Municipal <=20</li>
+            <li>* Industrial <=50</li>
+            <li>* Production <=100</li>
+            <li>* Energy <=30</li>
+            <li>* Any other future new building type <=100  (default until specific threshold set in app)</li>
+          </ul>
+        </div>
+
+        <div style="margin-top:80px">
+          <h5>Extensive Portfolio filtering :</h5>
+          <img src="./assets/user-guide-filter1.png" style="" height="180" />
+          <p>Filter by Building Type</p>
+          <p>Fast flexible filtering of plots, just select the bulding type you want to focus on.</p>
+          <ul>
+            <li>9 Building types to filter by</li>
+            <li>Click to active building filter, click again to deactivate or 'Select all', building filter resets on next use of district filter </li>
+            <li>Works in tandem with district filter</li>
+            <li>Showing only filter building types matching buildings found within the current user portfolio</li>
+          </ul>
+        </div>
+
+        <div style="margin-top:80px">
+          <h5>Player Activity Info :</h5>
+          <img src="./assets/user-guide-user.png" style="" height="100" />
+          <p>Are they an active Player?</p>
+          <p>Hover over the player avator image to find out</p>
+          <ul>
+            <li>Useful when making offers, dont waste your time and coin with inactive accounts</li>
+            <li>Help identify bogus puppet accounts, bot accounts and more</li>
+          </ul>
+        </div>
+
+      </ng-template>
+      
+      <!--<ng-container *ngTemplateOutlet="matExpansionPanelContent"></ng-container>-->
+
     </mat-expansion-panel>
 
     <mat-expansion-panel expanded="false">
@@ -258,4 +307,5 @@
     </mat-expansion-panel>
 
   </mat-accordion>
+
 </div>

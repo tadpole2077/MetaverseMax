@@ -4,22 +4,20 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { DragDrop } from '@angular/cdk/drag-drop';
-import { PortfolioPet, Pet } from '../owner-data/owner-interface';
+import { Citizen } from '../owner-data/owner-interface';
 import { Clipboard } from '@angular/cdk/clipboard';
-
-//let HISTORY_ASSETS: Detail[] = null;
 
 
 @Component({
-  selector: 'app-pet-modal',
-  templateUrl: './pet-modal.component.html',
-  styleUrls: ['./pet-modal.component.css']
+  selector: 'app-citizen-modal',
+  templateUrl: './citizen-modal.component.html',
+  styleUrls: ['./citizen-modal.component.css']
 })
-export class PetModalComponent implements AfterViewInit {
+export class CitizenModalComponent {
 
-  @Output() hidePetEvent = new EventEmitter<boolean>();
+  @Output() hideCitizenEvent = new EventEmitter<boolean>();
 
-  public portfolioPet: PortfolioPet;
+  public citizenList: Citizen[];
   public hidePaginator: boolean;
 
   httpClient: HttpClient;
@@ -28,32 +26,28 @@ export class PetModalComponent implements AfterViewInit {
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator; 
 
+  displayedColumnsTraits: string[] = ['token_id', 'name', 'sex', 'generation', 'breeding', 'sex', 'trait_agility', 'trait_intelligence', 'trait_charisma', 'trait_endurance', 'trait_luck', 'trait_strength', 'trait_avg'];
+  displayedColumnsEfficiency: string[] = ['token_id', 'name', 'sex', 'trait_avg', 'efficiency_industry', 'efficiency_production', 'efficiency_energy', 'efficiency_office', 'efficiency_commercial', 'efficiency_municipal', 'building_level'];
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
-  displayedColumns: string[] = ['token_id', 'name', 'trait', 'level'];
+  displayedColumns: string[] = this.displayedColumnsTraits;
+  tableHeader: string = "Traits";
 
   constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string, private clipboard: Clipboard) {
 
     this.httpClient = http;
     this.baseUrl = baseUrl;
 
-    this.portfolioPet = null;
+    this.citizenList = null;
 
     const copiedData = JSON.stringify(this.dataSource.data);
   }
 
-  // Paginator wont render until loaded in call to ngAfterViewInit, as its a  @ViewChild decalare
-  // AfterViewInit called after the View has been rendered, hook to this method via the implements class hook
-  ngAfterViewInit() {
-    //this.cdr.detectChanges();
-    //this.dataSourceHistory = new MatTableDataSource<Detail>(HISTORY_ASSETS);
-    //this.dataSourceHistory.paginator = this.paginator;
-  }
-
   copyData() {
+
     let parseData: string = "";
     let counter: number = 0;
     let header: string = "";
-    let copyDataset = this.portfolioPet.pet;
+    let copyDataset = this.citizenList;
 
     this.displayedColumns.forEach(function (key, value) {
       parseData += key + "\t";
@@ -81,20 +75,20 @@ export class PetModalComponent implements AfterViewInit {
     return;
   }
 
-  public searchPets(maticKey: string) {
+  search(maticKey: string) {
 
     let params = new HttpParams();
     params = params.append('owner_matic_key', maticKey);
 
-    this.httpClient.get<PortfolioPet>(this.baseUrl + 'api/ownerdata/getpet', { params: params })
-      .subscribe((result: PortfolioPet) => {
+    this.httpClient.get<Citizen[]>(this.baseUrl + 'api/ownerdata/getcitizen', { params: params })
+      .subscribe((result: Citizen[]) => {
 
-        this.portfolioPet = result;
+        this.citizenList = result;
 
-        if (this.portfolioPet.pet_count > 0) {
+        if (this.citizenList.length > 0) {
 
-          this.dataSource = new MatTableDataSource<Pet>(this.portfolioPet.pet);
-          this.hidePaginator = this.portfolioPet.pet_count == 0 || this.portfolioPet.pet_count < 5 ? true : false;
+          this.dataSource = new MatTableDataSource<Citizen>(this.citizenList);
+          this.hidePaginator = this.citizenList.length == 0 || this.citizenList.length < 10 ? true : false;
 
           this.dataSource.paginator = this.paginator;
           if (this.dataSource.paginator) {
@@ -104,7 +98,7 @@ export class PetModalComponent implements AfterViewInit {
 
         }
         else {
-          this.dataSource = new MatTableDataSource<Pet>(null);
+          this.dataSource = new MatTableDataSource<Citizen>(null);
         }       
 
       }, error => console.error(error));
@@ -113,7 +107,20 @@ export class PetModalComponent implements AfterViewInit {
   }
 
   setHide() {
-    this.hidePetEvent.emit(true);
+    this.hideCitizenEvent.emit(true);
+  }
+
+  onTableViewChange(viewType:string) {
+
+    if (viewType == "traits") {
+      this.displayedColumns = this.displayedColumnsTraits;
+      this.tableHeader = "Traits";
+    }
+    else {
+      this.displayedColumns = this.displayedColumnsEfficiency;
+      this.tableHeader = "Efficiency %";
+    }
+
   }
 
 }

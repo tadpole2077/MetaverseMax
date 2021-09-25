@@ -14,6 +14,10 @@ namespace MetaverseMax.ServiceClass
         private readonly MetaverseMaxDbContext _context;
         private Common common = new();
 
+        public static int jobInterval = 1;
+        public static int jobIntervalRequested = 1;
+        public static bool saveDBOverride = false; 
+
         public SyncWorld(MetaverseMaxDbContext _contextService)
         {
             _context = _contextService;
@@ -56,6 +60,7 @@ namespace MetaverseMax.ServiceClass
         public static async void SyncPlotData(object parameters)
         {
             MetaverseMaxDbContext _context = null;
+            DBLogger dbLogger = new(null);
             PlotDB plotDB;
             DistrictDB districtDB;
             DistrictTaxChangeDB districtTaxChangeDB;
@@ -63,9 +68,11 @@ namespace MetaverseMax.ServiceClass
             DistrictWebMap districtWebMap;
             DistrictPerkManage districtPerkManage;
             DistrictPerkDB districtPerkDB;
+            CitizenManage citizenManage;
             OwnerManage ownerManage;
             OwnerOfferDB ownerOfferDB;
             PetDB petDB;
+            OwnerCitizenDB ownerCitizenDB;
 
             List<DistrictName> districtList;
             List<DistrictPerk> districtPerkListMCP;
@@ -79,11 +86,12 @@ namespace MetaverseMax.ServiceClass
                 ArrayList threadParameters = (ArrayList)parameters;                
                 string dbConnectionString = (string)threadParameters[0];
                 int worldType = (int)threadParameters[1];
-                int jobInterval = (int)threadParameters[2];
-
+                jobIntervalRequested = jobInterval = (int)threadParameters[2];
+                
                 DbContextOptionsBuilder<MetaverseMaxDbContext> options = new();                
                 _context = new MetaverseMaxDbContext(options.UseSqlServer(dbConnectionString).Options);
 
+                dbLogger = new(_context);
                 districtPerkManage = new(_context);
                 districtFundManage = new(_context);
                 districtPerkDB = new(_context);
@@ -94,6 +102,10 @@ namespace MetaverseMax.ServiceClass
                 ownerManage = new(_context);
                 ownerOfferDB = new(_context);
                 petDB = new(_context);
+                ownerCitizenDB = new(_context);
+                citizenManage = new(_context);
+
+                dbLogger.logInfo(String.Concat("Start Nightly Sync"));
 
                 // Update All Districts from MCP, as a new district may have opened.
                 districtList = districtWebMap.GetDistrictsFromMCP(true);
@@ -121,7 +133,7 @@ namespace MetaverseMax.ServiceClass
                         saveCounter++;
 
                         // Save every 10 plot update collection- improve performance on local db updates.
-                        if (saveCounter >= 10)
+                        if (saveCounter >= 10 || saveDBOverride == true)
                         {
                             _context.SaveChanges();
                             saveCounter = 0;
@@ -157,6 +169,7 @@ namespace MetaverseMax.ServiceClass
 
                 ownerManage.SyncOwner();        // New owners found from nightly sync
 
+                dbLogger.logInfo(String.Concat("Start Offer,Pet,Cit Sync"));
                 // Add/deactive Owner Offers                             
                 Dictionary<string, string> ownersList = ownerManage.GetOwners(true);  // Refresh list after nightly sync
                 ownerOfferDB.SetOffersInactive();
@@ -164,26 +177,38 @@ namespace MetaverseMax.ServiceClass
                 foreach (string maticKey in ownersList.Keys)
                 {
                     ownerManage.GetOwnerOffer(true, maticKey);
-                    ownerManage.GetPetMCP(maticKey);
-                    petDB.UpdatePetCount();
+                    
+                    ownerManage.GetPetMCP(maticKey);                    
 
-                    await Task.Delay(100);      // 100ms delay to help prevent server side kicks.
+                    citizenManage.GetCitizenMCP(maticKey);
+
+                    // Add a delay of 2 seconds if active user.
+                    if (saveDBOverride == true)
+                    {
+                        await Task.Delay(2000);      // 100ms delay to help prevent server side kicks
+                    }
                 }
+                dbLogger.logInfo(String.Concat("End Offer,Pet,Cit Sync"));
+
+                petDB.UpdatePetCount();
+                ownerCitizenDB.UpdateCitizenCount();
 
                 districtTaxChangeDB.UpdateTaxChanges();
+                dbLogger.logInfo(String.Concat("End Nightly Sync"));
 
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("SyncPlotData() : Error Adding Plot X:", x, " Y:", y));
-                    _context.LogEvent(log);
-                }
+                dbLogger.logException(ex, String.Concat("SyncPlotData() : Error Adding Plot X:", x, " Y:", y));                
             }
-
+            
             return;
+        }
+
+        public static async void SyncPlotData_Reset()
+        {
+            jobInterval = jobIntervalRequested;
+            saveDBOverride = false;
         }
     }
 }

@@ -8,6 +8,20 @@ namespace MetaverseMax.ServiceClass
 {
     public class Common
     {
+        public string DateFormatStandard(DateTime? dtSourceTime)
+        {
+            string timeFormated = string.Empty;
+            
+            DateTime? dtConvertedTime = TimeFormatStandardDT("", dtSourceTime);
+            
+            if (dtConvertedTime != null)
+            {
+                timeFormated = ((DateTime)dtConvertedTime).ToString("yyyy/MMM/dd");
+            }
+
+            return timeFormated;
+        }
+
         public string TimeFormatStandard(string sourceTime, DateTime? dtSourceTime)
         {
             string timeFormated = string.Empty;

@@ -16,32 +16,11 @@ a {
   display: inline-block;
 }
 
-/* Border */
-.mat-form-field-appearance-outline .mat-form-field-outline {
-  /*color: white;*/
-}
-/* Font color */
-input.mat-input-element {
-  /*color: white;*/
-}
-::ng-deep .mat-focused .mat-form-field-label {
-  /*change color of label*/
-  color: #1b6ec2 !important;
-}
-
-::ng-deep.mat-form-field-underline {
-  /*change color of underline*/
-  /* background-color: #1b6ec2 !important;*/
-}
-
-::ng-deep.mat-form-field-ripple {
-  /*change color of underline when focused*/
-  background-color: #1b6ec2 !important;
-}
 
 #buttonfind {
   width: 130px;
-  padding-right: 4px
+  padding-right: 4px;
+  font-size: .96rem
 }
 
 .search {
@@ -61,21 +40,22 @@ input.mat-input-element {
 }
 
 .searchIcon {
-  font-size:1.1rem;
+  font-size: 1.1rem;
   margin-left: 6px;
   margin-top: 10px;
   position: absolute;
-  color: white
+  color: white;
+  z-index: 1;
 }
 
-.btn-primary {
+.buttonEffect {
   -webkit-animation: glowBtn 1.4s ease-in-out infinite alternate;
   -moz-animation: glowBtn 1.4s ease-in-out infinite alternate;
   animation: glowBtn 1.4s ease-in-out infinite alternate;
 }
 
-@-webkit-keyframes glowBtn {
-  from {
+  @-webkit-keyframes glowBtn {
+    from {
     box-shadow: 0 0 3px #fff, 0 0 6px #fff, 0 0 9px #fff, 0 0 12px #fff;
   }
 

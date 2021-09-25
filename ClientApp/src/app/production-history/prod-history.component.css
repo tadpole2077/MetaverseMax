@@ -72,9 +72,6 @@ tr.mat-header-row{
   color: black;
   z-index:1001;
 }
-  .closeframe:hover {
-    color: orangered;
-  }
 
 .historySummary {
   font-size: 14px;

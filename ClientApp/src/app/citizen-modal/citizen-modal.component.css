@@ -52,9 +52,18 @@ a {
   margin-bottom: 1em;
 }
 
+.mat-button-toggle-group {
+  float: right;
+  margin-right: 2rem;
+  height: 2rem;
+  font-size: .7rem;
+  font-weight: bold;
+  color: white;
+}
+
+
 .table-container {
   margin: 0px 1em .6em 1em;
-  width: 360px;
 }
 
 tr.mat-header-row {
@@ -76,19 +85,25 @@ tr.mat-header-row {
 }
 
 
+.mat-column-header-row-second-group{
+  text-align:center
+}
+
 .mat-column-trait, .mat-column-name, .mat-column-token_id {
   padding-right: 1em
 }
 
 .mat-column-token_id{
   width:70px;
+  padding-left: .8rem;
 }
+
 .mat-column-trait {
   width: 76px;
 }
 
 .mat-column-name {
-  width: 140px;
+  min-width: 130px;
   vertical-align: middle;
 }
   td.mat-column-name span {
@@ -98,15 +113,31 @@ tr.mat-header-row {
     text-overflow: ellipsis;
     vertical-align: middle;
     padding-left:.2rem;
+    width:5rem;
   }
   td.mat-column-name img {   
-    width:38px;
-    height:38px;
+    margin-top:-4px;
+    height:40px;
   }
+
+td.mat-column-trait_agility, td.mat-column-trait_charisma, td.mat-column-trait_endurance, td.mat-column-trait_luck, td.mat-column-trait_strength, td.mat-column-trait_intelligence {
+  text-indent: .6rem;
+}
+
+td.mat-column-efficiency_industry, td.mat-column-efficiency_production, td.mat-column-efficiency_energy, td.mat-column-efficiency_office, td.mat-column-efficiency_commercial, td.mat-column-efficiency_municipal {
+  text-align: center;
+  padding-right: 1rem;
+}
+.industryImg {
+  max-height: 44px;
+  margin-top: -3px;
+}
+
+
 
 
 .topBtnDiv {
-  margin: 1rem 1rem .8rem;
+  margin: 1rem 1rem 1rem;
 }
 
 .copy {
@@ -124,6 +155,14 @@ tr.mat-header-row {
   z-index: 1;
 }
 
+.topBtnDiv ::ng-deep .mat-button-toggle-label-content {
+  line-height: 2.4rem
+}
+.topBtnDiv ::ng-deep .mat-button-toggle-group {
+  height: 2.4rem;
+  font-size: .8rem;
+  font-weight: 500;
+}
 
 
 

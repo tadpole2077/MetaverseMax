@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using MetaverseMax.ServiceClass;
-using SimpleBase;
 using MetaverseMax.Database;
 
 namespace MetaverseMax.Controllers
@@ -33,6 +32,7 @@ namespace MetaverseMax.Controllers
 
         }
 
+
         [HttpGet]
         public IActionResult Get([FromQuery] QueryParametersOwnerData parameters )
         {
@@ -48,20 +48,6 @@ namespace MetaverseMax.Controllers
 
             return BadRequest("Call is invalid");       // 400 Error   
         }
-
-        [HttpGet("GetPet")]
-        public IActionResult GetPet([FromQuery] QueryParametersOwnerDataMatic parameters)
-        {
-            OwnerManage ownerManage = new(_context);
-
-            if (ModelState.IsValid)
-            {
-                return Ok(ownerManage.GetPet(parameters.owner_matic_key));
-            }
-
-            return BadRequest("Call is invalid");       // 400 Error   
-        }
-
 
         [HttpGet("GetUsingMatic")]       
         public IActionResult GetUsingMatic([FromQuery] QueryParametersOwnerDataMatic parameters)
@@ -81,14 +67,15 @@ namespace MetaverseMax.Controllers
             return BadRequest("Call is invalid");       // 400 Error   
         }
 
+
         [HttpGet("CheckHasPortfolio")]
         public IActionResult CheckHasPortfolio([FromQuery] QueryParametersOwnerDataTron parameters)
         {
+            OwnerManage ownerManage = new(_context);
 
             if (ModelState.IsValid)
             {               
-
-                return Ok(CheckLocalDB_OwnerTron(parameters.owner_tron_public));
+                return Ok( ownerManage.CheckLocalDB_OwnerTron(parameters.owner_tron_public) );
             }
 
             return BadRequest("Call is invalid");       // 400 Error   
@@ -108,33 +95,57 @@ namespace MetaverseMax.Controllers
             return BadRequest("Call is invalid");       // 400 Error   
         }
 
-
-        private OwnerAccount CheckLocalDB_OwnerTron(string tronPublic)
+        [HttpGet("GetCitizen")]
+        public IActionResult GetCitizen([FromQuery] QueryParametersOwnerDataMatic parameters)
         {
-            string maticKey = string.Empty;
-            OwnerAccount ownerAccount = new();
-            OwnerManage owner = new OwnerManage(_context);
+            CitizenManage citizenManage = new(_context);
 
-            // Check if passed string is valid Tron key
-            if (tronPublic == "false")
+            if (ModelState.IsValid)
             {
-                ownerAccount.matic_key = "Not Found";
-                return ownerAccount;
-            }            
+                return Ok(citizenManage.GetCitizen(parameters.owner_matic_key));
+            }
 
-            // Base58 Public Tron to Hex Conversion.
-            // Span<byte> is analogous to byte[] in usage but allows the library
-            // to avoid unnecessary memory copy operations unless needed.
-            // you can also use "Ripple" or "Flickr" as decoder flavors            
-            Span<byte> result = Base58.Bitcoin.Decode(tronPublic);
-            Span<byte> resultParsed = result;
-            resultParsed = resultParsed.Slice(1, result.Length - 5);
-            ownerAccount.checked_matic_key = string.Concat("0x", Convert.ToHexString(resultParsed)).ToLower();
+            return BadRequest("Call is invalid");       // 400 Error   
+        }
 
-            ownerAccount = owner.FindOwnerByMatic(ownerAccount.checked_matic_key, tronPublic);
+        [HttpGet("GetCitizenMCP")]
+        public IActionResult GetCitizenMCP([FromQuery] QueryParametersOwnerDataMatic parameters)
+        {
+            CitizenManage citizenManage = new(_context);
 
-            return ownerAccount;
-        }               
+            if (ModelState.IsValid)
+            {
+                return Ok(citizenManage.GetCitizenMCP(parameters.owner_matic_key));
+            }
+
+            return BadRequest("Call is invalid");       // 400 Error   
+        }
+
+        [HttpGet("GetPet")]
+        public IActionResult GetPet([FromQuery] QueryParametersOwnerDataMatic parameters)
+        {
+            OwnerManage ownerManage = new(_context);
+
+            if (ModelState.IsValid)
+            {
+                return Ok(ownerManage.GetPet(parameters.owner_matic_key));
+            }
+
+            return BadRequest("Call is invalid");       // 400 Error   
+        }
+
+        [HttpGet("GetPetMCP")]
+        public IActionResult GetPetMCP([FromQuery] QueryParametersOwnerDataMatic parameters)
+        {
+            OwnerManage ownerManage = new(_context);
+
+            if (ModelState.IsValid)
+            {
+                return Ok(ownerManage.GetPetMCP(parameters.owner_matic_key));
+            }
+
+            return BadRequest("Call is invalid");       // 400 Error   
+        }
 
     }
 }

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using MetaverseMax.ServiceClass;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace MetaverseMax.Database
 {
     public class OwnerDB
@@ -61,10 +62,18 @@ namespace MetaverseMax.Database
             Owner owner = new();
             try
             {
-                owner = _context.owner.Where(o => o.owner_matic_key == maticKey).FirstOrDefault();
+                owner = _context.owner.Where(o => o.owner_matic_key == maticKey && o.active_tron == true).FirstOrDefault();
                 owner.owner_tron_key = tronKey;
                 owner.last_use = DateTime.Now;
-                
+
+                // Slow down Nightly job process when 1+ user is active via (a)save on each db update (b) increase cycle wait interval to 1 second : avoids user db timeouts (such as opening large Cit collection).
+                if (SyncWorld.saveDBOverride == false)
+                {
+                    _ = ResetDataSync();
+                }
+                SyncWorld.saveDBOverride = true;
+                SyncWorld.jobInterval = 1000;
+
                 _context.SaveChanges();
 
             }
@@ -100,6 +109,17 @@ namespace MetaverseMax.Database
             }
 
             return returnCode;
+        }
+
+        // 20 minute reset of Nightly Data sync job to default settings  (.Net 4.5+ rec solution)
+        public async Task ResetDataSync()
+        {
+            var timeoutInMilliseconds = TimeSpan.FromMinutes(5);
+
+            await Task.Delay(timeoutInMilliseconds);
+
+            SyncWorld.SyncPlotData_Reset();
+
         }
 
     }

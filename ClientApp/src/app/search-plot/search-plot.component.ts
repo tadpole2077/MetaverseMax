@@ -13,7 +13,7 @@ export class SearchPlotComponent {
   constructor() {
   }
 
-  GetPlotData(plotPos) {
+  getPlotData(plotPos) {
 
     plotPos.rotateEle = document.getElementById("searchIcon")
     plotPos.rotateEle.classList.add("rotate");

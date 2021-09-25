@@ -14,6 +14,7 @@ import { TaxChangeComponent } from './tax-change/tax-change.component';
 import { FundGraphComponent } from './fund-graph/fund-graph.component';
 import { NoteModalComponent } from './note-modal/note-modal.component';
 import { PetModalComponent } from './pet-modal/pet-modal.component';
+import { CitizenModalComponent } from './citizen-modal/citizen-modal.component';
 import { OfferModalComponent } from './offer-modal/offer-modal.component';
 import { OwnerDataComponent } from './owner-data/owner-data.component';
 import { ProdHistoryComponent } from './production-history/prod-history.component';
@@ -31,13 +32,18 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatButtonModule } from '@angular/material/button';
+import { MatBadgeModule } from '@angular/material/badge';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NumberDirective } from './numberonly.directive';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 
+
 import { Globals } from './common/global-var';
+
 
 @NgModule({
   declarations: [
@@ -52,6 +58,7 @@ import { Globals } from './common/global-var';
     OwnerDataComponent,
     NoteModalComponent,
     PetModalComponent,
+    CitizenModalComponent,
     OfferModalComponent,
     ProdHistoryComponent,
     DistrictListComponent,
@@ -72,6 +79,9 @@ import { Globals } from './common/global-var';
     MatIconModule,
     MatCheckboxModule,
     MatTabsModule,
+    MatButtonToggleModule,
+    MatButtonModule,
+    MatBadgeModule,
     DragDropModule,
     NgbDropdownModule,
     NgxChartsModule,

@@ -20,6 +20,7 @@ interface OwnerLandData
   forsale: boolean;
   forsale_price: number;
   alert: boolean;
+  rented: boolean;
 }
 
 interface OwnerData
@@ -84,6 +85,36 @@ interface PortfolioPet {
   pet: Pet[];
 }
 
+interface Citizen {
+  token_id: number;
+  name: string;
+  generation: number;
+  breeding: number;
+  sex: string;
+  trait_agility: number;
+  trait_intelligence: number;
+  trait_charisma: number;
+  trait_endurance: number;
+  trait_luck: number;
+  trait_strength: number;
+  trait_avg: number;
+  max_stamina: number;
+  on_sale: boolean;
+  efficiency_industry: number;
+  efficiency_production: number;
+  efficiency_energy: number;
+  efficiency_office: number;
+  efficiency_commercial: number;
+  efficiency_municipal: number;
+
+  building_img: string;
+  building_desc: string;
+  district_id: number;
+  pos_x: number;
+  pos_y: number;
+  building_level: number;
+  building: string;
+}
 
 
 const BUILDING = {
@@ -109,5 +140,6 @@ export
   DistrictPlot,
   Pet,
   PortfolioPet,
+  Citizen,
   BUILDING
 }

@@ -147,7 +147,7 @@ namespace MetaverseMax.Database
             byte[] byteArray = Encoding.ASCII.GetBytes("{\"x\": \"" + pos_x.ToString() + "\",\"y\": \"" + pos_y.ToString() + "\"}");
             string content = string.Empty;
             Plot plotMatched;
-            Citizen citizen = new();
+            CitizenManage citizen = new();
 
             try
             {

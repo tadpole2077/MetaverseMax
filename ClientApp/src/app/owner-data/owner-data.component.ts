@@ -8,6 +8,7 @@ import { element } from 'protractor';
 import { ProdHistoryComponent } from '../production-history/prod-history.component';
 import { OfferModalComponent } from '../offer-modal/offer-modal.component';
 import { PetModalComponent } from '../pet-modal/pet-modal.component';
+import { CitizenModalComponent } from '../citizen-modal/citizen-modal.component';
 import { MatButton } from '@angular/material/button';
 import { OwnerLandData, OwnerData, PlotPosition, BUILDING } from './owner-interface';
 
@@ -30,13 +31,15 @@ export class OwnerDataComponent implements AfterViewInit {
   public historyShow: boolean = false;
   public offerShow: boolean = false;
   public petShow: boolean = false;
+  public citizenShow: boolean = false;
   private subscriptionRouterEvent: any;
 
   dataSource = new MatTableDataSource(null);
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(ProdHistoryComponent, { static: true }) prodHistory: ProdHistoryComponent;
   @ViewChild(OfferModalComponent, { static: true }) offerModal: OfferModalComponent;
-  @ViewChild(PetModalComponent, { static: true }) petModal: PetModalComponent;  
+  @ViewChild(PetModalComponent, { static: true }) petModal: PetModalComponent;
+  @ViewChild(CitizenModalComponent, { static: true }) citizenModal: CitizenModalComponent;
 
   // ViewChild used for these elements to provide for rapid element attribute changes without need for scanning DOM and readability.
   @ViewChild('emptyPlotFilter', { static: false}) emptyPlotFilter: ElementRef;
@@ -48,8 +51,9 @@ export class OwnerDataComponent implements AfterViewInit {
   @ViewChild('residentialFilter', { static: false }) residentialFilter: ElementRef;
   @ViewChild('commercialFilter', { static: false }) commercialFilter: ElementRef;
   @ViewChild('aoiFilter', { static: false }) aoiFilter: ElementRef;
-  @ViewChild('lowStaminaBtn', { static: false }) lowStaminaBtn: ElementRef;
-  @ViewChild('offerDetailsBtn', { static: false }) offerDetailsBtn: ElementRef;
+
+  @ViewChild('lowStaminaBtn', { static: false }) lowStaminaBtn: MatButton;
+  @ViewChild('offerDetailsBtn', { static: false }) offerDetailsBtn: MatButton;
   @ViewChild('ownerSection', { static: false }) ownerSection: ElementRef;
 
 
@@ -93,9 +97,13 @@ export class OwnerDataComponent implements AfterViewInit {
     this.offerShow = false;
 
     let requestOwnerMatic = this.route.snapshot.queryParams["matic"];
-
+   
     if (requestOwnerMatic) {
-      this.searchOwnerbyMatic(requestOwnerMatic);
+      // Check if owner already loaded then dont reload, can occur due to initial URL change on First Search which triggers the subscriptionRouterEvent
+      if (requestOwnerMatic != this.owner.owner_matic_key) {
+        this.searchOwnerbyMatic(requestOwnerMatic);
+      }
+
     }
     else {
       // CASE reset the search to empty when moving from My Portfolio to Owner Report
@@ -126,7 +134,7 @@ export class OwnerDataComponent implements AfterViewInit {
       owner_offer: null,
       owner_offer_sold: null,
       pet_count: 0,
-      citizen_count: 0,
+      citizen_count: 0,      
       district_plots: null,
       owner_land: null
     };
@@ -142,41 +150,8 @@ export class OwnerDataComponent implements AfterViewInit {
     
     this.httpClient.get<OwnerData>(this.baseUrl + 'api/ownerdata/getusingmatic', { params: params })
       .subscribe((result: OwnerData) => {
-        this.owner = result;
 
-        this.hideBuildingFilter(this.owner.owner_land);
-
-        if (this.owner.owner_land) {
-          this.dataSource = new MatTableDataSource<OwnerLandData>(this.owner.owner_land);
-
-          this.dataSource.sort = this.sort;
-
-          // Add custom date column sort
-          this.dataSource.sortingDataAccessor = (item: OwnerLandData, property) => {
-            switch (property) {
-              case 'last_action': return item.last_action == "Empty Plot" ? new Date(0) : new Date(item.last_action);
-              default: return item[property];
-            }
-          };
-        }
-
-        if (this.owner.stamina_alert_count == 0) {
-          this.lowStaminaBtn.nativeElement.classList.remove("btnAlert");
-        }
-        else {
-          this.lowStaminaBtn.nativeElement.classList.add("btnAlert");
-        }
-
-        if (this.owner.offer_count == 0) {
-          this.offerDetailsBtn.nativeElement.classList.remove("btnAlert");
-        }
-        else {
-          this.offerDetailsBtn.nativeElement.classList.add("btnAlert");
-        }          
-
-        this.buttonShowAll = false;
-        this.removeLinkHighlight(".districtEleActive, .activeFilter");
-        rotateEle.classList.remove("rotate");
+        this.loadClientData(result);     
 
       }, error => console.error(error));
 
@@ -202,21 +177,7 @@ export class OwnerDataComponent implements AfterViewInit {
     this.httpClient.get<OwnerData>(this.baseUrl + 'api/ownerdata', { params: params })
       .subscribe((result: OwnerData) => {
 
-        this.owner = result;
-
-        this.hideBuildingFilter(this.owner.owner_land);
-
-        if (this.owner.owner_land) {
-          this.dataSource = new MatTableDataSource<OwnerLandData>(this.owner.owner_land);
-
-          this.dataSource.sort = this.sort;
-
-          // Update URL to show friendly url to this player report
-          this.router.navigate(['/owner-data'], { queryParams: { matic: this.owner.owner_matic_key } });
-        }
-
-        this.buttonShowAll = false;
-        this.removeLinkHighlight(".districtEleActive, .activeFilter");
+        this.loadClientData(result);
 
         plotPos.rotateEle.classList.remove("rotate");        
 
@@ -229,6 +190,52 @@ export class OwnerDataComponent implements AfterViewInit {
     return;
   }
 
+  loadClientData(clientData: OwnerData) {
+
+    var rotateEle = document.getElementById("searchIcon");
+    this.hideAll();
+
+    this.owner = clientData;
+
+    this.hideBuildingFilter(this.owner.owner_land);
+
+    if (this.owner.owner_land) {
+      this.dataSource = new MatTableDataSource<OwnerLandData>(this.owner.owner_land);
+
+      this.dataSource.sort = this.sort;
+
+      // Add custom date column sort
+      this.dataSource.sortingDataAccessor = (item: OwnerLandData, property) => {
+        switch (property) {
+          case 'last_action': return item.last_action == "Empty Plot" ? new Date(0) : new Date(item.last_action);
+          default: return item[property];
+        }
+      };
+    }
+
+    if (this.owner.stamina_alert_count == 0) {
+      this.lowStaminaBtn._elementRef.nativeElement.classList.remove("btnAlert");
+    }
+    else {
+      this.lowStaminaBtn._elementRef.nativeElement.classList.add("btnAlert");
+    }
+
+    if (this.owner.offer_count == 0) {
+      this.offerDetailsBtn._elementRef.nativeElement.classList.remove("btnAlert");
+    }
+    else {
+      this.offerDetailsBtn._elementRef.nativeElement.classList.add("btnAlert");
+    }
+
+    this.buttonShowAll = false;
+    this.removeLinkHighlight(".districtEleActive, .activeFilter");
+
+    rotateEle.classList.remove("rotate");
+
+    return;
+
+  }
+
   sortTableStamina() {
 
     this.sort.sort({ id: 'citizen_stamina_alert', start: 'desc', disableClear: true });
@@ -236,7 +243,6 @@ export class OwnerDataComponent implements AfterViewInit {
     return;
   }
   
-
   // Filter By District, and By Building Type [Storing pior District filter and using if found]
   filterTable(event, filterValue: number, buildingType: number) {
 
@@ -395,11 +401,8 @@ export class OwnerDataComponent implements AfterViewInit {
     this.historyShow = !componentVisible;
   }
 
-  hidePet(componentVisible: boolean) {
-    this.petShow = !componentVisible;
-  }  
-
   showPet() {
+    this.hideAll();
     if (this.petShow == true) { // || this.owner.offer_count == 0) {
       this.petShow = false;
     }
@@ -410,7 +413,14 @@ export class OwnerDataComponent implements AfterViewInit {
   }
 
   showCitizen() {
-
+    if (this.citizenShow == true) { // || this.owner.offer_count == 0) {
+      this.citizenShow = false;
+    }
+    else {
+      this.hideAll();
+      this.citizenModal.search(this.owner.owner_matic_key);
+      this.citizenShow = true;
+    }
   }
 
   showOffer() {
@@ -419,6 +429,7 @@ export class OwnerDataComponent implements AfterViewInit {
       this.offerShow = false;
     }
     else {
+      this.hideAll();
       this.offerModal.loadTable(this.owner.owner_offer, this.owner.owner_offer_sold);
       this.offerShow = true;
     }
@@ -427,6 +438,21 @@ export class OwnerDataComponent implements AfterViewInit {
 
   hideOffer(componentVisible: boolean) {
     this.offerShow = !componentVisible;
+  }
+
+  hidePet(componentVisible: boolean) {
+    this.petShow = !componentVisible;
+  }
+
+  hideCitizen(componentVisible: boolean) {
+    this.citizenShow = !componentVisible;
+  }
+
+  hideAll() {
+    this.offerShow = false;
+    this.petShow = false;
+    this.citizenShow = false;
+    this.historyShow = false;
   }
 
 }

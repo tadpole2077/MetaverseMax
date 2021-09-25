@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MetaverseMax.Database;
 using Newtonsoft.Json.Linq;
+using SimpleBase;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -166,7 +167,7 @@ namespace MetaverseMax.ServiceClass
 
             return tokenType;
         }
-
+        
         // Get from MCP 3rd tier services
         public int GetOwnerOffer(bool activeOffer, string maticKey)
         {
@@ -287,7 +288,8 @@ namespace MetaverseMax.ServiceClass
 
             byte[] byteArray = Encoding.ASCII.GetBytes("{\"address\": \"" + ownerMaticKey + "\",\"short\": false}");
             Building building = new();
-            Citizen citizen = new();
+            CitizenManage citizen = new();
+            string landOwner;
 
             WebRequest request = WebRequest.Create("https://ws-tron.mcp3d.com/user/assets/lands");
             request.Method = "POST";
@@ -309,7 +311,7 @@ namespace MetaverseMax.ServiceClass
             {
                 JToken land = lands.Children().First();
 
-                ownerData.owner_matic_key = land.Value<string>("owner") ?? "Not Found";
+                landOwner = land.Value<string>("owner") ?? "Not Found";
                 ownerData.plot_count = lands.Count;
 
                 if (lands.Any())
@@ -332,9 +334,10 @@ namespace MetaverseMax.ServiceClass
                         citizen_url = citizen.GetCitizenUrl(landInstance.Value<JArray>("citizens")),
                         citizen_stamina = citizen.GetLowStamina(landInstance.Value<JArray>("citizens")),
                         citizen_stamina_alert = citizen.CheckCitizenStamina(landInstance.Value<JArray>("citizens"), landInstance.Value<int?>("building_type_id") ?? 0),
-                        forsale_price = building.GetSalePrice(landInstance.Value<JToken>("sale_data"))
+                        forsale_price = building.GetSalePrice(landInstance.Value<JToken>("sale_data")),
+                        rented = (landInstance.Value<string>("owner") ?? "Not Found" ) != ownerMaticKey
                     })
-                        .OrderBy(row => row.district_id).ThenBy(row => row.pos_x).ThenBy(row => row.pos_y);
+                    .OrderBy(row => row.district_id).ThenBy(row => row.pos_x).ThenBy(row => row.pos_y);
 
 
                     ownerData.developed_plots = ownerData.owner_land.Where(
@@ -373,7 +376,7 @@ namespace MetaverseMax.ServiceClass
         public int GetFromLandCoord(int posX, int posY)
         {
             String content = string.Empty;
-            Citizen citizen = new();
+            CitizenManage citizen = new();
             int returnCode = 0;
 
             try
@@ -418,7 +421,7 @@ namespace MetaverseMax.ServiceClass
         public int GetFromMaticKey(string ownerMaticKey)
         {
             String content = string.Empty;
-            Citizen citizen = new();
+            CitizenManage citizen = new();
             byte[] byteArray;
             WebRequest request;
             Stream dataStream;
@@ -477,9 +480,11 @@ namespace MetaverseMax.ServiceClass
                         ownerData.owner_offer_sold = GetOfferLocal(false, ownerMaticKey);
                         ownerData.offer_sold_count = ownerData.owner_offer_sold == null ? 0 : ownerData.owner_offer_sold.Count();
 
-                        ownerData.pet_count = owner.pet_count ?? 0;
-                        ownerData.citizen_count = owner.citizen_count ?? 0;
-
+                        if (owner != null)
+                        {
+                            ownerData.pet_count = owner.pet_count ?? 0;
+                            ownerData.citizen_count = owner.citizen_count ?? 0;
+                        }
                     }
                 }
             }
@@ -615,7 +620,7 @@ namespace MetaverseMax.ServiceClass
 
         private int AssignUnknownOwner()
         {
-            Citizen citizen = new();
+            CitizenManage citizen = new();
 
             ownerData.owner_name = "Owner not Found";
             ownerData.last_action = "Empty Plot, It could be Yours today!";
@@ -625,6 +630,32 @@ namespace MetaverseMax.ServiceClass
             return 0;
         }
 
+        public OwnerAccount CheckLocalDB_OwnerTron(string tronPublic)
+        {
+            string maticKey = string.Empty;
+            OwnerAccount ownerAccount = new();            
+
+            // Check if passed string is valid Tron key
+            if (tronPublic == "false")
+            {
+                ownerAccount.matic_key = "Not Found";
+                return ownerAccount;
+            }
+
+            // Base58 Public Tron to Hex Conversion.
+            // Span<byte> is analogous to byte[] in usage but allows the library
+            // to avoid unnecessary memory copy operations unless needed.
+            // you can also use "Ripple" or "Flickr" as decoder flavors            
+            Span<byte> result = Base58.Bitcoin.Decode(tronPublic);
+            Span<byte> resultParsed = result;
+            resultParsed = resultParsed.Slice(1, result.Length - 5);
+            ownerAccount.checked_matic_key = string.Concat("0x", Convert.ToHexString(resultParsed)).ToLower();
+
+            ownerAccount = FindOwnerByMatic(ownerAccount.checked_matic_key, tronPublic);
+
+            return ownerAccount;
+        }
+       
     }
    
 }

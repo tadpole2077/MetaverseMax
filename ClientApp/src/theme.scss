@@ -1,0 +1,98 @@
+@import '~@angular/material/theming';
+// Plus imports for other components in your app.
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat-core();
+
+// Define the palettes for your theme using the Material Design palettes available in palette.scss
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue. Available color palettes: https://material.io/design/color/
+$light-app-primary: mat-palette($mat-blue,800);
+$light-app-accent: mat-palette($mat-blue);
+$light-app-warn: mat-palette($mat-red);
+
+$dark-app-primary: mat-palette($mat-pink);
+$dark-app-accent: mat-palette($mat-pink);
+// The warn palette is optional (defaults to red).
+$dark-app-warn: mat-palette($mat-red);
+
+// Create the theme object (a Sass map containing all of the palettes).
+$light-app-theme: mat-light-theme($light-app-primary, $light-app-accent, $light-app-warn);
+$dark-app-theme: mat-dark-theme($dark-app-primary, $dark-app-accent, $dark-app-warn);
+
+
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+// Default using light theme set
+@include angular-material-theme($light-app-theme);
+/*
+@include mat-core-theme($test-app-theme);
+@include mat-button-theme($light-app-theme);
+@include mat-checkbox-theme($test-app-theme);
+@include mat-form-field-theme($light-app-theme);
+*/
+
+
+// Extra color used within materials
+a {
+  color: mat-color($light-app-primary)
+}
+
+.mat-raised-button:hover {
+  background-color: mat-color(mat-palette($mat-blue,600));
+}
+
+a.closeframe:hover {
+  color: mat-color($light-app-warn);
+}
+
+.mat-button-toggle {
+}
+.mat-button-toggle-checked {
+  background-color: mat-color($light-app-accent);  
+}
+.mat-button-toggle-checked.mat-button-toggle-appearance-standard {
+  color: white;
+}
+
+
+
+
+// Apply the dark theme only when the `.my-dark-theme` CSS class is applied
+// to an ancestor element of the components (such as `body`).
+.my-dark-theme {
+  @include angular-material-theme($dark-app-theme);
+}
+
+
+
+
+
+
+  // Apply the light theme by default
+  //@include mat.core-theme($candy-app-primary);
+  //@include mat.button-theme($candy-app-accent);
+  /*
+
+// Define a light theme
+$light-primary: mat.define-palette(mat.$indigo-palette);
+$light-accent: mat.define-palette(mat.$pink-palette);
+$light-theme: mat.define-light-theme(( color: ( primary: $light-primary, accent: $light-accent, ) ));
+
+// Define a dark theme
+$dark-primary: mat.define-palette(mat.$pink-palette);
+$dark-accent: mat.define-palette(mat.$blue-gray-palette);
+$dark-theme: mat.define-dark-theme(( color: ( primary: $dark-primary, accent: $dark-accent, ) ));
+
+
+
+// Apply the dark theme only when the `.my-dark-theme` CSS class is applied
+// to an ancestor element of the components (such as `body`).
+.my-dark-theme {
+  @include mat.core-color($dark-theme);
+  @include mat.button-color($dark-theme);
+}
+*/

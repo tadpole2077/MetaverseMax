@@ -35,11 +35,11 @@ namespace MetaverseMax.Database
 
         public List<DistrictTaxChange> GetTaxChange(int districtId)
         {
-            List<DistrictTaxChange> petList = new();
+            List<DistrictTaxChange> changeList = new();
 
             try
             {
-                petList = _context.districtTaxChange.Where(r => r.district_id == districtId && r.change_desc != null)
+                changeList = _context.districtTaxChange.Where(r => r.district_id == districtId && r.change_desc != null)
                                       .OrderByDescending(r => r.change_date)
                                       .ToList();
             }
@@ -53,7 +53,7 @@ namespace MetaverseMax.Database
                 }
             }
 
-            return petList;
+            return changeList;
         }
     }
 

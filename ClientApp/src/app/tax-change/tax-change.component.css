@@ -1,17 +1,3 @@
-@-webkit-keyframes rotation {
-  from {
-    -webkit-transform: rotate(0deg);
-  }
-
-  to {
-    -webkit-transform: rotate(359deg);
-  }
-}
-
-.rotate {
-  -webkit-animation: rotation 1s 1 linear;
-}
-
 a {
   display: inline-block;
 }
@@ -20,8 +6,13 @@ a {
   margin: 0 6px 0px 10px;
 }
 
-tr.mat-header-row{
-  height:38px
+td.mat-cell{
+  font-size: .8rem;
+  font-weight: 500
+}
+
+tr.mat-header-row {
+  height: 38px
 }
 
 .paginatorContainer {
@@ -31,20 +22,20 @@ tr.mat-header-row{
   overflow: hidden;
 }
 
-
-.offerTable {
-  font-size: 14px;
-  margin: 6px 8px 0 10px
+td.mat-column-tax_type, td.mat-column-change_desc {
+  padding-right: 1.4rem;
 }
 
-  .offerTable div {
-    line-height: 1.8em;
-  }
-
-.totalEle{
-  margin-right: 6px
+td.mat-column-tax_type{
+  width: 190px
 }
 
+td.mat-column-change_desc {
+  width: 140px
+}
+td.mat-column-change_date{
+  padding-right: .6rem;
+}
 
 td.mat-column-buyer_matic_key {
   vertical-align: bottom;
@@ -104,30 +95,10 @@ td.mat-column-token_district {
 
 
 @media only screen and (max-width: 415px) {
-  .offerFrame {
-    left: 1%;
-    bottom: unset;
-  }
 
   .table-container {
     margin-left: 0;
     margin-right: 0;
-  }
-
-  .mat-column-buyer_matic_key a span {
-    width: 2.4rem;
-  }
-
-  .mat-column-buyer_matic_key a span.maticLink {
-    width: 2.5rem;
-  }  
-
-  .mat-column-offer_date {
-    padding-left: 12px !important
-  }
-  .mat-column-token_district, td.mat-column-token_district {
-    padding-left: 0;
-    padding-right: 8px;
   }
 
   td.mat-cell {
@@ -139,4 +110,10 @@ td.mat-column-token_district {
     padding-right:10px
   }
 
+  .mat-expansion-panel{
+    margin: 0;
+    box-shadow: none;
+    margin-left: -34px;
+    overflow: visible;
+  }
 }

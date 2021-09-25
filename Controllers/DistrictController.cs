@@ -124,7 +124,7 @@ namespace MetaverseMax.Controllers
 
             District district, districtHistory_1Mth = new();
             DistrictContent districtContent = new();
-            Citizen citizen = new();
+            CitizenManage citizen = new();
             
             string content = string.Empty;
             Common common = new();
@@ -162,7 +162,7 @@ namespace MetaverseMax.Controllers
         private DistrictWeb GetDistrictMCP(int district_id)
         {
             DistrictWeb district = new();
-            Citizen citizen = new();
+            CitizenManage citizen = new();
             string content = string.Empty;
             Common common = new();
 

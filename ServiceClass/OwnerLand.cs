@@ -23,5 +23,6 @@ namespace MetaverseMax.ServiceClass
         public bool forsale { get; set; }
         public int forsale_price { get; set; }
         public bool alert { get; set; }
+        public bool rented { get; set; }
     }
 }

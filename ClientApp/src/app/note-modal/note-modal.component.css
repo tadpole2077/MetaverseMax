@@ -49,9 +49,6 @@ a {
   color: black;
   z-index:1001;
 }
-  .closeframe:hover {
-    color: orangered;
-  }
 
 .adSummary {
   font-size: .8rem;

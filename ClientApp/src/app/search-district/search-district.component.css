@@ -16,34 +16,12 @@ a {
   display: inline-block;
 }
 
-
-.btn-outline-primary {
-  color: #1b6ec2;
-  border-color: #1b6ec2;
+.buttonEffect {
+  font-size: .96rem;
   -webkit-animation: glowBtn 1.4s ease-in-out infinite alternate;
   -moz-animation: glowBtn 1.4s ease-in-out infinite alternate;
   animation: glowBtn 1.4s ease-in-out infinite alternate;
 }
-
-  .btn-outline-primary:hover {
-    color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1b6ec2;
-  }
-
-  .btn-outline-primary:not(:disabled):not(.disabled).active, .btn-outline-primary:not(:disabled):not(.disabled):active, .show > .btn-outline-primary.dropdown-toggle {
-    color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1b6ec2;
-  }
-
-
-.btn-outline-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
-}
-
 
 @-webkit-keyframes glowBtn {
   from {
@@ -54,22 +32,3 @@ a {
     box-shadow: 0 0 3px #1b6ec2, 0 0 6px #1b6ec2, 0 0 8px #1b6ec2, 0 0 8px #1b6ec2;
   }
 }
-
-
-/*
-.btn-outline-primary {
-  color: #673ab7;
-  border-color: #673ab7; 
-}
-  .btn-outline-primary:hover {
-    color: #fff;
-    background-color: #673ab7;
-    border-color: #673ab7;
-  }
-
-  .btn-outline-primary:not(:disabled):not(.disabled).active, .btn-outline-primary:not(:disabled):not(.disabled):active, .show > .btn-outline-primary.dropdown-toggle {
-    color: #fff;
-    background-color: #673ab7;
-    border-color: #673ab7;
-  }
-  */

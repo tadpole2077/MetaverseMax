@@ -3,7 +3,6 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { MatFormFieldModule } from '@angular/material/form-field';
 /*import { MatInputModule, MatExpansionModule, MatIconModule, MatCheckboxModule, MatCheckboxChange, MatCheckbox } from '@angular/material';*/
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { AfterViewInit } from '@angular/core';
@@ -11,6 +10,7 @@ import { NoteModalComponent } from '../note-modal/note-modal.component';
 import { TaxGraphComponent } from '../tax-graph/tax-graph.component';
 import { TaxChangeComponent } from '../tax-change/tax-change.component';
 import { OwnerSummary, District } from './data-district-interface';
+import { MatExpansionPanel } from '@angular/material/expansion';
 
 
 @Component({
@@ -41,6 +41,8 @@ export class DistrictSummaryComponent implements AfterViewInit {
   dataSourceOwnerSummary = new MatTableDataSource(null);
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(NoteModalComponent, { static: true }) childNote: NoteModalComponent;
+  @ViewChild("taxChange", { static: true }) taxChange: TaxChangeComponent;
+  @ViewChild("taxChangePanel", { static: true }) taxChangePanel: MatExpansionPanel;
 
   @ViewChild("graphConstruct", { static: true }) childGraphConstruct: TaxGraphComponent;
   @ViewChild("graphProduce", { static: true }) childGraphProduce: TaxGraphComponent;
@@ -48,7 +50,6 @@ export class DistrictSummaryComponent implements AfterViewInit {
   @ViewChild("graphDistribute", { static: true }) childGraphDistribute: TaxGraphComponent;
   @ViewChild("arrivalsWeek", { static: true } as any) arrivalsWeek: MatCheckbox;
   @ViewChild("arrivalsMonth", { static: true } as any) arrivalsMonth: MatCheckbox;
-  @ViewChild("taxChange", { static: true }) taxChange: TaxChangeComponent;
 
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumnsOwners: string[] = ['owner_nickname', 'owned_plots', 'energy_count', 'industry_count', 'production_count', 'residential_count', 'office_count', 'poi_count', 'commercial_count', 'municipal_count'];
@@ -102,13 +103,15 @@ export class DistrictSummaryComponent implements AfterViewInit {
     //this.dataSource.sort = this.sort;
   }
 
-  // Single parameter struct containing 2 members, pushed by component search-plot
+  // Single parameter struct containing 1 element, pushed by component search-district
   searchDistrict(district_id: number) {
 
     let params = new HttpParams();
     params = params.append('district_id', district_id.toString());
+
     this.adShow = false;
-    
+    this.requestDistrictId = district_id;
+
     this.httpClient.get<District>(this.baseUrl + 'api/district', { params: params })
       .subscribe((result: District) => {        
 
@@ -161,7 +164,8 @@ export class DistrictSummaryComponent implements AfterViewInit {
     this.ownerSummary = new Array();
     this.ownerSummaryNewArrivals_Week = new Array();
     this.ownerSummaryNewArrivals_Month = new Array();
-
+    this.taxChangePanel.close();
+    
     this.httpClient.get<OwnerSummary[]>(this.baseUrl + 'api/ownersummary', { params: params })
       .subscribe((result: OwnerSummary[]) => {
 

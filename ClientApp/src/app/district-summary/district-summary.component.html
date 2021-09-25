@@ -61,12 +61,13 @@
       </mat-expansion-panel-header>
 
       <div [hidden]="district && !district.constructTax">
+
         <app-tax-graph #graphConstruct class="taxGraphDistrictConstruct" [graph_type]="CONSTRUCT"></app-tax-graph>
         <app-tax-graph #graphProduce class="taxGraphDistrictProduce" [graph_type]="PRODUCE"></app-tax-graph>
 
-        <mat-accordion id="TaxChangeAccordion" class="example-headers-align" multi>
+        <mat-accordion id="taxChangeAccordion" class="example-headers-align" multi>
           
-          <mat-expansion-panel (opened)="loadTaxChange($event)">
+          <mat-expansion-panel #taxChangePanel (opened)="loadTaxChange()">
             <mat-expansion-panel-header>
               <mat-panel-title>
                 <mat-icon>history</mat-icon>
@@ -83,7 +84,9 @@
 
         </mat-accordion>
       </div>
+
     </mat-expansion-panel>
+
 
     <mat-expansion-panel>
       <mat-expansion-panel-header>

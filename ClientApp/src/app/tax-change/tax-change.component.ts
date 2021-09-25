@@ -30,7 +30,7 @@ export class TaxChangeComponent implements AfterViewInit {
 
 
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
-  displayedColumns: string[] = ['change_date', 'tax_type', 'change_desc', 'change_owner'];
+  displayedColumns: string[] = ['change_date', 'tax_type', 'tax', 'change_desc', 'change_owner'];
 
   constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string) {//, cdr: ChangeDetectorRef) {
 

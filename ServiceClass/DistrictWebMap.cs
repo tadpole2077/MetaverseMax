@@ -22,14 +22,29 @@ namespace MetaverseMax.ServiceClass
             districtDB = new(_serviceContext);
         }
 
-        public IEnumerable<DistrictTaxChange> GetTaxChange(int districtId)
+        public IEnumerable<TaxChangeWeb> GetTaxChange(int districtId)
         {
             List<DistrictTaxChange> taxChangeList = new();
             DistrictTaxChangeDB districtTaxChangeDB = new(_context);
+            List<TaxChangeWeb> taxChangeWebList = new();
 
             try
             {
                 taxChangeList = districtTaxChangeDB.GetTaxChange(districtId);
+                foreach(DistrictTaxChange taxChange in taxChangeList)
+                {
+                    taxChangeWebList.Add(new TaxChangeWeb()
+                    {
+                        district_id = taxChange.district_id,
+                        tax_type = taxChange.tax_type,
+                        tax = taxChange.tax,
+                        change_date = common.DateFormatStandard(taxChange.change_date),
+                        change_desc = taxChange.change_desc,
+                        change_owner = taxChange.change_owner,
+                        change_value = taxChange.change_value
+                    });
+                }
+
             }
             catch (Exception ex)
             {
@@ -41,7 +56,7 @@ namespace MetaverseMax.ServiceClass
                 }
             }
 
-            return taxChangeList.ToArray();
+            return taxChangeWebList.ToArray();
         }
 
         public IEnumerable<int> GetDistrictIdList(bool isOpened)
@@ -111,7 +126,7 @@ namespace MetaverseMax.ServiceClass
         private DistrictWeb MapData_DistrictWebAttributes(District district)
         {
             DistrictWeb districtWeb = new();
-            Citizen citizen = new();            
+            CitizenManage citizen = new();            
             
             districtWeb.update_instance = district.update_instance;
             districtWeb.last_update = district.last_update;
@@ -155,7 +170,7 @@ namespace MetaverseMax.ServiceClass
         public int UpdateDistrict(int district_id)
         {
             District district = new();
-            Citizen citizen = new();
+            CitizenManage citizen = new();
             string content = string.Empty;
             Common common = new();
             int returnCode = 0;
