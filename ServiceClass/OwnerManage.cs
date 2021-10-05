@@ -335,7 +335,8 @@ namespace MetaverseMax.ServiceClass
                         citizen_stamina = citizen.GetLowStamina(landInstance.Value<JArray>("citizens")),
                         citizen_stamina_alert = citizen.CheckCitizenStamina(landInstance.Value<JArray>("citizens"), landInstance.Value<int?>("building_type_id") ?? 0),
                         forsale_price = building.GetSalePrice(landInstance.Value<JToken>("sale_data")),
-                        rented = (landInstance.Value<string>("owner") ?? "Not Found" ) != ownerMaticKey
+                        forsale = (landInstance.Value<string>("on_sale") ?? "False") == "False" ? false : true,
+                        rented = (landInstance.Value<string>("owner") ?? "Not Found" ).ToUpper() != ownerMaticKey.ToUpper()
                     })
                     .OrderBy(row => row.district_id).ThenBy(row => row.pos_x).ThenBy(row => row.pos_y);
 

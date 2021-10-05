@@ -234,6 +234,10 @@ namespace MetaverseMax.ServiceClass
                     // Defensive coding, remove any links already added with matching date = today
                     ownerCitizenDB.RemoveOwnerLink(ownerMatic);
 
+                    // Expire any db cits not found within current owner cit collection.
+                    ownerCitizenDB.Expire(ownerMatic, citizens);
+                    _context.SaveChanges();
+
                     // Add 1 or 2 records per citizen owned, if citizen already exists then skip creating a new one, just create the link.
                     for (int index = 0; index < citizens.Count; index++)
                     {

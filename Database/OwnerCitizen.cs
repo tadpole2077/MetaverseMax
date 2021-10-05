@@ -18,6 +18,9 @@ namespace MetaverseMax.Database
         [Column("link_date")]
         public DateTime link_date { get; set; }
 
+        [Column("valid_to_date")]
+        public DateTime? valid_to_date { get; set; }
+
         [Column("owner_matic_key")]
         public string owner_matic_key { get; set; }
 
