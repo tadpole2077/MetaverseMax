@@ -28,3 +28,9 @@ So multiple version of district, each with unique DistrictUpdateInstance Key, sa
 
 Possible fix/improvements
 1) Dont really need the DistrictUpdateInstance table currently, but might be useful in the future to record, instance run time details, maybe to eval changes between distrist updates to reduce repetitive load on system runtime.
+
+
+DB Performance Tweaks:
+1) Add rebuild of Indexes as nightly task.  (See "Sql Optimise 2022" word doc for details)
+* Performance of SPROC sp_plot_IP_get, related to PlotArchive table, showing a high fragmentation of 98% meaning slow query responses using this index.
+* Top tables perf improve by index rebuild : Citizen, Plot, PlotArchive, DistrictFund, OwnerCitizen

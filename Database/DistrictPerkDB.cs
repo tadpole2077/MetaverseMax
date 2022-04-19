@@ -1,27 +1,51 @@
-﻿using System;
+﻿using MetaverseMax.ServiceClass;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace MetaverseMax.Database
 {
-    public class DistrictPerkDB
+    public class DistrictPerkDB : DatabaseBase
     {
-        private readonly MetaverseMaxDbContext _context;
-
-        public DistrictPerkDB(MetaverseMaxDbContext _parentContext)
+        public DistrictPerkDB(MetaverseMaxDbContext _parentContext) : base(_parentContext)
         {
-            _context = _parentContext;
         }        
 
         public IEnumerable<DistrictPerk> PerkGetAll(int districtId, int updateInstance)
         {
-            List<DistrictPerk> districtPerkList;
+            List<DistrictPerk> districtPerkList = null;
 
-            districtPerkList = _context.districtPerk.Where(x => x.district_id == districtId && x.update_instance == updateInstance).ToList();                
+            try
+            {
+                districtPerkList = _context.districtPerk.Where(x => x.district_id == districtId && x.update_instance == updateInstance).ToList();
+            }
+            catch (Exception ex)
+            {
+                logException(ex, String.Concat("DistrictPerkDB.PerkGetAll() : Error Getting perks for district : ", districtId));
+            }
 
             return districtPerkList.ToArray();
         }
+
+        public List<DistrictPerk> PerkGetAll_ByPerkType(int perkId)
+        {
+            List<DistrictPerk> districtPerkList = null;
+
+            try
+            {
+                //(int)DISTRICT_PERKS.EXTRA_SLOT_APPLIANCE_ALL_BUILDINGS
+                districtPerkList = _context.districtPerk.FromSqlInterpolated($"[sp_district_perk_by_type_get] {perkId}").AsNoTracking().ToList();
+            }
+            catch (Exception ex)
+            {
+                logException(ex, String.Concat("DistrictPerkDB.PerkGetAll_ByPerkType() : Error Getting perks with key : ", perkId));
+            }
+
+            return districtPerkList;
+        }
+
 
         public int Save(List<DistrictPerk> districtPerkList)
         {            
@@ -35,12 +59,7 @@ namespace MetaverseMax.Database
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("DistrictPerkDB :: Save() : Error saving District Perks "));
-                    _context.LogEvent(log);
-                }
+                logException(ex, String.Concat("DistrictPerkDB :: Save() : Error saving District Perks "));
             }
 
             return 0;

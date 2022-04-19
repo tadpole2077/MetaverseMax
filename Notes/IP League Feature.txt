@@ -1,0 +1,21 @@
+﻿
+Web Service Calls - Limiter applied @ GetHistory level - default 100ms
+Limiter: WaitPeriodAction()
+Where: After GetHistory() call, at least one service call will occur within GetHisory, potentially many more dependings on if Citizen History needs an eval.
+
+BuildingIPbyTypeGet()
+    GetHistory()
+        Web 1) https://ws-tron.mcp3d.com/user/assets/history
+
+        GetPrediction()
+        CheckBuildingCitizenHistory()
+            CitizenUpdateEvents()
+                GetCitizenHistoryMCP()
+                    Web 2) https://ws-tron.mcp3d.com/user/assets/history
+
+        GetPrediction()
+
+    Task.Run(async () => { await WaitPeriodAction(waitPeriodMS); }).Wait();
+
+==============================================================================
+==============================================================================

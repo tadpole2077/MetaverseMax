@@ -26,13 +26,16 @@
             <a class="nav-link text-dark" [routerLink]="['/']">Home</a>
           </li>
           <li [hidden]="globals.ownerAccount.matic_key == 'Not Found'" class="nav-item" [routerLinkActive]="['link-active']">
-            <a class="nav-link text-dark" [routerLink]="['/owner-data']"  [queryParams]="{matic: globals.ownerAccount.matic_key}">My Portfolio</a>
+            <a class="nav-link text-dark" [routerLink]="['/owner-data']" [queryParams]="{matic: globals.ownerAccount.matic_key}">My-Portfolio</a>
           </li>
           <li class="nav-item" [routerLinkActive]="['link-active']">
-            <a class="nav-link text-dark" [routerLink]="['/owner-data']">Plot Owner</a>
+            <a class="nav-link text-dark" [routerLink]="['/owner-data']">Plot-Owner</a>
           </li>
           <li class="nav-item" [routerLinkActive]="['link-active']">
             <a class="nav-link text-dark" [routerLink]="['/district-list']">District</a>
+          </li>
+          <li class="nav-item" [routerLinkActive]="['link-active']">
+            <a class="nav-link text-dark" [routerLink]="['/building-ip']">Building-IP</a>
           </li>
         </ul>
 

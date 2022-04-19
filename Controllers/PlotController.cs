@@ -33,20 +33,6 @@ namespace MetaverseMax.Controllers
             _context = context;
         }
 
-        [HttpGet("UpdatePlotSync")]
-        public IActionResult UpdatePlotSync([FromQuery] QueryParametersPlotSync parameters)
-        {
-            SyncWorld syncWorld = new(_context);
-
-            if (ModelState.IsValid)
-            {
-                return Ok(syncWorld.SyncActiveDistrictPlot( (WORLD_TYPE)parameters.world_type, parameters.secure_token, parameters.interval) );
-            }
-
-            return BadRequest("Sync Failed");       // 400 Error     
-        }
-
-
         [HttpGet]
         public PollingPlot Get([FromQuery] QueryParametersGetPlotMatric parameters)
         {
@@ -100,7 +86,72 @@ namespace MetaverseMax.Controllers
             }
             // The property 'Plot.last_updated' could not be mapped because it is of type 'Nullable<SqlString>
             return pollingPlot;
-        }   
+        }
+
+        [HttpGet("UpdatePlotSync")]
+        public IActionResult UpdatePlotSync([FromQuery] QueryParametersPlotSync parameters)
+        {
+            SyncWorld syncWorld = new(_context);
+
+            if (ModelState.IsValid)
+            {
+                return Ok(syncWorld.SyncActiveDistrictPlot( (WORLD_TYPE)parameters.world_type, parameters.secure_token, parameters.interval) );
+            }
+
+            return BadRequest("Sync Failed");       // 400 Error     
+        }
+
+        [HttpGet("UpdatePlotSingle")]
+        public IActionResult UpdatePlotSingle([FromQuery] QueryParametersPlotSingle parameters)
+        {
+            PlotDB plotDB = new(_context);
+
+            if (ModelState.IsValid)
+            {
+                return Ok(plotDB.AddOrUpdatePlot(parameters.posX, parameters.posY, parameters.plot_id, true));
+            }
+
+            return BadRequest("Sync Failed");       // 400 Error     
+        }
+
+        [HttpGet("BuildingIPbyTypeGet")]
+        public IActionResult BuildingIPbyTypeGet([FromQuery] QueryParametersTypeLevel parameters)
+        {
+            BuildingManage buildingManage = new(_context);
+
+            if (ModelState.IsValid)
+            {
+                return Ok(Task.Run(() =>  buildingManage.BuildingIPbyTypeGet(parameters.type, parameters.level, false)).Result);
+            }
+
+            return BadRequest("GetBuildingByType is invalid");       // 400 Error     
+        }
+
+        [HttpGet("UpdateIPRanking")]
+        public IActionResult UpdateIPRanking()
+        {
+            BuildingManage buildingManage = new(_context);
+
+            if (ModelState.IsValid)
+            {
+                return Ok(Task.Run(() => buildingManage.UpdateIPRanking()).Result);
+            }
+
+            return BadRequest("UpdateIPRanking is invalid");       // 400 Error     
+        }
+
+        [HttpGet("UpdateIPRankingByType")]
+        public IActionResult UpdateIPRankingByType([FromQuery] QueryParametersTypeLevel parameters)
+        {
+            BuildingManage buildingManage = new(_context);
+
+            if (ModelState.IsValid)
+            {
+                return Ok(Task.Run(() => buildingManage.UpdateIPRankingByType(parameters.type, parameters.level)).Result);
+            }
+
+            return BadRequest("UpdateIPRankingByType is invalid");       // 400 Error     
+        }
 
     }
 }

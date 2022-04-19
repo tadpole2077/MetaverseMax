@@ -76,15 +76,12 @@ tr.mat-header-row {
 }
 
 
-.mat-column-trait, .mat-column-name, .mat-column-token_id {
+.mat-column-name, .mat-column-token_id {
   padding-right: 1em
 }
 
 .mat-column-token_id{
   width:70px;
-}
-.mat-column-trait {
-  width: 76px;
 }
 
 .mat-column-name {
@@ -103,7 +100,10 @@ tr.mat-header-row {
     width:38px;
     height:38px;
   }
-
+.mat-column-level {
+  padding-right: 0.8rem;
+  padding-left: 1rem;
+}
 
 .topBtnDiv {
   margin: 1rem 1rem .8rem;
@@ -124,7 +124,22 @@ tr.mat-header-row {
   z-index: 1;
 }
 
+.lastUpdated {
+  vertical-align: middle;
+  font-size: .7rem;
+  /*position: absolute;*/
+  margin-left: 1.2rem;
+  margin-top: 1rem;
+  color: gray;
+}
 
+  .lastUpdated .mat-icon {
+    font-size: 1.4rem;
+  }
+
+  .lastUpdated span {
+    vertical-align: super;
+  }
 
 
 @media only screen and (max-width: 415px) {

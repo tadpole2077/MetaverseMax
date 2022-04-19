@@ -46,7 +46,7 @@ export class NavMenuComponent {
             this.subTron.unsubscribe();            
 
           }
-          else if(this.attempts >= 4){
+          else if(this.attempts >= 5){
 
             this.subTron.unsubscribe();
 

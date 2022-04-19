@@ -1,0 +1,12 @@
+﻿
+Which .NET framework is currently used?
+* As shown within [Project Overview] >> Publish >> Target Framework 
+* 11/11/2011 :  .NET V5
+
+
+
+1) EcoCore  (by M Driven AB)
+* As of 11/11/2021
+* Using EcoCore lib version 7.0.0.13448, Published: September 21, 2021 (9/21/2021)
+* REMOVED - not in use, and warning regarding compatibility with .NET V5.
+

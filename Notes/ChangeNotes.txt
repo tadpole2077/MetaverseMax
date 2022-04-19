@@ -1,4 +1,30 @@
-﻿
+﻿Infra:
+* Framework : Net5.0   (configured within publish settings)
+* Target Runtime : Portable
+* Project dependenceies (under solution Explorer) : MetaverseMax 
+	Frameworks: Microsoft.AspNetCore.App
+	Frameworks: Microsoft.NETCore.App
+	Packages: EntityFramework (6.4.4)
+	Packages: Microsoft.EntityFrameworkCore (5.0.16)
+	Packages: Microsoft.EntityFrameworkCore.SqlServer (5.0.16)
+	Packages: Microsoft.EntityFrameworkCore.Design (5.0.16)
+	Packages: Microsoft.TypeScript.MSbuild (4.2.4)
+
+Upgrade from .Net5 to .Net6 Farmework  
+* https://docs.microsoft.com/en-us/aspnet/core/migration/50-to-60?view=aspnetcore-6.0&tabs=visual-studio
+* Requires Visual Studio 2022
+
+Database Connection
+* File : ServiceClass/appsettings.json
+  ConnectionStrings/DatabaseConnection > Contains the Sql connection string used in PRD
+* File : ServiceClass/appsettings.Development.json
+  ConnectionStrings/DatabaseConnection > Contains the Sql connection string used in DEV
+
+========================================================================================================
+
+
+
+
 Goal: Add new module that displays Land ownership data calling a backend Service
 ----------------------------------------------------------------------------------------
 UI:
@@ -30,7 +56,7 @@ Table - using at-table
 
 
 
-Issues:
+Issues:  Router Link
 -----------------------------------------------------------------------------------------
 UI Error: Error: Cannot match any routes. URL Segment: 'fetch-owner-data'
 
@@ -57,4 +83,12 @@ Different track - used Fiddler, always got back the index html page regardless o
 	https://aka.ms/dotnet-core-applaunch?missing_runtime=true&arch=x64&rid=win10-x64&apphost_version=5.0.4
 * How to setup routing of API services
 	* https://docs.microsoft.com/en-us/aspnet/web-api/overview/web-api-routing-and-actions/routing-and-action-selection
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+UI Error : core.js:6241 ERROR Error: Uncaught (in promise): Error: Cannot match any routes. URL Segment: 'building-ip'
+Error: Cannot match any routes. URL Segment: 'building-ip'
+
+Caused By:
+* Missing mapping entry within app.module.ts within section ... RouterModule.forRoot([ ... ])
 

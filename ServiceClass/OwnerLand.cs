@@ -24,5 +24,6 @@ namespace MetaverseMax.ServiceClass
         public int forsale_price { get; set; }
         public bool alert { get; set; }
         public bool rented { get; set; }
+        public decimal current_influence_rank { get; set; }
     }
 }

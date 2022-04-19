@@ -62,6 +62,70 @@ a {
 }
 
 
+/*** Link underline amine ***/
+a {
+  position: relative;
+  /*color: #000;*/
+  text-decoration: none;
+  /*opacity: .7*/
+}
+
+  a.lineAnim:hover {
+    /*color: #000;*/
+    color: #1b6ec2;
+    opacity: 1;
+  }
+
+  a.lineAnim::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #1b6ec2;
+    /*background-color: #000;*/
+    visibility: hidden;
+    transform: scaleX(0);
+    transition: all 0.3s ease-in-out 0s;
+  }
+
+  a.lineAnim:hover::before {
+    visibility: visible;
+    transform: scaleX(1);
+  }
+
+/*Sale Sign*/
+.salepos {
+  position: absolute;
+  margin-left: 0px;
+  z-index: 100;
+  font-size: .8rem;
+  padding-top: 4px;
+  text-align:center;
+  width: 3rem
+}
+
+  .salepos::before {
+    background: url("../../assets/red-for-sale-sign.png") no-repeat;
+    content: "";
+    height: 38px;
+    width: 57px;
+    background-size: contain;
+    margin-top: -18px;
+    margin-left: -14px;
+    position: absolute;
+    z-index: -1;
+    background-color: white
+  }
+.saleposInner {
+  width: 2rem;
+  display: inline-block;
+}
+tr.mat-header-row th.mat-column-current_price, tr td.mat-column-current_price {
+  padding-left: 0px;
+}
+
 .table-container {
   margin: 0px 1em .6em 1em;
 }
@@ -85,21 +149,18 @@ tr.mat-header-row {
 }
 
 
-.mat-column-header-row-second-group{
-  text-align:center
+.mat-column-header-row-second-group {
+  text-align: center;
+  font-weight: 600;
 }
 
-.mat-column-trait, .mat-column-name, .mat-column-token_id {
+.mat-column-name, .mat-column-token_id {
   padding-right: 1em
 }
 
 .mat-column-token_id{
   width:70px;
   padding-left: .8rem;
-}
-
-.mat-column-trait {
-  width: 76px;
 }
 
 .mat-column-name {
@@ -162,6 +223,76 @@ td.mat-column-efficiency_industry, td.mat-column-efficiency_production, td.mat-c
   height: 2.4rem;
   font-size: .8rem;
   font-weight: 500;
+}
+
+.lastUpdated {
+  vertical-align:middle;
+  font-size: .7rem;
+  position: absolute;
+  margin-left: 1.2rem;
+  margin-top: 0.4rem;
+  color: gray;
+}
+  .lastUpdated .mat-icon {
+    font-size: 1.2rem;
+    width: 22px;
+    height: 22px;
+    padding-top: 0.2rem;
+  }
+  .lastUpdated span {
+    vertical-align: super;
+  }
+
+td.mat-column-efficiency_energy_water span {
+  display: block;
+  line-height: 1.8rem;
+  margin-right: 1rem;
+}
+
+.fa-tint{  
+  color: dodgerblue;
+  margin-right: .3rem;
+  margin-left: -.4rem;
+}
+.fa-bolt {
+  color: darkorange;
+  margin-right: .3rem;
+  margin-left: -.4rem;
+}
+
+.mat-column-trait_agility span:nth-child(2), .mat-column-trait_intelligence span:nth-child(2), .mat-column-trait_charisma span:nth-child(2),
+.mat-column-trait_endurance span:nth-child(2), .mat-column-trait_luck span:nth-child(2), .mat-column-trait_strength span:nth-child(2) {
+  display: block;
+  text-indent: initial;
+}
+
+.fa-paw {
+  color: dodgerblue;
+  text-indent: initial;
+  padding-left: .2rem;
+}
+
+
+
+
+/* Progress Indicator */
+@-webkit-keyframes rotation {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+
+  to {
+    -webkit-transform: rotate(359deg);
+  }
+}
+
+.rotate {
+  -webkit-animation: rotation 1s 30 linear;
+}
+
+.progressIcon {
+  font-size: .7rem;
+  z-index: 1;
 }
 
 

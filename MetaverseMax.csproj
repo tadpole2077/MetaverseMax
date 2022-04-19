@@ -14,11 +14,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EcoCore" Version="7.0.0.13448" />
     <PackageReference Include="EntityFramework" Version="6.4.4" />
-    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.9" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.9" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.9" />
+    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.16" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.16" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.16">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.16" />
     <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="4.2.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -35,6 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\app\building-ip\building-ip.component.ts" />
     <None Remove="ClientApp\src\app\common\global-var.ts" />
     <None Remove="ClientApp\src\app\common\graph-interface.ts" />
     <None Remove="ClientApp\src\app\district-list\district-list.component.css" />
@@ -50,6 +55,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <TypeScriptCompile Remove="ClientApp\src\app\citizen-building-table\citizen-building-table.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\citizen-modal\citizen-modal.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\district-list\district-list.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\district-notification\district-notification.component.ts" />

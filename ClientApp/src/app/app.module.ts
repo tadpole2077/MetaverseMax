@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
@@ -15,14 +16,15 @@ import { FundGraphComponent } from './fund-graph/fund-graph.component';
 import { NoteModalComponent } from './note-modal/note-modal.component';
 import { PetModalComponent } from './pet-modal/pet-modal.component';
 import { CitizenModalComponent } from './citizen-modal/citizen-modal.component';
+import { CitizenBuildingTableComponent } from './citizen-building-table/citizen-building-table.component';
 import { OfferModalComponent } from './offer-modal/offer-modal.component';
 import { OwnerDataComponent } from './owner-data/owner-data.component';
 import { ProdHistoryComponent } from './production-history/prod-history.component';
 import { DistrictListComponent } from './district-list/district-list.component';
 import { DistrictSummaryComponent } from './district-summary/district-summary.component';
 import { DistrictNotificationComponent } from './district-notification/district-notification.component';
+import { BuildingIPComponent } from './building-ip/building-ip.component';
 
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -41,7 +43,6 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 
-
 import { Globals } from './common/global-var';
 
 
@@ -59,11 +60,13 @@ import { Globals } from './common/global-var';
     NoteModalComponent,
     PetModalComponent,
     CitizenModalComponent,
+    CitizenBuildingTableComponent,
     OfferModalComponent,
     ProdHistoryComponent,
     DistrictListComponent,
     DistrictSummaryComponent,
     DistrictNotificationComponent,
+    BuildingIPComponent,
     NumberDirective  
   ],
   imports: [
@@ -90,7 +93,8 @@ import { Globals } from './common/global-var';
       { path: 'owner-data', component: OwnerDataComponent },
       { path: 'district-list', component: DistrictListComponent },
       { path: 'district-summary', component: DistrictSummaryComponent },
-      { path: 'district-notification', component: DistrictNotificationComponent }
+      { path: 'district-notification', component: DistrictNotificationComponent },
+      { path: 'building-ip', component: BuildingIPComponent }
     ]),
     BrowserAnimationsModule,
     ClipboardModule

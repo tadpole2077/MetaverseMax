@@ -39,8 +39,9 @@ namespace MetaverseMax.Controllers
             OwnerManage ownerManage = new(_context);
             if (ModelState.IsValid)
             {
-                if (ownerManage.GetFromLandCoord(parameters.plotX, parameters.plotY) != -1) {
-                    _ = ownerManage.GetOwnerLands(ownerManage.ownerData.owner_matic_key);
+                if (Task.Run(() => ownerManage.GetFromLandCoord(parameters.plotX, parameters.plotY)).Result != -1) 
+                {
+                    Task.Run(() => ownerManage.GetOwnerLands(ownerManage.ownerData.owner_matic_key)).Wait();
                 }
                 
                 return Ok(ownerManage.ownerData);
@@ -56,9 +57,9 @@ namespace MetaverseMax.Controllers
 
             if (ModelState.IsValid)
             {
-                if (ownerManage.GetFromMaticKey(parameters.owner_matic_key) != -1)
+                if (Task.Run(() => ownerManage.GetFromMaticKey(parameters.owner_matic_key)).Result != -1)
                 {
-                    _ = ownerManage.GetOwnerLands(ownerManage.ownerData.owner_matic_key);
+                    Task.Run(() => ownerManage.GetOwnerLands(ownerManage.ownerData.owner_matic_key)).Wait();
                 }
 
                 return Ok(ownerManage.ownerData);
@@ -89,19 +90,26 @@ namespace MetaverseMax.Controllers
 
             if (ModelState.IsValid)
             {
-                return Ok(ownerManage.GetOwnerOffer(parameters.active, parameters.matic_key));                
+                return Ok(Task.Run(() => ownerManage.GetOwnerOffer(parameters.active, parameters.matic_key)).Result);                
             }
 
             return BadRequest("Call is invalid");       // 400 Error   
         }
 
         [HttpGet("GetCitizen")]
-        public IActionResult GetCitizen([FromQuery] QueryParametersOwnerDataMatic parameters)
+        public IActionResult GetCitizen([FromQuery] QueryParametersOwnerDataMaticRefresh parameters)
         {
             CitizenManage citizenManage = new(_context);
+            OwnerCitizenDB ownerCitizenDB = new(_context);
 
             if (ModelState.IsValid)
             {
+                if (parameters.refresh)
+                {
+                    Task.Run(() => citizenManage.GetCitizenMCP(parameters.owner_matic_key)).Wait();
+                    ownerCitizenDB.UpdateCitizenCount();
+                }
+
                 return Ok(citizenManage.GetCitizen(parameters.owner_matic_key));
             }
 
@@ -112,10 +120,13 @@ namespace MetaverseMax.Controllers
         public IActionResult GetCitizenMCP([FromQuery] QueryParametersOwnerDataMatic parameters)
         {
             CitizenManage citizenManage = new(_context);
+            OwnerCitizenDB ownerCitizenDB = new(_context);
 
             if (ModelState.IsValid)
             {
-                return Ok(citizenManage.GetCitizenMCP(parameters.owner_matic_key));
+                Task.Run(() => citizenManage.GetCitizenMCP(parameters.owner_matic_key)).Wait();
+
+                return Ok(ownerCitizenDB.UpdateCitizenCount());
             }
 
             return BadRequest("Call is invalid");       // 400 Error   
@@ -124,11 +135,11 @@ namespace MetaverseMax.Controllers
         [HttpGet("GetPet")]
         public IActionResult GetPet([FromQuery] QueryParametersOwnerDataMatic parameters)
         {
-            OwnerManage ownerManage = new(_context);
+            CitizenManage citizenManage = new(_context);
 
             if (ModelState.IsValid)
             {
-                return Ok(ownerManage.GetPet(parameters.owner_matic_key));
+                return Ok(citizenManage.GetPortfolioPets(parameters.owner_matic_key));
             }
 
             return BadRequest("Call is invalid");       // 400 Error   
@@ -137,11 +148,25 @@ namespace MetaverseMax.Controllers
         [HttpGet("GetPetMCP")]
         public IActionResult GetPetMCP([FromQuery] QueryParametersOwnerDataMatic parameters)
         {
-            OwnerManage ownerManage = new(_context);
+            CitizenManage citizenManage = new(_context);
 
             if (ModelState.IsValid)
             {
-                return Ok(ownerManage.GetPetMCP(parameters.owner_matic_key));
+                return Ok(Task.Run(() => citizenManage.GetPetMCP(parameters.owner_matic_key)).Result);
+            }
+
+            return BadRequest("Call is invalid");       // 400 Error   
+        }
+
+        [HttpGet("GetPetAllMCP")]
+        public IActionResult GetPetAllMCP([FromQuery] QueryParametersSecurity parameters)
+        {
+            CitizenManage citizenManage = new(_context);
+
+            // As this service could be abused as a DDOS a security token is needed.                     
+            if (ModelState.IsValid && parameters.secure_token.Equals("JUST_SIMPLE_CHECK123"))
+            {
+                return Ok(Task.Run(() => citizenManage.GetPetAllMCP()).Result);
             }
 
             return BadRequest("Call is invalid");       // 400 Error   

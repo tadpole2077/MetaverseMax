@@ -8,7 +8,7 @@ namespace MetaverseMax.ServiceClass
     public class OwnerPet
     {
         public int pet_count { get; set; }
-
+        public string last_updated { get; set; }
         public IEnumerable<PetWeb> pet { get; set; }
     }
 

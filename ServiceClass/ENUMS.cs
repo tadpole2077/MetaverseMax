@@ -1,5 +1,48 @@
 ﻿namespace MetaverseMax.ServiceClass
 {
+    public enum APPLICATION
+    {                
+        WHITE_AIR_CON = 1,
+        CCTV_WHITE = 2,
+        RED_FIRE_ALARM = 3,
+        ROUTER_BLACK = 4,
+        WHITE_SAT = 5,
+        RED_SAT = 7,
+        GREEN_AIR_CON = 8,
+        CCTV_RED = 10           
+    }
+
+    public enum CITIZEN_HISTORY {
+        DAYS = -40,
+        CORRECTION_SECONDS = 45
+    }
+
+    public enum HISTORY_TYPE
+    {
+        CITIZEN = 4,
+        PET = 5
+    }
+
+    public enum RETURN_CODE
+    {
+        ERROR = -1,
+        SUCCESS = 1
+    }
+
+    public enum ACTION_TYPE
+    {
+        OFFER = 1,
+        PET = 2,
+        CITIZEN = 3,
+        PLOT = 4,
+        ASSIGN_CITIZEN = 10,
+        REMOVE_CITIZEN = 11,
+        ASSIGN_PET = 12,
+        REMOVE_PET = 13,
+        NEW_OWNER = 14,
+        PET_NEW_OWNER = 15
+    }
+
     public enum PET_LOOK
     {
         BULLDOG = 1,
@@ -22,6 +65,16 @@
         STRENGTH = 4,
         ENDURANCE= 5,
         INTEL = 6
+    }
+
+    public enum TRAIT_INDEX
+    {
+        STRENGTH = 1,
+        ENDURANCE = 2,
+        CHARISMA = 3,
+        INTELLIGENCE = 4,
+        AGILITY = 5,
+        LUCK = 6
     }
 
     public enum TOKEN_TYPE
@@ -103,7 +156,35 @@
         BRICKWORKS = 18,
     }
 
-    public enum MIN_WOOD_ENUM
+    public enum ELECTRIC_RESOURCE
+    {
+        LEVEL_1 = 0,
+        LEVEL_2 = 3,
+        LEVEL_3 = 10,
+        LEVEL_4 = 17,
+        LEVEL_5 = 24,
+        LEVEL_6 = 32,
+        LEVEL_7 = 44,
+        LEVEL_8 = 52,
+        LEVEL_9 = 68,
+        LEVEL_10 = 100
+    }
+
+    public enum WATER_RESOURCE
+    {
+        LEVEL_1 = 0,
+        LEVEL_2 = 3,
+        LEVEL_3 = 10,
+        LEVEL_4 = 17,
+        LEVEL_5 = 24,
+        LEVEL_6 = 32,
+        LEVEL_7 = 44,
+        LEVEL_8 = 52,
+        LEVEL_9 = 68,
+        LEVEL_10 = 100
+    }
+
+    public enum MIN_WOOD
     {
         LEVEL_1 = 150,
         LEVEL_2 = 167,
@@ -113,7 +194,17 @@
         LEVEL_6 = 429,
         LEVEL_7 = 557
     }
-    public enum MIN_METAL_ENUM
+    public enum MAX_WOOD
+    {
+        LEVEL_1 = 375,
+        LEVEL_2 = 418,
+        LEVEL_3 = 469,
+        LEVEL_4 = 536,
+        LEVEL_5 = 643,
+        LEVEL_6 = 1071,
+        LEVEL_7 = 1393
+    }
+    public enum MIN_METAL
     {
         LEVEL_1 = 40,
         LEVEL_2 = 45,
@@ -123,8 +214,17 @@
         LEVEL_6 = 114,
         LEVEL_7 = 149
     }
-
-    public enum MIN_SAND_ENUM
+    public enum MAX_METAL
+    {
+        LEVEL_1 = 160,
+        LEVEL_2 = 178,
+        LEVEL_3 = 200,
+        LEVEL_4 = 229,
+        LEVEL_5 = 274,
+        LEVEL_6 = 457,
+        LEVEL_7 = 594
+    }
+    public enum MIN_SAND
     {
         LEVEL_1 = 75,
         LEVEL_2 = 84,
@@ -134,7 +234,27 @@
         LEVEL_6 = 214,
         LEVEL_7 = 279
     }
-    public enum MIN_STONE_ENUM
+    public enum MAX_SAND
+    {
+        LEVEL_1 = 225,
+        LEVEL_2 = 251,
+        LEVEL_3 = 281,
+        LEVEL_4 = 321,
+        LEVEL_5 = 386,
+        LEVEL_6 = 643,
+        LEVEL_7 = 836
+    }
+    public enum MAX_STONE
+    {
+        LEVEL_1 = 100,
+        LEVEL_2 = 111,
+        LEVEL_3 = 125,
+        LEVEL_4 = 143,
+        LEVEL_5 = 171,
+        LEVEL_6 = 286,
+        LEVEL_7 = 371
+    }
+    public enum MIN_STONE
     {
         LEVEL_1 = 20,
         LEVEL_2 = 22,
@@ -144,7 +264,7 @@
         LEVEL_6 = 57,
         LEVEL_7 = 74
     }
-    public enum MIN_ENERGY_ENUM
+    public enum MIN_ENERGY
     {
         LEVEL_1 = 1000,
         LEVEL_2 = 1114,
@@ -154,7 +274,17 @@
         LEVEL_6 = 2857,
         LEVEL_7 = 4429
     }
-    public enum MIN_WATER_ENUM
+    public enum MAX_ENERGY
+    {
+        LEVEL_1 = 5000,
+        LEVEL_2 = 5571,
+        LEVEL_3 = 6250,
+        LEVEL_4 = 7143,
+        LEVEL_5 = 8571,
+        LEVEL_6 = 14286,
+        LEVEL_7 = 22143
+    }
+    public enum MIN_WATER
     {
         LEVEL_1 = 250,
         LEVEL_2 = 279,
@@ -164,7 +294,17 @@
         LEVEL_6 = 714,
         LEVEL_7 = 1107
     }
-    public enum MIN_BRICK_ENUM
+    public enum MAX_WATER
+    {
+        LEVEL_1 = 750,
+        LEVEL_2 = 836,
+        LEVEL_3 = 938,
+        LEVEL_4 = 1071,
+        LEVEL_5 = 1286,
+        LEVEL_6 = 2143,
+        LEVEL_7 = 3321
+    }
+    public enum MIN_BRICK
     {
         LEVEL_1 = 8,
         LEVEL_2 = 9,
@@ -174,8 +314,17 @@
         LEVEL_6 = 23,
         LEVEL_7 = 35
     }
-
-    public enum MIN_GLASS_ENUM
+    public enum MAX_BRICK
+    {
+        LEVEL_1 = 40,
+        LEVEL_2 = 45,
+        LEVEL_3 = 50,
+        LEVEL_4 = 57,
+        LEVEL_5 = 69,
+        LEVEL_6 = 114,
+        LEVEL_7 = 177
+    }
+    public enum MIN_GLASS
     {
         LEVEL_1 = 4,
         LEVEL_2 = 4,
@@ -185,7 +334,17 @@
         LEVEL_6 = 11,
         LEVEL_7 = 18
     }
-    public enum MIN_CONCRETE_ENUM
+    public enum MAX_GLASS
+    {
+        LEVEL_1 = 32,
+        LEVEL_2 = 36,
+        LEVEL_3 = 40,
+        LEVEL_4 = 46,
+        LEVEL_5 = 55,
+        LEVEL_6 = 91,
+        LEVEL_7 = 142
+    }
+    public enum MIN_STEEL
     {
         LEVEL_1 = 1,
         LEVEL_2 = 2,
@@ -194,6 +353,36 @@
         LEVEL_5 = 3,
         LEVEL_6 = 6,
         LEVEL_7 = 9
+    }
+    public enum MAX_STEEL
+    {
+        LEVEL_1 = 8,
+        LEVEL_2 = 9,
+        LEVEL_3 = 10,
+        LEVEL_4 = 12,
+        LEVEL_5 = 14,
+        LEVEL_6 = 23,
+        LEVEL_7 = 35
+    }
+    public enum MIN_CONCRETE
+    {
+        LEVEL_1 = 1,
+        LEVEL_2 = 2,
+        LEVEL_3 = 3,
+        LEVEL_4 = 3,
+        LEVEL_5 = 3,
+        LEVEL_6 = 6,
+        LEVEL_7 = 9
+    }
+    public enum MAX_CONCRETE
+    {
+        LEVEL_1 = 8,
+        LEVEL_2 = 9,
+        LEVEL_3 = 10,
+        LEVEL_4 = 12,
+        LEVEL_5 = 14,
+        LEVEL_6 = 23,
+        LEVEL_7 = 35
     }
 
     public enum WORLD_TYPE

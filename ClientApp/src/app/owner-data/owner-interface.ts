@@ -21,6 +21,7 @@ interface OwnerLandData
   forsale_price: number;
   alert: boolean;
   rented: boolean;
+  current_influence_rank: number;
 }
 
 interface OwnerData
@@ -39,10 +40,12 @@ interface OwnerData
   offer_sold_count: number;
   owner_offer: Offer[];
   owner_offer_sold: Offer[];
+  offer_last_updated: string;
   pet_count: number;
   citizen_count: number;
   district_plots: DistrictPlot[];
   owner_land: OwnerLandData[];
+  search_info: string;
 }
 
 interface Offer
@@ -82,6 +85,7 @@ interface Pet {
 
 interface PortfolioPet {
   pet_count: number;
+  last_updated: string;
   pet: Pet[];
 }
 
@@ -100,9 +104,11 @@ interface Citizen {
   trait_avg: number;
   max_stamina: number;
   on_sale: boolean;
+  current_price: number;
   efficiency_industry: number;
   efficiency_production: number;
-  efficiency_energy: number;
+  efficiency_energy_water: number;
+  efficiency_energy_electric: number;
   efficiency_office: number;
   efficiency_commercial: number;
   efficiency_municipal: number;
@@ -116,6 +122,22 @@ interface Citizen {
   building: string;
 }
 
+interface PortfolioCitizen {
+  last_updated: string;
+  citizen: Citizen[];
+}
+
+interface FilterCount {
+  empty: number;
+  industry: number;
+  production: number;
+  energy: number;
+  residential: number;
+  office: number;
+  commercial: number;
+  municipal: number;
+  poi: number;
+}
 
 const BUILDING = {
   NO_FILTER: -1,
@@ -130,6 +152,19 @@ const BUILDING = {
   AOI: 100
 }
 
+const PRODUCT = {
+  WOOD: 1,
+  SAND: 2,
+  STONE: 3,
+  METAL: 4,
+  BRICK: 5,
+  GLASS: 6,
+  WATER: 7,
+  ENERGY: 8,
+  STEEL: 9,
+  CONCRETE: 10 
+}
+
 
 export
 {
@@ -141,5 +176,8 @@ export
   Pet,
   PortfolioPet,
   Citizen,
-  BUILDING
+  PortfolioCitizen,
+  BUILDING,
+  PRODUCT,
+  FilterCount
 }

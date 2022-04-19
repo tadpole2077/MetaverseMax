@@ -3,10 +3,10 @@
 <div class="modalFrame" cdkDrag style="display:inline-table;text-align:left;">
 
   <a class="closeframe" (click)="setHide()"><i class="far fa-window-close fa-2x" role="button"></i></a>
-  <div class="count" *ngIf="citizenList">Cits : <span>{{citizenList.length}}</span></div>
+  <div class="count" *ngIf="portfolioCitizen">Cits : <span>{{portfolioCitizen.citizen.length}}</span></div>
 
   <div class="topBtnDiv">
-
+    
     <i class="fas fa-clipboard" style=""></i><button mat-raised-button color="primary" class="copy" (click)="copyData()">Copy All to Clipboard</button>
 
     <mat-button-toggle-group name="tableView" aria-label="View">
@@ -16,18 +16,36 @@
   </div>
 
   <div class="table-container">
-
+    <div class="lastUpdated">
+      <mat-icon>access_time</mat-icon>
+      <span *ngIf="portfolioCitizen">Last updated {{ portfolioCitizen.last_updated }}GMT </span>
+      <a class="lineAnim" role="button" (click)="refresh()">
+        <span>( Refresh <i #progressIcon class="fas fa-sync-alt progressIcon"></i> )</span>
+      </a>
+    </div>
     <table mat-table [dataSource]="dataSource" matSort class="table-striped mat-elevation-z8" style="display:inline-table">
+
       <!--table table-striped-->
+      <ng-container matColumnDef="current_price">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>
+          <img src="./assets/sale.png" height="28" width="28" />
+        </th>
+        <td mat-cell *matCellDef="let citizen">
+          <span class="salepos" *ngIf="citizen.current_price>0"><span class="saleposInner">{{citizen.current_price.toLocaleString()}}</span></span>
+        </td>
+      </ng-container>
+
       <ng-container matColumnDef="token_id">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
-        <td mat-cell *matCellDef="let citizen"> {{ citizen.token_id }} </td>
+        <td mat-cell *matCellDef="let citizen">          
+          <span>{{ citizen.token_id }}</span>
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
         <td mat-cell *matCellDef="let citizen">
-          <img src="https://mcp3d.com/tron/api/image/citizen/{{ citizen.token_id }}" class="ownerImgCol" height="38" />
+          <img src="https://mcp3d.com/tron/api/image/citizen/{{ citizen.token_id }}" class="ownerImgCol" height="38" crossorigin="anonymous" referrerpolicy="no-referrer" />
           <span>{{ citizen.name }}</span>
         </td>
       </ng-container>
@@ -49,37 +67,57 @@
 
       <ng-container matColumnDef="trait_agility">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Agility </th>
-        <td mat-cell *matCellDef="let citizen"> {{ citizen.trait_agility }}</td>
+        <td mat-cell *matCellDef="let citizen">
+          <span>{{ citizen.trait_agility }}</span>
+          <span [hidden]="citizen.trait_agility_pet == 0"> + {{ citizen.trait_agility + citizen.trait_agility_pet > 10 ? 10 - citizen.trait_agility : citizen.trait_agility_pet}}<i class="fas fa-paw"></i></span>
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="trait_intelligence">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Intel </th>
-        <td mat-cell *matCellDef="let citizen"> {{ citizen.trait_intelligence }}</td>
+        <td mat-cell *matCellDef="let citizen">
+          <span>{{ citizen.trait_intelligence }}</span>
+          <span [hidden]="citizen.trait_intelligence_pet == 0"> + {{ citizen.trait_intelligence + citizen.trait_intelligence_pet > 10 ? 10 - citizen.trait_intelligence : citizen.trait_intelligence_pet}}<i class="fas fa-paw"></i></span>
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="trait_charisma">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Charisma </th>
-        <td mat-cell *matCellDef="let citizen"> {{ citizen.trait_charisma }}</td>
+        <td mat-cell *matCellDef="let citizen">
+          <span>{{ citizen.trait_charisma }}</span>
+          <span [hidden]="citizen.trait_charisma_pet_bonus == 0"> + {{ citizen.trait_charisma + citizen.trait_charisma_pet_bonus > 10 ? 10 - citizen.trait_charisma_pet_bonus : citizen.trait_charisma_pet}}<i class="fas fa-paw"></i></span>
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="trait_endurance">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Endurance </th>
-        <td mat-cell *matCellDef="let citizen"> {{ citizen.trait_endurance }}</td>
+        <td mat-cell *matCellDef="let citizen">
+          <span>{{ citizen.trait_endurance }}</span>
+          <span [hidden]="citizen.trait_endurance_pet == 0"> + {{ citizen.trait_endurance + citizen.trait_endurance_pet > 10 ? 10 - citizen.trait_endurance : citizen.trait_endurance_pet}}<i class="fas fa-paw"></i></span>
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="trait_luck">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Luck </th>
-        <td mat-cell *matCellDef="let citizen"> {{ citizen.trait_luck }}</td>
+        <td mat-cell *matCellDef="let citizen">
+          <span>{{ citizen.trait_luck }}</span>
+          <span [hidden]="citizen.trait_luck_pet == 0"> + {{ citizen.trait_luck + citizen.trait_luck_pet > 10 ? 10 - citizen.trait_luck : citizen.trait_luck_pet}}<i class="fas fa-paw"></i></span>
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="trait_strength">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Strength </th>
-        <td mat-cell *matCellDef="let citizen"> {{ citizen.trait_strength }}</td>
+        <td mat-cell *matCellDef="let citizen">
+          <span>{{ citizen.trait_strength }}</span>
+          <span [hidden]="citizen.trait_strength_pet == 0"> + {{ citizen.trait_strength + citizen.trait_strength_pet > 10 ? 10 - citizen.trait_strength : citizen.trait_strength_pet}}<i class="fas fa-paw"></i></span>
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="trait_avg">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Avg. </th>
-        <td mat-cell *matCellDef="let citizen"> {{ citizen.trait_avg }}</td>
+        <td mat-cell *matCellDef="let citizen">
+          <span>{{ citizen.trait_avg }}</span>
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="efficiency_industry">
@@ -92,9 +130,12 @@
         <td mat-cell *matCellDef="let citizen"> {{ citizen.efficiency_production }}</td>
       </ng-container>
 
-      <ng-container matColumnDef="efficiency_energy">
+      <ng-container matColumnDef="efficiency_energy_water">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Energy </th>
-        <td mat-cell *matCellDef="let citizen"> {{ citizen.efficiency_energy }}</td>
+        <td mat-cell *matCellDef="let citizen">
+          <span><i class="fas fa-tint"></i>{{ citizen.efficiency_energy_water }}</span>
+          <span><i class="fas fa-bolt"></i>{{ citizen.efficiency_energy_electric }}</span>
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="efficiency_office">
@@ -116,7 +157,7 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Building </th>
         <td mat-cell *matCellDef="let citizen">
           <a [hidden]="citizen.pos_x == 0" class="lineAnim" target="_blank" href="https://play.mcp3d.com/tron/land?x={{ citizen.pos_x }}&y={{ citizen.pos_y }}">
-            <span matBadge="{{ citizen.building_level }}" matBadgePosition="above before">
+            <span matBadge="L{{ citizen.building_level }}" matBadgePosition="above before">
               <img src="{{ citizen.building_img }}" height="{{ citizen.building_level == 0 ? 38 : 46 }}" class="industryImg" title="{{ citizen.building_desc }} - #{{ citizen.building }}">
             </span>
           </a>
@@ -125,18 +166,20 @@
 
       <!-- Header groups -->
       <ng-container matColumnDef="header-row-first-group">
-        <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [attr.colspan]="2"></th>
+        <th mat-header-cell *matHeaderCellDef [style.text-align]="center" [attr.colspan]="4"></th>
       </ng-container>
 
       <ng-container matColumnDef="header-row-second-group">
-        <th mat-header-cell *matHeaderCellDef [attr.colspan]="10"> {{ tableHeader }}</th>
+        <th mat-header-cell *matHeaderCellDef [attr.colspan]="9"> {{ tableHeader }}</th>
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="['header-row-first-group', 'header-row-second-group'];"></tr>
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
-    <mat-paginator [hidden]="hidePaginator" [pageSize]="10" [hidePageSize] [showFirstLastButtons] class="paginatorContainer"></mat-paginator>
+
+    <mat-paginator [hidden]="hidePaginator" [pageSize]="10" [hidePageSize] [showFirstLastButtons] class="paginatorContainer">
+    </mat-paginator>
 
   </div>
 

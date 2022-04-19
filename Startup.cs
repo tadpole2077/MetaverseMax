@@ -13,11 +13,15 @@ namespace MetaverseMax
     public class Startup
     {        
         public IConfiguration Configuration { get; }
+        public static string serverIP { get; set; }
+        public static string logServiceInfo { get; set; }
 
         public Startup(IConfiguration configuration)
         {
             // Hook into the appsettings.json file to pull database and app settings used by services - within published site pulling from web.config
             Configuration = configuration;
+            serverIP = Configuration["ServerIP"];
+            logServiceInfo = Configuration["logServiceInfo"];
         }        
 
         // This method gets called by the runtime. Use this method to add services to the container.

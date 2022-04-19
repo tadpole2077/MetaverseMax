@@ -1,8 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using MetaverseMax.Database;
@@ -12,19 +17,15 @@ using SimpleBase;
 namespace MetaverseMax.ServiceClass
 {
     
-    public class OwnerManage
+    public class OwnerManage : ServiceBase
     {
-        private readonly MetaverseMaxDbContext _context;
         private static Dictionary<string, string> ownersList = new();
-        public OwnerData ownerData = new();
+        public OwnerData ownerData = new() { plot_count = -1 };
         private Common common = new();
 
-        public OwnerManage(MetaverseMaxDbContext _contextService)
-        {
-            _context = _contextService;
-
+        public OwnerManage(MetaverseMaxDbContext _parentContext) : base(_parentContext)
+        {            
             GetOwners(false); // Check if static dictionary has been loaded
-
         }
 
         public Dictionary<string, string> GetOwners(bool refresh)
@@ -77,31 +78,6 @@ namespace MetaverseMax.ServiceClass
             }
 
             return ownerAccount;
-        }
-
-        public int UpdateAllOffers()
-        {            
-            int returnCode = 0;
-            OwnerOfferDB ownerOfferDB = new(_context);
-
-            try
-            {
-                // Refresh list after nightly sync                
-                GetOwners(true);
-
-                ownerOfferDB.SetOffersInactive();
-
-                foreach (string maticKey in ownersList.Keys)
-                {
-                    GetOwnerOffer(true, maticKey);
-                }                
-            }
-            catch (Exception ex)
-            {
-                string log = ex.Message;
-            }
-
-            return returnCode;
         }
 
         public IEnumerable<Offer> GetOfferLocal(bool active, string ownerMaticKey)
@@ -169,238 +145,284 @@ namespace MetaverseMax.ServiceClass
         }
         
         // Get from MCP 3rd tier services
-        public int GetOwnerOffer(bool activeOffer, string maticKey)
+        public async Task<RETURN_CODE> GetOwnerOffer(bool activeOffer, string maticKey)
         {
             String content = string.Empty;
             OwnerOffer ownerOffer = new();
             OwnerOfferDB ownerOfferDB = new(_context);
-            int returnCode = 0;
+            RETURN_CODE returnCode = RETURN_CODE.ERROR;
+            int retryCount = 0;
+            serviceUrl = "https://ws-tron.mcp3d.com/sales/offers";
 
-            try
+            while (returnCode == RETURN_CODE.ERROR && retryCount < 3)
             {
-                // POST from Land/Get REST WS
-                byte[] byteArray = Encoding.ASCII.GetBytes("{\"address\": \"" + maticKey + "\"}");
-                WebRequest request = WebRequest.Create("https://ws-tron.mcp3d.com/sales/offers");
-                request.Method = "POST";
-                request.ContentType = "application/json";
-
-                Stream dataStream = request.GetRequestStream();
-                dataStream.Write(byteArray, 0, byteArray.Length);
-                dataStream.Close();
-
-                // Ensure correct dispose of WebRespose IDisposable class even if exception
-                using (WebResponse response = request.GetResponse())
+                try
                 {
-                    StreamReader reader = new(response.GetResponseStream());
-                    content = reader.ReadToEnd();
-                }
-                if (content.Length > 0) {
-                    
-                    //JObject jsonContent = JObject.Parse(content);                    
-                    JArray offers = JArray.Parse(content);
+                    retryCount++;
 
-                    for (int index = 0; index < offers.Count; index++)
+                    // POST from Land/Get REST WS
+                    HttpResponseMessage response;
+                    using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
                     {
-                        if (offers[index].Value<bool>("is_active"))
+                        StringContent stringContent = new StringContent("{\"address\": \"" + maticKey + "\"}", Encoding.UTF8, "application/json");
+
+                        response = await client.PostAsync(
+                            serviceUrl,
+                            stringContent);
+
+                        response.EnsureSuccessStatusCode(); // throws if not 200-299
+                        content = await response.Content.ReadAsStringAsync();
+
+                    }
+                    // End timer
+                    watch.Stop();
+                    servicePerfDB.AddServiceEntry(serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, maticKey);
+
+                    if (content.Length > 0)
+                    {
+                        //JObject jsonContent = JObject.Parse(content);                    
+                        JArray offers = JArray.Parse(content);
+
+                        for (int index = 0; index < offers.Count; index++)
                         {
-                            ownerOffer = new OwnerOffer();
-                            ownerOffer.token_owner_matic_key = maticKey;
-                            ownerOffer.active = true;
-
-                            ownerOffer.offer_id = offers[index].Value<int?>("id") ?? 0;
-                            ownerOffer.offer_date = common.TimeFormatStandardDT(offers[index].Value<string>("event_time"), null);
-
-                            ownerOffer.token_id = offers[index].Value<int?>("token_id") ?? 0;
-                            ownerOffer.token_type = offers[index].Value<int?>("token_type") ?? 0;
-
-                            JObject sale_data = offers[index].Value<JObject>("sale_data");
-                            ownerOffer.buyer_matic_key = sale_data.Value<string>("buyer");
-                            ownerOffer.buyer_offer = sale_data.Value<decimal>("value") / 1000000; //Tron to Trx
-
-                            JObject data = offers[index].Value<JObject>("data");
-                            if (data != null && data.Count > 0)
+                            if (offers[index].Value<bool>("is_active"))
                             {
+                                ownerOffer = new OwnerOffer();
+                                ownerOffer.token_owner_matic_key = maticKey;
+                                ownerOffer.active = true;
 
-                                JObject token_info = data.Value<JObject>("token_info");
-                                if (token_info != null && token_info.Count > 0)
+                                ownerOffer.offer_id = offers[index].Value<int?>("id") ?? 0;
+                                ownerOffer.offer_date = common.TimeFormatStandardDT(offers[index].Value<string>("event_time"), null);
+
+                                ownerOffer.token_id = offers[index].Value<int?>("token_id") ?? 0;
+                                ownerOffer.token_type = offers[index].Value<int?>("token_type") ?? 0;
+
+                                JObject sale_data = offers[index].Value<JObject>("sale_data");
+                                ownerOffer.buyer_matic_key = sale_data.Value<string>("buyer");
+                                ownerOffer.buyer_offer = sale_data.Value<decimal>("value") / 1000000; //Tron to Trx
+
+                                JObject data = offers[index].Value<JObject>("data");
+                                if (data != null && data.Count > 0)
                                 {
-                                    ownerOffer.plot_district = token_info.Value<int?>("region_id") ?? 0;
-                                    ownerOffer.plot_x = token_info.Value<int?>("x") ?? 0;
-                                    ownerOffer.plot_y = token_info.Value<int?>("y") ?? 0;
+
+                                    JObject token_info = data.Value<JObject>("token_info");
+                                    if (token_info != null && token_info.Count > 0)
+                                    {
+                                        ownerOffer.plot_district = token_info.Value<int?>("region_id") ?? 0;
+                                        ownerOffer.plot_x = token_info.Value<int?>("x") ?? 0;
+                                        ownerOffer.plot_y = token_info.Value<int?>("y") ?? 0;
+                                    }
                                 }
+
+                                ownerOfferDB.AddorUpdate(ownerOffer);
+                                returnCode++;
                             }
-
-                            ownerOfferDB.AddorUpdate(ownerOffer);
-                            returnCode++;
-                        }
-                        else if (offers[index].Value<bool>("is_active") == false && (offers[index].Value<int?>("is_cancelled") ?? 0) == 0)
-                        {
-                            ownerOffer = new OwnerOffer();
-                            ownerOffer.token_owner_matic_key = maticKey;
-                            ownerOffer.active = false;
-
-                            ownerOffer.offer_id = offers[index].Value<int?>("id") ?? 0;
-                            ownerOffer.offer_date = common.TimeFormatStandardDT(offers[index].Value<string>("event_time"), null);
-
-                            ownerOffer.token_id = offers[index].Value<int?>("token_id") ?? 0;
-                            ownerOffer.token_type = offers[index].Value<int?>("token_type") ?? 0;
-
-                            JObject sale_data = offers[index].Value<JObject>("sale_data");
-                            ownerOffer.buyer_matic_key = sale_data.Value<string>("buyer");
-                            ownerOffer.buyer_offer = sale_data.Value<decimal>("value") / 1000000; //Tron to Trx
-
-                            JObject data = offers[index].Value<JObject>("data");
-                            if (data != null && data.Count > 0)
+                            else if (offers[index].Value<bool>("is_active") == false && (offers[index].Value<int?>("is_cancelled") ?? 0) == 0)
                             {
+                                ownerOffer = new OwnerOffer();
+                                ownerOffer.token_owner_matic_key = maticKey;
+                                ownerOffer.active = false;
 
-                                JObject token_info = data.Value<JObject>("token_info");
-                                if (token_info != null && token_info.Count > 0)
+                                ownerOffer.offer_id = offers[index].Value<int?>("id") ?? 0;
+                                ownerOffer.offer_date = common.TimeFormatStandardDT(offers[index].Value<string>("event_time"), null);
+
+                                ownerOffer.token_id = offers[index].Value<int?>("token_id") ?? 0;
+                                ownerOffer.token_type = offers[index].Value<int?>("token_type") ?? 0;
+
+                                JObject sale_data = offers[index].Value<JObject>("sale_data");
+                                ownerOffer.buyer_matic_key = sale_data.Value<string>("buyer");
+                                ownerOffer.buyer_offer = sale_data.Value<decimal>("value") / 1000000; //Tron to Trx
+
+                                JObject data = offers[index].Value<JObject>("data");
+                                if (data != null && data.Count > 0)
                                 {
-                                    ownerOffer.plot_district = token_info.Value<int?>("region_id") ?? 0;
-                                    ownerOffer.plot_x = token_info.Value<int?>("x") ?? 0;
-                                    ownerOffer.plot_y = token_info.Value<int?>("y") ?? 0;
-                                }
-                            }
-                            ownerOffer.sold = true;
-                            ownerOffer.sold_date = common.TimeFormatStandardDT(offers[index].Value<string>("sale_time"), null);
 
-                            ownerOfferDB.AddorUpdate(ownerOffer);
+                                    JObject token_info = data.Value<JObject>("token_info");
+                                    if (token_info != null && token_info.Count > 0)
+                                    {
+                                        ownerOffer.plot_district = token_info.Value<int?>("region_id") ?? 0;
+                                        ownerOffer.plot_x = token_info.Value<int?>("x") ?? 0;
+                                        ownerOffer.plot_y = token_info.Value<int?>("y") ?? 0;
+                                    }
+                                }
+                                ownerOffer.sold = true;
+                                ownerOffer.sold_date = common.TimeFormatStandardDT(offers[index].Value<string>("sale_time"), null);
+
+                                ownerOfferDB.AddorUpdate(ownerOffer);
+                            }
                         }
+                    }
+
+                    returnCode = RETURN_CODE.SUCCESS;
+                }
+                catch (Exception ex)
+                {
+                    string log = ex.Message;
+                    if (_context != null)
+                    {
+                        _context.LogEvent(String.Concat("OwnerMange.GetOwnerOffer() : Error on WS calls for owner matic : ", maticKey));
+                        _context.LogEvent(log);
                     }
                 }
             }
-            catch (Exception ex)
+
+            if (retryCount > 1 && returnCode == RETURN_CODE.SUCCESS)
             {
-                string log = ex.Message;
                 if (_context != null)
                 {
-                    _context.LogEvent(String.Concat("OwnerMange.GetOwnerOffer() : Error on WS calls for owner matic : ", maticKey));
-                    _context.LogEvent(log);
+                    _context.LogEvent(String.Concat("OwnerMange.GetOwnerOffer() : retry successful - no ", retryCount));
                 }
             }
 
             return returnCode;            
         }
 
-        public OwnerData GetOwnerLands(string ownerMaticKey)
+        public async Task<OwnerData> GetOwnerLands(string ownerMaticKey)
         {
-            string content = string.Empty;            
-
-            byte[] byteArray = Encoding.ASCII.GetBytes("{\"address\": \"" + ownerMaticKey + "\",\"short\": false}");
-            Building building = new();
-            CitizenManage citizen = new();
-            string landOwner;
-
-            WebRequest request = WebRequest.Create("https://ws-tron.mcp3d.com/user/assets/lands");
-            request.Method = "POST";
-            request.ContentType = "application/json";
-
-            Stream dataStream = request.GetRequestStream();
-            dataStream.Write(byteArray, 0, byteArray.Length);
-            dataStream.Close();
-
-            // Ensure correct dispose of WebRespose IDisposable class even if exception
-            using (WebResponse response = request.GetResponse())
+            try
             {
-                StreamReader reader = new(response.GetResponseStream());
-                content = reader.ReadToEnd();
-            }
-            JObject jsonContent = JObject.Parse(content);
-            JArray lands = jsonContent["items"] as JArray;
-            if (lands != null && lands.Count > 0)
-            {
-                JToken land = lands.Children().First();
+                string content = string.Empty;
+                List<Plot> localPlots = new();
+                Building building = new();
+                CitizenManage citizen = new(_context);
+                PlotDB plotDB = new(_context);
+                string landOwner;
+                serviceUrl = "https://ws-tron.mcp3d.com/user/assets/lands";
 
-                landOwner = land.Value<string>("owner") ?? "Not Found";
-                ownerData.plot_count = lands.Count;
-
-                if (lands.Any())
+                HttpResponseMessage response;
+                using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
                 {
-                    ownerData.owner_land = lands.Select(landInstance => new OwnerLand
-                    {
-                        district_id = landInstance.Value<int?>("region_id") ?? 0,
-                        pos_x = landInstance.Value<int?>("x") ?? 0,
-                        pos_y = landInstance.Value<int?>("y") ?? 0,
-                        plot_ip = landInstance.Value<int?>("influence") ?? 0,
-                        ip_bonus = (landInstance.Value<int?>("influence") ?? 0) * (landInstance.Value<int?>("influence_bonus") ?? 0) / 100,
-                        building_type = landInstance.Value<int?>("building_type_id") ?? 0,
-                        building_desc = building.BuildingType(landInstance.Value<int?>("building_type_id") ?? 0, landInstance.Value<int?>("building_id") ?? 0),
-                        building_img = building.BuildingImg(landInstance.Value<int?>("building_type_id") ?? 0, landInstance.Value<int?>("building_id") ?? 0, landInstance.Value<int?>("building_level") ?? 0),
-                        last_actionUx = landInstance.Value<double?>("last_action") ?? 0,
-                        last_action = common.UnixTimeStampToDateTime(landInstance.Value<double?>("last_action"), "Empty Plot"),
-                        token_id = landInstance.Value<int?>("token_id") ?? 0,
-                        building_level = landInstance.Value<int?>("building_level") ?? 0,
-                        citizen_count = citizen.GetCitizenCount(landInstance.Value<JArray>("citizens")),
-                        citizen_url = citizen.GetCitizenUrl(landInstance.Value<JArray>("citizens")),
-                        citizen_stamina = citizen.GetLowStamina(landInstance.Value<JArray>("citizens")),
-                        citizen_stamina_alert = citizen.CheckCitizenStamina(landInstance.Value<JArray>("citizens"), landInstance.Value<int?>("building_type_id") ?? 0),
-                        forsale_price = building.GetSalePrice(landInstance.Value<JToken>("sale_data")),
-                        forsale = (landInstance.Value<string>("on_sale") ?? "False") == "False" ? false : true,
-                        rented = (landInstance.Value<string>("owner") ?? "Not Found" ).ToUpper() != ownerMaticKey.ToUpper()
-                    })
-                    .OrderBy(row => row.district_id).ThenBy(row => row.pos_x).ThenBy(row => row.pos_y);
+                    StringContent stringContent = new StringContent("{\"address\": \"" + ownerMaticKey + "\",\"short\": false}", Encoding.UTF8, "application/json");
 
+                    response = await client.PostAsync(
+                        serviceUrl,
+                        stringContent);
 
-                    ownerData.developed_plots = ownerData.owner_land.Where(
-                        row => row.last_action != "Empty Plot"
-                        ).Count();
+                    response.EnsureSuccessStatusCode(); // throws if not 200-299
+                    content = await response.Content.ReadAsStringAsync();
 
-                    // Get Last Action across all lands for target player
-                    ownerData.last_action = string.Concat(common.UnixTimeStampToDateTime(ownerData.owner_land.Max(row => row.last_actionUx), "No Lands"), " GMT");
-
-                    ownerData.plots_for_sale = ownerData.owner_land.Where(
-                        row => row.forsale_price > 0
-                        ).Count();
-
-                    ownerData.district_plots = building.DistrictPlots(ownerData.owner_land);
-
-                    ownerData.stamina_alert_count = ownerData.owner_land.Where(
-                        row => row.citizen_stamina_alert == true
-                        ).Count();
                 }
-            }
-            else
-            {
-                if (string.Equals(ownerMaticKey, "Owner not Found"))
+                // End timer
+                watch.Stop();
+                servicePerfDB.AddServiceEntry(serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, ownerMaticKey);
+
+                JObject jsonContent = JObject.Parse(content);
+                JArray lands = jsonContent["items"] as JArray;
+                if (lands != null && lands.Count > 0)
                 {
-                    ownerData.last_action = "Empty Plot, It could be Yours today!";
+                    localPlots = plotDB.PlotsGet_ByOwnerMatic(ownerMaticKey).ToList();
+
+                    JToken land = lands.Children().First();
+
+                    landOwner = land.Value<string>("owner") ?? "Not Found";
+                    ownerData.plot_count = lands.Count;
+
+                    if (lands.Any())
+                    {
+                        ownerData.owner_land = lands.Select(landInstance => new OwnerLand
+                        {
+                            district_id = landInstance.Value<int?>("region_id") ?? 0,
+                            pos_x = landInstance.Value<int?>("x") ?? 0,
+                            pos_y = landInstance.Value<int?>("y") ?? 0,
+                            plot_ip = landInstance.Value<int?>("influence") ?? 0,
+                            ip_bonus = (landInstance.Value<int?>("influence") ?? 0) * (landInstance.Value<int?>("influence_bonus") ?? 0) / 100,
+                            building_type = landInstance.Value<int?>("building_type_id") ?? 0,
+                            building_desc = building.BuildingType(landInstance.Value<int?>("building_type_id") ?? 0, landInstance.Value<int?>("building_id") ?? 0),
+                            building_img = building.BuildingImg(landInstance.Value<int?>("building_type_id") ?? 0, landInstance.Value<int?>("building_id") ?? 0, landInstance.Value<int?>("building_level") ?? 0),
+                            last_actionUx = landInstance.Value<double?>("last_action") ?? 0,
+                            last_action = common.UnixTimeStampToDateTime(landInstance.Value<double?>("last_action"), "Empty Plot"),
+                            token_id = landInstance.Value<int?>("token_id") ?? 0,
+                            building_level = landInstance.Value<int?>("building_level") ?? 0,
+                            citizen_count = citizen.GetCitizenCount(landInstance.Value<JArray>("citizens")),
+                            citizen_url = citizen.GetCitizenUrl(landInstance.Value<JArray>("citizens")),
+                            citizen_stamina = citizen.GetLowStamina(landInstance.Value<JArray>("citizens")),
+                            citizen_stamina_alert = citizen.CheckCitizenStamina(landInstance.Value<JArray>("citizens"), landInstance.Value<int?>("building_type_id") ?? 0),
+                            forsale_price = building.GetSalePrice(landInstance.Value<JToken>("sale_data")),
+                            forsale = (landInstance.Value<string>("on_sale") ?? "False") == "False" ? false : true,
+                            rented = landInstance.Value<string>("renter") != null,
+                            current_influence_rank = CheckInfluenceRank( localPlots.Where(x => x.token_id == (landInstance.Value<int?>("token_id") ?? 0)).FirstOrDefault() ) 
+                        })
+                        .OrderBy(row => row.district_id).ThenBy(row => row.pos_x).ThenBy(row => row.pos_y);
+
+
+                        ownerData.developed_plots = ownerData.owner_land.Where(
+                            row => row.last_action != "Empty Plot"
+                            ).Count();
+
+                        // Get Last Action across all lands for target player
+                        ownerData.last_action = string.Concat(common.UnixTimeStampToDateTime(ownerData.owner_land.Max(row => row.last_actionUx), "No Lands"), " GMT");
+
+                        ownerData.plots_for_sale = ownerData.owner_land.Where(
+                            row => row.forsale_price > 0
+                            ).Count();
+
+                        ownerData.district_plots = building.DistrictPlots(ownerData.owner_land);
+
+                        ownerData.stamina_alert_count = ownerData.owner_land.Where(
+                            row => row.citizen_stamina_alert == true
+                            ).Count();
+                    }
                 }
                 else
                 {
-                    ownerData.last_action = "This player owns no land plots in Tron World";
+                    if (string.Equals(ownerMaticKey, "Owner not Found"))
+                    {
+                        ownerData.search_info = "Unclaimed Plot, available for purchase!";
+                    }
+                    else
+                    {
+                        ownerData.last_action = "This player owns no land plots in Tron World";
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                string log = ex.Message;
+                if (_context != null)
+                {
+                    _context.LogEvent(String.Concat("OwnerMange.GetOwnerLands() : Error on WS calls for owner matic : ", ownerMaticKey));
+                    _context.LogEvent(log);
                 }
             }
 
             return ownerData;
         }
-        
-        public int GetFromLandCoord(int posX, int posY)
+
+        private decimal CheckInfluenceRank(Plot plot) {
+            return plot == null ? 0 : plot.current_influence_rank ?? 0;
+        }
+
+        public async Task<int> GetFromLandCoord(int posX, int posY)
         {
             String content = string.Empty;
-            CitizenManage citizen = new();
             int returnCode = 0;
-
+            
             try
             {
-                // POST from Land/Get REST WS
-                byte[] byteArray = Encoding.ASCII.GetBytes("{\"x\": \"" + posX + "\",\"y\": \"" + posY + "\"}");
-                WebRequest request = WebRequest.Create("https://ws-tron.mcp3d.com/land/get");
-                request.Method = "POST";
-                request.ContentType = "application/json";
+                serviceUrl = "https://ws-tron.mcp3d.com/land/get";
 
-                Stream dataStream = request.GetRequestStream();
-                dataStream.Write(byteArray, 0, byteArray.Length);
-                dataStream.Close();
-
-                // Ensure correct dispose of WebRespose IDisposable class even if exception
-                using (WebResponse response = request.GetResponse())
+                HttpResponseMessage response;
+                using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
                 {
-                    StreamReader reader = new(response.GetResponseStream());
-                    content = reader.ReadToEnd();
+                    StringContent stringContent = new StringContent("{\"x\": \"" + posX + "\",\"y\": \"" + posY + "\"}", Encoding.UTF8, "application/json");
+
+                    response = await client.PostAsync(
+                        serviceUrl,
+                        stringContent);
+
+                    response.EnsureSuccessStatusCode(); // throws if not 200-299
+                    content = await response.Content.ReadAsStringAsync();
+
                 }
+                // End timer
+                watch.Stop();
+                servicePerfDB.AddServiceEntry(serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, "{\"x\": \"" + posX + "\",\"y\": \"" + posY + "\"}");
+
+
                 if (content.Length == 0)
                 {
-                    ownerData.owner_name = "Plot does not exist";
+                    ownerData.search_info = "Plot does not exist";
                     returnCode = -1;
                 }
                 else
@@ -408,25 +430,31 @@ namespace MetaverseMax.ServiceClass
                     JObject jsonContent = JObject.Parse(content);
                     ownerData.owner_matic_key = jsonContent.Value<string>("owner") ?? "";
 
-                    returnCode = GetFromMaticKey(ownerData.owner_matic_key);
+                    returnCode = GetFromMaticKey(ownerData.owner_matic_key).Result;
                 }
             }
             catch (Exception ex)
             {
                 string log = ex.Message;
+                if (_context != null)
+                {
+                    _context.LogEvent(String.Concat("OwnerMange.GetFromLandCoord() : Error on WS calls for Pos_X : ", posX, " Pos_Y", posY));
+                    _context.LogEvent(log);
+                }
             }
 
             return returnCode;
         }
 
-        public int GetFromMaticKey(string ownerMaticKey)
+
+        // See multi Nic IP use with HttpWebRequest https://github.com/dotnet/runtime/issues/23267
+        public async Task<int> GetFromMaticKey(string ownerMaticKey)
         {
             String content = string.Empty;
-            CitizenManage citizen = new();
-            byte[] byteArray;
-            WebRequest request;
-            Stream dataStream;
+            CitizenManage citizen = new(_context);
             int returnCode = 0;
+            long serviceTime = 0;
+            serviceUrl = "https://ws-tron.mcp3d.com/user/get";            
 
             try
             {                
@@ -442,22 +470,30 @@ namespace MetaverseMax.ServiceClass
                 }
                 else
                 {
-                    // POST from User/Get REST WS
-                    byteArray = Encoding.ASCII.GetBytes("{\"address\": \"" + ownerMaticKey + "\",\"dapper\": false,\"sign\": null }");
-                    request = WebRequest.Create("https://ws-tron.mcp3d.com/user/get");
-                    request.Method = "POST";
-                    request.ContentType = "application/json";
-
-                    dataStream = request.GetRequestStream();
-                    dataStream.Write(byteArray, 0, byteArray.Length);
-                    dataStream.Close();
-
-                    // Ensure correct dispose of WebRespose IDisposable class even if exception
-                    using (WebResponse response = request.GetResponse())
+                    HttpResponseMessage response;
+                    using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
                     {
-                        StreamReader reader = new(response.GetResponseStream());
-                        content = reader.ReadToEnd();
+                        StringContent stringContent = new StringContent("{\"address\": \"" + ownerMaticKey + "\",\"dapper\": false,\"sign\": null }", Encoding.UTF8, "application/json");
+
+                        response = await client.PostAsync(
+                            serviceUrl,
+                            stringContent);
+
+                        response.EnsureSuccessStatusCode(); // throws if not 200-299
+                        content = await response.Content.ReadAsStringAsync();
+
                     }
+
+                    // End timer
+                    watch.Stop();
+                    servicePerfDB.AddServiceEntry(serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, ownerMaticKey);
+
+
+                    if (_context != null)
+                    {                        
+                        _context.LogEvent(String.Concat("https://ws-tron.mcp3d.com/user/get : service execution time : ", serviceTime));
+                    }
+
 
                     if (content.Length == 0)
                     {
@@ -481,6 +517,8 @@ namespace MetaverseMax.ServiceClass
                         ownerData.owner_offer_sold = GetOfferLocal(false, ownerMaticKey);
                         ownerData.offer_sold_count = ownerData.owner_offer_sold == null ? 0 : ownerData.owner_offer_sold.Count();
 
+                        ownerData.offer_last_updated = common.TimeFormatStandard(string.Empty, _context.ActionTimeGet(ACTION_TYPE.OFFER));
+
                         if (owner != null)
                         {
                             ownerData.pet_count = owner.pet_count ?? 0;
@@ -492,139 +530,22 @@ namespace MetaverseMax.ServiceClass
             catch (Exception ex)
             {
                 string log = ex.Message;
+                if (_context != null)
+                {
+                    _context.LogEvent(String.Concat("OwnerMange.GetFromMaticKey() : Error on WS calls for owner matic : ", ownerMaticKey));
+                    _context.LogEvent(log);
+                }
             }
 
             return returnCode;
         }
 
-        public OwnerPet GetPet(string ownerMaticKey)
-        {
-            OwnerPet ownerPet = new();
-            PetDB petDB = new(_context);
-            List<Pet> petList = new();
-            List<PetWeb> petWeb = new();
-
-            try
-            {
-                petList = petDB.GetOwnerPet(ownerMaticKey);
-                ownerPet.pet_count = petList.Count;
-                
-                foreach (Pet pet in petList)
-                {
-                    petWeb.Add(new PetWeb
-                    {
-                        token_id = pet.token_id,
-                        level = pet.bonus_level,
-                        trait = pet.bonus_id switch
-                        {
-                            (int)PET_BONUS_TYPE.AGILITY => "Agility",
-                            (int)PET_BONUS_TYPE.CHARISMA => "Charisma",
-                            (int)PET_BONUS_TYPE.ENDURANCE => "Endurance",
-                            (int)PET_BONUS_TYPE.INTEL => "Intel",
-                            (int)PET_BONUS_TYPE.LUCK => "Luck",
-                            (int)PET_BONUS_TYPE.STRENGTH => "Strength",
-                            _ => "Unknown"
-                        },
-                        name = pet.pet_look switch
-                        {
-                            1 => "Bulldog",
-                            2 => "Corgi Dog",
-                            3 => "Labrador",
-                            4 => "Mastiff Dog",
-                            5 => "Whippet Dog",
-                            6 => "Parrot",
-                            12 => "Lion",
-                            15 => "Red Dragon",
-                            16 => "Chameleon",
-                            254 => "Beetle",
-                            _ => "Unknown"
-                        }
-                    });
-                }
-
-                ownerPet.pet = petWeb;
-            }
-            catch (Exception ex)
-            {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("OwnerMange.GetPet() : Error on WS calls for owner matic : ", ownerMaticKey));
-                    _context.LogEvent(log);
-                }
-            }
-
-            return ownerPet;
-        }
-
-        public IEnumerable<Pet> GetPetMCP(string ownerMaticKey)
-        {
-            PetDB petDB = new(_context);
-            OwnerDB ownerDB = new(_context);
-            String content = string.Empty;
-            int returnCode = 0;
-            List<Pet> petList = new();
-
-            try
-            {
-                // POST from Land/Get REST WS
-                byte[] byteArray = Encoding.ASCII.GetBytes("{\"address\": \"" + ownerMaticKey + "\",\"filter\": {\"qualifications\":0}}");
-                WebRequest request = WebRequest.Create("https://ws-tron.mcp3d.com/user/assets/pets");
-                request.Method = "POST";
-                request.ContentType = "application/json";
-
-                Stream dataStream = request.GetRequestStream();
-                dataStream.Write(byteArray, 0, byteArray.Length);
-                dataStream.Close();
-
-                // Ensure correct dispose of WebRespose IDisposable class even if exception
-                using (WebResponse response = request.GetResponse())
-                {
-                    StreamReader reader = new(response.GetResponseStream());
-                    content = reader.ReadToEnd();
-                }
-
-                if (content.Length == 0)
-                {
-                    returnCode = -1;
-                }
-                else
-                {
-                    JArray pets = JArray.Parse(content);
-
-                    for (int index = 0; index < pets.Count; index++)
-                    {
-                        petList.Add(new Pet() {
-                            token_owner_matic_key = ownerMaticKey,
-                            token_id = pets[index].Value<int?>("pet_id") ?? 0,
-                            bonus_id = pets[index].Value<int?>("bonus_id") ?? 0,
-                            bonus_level = pets[index].Value<int?>("bonus_level") ?? 0,
-                            pet_look = pets[index].Value<int?>("look") ?? 0
-                        });
-                    }
-
-                    petDB.AddorUpdate(petList, ownerMaticKey);                    
-                }
-            }
-            catch (Exception ex)
-            {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("OwnerMange.GetPetMCP() : Error on WS calls for owner matic : ", ownerMaticKey));
-                    _context.LogEvent(log);
-                }
-            }
-
-            return petList.ToArray();
-        }
-
         private int AssignUnknownOwner()
         {
-            CitizenManage citizen = new();
+            CitizenManage citizen = new(_context);
 
             ownerData.owner_name = "Owner not Found";
-            ownerData.last_action = "Empty Plot, It could be Yours today!";
+            ownerData.search_info = "Unclaimed Plot, available for purchase!";
             ownerData.owner_url = citizen.AssignDefaultOwnerImg("0");
             ownerData.plot_count = -1;
 

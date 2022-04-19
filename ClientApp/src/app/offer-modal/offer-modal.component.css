@@ -147,6 +147,22 @@ td.mat-column-token_district {
   padding-left: .6rem;
 }
 
+.lastUpdated {
+  vertical-align: middle;
+  font-size: .7rem;
+  /*position: absolute;*/
+  margin-left: 1.2rem;
+  margin-top: 0.4rem;
+  color: gray;
+}
+
+  .lastUpdated .mat-icon {
+    font-size: 1.4rem;
+  }
+
+  .lastUpdated span {
+    vertical-align: super;
+  }
 
 
 

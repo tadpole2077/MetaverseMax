@@ -1,10 +1,10 @@
-import { Component, Inject, ViewChild, Output, EventEmitter, ChangeDetectorRef, AfterViewInit } from '@angular/core';
+import { Component, Inject, ViewChild, Output, EventEmitter, ChangeDetectorRef, AfterViewInit, ElementRef } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { DragDrop } from '@angular/cdk/drag-drop';
-import { Citizen } from '../owner-data/owner-interface';
+import { Citizen, PortfolioCitizen } from '../owner-data/owner-interface';
 import { Clipboard } from '@angular/cdk/clipboard';
 
 
@@ -17,17 +17,19 @@ export class CitizenModalComponent {
 
   @Output() hideCitizenEvent = new EventEmitter<boolean>();
 
-  public citizenList: Citizen[];
+  public portfolioCitizen: PortfolioCitizen;
   public hidePaginator: boolean;
+  private maticKey: string;
 
   httpClient: HttpClient;
   baseUrl: string;
   dataSource = new MatTableDataSource(null);
   @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator; 
+  @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
+  @ViewChild('progressIcon', { static: false }) progressIcon: ElementRef;
 
-  displayedColumnsTraits: string[] = ['token_id', 'name', 'sex', 'generation', 'breeding', 'sex', 'trait_agility', 'trait_intelligence', 'trait_charisma', 'trait_endurance', 'trait_luck', 'trait_strength', 'trait_avg'];
-  displayedColumnsEfficiency: string[] = ['token_id', 'name', 'sex', 'trait_avg', 'efficiency_industry', 'efficiency_production', 'efficiency_energy', 'efficiency_office', 'efficiency_commercial', 'efficiency_municipal', 'building_level'];
+  displayedColumnsTraits: string[] = ['current_price','token_id', 'name', 'sex', 'generation', 'breeding', 'trait_agility', 'trait_intelligence', 'trait_charisma', 'trait_endurance', 'trait_luck', 'trait_strength', 'trait_avg'];
+  displayedColumnsEfficiency: string[] = ['current_price','token_id', 'name', 'sex', 'trait_avg', 'efficiency_industry', 'efficiency_production', 'efficiency_energy_water', 'efficiency_office', 'efficiency_commercial', 'efficiency_municipal', 'building_level'];
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumns: string[] = this.displayedColumnsTraits;
   tableHeader: string = "Traits";
@@ -37,9 +39,9 @@ export class CitizenModalComponent {
     this.httpClient = http;
     this.baseUrl = baseUrl;
 
-    this.citizenList = null;
+    this.portfolioCitizen = null;
 
-    const copiedData = JSON.stringify(this.dataSource.data);
+    //const copiedData = JSON.stringify(this.dataSource.data);
   }
 
   copyData() {
@@ -47,7 +49,7 @@ export class CitizenModalComponent {
     let parseData: string = "";
     let counter: number = 0;
     let header: string = "";
-    let copyDataset = this.citizenList;
+    let copyDataset = this.portfolioCitizen.citizen;
 
     this.displayedColumns.forEach(function (key, value) {
       parseData += key + "\t";
@@ -75,20 +77,23 @@ export class CitizenModalComponent {
     return;
   }
 
-  search(maticKey: string) {
+  search(maticKey: string, refresh: boolean) {
 
+    this.maticKey = maticKey;
     let params = new HttpParams();
     params = params.append('owner_matic_key', maticKey);
+    params = params.append('refresh', refresh == true ? "true" : "false");
 
-    this.httpClient.get<Citizen[]>(this.baseUrl + 'api/ownerdata/getcitizen', { params: params })
-      .subscribe((result: Citizen[]) => {
+    this.httpClient.get<PortfolioCitizen>(this.baseUrl + 'api/ownerdata/getcitizen', { params: params })
+      .subscribe((result: PortfolioCitizen) => {
 
-        this.citizenList = result;
+        this.progressIcon.nativeElement.classList.remove("rotate");
+        this.portfolioCitizen = result;
 
-        if (this.citizenList.length > 0) {
+        if (this.portfolioCitizen.citizen.length > 0) {
 
-          this.dataSource = new MatTableDataSource<Citizen>(this.citizenList);
-          this.hidePaginator = this.citizenList.length == 0 || this.citizenList.length < 10 ? true : false;
+          this.dataSource = new MatTableDataSource<Citizen>(this.portfolioCitizen.citizen);
+          this.hidePaginator = this.portfolioCitizen.citizen.length == 0 || this.portfolioCitizen.citizen.length < 10 ? true : false;
 
           this.dataSource.paginator = this.paginator;
           if (this.dataSource.paginator) {
@@ -123,4 +128,12 @@ export class CitizenModalComponent {
 
   }
 
+  refresh() {
+
+    this.progressIcon.nativeElement.classList.add("rotate");
+    this.search(this.maticKey, true);
+
+    return;
+
+  }
 }

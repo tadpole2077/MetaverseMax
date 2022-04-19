@@ -541,6 +541,9 @@ a {
   .ownerImg{
     height: 100px
   }
+  .table-container{
+    margin-left: -20px
+  }
 }
 
 

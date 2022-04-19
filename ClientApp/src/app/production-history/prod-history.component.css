@@ -17,14 +17,16 @@ a {
 }
 
 .histroyframe {
+  width: 545px;
+  height: 400px;
   text-align: left;
-  width: 400px;
+  /*width: 400px;*/
   min-height: 50px;
   border: solid 1px #ccc;
   position: fixed;
-  bottom: 60px;
+  top: 30px;
   padding-bottom: 10px;
-  left: 50%;
+  left: 35%;
   color: rgba(0, 0, 0, 0.87);
   cursor: move;
   display: flex;
@@ -42,16 +44,21 @@ a {
   box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
  }
 
+.title {
+  text-align: center;
+  width: 100%;
+  display: inline-block;
+  color: darkgray;
+  margin-top: .5rem;
+}
+
 .targetPlot {
-  float:right;
   color: lightgray;
-  font-size: .8em;
-  margin-right: 50px;
-  margin-top: 3px;
+  font-size: .8em;  
 }
 
 .table-container {
-  width: 380px;
+  /*width: 380px;*/
   margin: 6px 6px 10px 10px;
 }
 
@@ -60,7 +67,7 @@ tr.mat-header-row{
 }
 
 .paginatorContainer {
-  width: 360px;
+  width: 100%;
   height: 22px;
   margin-top: -8px;
 }
@@ -73,6 +80,7 @@ tr.mat-header-row{
   z-index:1001;
 }
 
+/* Header Label blocks */
 .historySummary {
   font-size: 14px;
   margin: 6px 8px 0 10px
@@ -88,19 +96,266 @@ tr.mat-header-row{
 
 .summarydata {
   font-weight: 500;
+  min-width: 2rem;
+  display: inline-block;
 }
 .summaryLabel {
-  color: rgba(0, 0, 0, 0.54)
+  color: rgba(0, 0, 0, 0.54);
+  padding-right: .2rem;
+}
+  .summaryLabel .col2{
+    margin-left: 2rem;
+  }
+
+.summaryWarning {
+  color: rgba(0, 0, 0, 0.54);
+  margin-left:20px;
+}
+.summaryWarningIcon{
+  font-size:20px;
+  position:absolute;
+  margin-left: -18px;
+  margin-top:1px;
+  color:darkorange;
+}
+
+
+
+
+td.mat-column-run_datetime {
+    width: 100px;
+}
+td.mat-column-building_ip{
+  width: 4rem;
+}
+
+
+tr.mat-row:not(.detailRow):hover {
+  background: lightblue;
+}
+
+tr.mat-row:not(.detailRow):active {
+  background: #efefef;
+}
+
+tr td.mat-column-expandedDetail{
+  padding: 0;
+}
+
+tr.detailRow {
+  height: 0;
+}
+
+/* Special stripe - every 3rd row stripe, row 2 is hidden */
+tr.mat-row:first-child, tr.mat-row:nth-child(5), tr.mat-row:nth-child(9) {
+  background: rgba(0,0,0,.05);
+}
+tr.mat-row:not(.detailRow) {
+  cursor: pointer;
+}
+
+.citizenTable {
+  overflow: hidden;
+  display: flex;
+}
+
+.loading {
+  left: 40%;
+  top: 45%;
+  position: absolute;
+}
+
+.searchIcon {
+  font-size: 1.1rem;
+  margin-left: 6px;
+  position: absolute;
+  color: #1565c0;
+  z-index: 1;
+}
+
+@-webkit-keyframes rotation {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+
+  to {
+    -webkit-transform: rotate(359deg);
+  }
+}
+
+.rotate {
+  -webkit-animation: rotation 1s 30 linear;
+}
+
+.helpTip {
+  vertical-align: middle;
+  font-size: .7rem;
+  /*position: absolute;*/
+  margin-left: .6rem;
+  margin-top: 1rem;
+  color: gray;
+}
+
+  .helpTip .mat-icon {
+    font-size: 1.4rem;
+  }
+
+  .helpTip span {
+    vertical-align: super;
+  }
+
+.helpTipNoIcon {
+  margin-top: 0;
+  vertical-align: middle;
+  font-size: .7rem;  
+  margin-left: 2.1rem;
+  color: gray;
+}
+
+/*Predict produce*/
+.predict {
+  position: absolute;
+  right: 10px;
+  margin-top: -50px;
+}
+.predictionTotal {
+  font-weight: 500;
+}
+.predictionDetail {
+  width: 100%;
+  /*height: 150px;*/
+  background-color: aliceblue;
+  padding: .3rem;
+  overflow: hidden;
+  visibility: hidden;
+  margin: 0.6rem 0 0.8rem;
+}
+.predictionDetailHeader{
+  border-bottom: 4px solid white
+}
+  .predictionDetailHeader div {
+    display: inline-block;
+    width: 25%;
+    text-align: center;
+  }
+    .predictionDetailHeader div span:first-child{
+      padding-right:.4rem;
+    }
+
+.predictControlBonus {
+  height: 1.4rem;
+  margin: 3px 0;
+}
+  .predictControlBonus span {
+    vertical-align: top;
+  }
+
+.noMargin {
+  min-height: 0px;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 0;
+}
+
+.separate {
+  border-width: 5px 0 0 0;
+  border-color: white;
+  border-style: solid;
+  padding-top: 5px;
+}
+
+.predictionDetailCalc div {
+  display: block;
+  text-align: center;
+}
+  .predictionDetailCalc div > span:first-child {
+    width: 6rem;
+    display: inline-block;
+    text-align:left;
+    white-space:nowrap
+  }
+  .predictionDetailCalc div > span:nth-child(2) {
+    min-width: 13rem;
+    display: inline-block;
+    text-align:right;
+  }
+  .predictionDetailCalc div > span:nth-child(3) {
+    width: 3.8rem;
+    text-align: right;
+    padding-right: 0.8rem;
+    color: dimgray;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .predictionDetailCalc div > span:nth-child(4) {
+    position: absolute;
+    color: dimgray;
+    font-weight: 600;
+    text-align: left;
+  }
+  .extraWidth {
+    min-width: 8rem;
+  }
+.predictionDetailCalc div span.multi {
+  color: red;
+  font-weight: 600;
+  min-width: unset;
+  display: unset;
+  text-align: unset;
+  font-size: 1.1rem;
+}
+.bottomTopBorder {
+  border-bottom: 1px solid;
+  border-top: 1px solid;
+}
+
+.predictControl a {
+  float: right;
+}
+.predictControl span{
+  vertical-align:top
+}
+.predict .mat-icon {
+}
+.predictTotal {
+  width: 6rem;
+  display: inline-block;
+  text-align: left;
+  padding-left: 0.3rem;
+}
+.gold {
+  color: goldenrod;
 }
 
 
 @media only screen and (max-width: 415px) {
-  .histroyframe{
-    left:unset;
-    bottom:unset;
+  .histroyframe {
+    left: 0;
+    bottom: unset;
+    top: 0;
+    height: 100vh;
+    transform:none !important;
+    width: 100vw;
   }
-  .table-container{
-    margin-left:0;
-    margin-right:0;
+
+  .citizenTable{
+    margin-top: 0;
+    width:400px;
+  }
+
+  .table-container {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .closeframe {
+    left: 90vw;
+  }
+
+  td.mat-cell {
+    font-size: .74rem;
+    font-weight: 500;
+    padding-top: .3rem;
+    padding-bottom: .3rem;
   }
 }

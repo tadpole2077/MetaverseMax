@@ -57,6 +57,12 @@
 .ownerSection, .ownerKey, .ownerPlotSection {
   line-height: 1.8rem;
 }
+  .ownerSection span.ownerLabel {
+    font-weight: 400;
+  }
+.ownerName {
+  width: 50%
+}
 
 .blink {
   animation: blinker 1.5s step-start both;
@@ -207,13 +213,12 @@
   white-space: pre;
 }
 
-  /*** Building Type Filter ***/
-  .typeFilter{
-    position:absolute;
-    right:0;
-    margin-top:0;
-    margin-right:-72px
-
+/*** Building Type Filter ***/
+.typeFilter {
+  position: absolute;
+  right: 0;
+  margin-top: 0;
+  margin-right: -72px;  
 }
   .typeFilter div {
     margin-bottom: .1rem;
@@ -221,8 +226,11 @@
     text-align: center;
     border: 1px;
     border-style: ridge;
-    opacity:.7;
-    border-left-width:0;
+    opacity: .7;
+    border-left-width: 0;
+    border-color: lightgray;
+    /*border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;*/
   }
     .typeFilter div.activeFilter, .typeFilter div:hover {
       border: 1px;
@@ -276,12 +284,6 @@ a {
 
 
 /*** TABLE ***/
-@media only screen and (max-width: 1180px) {
-  table.mat-table {
-    font-size: .8em;
-  }
-}
-
 .table-container {
   position: relative;
   max-height: calc(100vh - 155px);
@@ -310,6 +312,10 @@ td.mat-cell {
 
 td.boldfield {
   font-weight: bold;
+}
+
+.districtCol {
+  font-weight: 700
 }
 
 .industryCol {
@@ -381,6 +387,7 @@ td.mat-column-building_level{
     background-color: white
   }
 
+/* Magnifier Icon */
 .magnifyHistoryPositioner {
   display: inline-block;
   position: relative;
@@ -413,9 +420,17 @@ td.mat-column-building_level{
   display: none;
 }
 
+
+
 @media only screen and (max-width: 1320px) {
   .magnifyHistoryIcon {
-    height: 20px;
+    height: 30px;
+  }
+}
+
+@media only screen and (max-width: 1180px) {
+  table.mat-table {
+    font-size: .8em;
   }
 }
 
@@ -427,9 +442,31 @@ td.mat-column-building_level{
   .showMaticKeyLarge{
     display: none;
   }
+
 }
 
 @media only screen and (max-width: 415px) {
+
+  .typeFilter{
+    position: relative;
+    margin-right: -.6rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    margin-left:-.6rem;
+  }
+    .typeFilter div {
+      display: inline-block;
+      border-left-width: 1px;
+      margin: .6rem;
+    }
+      .typeFilter div.activeFilter, .typeFilter div:hover {
+        border-left-width: 1px;
+        border-radius: 5px
+      }
+  .typeFilter div.hideFilter {
+    display: none;
+  }
+
   .media415 {
     display: unset
   }
@@ -438,17 +475,45 @@ td.mat-column-building_level{
     display: none
   }
 
+  .introSection {
+    padding-bottom: 1rem
+  }
+
   h3 {
     font-size: 1.3rem;
   }
 
+
   .plotSearchComponent {
-    position: absolute;
-    right: 8px;
+    display: block;
+    position: unset;
+    height: 120px;
+    box-shadow: 0 0.01rem 0.75rem rgb(0 0 0 / 5%);
+    padding: .3rem .6rem;
+    margin-bottom: 1.4rem;
   }
 
   .ownerImg {
+    height: 130px;
+    margin-top: 140px;
+    position: absolute;
+    right: 40px;
+  }
+
+  .introImg {
     height: 100px;
+    margin-top: -50px;
+    float: right;
+  }
+  .noOwner {
+    height: 80px;
+    margin-top: 140px;
+  }
+
+  .slideOutLeft {
+    position: absolute;
+    right: 60px;
+    top: 280px;
   }
 
   .ownerKey {
@@ -460,49 +525,86 @@ td.mat-column-building_level{
   }
 
   .ownerPlotSection {
-    margin-top: 6rem
+    margin-top: 2rem
   }
   .ownerSection, .ownerPlotSection, .lastPlotAction {
-    font-size: .8rem;
+    font-size: .9rem;
   }
 
   .ownerSection, .ownerKey, .ownerPlotSection {
-    line-height: 1.5rem;
+    line-height: 1.8rem;
+    margin-bottom: .4rem
   }
 
-  .offerBtnDiv{
+  .lastPlotAction strong{
+    display:block
+  }
+  .ownerName {
+    width: 60%
+  }
+
+
+  .offerBtnDiv {
     display: block;
     margin-top: .8rem
   }
 
   .districtHeader {
-    font-size: .8rem;
+    font-size: .9rem;
     font-weight: 600;
+  }
+  .districtNum{
+    line-height: 1.8rem
   }
   .districtBox {
     width: unset;
+    margin-right: -1rem;
   }
   .districtPlots{
     margin-top: 1rem;
-  }
-
-  .typeFilter {
-    visibility: hidden;
   }
   
   .mat-expansion-panel-header-title span {
     font-weight: 500;
     font-size: .8rem;
   }
-  .salepos {
+
+
+  .table-container .mat-table {
+    margin-left: -32px;  
+  }
+
+  .salepos2 {
     font-size: .7rem;
     margin-left: -40px;
   }
+  .salepos {
+    margin-top: 16px;
+    margin-left: 0;
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    margin-right: -6px;
+  }
+
   .salepos::before {
     height: 38px;
     width: 56px;
     margin-top: -18px;
     margin-left: -18px;
   }
-
+  .districtCol {    
+    margin-top: 4px;
+    margin-left: -10px;
+    display: inline-block;
+  }
+  
+  .rented {
+    margin-top: 0;
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    margin-right: 6px;
+    margin-left: 0px;
+  }
 }

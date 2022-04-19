@@ -1,5 +1,11 @@
-<div class="plotSearchComponent">
-  <img *ngIf="owner" src="{{ owner.owner_url }}" class="ownerImg" height="160" />
+<div *ngIf="!owner.last_action" class="introSection">
+  <h3>Plot Owner Report</h3>
+  <img src="https://mcp3d.com/tron/api/image/citizen/0" class="introImg" height="160" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <span>Search for an Owner, Enter Plot X and Y position, click Find Owner.</span>
+</div>
+
+<div #searchComponent class="plotSearchComponent">
+  <img *ngIf="owner.last_action" src="{{ owner.owner_url }}" [class.noOwner]="owner.plot_count == -1" class="ownerImg" height="160" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <div *ngIf="owner.registered_date" class="slideOutLeft">
     <p aria-live="polite">
       Player Registered On:
@@ -13,21 +19,29 @@
   <app-search-plot (searchPlotEvent)="searchPlot($event)"></app-search-plot>
 </div>
 
-<h3 id="tableLabel">Plot Owner Report</h3>
+<h3 *ngIf="owner.last_action" id="tableLabel">Plot Owner Report</h3>
 
 <p *ngIf="!owner"><em>Loading...</em></p>
 
 <div>
-  <div #ownerSection class="ownerSection" aria-live="polite" style="width:50%">
-    Owner: <span>{{ owner.owner_name == "" ? "(unknown)" : owner.owner_name  }}</span>
+  <div *ngIf="owner && owner.search_info" class="ownerSection">
+    <span class="ownerLabel">Search Result: </span>
+    <span>{{ owner.search_info }}</span>
   </div>
 
-  <div [hidden]="owner.plot_count == -1">
-    <div class="ownerKey" aria-live="polite">
+  <div *ngIf="owner.last_action">    
+    <div class="ownerSection ownerName">
+      Owner: <span>{{ owner.owner_name == "" ? "(unknown)" : owner.owner_name }}</span>
+    </div>
+
+    <div class="ownerSection ownerKey">
       Owner Key:
       <a class="showMaticKeySmall" target="_blank" href="https://explorer-mainnet.maticvigil.com/address/{{ owner.owner_matic_key }}/tokens">Matic Explorer</a>
       <a class="showMaticKeyLarge lineAnim" target="_blank" href="https://explorer-mainnet.maticvigil.com/address/{{ owner.owner_matic_key }}/tokens">( MATIC ) {{ owner.owner_matic_key }}</a>
     </div>
+  </div>
+
+  <div [hidden]="owner.plot_count == -1">
 
     <div class="alertBtns">
       <i class="fas fa-ambulance" style=""></i><button #lowStaminaBtn mat-raised-button color="primary" (click)="sortTableStamina()">{{ owner.stamina_alert_count }} X Low Stamina</button>
@@ -52,7 +66,7 @@
     <div class="ownerPlotSection" aria-live="polite">
       <div>
         <span class="mediaLarge">Owner Plots: </span>
-        <span class="media415">Owned:</span>
+        <span class="media415">Owned: </span>
         <strong>{{ owner.plot_count }}</strong>
       </div>
       <div>
@@ -82,37 +96,39 @@
   </div>
 </div>
 
-<div [hidden]="!owner.last_action" class="lastPlotAction" aria-live="polite">Owner Last Plot Action: <strong>{{ owner.last_action }}</strong></div>
+<div [hidden]="!owner.last_action" class="lastPlotAction" aria-live="polite"><span>Owner Last Plot Action: <strong>{{ owner.last_action }}</strong></span></div>
 
 <div class="table-container" [hidden]="!owner.owner_land">
 
   <app-prod-history [hidden]="!this.historyShow" (hideHistoryEvent)="hideHistory($event)"></app-prod-history>
 
   <div class="typeFilter">
-    <div #emptyPlotFilter><a role="button" (click)="filterTable($event, 0, BUILDING.EMPTYPLOT)"><img src="https://mcp3d.com/api/image/land/2" /></a></div>
-    <div #industrialFilter><a role="button" (click)="filterTable($event, 0, BUILDING.INDUSTRIAL)"><img src="https://play.mcp3d.com/assets/images/buildings/MetalSmelterFactory_V2_LVL1-1.png" /></a></div>
-    <div #productionFilter><a role="button" (click)="filterTable($event, 0, BUILDING.PRODUCTION)"><img src="https://play.mcp3d.com/assets/images/buildings/ConcreteMill_Mega-1.png" /></a></div>
-    <div #energyFilter><a role="button" (click)="filterTable($event, 0, BUILDING.ENERGY)"><img src="https://play.mcp3d.com/assets/images/buildings/WaterPlant_LVL1-1.png" /></a></div>
-    <div #officeFilter><a role="button" (click)="filterTable($event, 0, BUILDING.OFFICE)"><img src="https://play.mcp3d.com/assets/images/buildings/OfficeRing_LVL1-1.png" /></a></div>
-    <div #residentialFilter><a role="button" (click)="filterTable($event, 0, BUILDING.RESIDENTIAL)"><img src="https://play.mcp3d.com/assets/images/buildings/Residential2_LVL1-1.png" /></a></div>
-    <div #commercialFilter><a role="button" (click)="filterTable($event, 0, BUILDING.COMMERCIAL)"><img src="https://play.mcp3d.com/assets/images/buildings/Supermarket_V2_LVL1-1.png" /></a></div>
-    <div #municipalFilter><a role="button" (click)="filterTable($event, 0, BUILDING.MUNICIPAL)"><img src="https://play.mcp3d.com/assets/images/buildings/Hospital_V2_LVL4-1.png" /></a></div>
-    <div #aoiFilter><a role="button" (click)="filterTable($event, 0, BUILDING.AOI)"><img src="./images/IndustrialMonument.PNG" /></a></div>
+    <div #emptyPlotFilter><a role="button" (click)="filterTable($event, 0, BUILDING.EMPTYPLOT)"><span matBadge="{{ this.filterCount.empty }}" matBadgePosition="above after"><img src="https://mcp3d.com/api/image/land/2" crossorigin="anonymous" referrerpolicy="no-referrer" /></span></a></div>
+    <div #industrialFilter><a role="button" (click)="filterTable($event, 0, BUILDING.INDUSTRIAL)"><span matBadge="{{ this.filterCount.industry }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/MetalSmelterFactory_V2_LVL1-1.png" /></span></a></div>
+    <div #productionFilter><a role="button" (click)="filterTable($event, 0, BUILDING.PRODUCTION)"><span matBadge="{{ this.filterCount.production }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/ConcreteMill_Mega-1.png" /></span></a></div>
+    <div #energyFilter><a role="button" (click)="filterTable($event, 0, BUILDING.ENERGY)"><span matBadge="{{ this.filterCount.energy }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/WaterPlant_LVL1-1.png" /></span></a></div>
+    <div #officeFilter><a role="button" (click)="filterTable($event, 0, BUILDING.OFFICE)"><span matBadge="{{ this.filterCount.office }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/OfficeRing_LVL1-1.png" /></span></a></div>
+    <div #residentialFilter><a role="button" (click)="filterTable($event, 0, BUILDING.RESIDENTIAL)"><span matBadge="{{ this.filterCount.residential }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/Residential2_LVL1-1.png" /></span></a></div>
+    <div #commercialFilter><a role="button" (click)="filterTable($event, 0, BUILDING.COMMERCIAL)"><span matBadge="{{ this.filterCount.commercial }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/Supermarket_V2_LVL1-1.png" /></span></a></div>
+    <div #municipalFilter><a role="button" (click)="filterTable($event, 0, BUILDING.MUNICIPAL)"><span matBadge="{{ this.filterCount.municipal }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/Hospital_V2_LVL4-1.png" /></span></a></div>
+    <div #aoiFilter><a role="button" (click)="filterTable($event, 0, BUILDING.AOI)"><span matBadge="{{ this.filterCount.poi }}" matBadgePosition="above after"><img src="./images/IndustrialMonument.PNG" /></span></a></div>
   </div>
 
-  <table mat-table [dataSource]="dataSource" matSort matSortStart="desc" class="table-striped mat-elevation-z8" style="width:100%; display:inline-table">
+  <table mat-table [dataSource]="dataSource" matSort matSortStart="desc" (matSortChange)="sortData($event)" class="table-striped mat-elevation-z8" style="width:100%; display:inline-table">
     <!--table table-striped-->
     <ng-container matColumnDef="district_id">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> District # </th>
       <td mat-cell *matCellDef="let land">
         <span class="salepos" *ngIf="land.forsale_price>0">{{land.forsale_price.toLocaleString()}}</span>
         <img class="rented" *ngIf="land.rented==true" src="./images/rented.png" />
-        <a class="lineAnim" [routerLink]="['/district-summary']" [queryParams]="{district_id: land.district_id}" title="{{ land.district_id }}"><strong>{{ land.district_id }}</strong></a>
+        <a class="lineAnim districtCol" [routerLink]="['/district-summary']" [queryParams]="{district_id: land.district_id}" title="{{ land.district_id }}">
+          <span>{{ land.district_id }}</span>
+        </a>
       </td>
     </ng-container>
     <ng-container matColumnDef="pos_x">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Pos </th>
-      <td mat-cell *matCellDef="let land"> X:{{ land.pos_x}} Y:{{ land.pos_y }}</td>
+      <td mat-cell *matCellDef="let land"><span>X:{{ land.pos_x}} Y:{{ land.pos_y }}</span></td>
     </ng-container>
     <ng-container matColumnDef="pos_y">
       <th mat-header-cell *matHeaderCellDef disabled> Link </th>
@@ -122,10 +138,11 @@
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
       <td mat-cell *matCellDef="let land" class="industryCol">
 
-        <img src="{{ land.building_img }}" class="industryImg">
+        <img *ngIf="land.building_type==0" src="{{ land.building_img }}" class="industryImg" crossorigin="anonymous" referrerpolicy="no-referrer">
+        <img *ngIf="land.building_type!=0" src="{{ land.building_img }}" class="industryImg">
         <span *ngIf="land.building_type!=5 && land.building_type!=3 && land.building_type!=7" class="tableWrapline"> {{ land.building_desc }} </span>
 
-        <a class="lineAnim" *ngIf="land.building_type==5 || land.building_type==3 || land.building_type==7" role="button" (click)="showHistory(land.token_id,land.pos_x,land.pos_y)">
+        <a class="lineAnim" *ngIf="land.building_type==5 || land.building_type==3 || land.building_type==7" role="button" (click)="showHistory(land.token_id, land.pos_x, land.pos_y, land.building_type, land.current_influence_rank)">
           <span class="tableWrapline"> {{ land.building_desc }} </span>
           <div class="magnifyHistoryPositioner"><img src="./assets/MagnifyHistory.png" class="magnifyHistoryIcon" height="34" /></div>
         </a>
@@ -140,17 +157,23 @@
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Last Action GMT </th>
       <td mat-cell *matCellDef="let land"> {{ land.last_action }} </td>
     </ng-container>
-    <ng-container matColumnDef="plot_ip">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> IP </th>
-      <td mat-cell *matCellDef="let land"> {{ land.plot_ip }} </td>
+    <ng-container matColumnDef="current_influence_rank">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> IP Eff%</th>
+      <td mat-cell *matCellDef="let land"><span>{{ land.current_influence_rank }}%</span></td>
     </ng-container>
-    <ng-container matColumnDef="ip_bonus">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> +IP Bonus </th>
-      <td mat-cell *matCellDef="let land"> {{ land.ip_bonus }} </td>
+    <ng-container matColumnDef="plot_ip">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> IP + Bonus </th>
+      <td mat-cell *matCellDef="let land">
+        <span>{{ land.plot_ip }}</span>
+        <span>+ {{ land.ip_bonus }}</span>
+      </td>
     </ng-container>
     <ng-container matColumnDef="citizen_count">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Cit. </th>
-      <td mat-cell *matCellDef="let land"> {{ land.citizen_count }}<span *ngIf="land.citizen_count"> X </span><img *ngIf="land.citizen_count" src="{{ land.citizen_url }}" title="Lowest stamina citizen : {{ land.citizen_stamina }}" style="max-width:44px; max-height:44px;" /> </td>
+      <td mat-cell *matCellDef="let land">
+        {{ land.citizen_count }}<span *ngIf="land.citizen_count"> X </span>
+        <img *ngIf="land.citizen_count" src="{{ land.citizen_url }}" title="Lowest stamina citizen : {{ land.citizen_stamina }}" style="max-width:44px; max-height:44px;" crossorigin="anonymous" referrerpolicy="no-referrer" />
+      </td>
     </ng-container>
     <ng-container matColumnDef="token_id">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Token ID </th>

@@ -9,7 +9,7 @@
 }
 
 .rotate {
-  -webkit-animation: rotation 1s 22 linear;
+  -webkit-animation: rotation 1s 30 linear;
 }
 
 a {
@@ -54,7 +54,7 @@ a {
   animation: glowBtn 1.4s ease-in-out infinite alternate;
 }
 
-  @-webkit-keyframes glowBtn {
+@-webkit-keyframes glowBtn {
     from {
     box-shadow: 0 0 3px #fff, 0 0 6px #fff, 0 0 9px #fff, 0 0 12px #fff;
   }
@@ -64,9 +64,16 @@ a {
   }
 }
 
+
+
+
 @media only screen and (max-width: 415px) {
   .search {
-    margin-top: unset;
+    margin-top: 0;
+    position: unset;
+    left: 0;
+    width: 100%;
   }
+  
 }
 

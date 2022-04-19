@@ -16,7 +16,7 @@ namespace MetaverseMax.Database
         public int link_key { get; set; }
 
         [Column("link_date")]
-        public DateTime link_date { get; set; }
+        public DateTime? link_date { get; set; }
 
         [Column("valid_to_date")]
         public DateTime? valid_to_date { get; set; }
@@ -32,6 +32,9 @@ namespace MetaverseMax.Database
 
         [Column("pet_token_id")]
         public int pet_token_id { get; set; }
+
+        [Column("refreshed_last")]
+        public DateTime? refreshed_last { get; set; }        
 
     }
 }

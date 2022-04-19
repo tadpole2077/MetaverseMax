@@ -8,13 +8,10 @@ using System.Linq;
 
 namespace MetaverseMax.Database
 {
-    public class DistrictDB
+    public class DistrictDB : DatabaseBase
     {
-        private readonly MetaverseMaxDbContext _context;
-
-        public DistrictDB(MetaverseMaxDbContext _parentContext)
+        public DistrictDB(MetaverseMaxDbContext _parentContext) : base(_parentContext)
         {
-            _context = _parentContext;
         }
 
         public DbSet<District> district { get; set; }   // Links to a specific table in DB
@@ -53,9 +50,7 @@ namespace MetaverseMax.Database
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                _context.LogEvent(String.Concat("DistrictDB::DistrictGet() : Error Getting district_id = ", districtId));
-                _context.LogEvent(log);
+                logException(ex, String.Concat("DistrictDB::DistrictGet() : Error Getting district_id = ", districtId));
             }
 
             return matchedDistrict ?? new District();
@@ -74,9 +69,7 @@ namespace MetaverseMax.Database
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                _context.LogEvent(String.Concat("DistrictDB::DistrictGet() : Error Getting district_id = ", districtId));
-                _context.LogEvent(log);
+                logException(ex, String.Concat("DistrictDB::DistrictGet_History1Mth() : Error Getting district_id = ", districtId));
             }
 
             return matchedDistrict;
@@ -92,9 +85,7 @@ namespace MetaverseMax.Database
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                _context.LogEvent(String.Concat("DistrictDB::DistrictContentGet() : Error Getting district_id = ", districtId));
-                _context.LogEvent(log);
+                logException(ex, String.Concat("DistrictDB::DistrictContentGet() : Error Getting district_id = ", districtId));
             }
 
             return matchedDistrictContent;
@@ -109,7 +100,7 @@ namespace MetaverseMax.Database
                 districtList = _context.district.FromSqlInterpolated($"sp_get_all_district_latest").AsNoTracking().ToList();
                 // AsNoTracking() will not track changes to the entity data, used for read-only scenarios, can not use SaveChanges(). likely results in min overhead on retriving and use of entity
 
-                var x = districtList.Count();
+                var x = districtList.Count;
                 
                 // Call sproc to get list of latest districts with matching UpdateInstance keys needed to pull the correct set of owner summary records.
                 //districtList = _context.district.FromSqlInterpolated<District>($"EXEC sp_get_all_district_latest")
@@ -118,9 +109,7 @@ namespace MetaverseMax.Database
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                _context.LogEvent(String.Concat("DistrictDB::DistrictGetAll_Latest() : Error executing sproc sp_get_all_district_latest"));
-                _context.LogEvent(log);
+                logException(ex, String.Concat("DistrictDB::DistrictGetAll_Latest() : Error executing sproc sp_get_all_district_latest"));
             }
 
             return districtList.ToArray();
@@ -171,12 +160,7 @@ namespace MetaverseMax.Database
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("UpdateDistrictByToken() : Error District_id: ", district.district_id.ToString()));
-                    _context.LogEvent(log);
-                }
+                logException(ex, String.Concat("UpdateDistrictByToken() : Error District_id: ", district.district_id.ToString()));
             }
 
             return returnCode;
@@ -202,6 +186,7 @@ namespace MetaverseMax.Database
                 //Use the new update_instance returned from summary sproc and assign to new district row.
                 district.update_instance = instance = (int)updateInstance.Value;
                 district.last_update = DateTime.Now;
+
                 _context.district.Add(district);
                 _context.SaveChanges();
 
@@ -213,9 +198,7 @@ namespace MetaverseMax.Database
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                 _context.LogEvent(String.Concat("DistrictDB::DistrictUpdate() : Error updating district_id = ", district.district_id));
-                _context.LogEvent(log);
+                logException(ex, String.Concat("DistrictDB::DistrictUpdate() : Error updating district_id = ", district.district_id));
             }
 
             return instance;
@@ -250,9 +233,7 @@ namespace MetaverseMax.Database
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                _context.LogEvent(String.Concat("DistrictDB::DistrictUpdate() : Error updating district_id = ", district.district_id));
-                _context.LogEvent(log);
+                logException(ex, String.Concat("DistrictDB::DistrictAddOrUpdate() : Error updating district_id = ", district.district_id));
             }
 
             return 0;

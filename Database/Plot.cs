@@ -28,9 +28,6 @@ namespace MetaverseMax.Database
         [Column("pos_y")]
         public int pos_y { get; set; }
 
-        [Column(TypeName = "decimal(18, 2)")]
-        public decimal current_price { get; set; }
-
         [Column("last_updated")]
         public DateTime? last_updated {get; set;}
 
@@ -70,8 +67,40 @@ namespace MetaverseMax.Database
         [Column("on_sale")]
         public bool on_sale { get; set; }
 
+        [Column("current_price", TypeName = "decimal(18, 2)")]
+        public decimal current_price { get; set; }
+
         [Column("abundance")]
         public int? abundance { get; set; }
+
+        [Column("influence_info")]
+        public int? influence_info { get; set; }
+
+
+        [Column("current_influence_rank", TypeName = "decimal(6, 2)")]
+        public decimal? current_influence_rank { get; set; }
+
+        [Column("influence_rank_bonus_bug", TypeName = "decimal(6, 2)")]
+        public decimal? influence_rank_bonus_bug { get; set; }
+
+
+        [Column("last_run_produce_date")]
+        public DateTime? last_run_produce_date { get; set; }
+
+        [Column("last_run_produce")]
+        public int? last_run_produce { get; set; }
+
+        [Column("last_run_produce_id")]
+        public int last_run_produce_id { get; set; }
+
+        [Column("last_run_produce_predict")]
+        public bool last_run_produce_predict { get; set; }        
+
+        [Column("predict_produce")]
+        public int? predict_produce { get; set; }
+
+        [Column("predict_produce_bonus_bug")]
+        public int? predict_produce_bonus_bug { get; set; }        
 
         [Column("influence")]
         public int? influence { get; set; }
@@ -82,8 +111,19 @@ namespace MetaverseMax.Database
         [Column("influence_poi_bonus")]
         public Boolean? influence_poi_bonus { get; set; }
 
-        [Column("production_poi_bonus")]
-        public string production_poi_bonus { get; set; }
+        
+        
+        [Column("app_4_bonus")]
+        public int? app_4_bonus { get; set; }
+
+        [Column("app_5_bonus")]
+        public int? app_5_bonus { get; set; }
+
+        [Column("app_123_bonus")]
+        public int app_123_bonus { get; set; }
+
+        [Column("production_poi_bonus", TypeName = "decimal(6, 2)")]
+        public decimal production_poi_bonus { get; set; }
 
         [Column("is_perk_activated")]
         public Boolean? is_perk_activated { get; set; }

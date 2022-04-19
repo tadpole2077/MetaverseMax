@@ -30,34 +30,61 @@ namespace MetaverseMax.Database
 
             return petList;
         }
+        public Pet GetPetDetail(int tokenId)
+        {
+            Pet petDetail = new();
+
+            try
+            {
+                petDetail = _context.pet.Where(r => r.token_id == tokenId)
+                                      .FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                logException(ex, String.Concat("PetDB.GetPetDetails() : Error gettings Pet record with token ID : ", tokenId));
+            }
+
+            return petDetail;
+        }
 
         // Most usage of this method will have no writes on db unless a pet was sold or bought, previously all pet where deleted and recreated = slow perf
         public int AddorUpdate(List<Pet> petList, string maticKey)
         {
             try
             {
-                // First remove pior pet records for this owner.
-                IEnumerable<Pet> petEntitiesLegacy = _context.pet.Where(r => r.token_owner_matic_key == maticKey).ToArray();
-                //_context.pet.RemoveRange(petEntitiesDelete);
-                //_context.SaveChanges();
 
-                // PERF Improved - only delete if needed (if sold or transfered)
+                IEnumerable<Pet> petEntitiesLegacy = _context.pet.Where(r => r.token_owner_matic_key.ToLower() == maticKey.ToLower()).ToArray();
+
+                //  Check if any Pets on this account transferred/sold
                 var newPetTokens = petList.Select(x => x.token_id).ToArray();
-                var soldPets = petEntitiesLegacy.Where(x => !newPetTokens.Contains(x.token_id));
-                if (soldPets.Count() > 0)
+                List<Pet> soldPets = petEntitiesLegacy.Where(x => !newPetTokens.Contains(x.token_id)).ToList();
+                for (int index =0; index < soldPets.Count(); index++)
                 {
-                    _context.pet.RemoveRange(soldPets);
+                    soldPets[index].last_update = DateTime.Now;
+                    soldPets[index].token_owner_matic_key = string.Empty;
                 }
 
-                // Check for new Pets
+                // Check for new Pets, bought or transfered pets.
                 for (int index = 0; index < petList.Count; index++)
                 {
-                    if (petEntitiesLegacy.Where(r => r.token_id == petList[index].token_id).Count() == 0)
+                    Pet existingPet = _context.pet.Where(r => r.token_id == petList[index].token_id).FirstOrDefault();
+
+                    // Not found in DB then add, else update to match current owner (transfer/sale)
+                    if (existingPet == null)
                     {
                         _context.pet.Add(petList[index]);
                     }
+                    else if (existingPet.token_owner_matic_key != maticKey)
+                    {
+                        existingPet.token_owner_matic_key = maticKey;
+                        existingPet.last_update = DateTime.Now;
+                    }
                 }
-                _context.SaveChanges();
+
+                if (petList.Count > 0 || soldPets.Count > 0)
+                {
+                    _context.SaveChanges();
+                }
 
             }
             catch (Exception ex)

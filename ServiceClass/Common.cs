@@ -42,6 +42,19 @@ namespace MetaverseMax.ServiceClass
             
             return timeFormated;
         }
+
+        public string DateStandard(DateTime? dtSource)
+        {
+            string timeFormated = string.Empty;
+
+            if (dtSource != null)
+            {
+                timeFormated = ((DateTime)dtSource).ToString("yyyy/MMM/dd");
+            }
+
+            return timeFormated;
+        }
+
         public DateTime? TimeFormatStandardDT(string sourceTime, DateTime? dtSourceTime)
         {            
             DateTime? dateTimeUTC = null;
@@ -73,6 +86,8 @@ namespace MetaverseMax.ServiceClass
 
             return gmtDateTime;
         }
+
+
 
         public string WalletConvert(string maticKey)
         {

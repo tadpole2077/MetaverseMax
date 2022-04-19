@@ -93,19 +93,19 @@ export class PetModalComponent implements AfterViewInit {
 
         if (this.portfolioPet.pet_count > 0) {
 
-          this.dataSource = new MatTableDataSource<Pet>(this.portfolioPet.pet);
-          this.hidePaginator = this.portfolioPet.pet_count == 0 || this.portfolioPet.pet_count < 5 ? true : false;
+          this.dataSource = new MatTableDataSource<Pet>(this.portfolioPet.pet);          
 
           this.dataSource.paginator = this.paginator;
           if (this.dataSource.paginator) {
             this.dataSource.paginator.firstPage();
           }
-          this.dataSource.sort = this.sort;
 
+          this.dataSource.sort = this.sort;
         }
         else {
           this.dataSource = new MatTableDataSource<Pet>(null);
-        }       
+        }
+        this.hidePaginator = this.portfolioPet.pet_count == 0 || this.portfolioPet.pet_count < 5 ? true : false;
 
       }, error => console.error(error));
 

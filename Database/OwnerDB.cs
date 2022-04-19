@@ -42,7 +42,8 @@ namespace MetaverseMax.Database
             Dictionary<string, string> ownersList = new();
             try
             {
-                ownersList = _context.owner.Where(o => o.active_tron == true).ToDictionary(o => o.owner_matic_key, o => o.owner_tron_key);
+                ownersList = _context.owner.Where(o => o.active_tron == true)
+                    .ToDictionary(o => o.owner_matic_key, o => o.owner_tron_key);
             }
             catch (Exception ex)
             {
@@ -62,7 +63,7 @@ namespace MetaverseMax.Database
             Owner owner = new();
             try
             {
-                owner = _context.owner.Where(o => o.owner_matic_key == maticKey && o.active_tron == true).FirstOrDefault();
+                owner = _context.owner.Where(o => o.owner_matic_key == maticKey && o.active_tron).FirstOrDefault();
                 owner.owner_tron_key = tronKey;
                 owner.last_use = DateTime.Now;
 
@@ -111,7 +112,7 @@ namespace MetaverseMax.Database
             return returnCode;
         }
 
-        // 20 minute reset of Nightly Data sync job to default settings  (.Net 4.5+ rec solution)
+        // 5 minute reset of Nightly Data sync job to default settings  (.Net 4.5+ rec solution)
         public async Task ResetDataSync()
         {
             var timeoutInMilliseconds = TimeSpan.FromMinutes(5);

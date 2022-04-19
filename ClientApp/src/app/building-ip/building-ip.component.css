@@ -1,0 +1,378 @@
+/*** Top Right Avator ***/
+.defaultAvatorImg {
+  float: right;
+  margin-top: -10px;
+  z-index: 10;
+  position: relative;
+}
+
+
+/*** Link underline amine ***/
+a {
+  position: relative;
+  /*color: #000;*/
+  text-decoration: none;
+  /*opacity: .7*/
+}
+
+  a.lineAnim:hover {
+    /*color: #000;*/
+    color: #1b6ec2;
+    opacity: 1;
+  }
+
+  a.lineAnim::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #1b6ec2;
+    /*background-color: #000;*/
+    visibility: hidden;
+    transform: scaleX(0);
+    transition: all 0.3s ease-in-out 0s;
+  }
+
+  a.lineAnim:hover::before {
+    visibility: visible;
+    transform: scaleX(1);
+  }
+
+/*Sale Sign*/
+.salepos {
+  position: absolute;
+  margin-left: -66px;
+  z-index: 100;
+}
+
+  .salepos::before {
+    background: url("../../assets/red-for-sale-sign.png") no-repeat;
+    content: "";
+    height: 55px;
+    width: 82px;
+    display: inline-block;
+    background-size: contain;
+    margin-top: -26px;
+    margin-left: -24px;
+    position: absolute;
+    z-index: -1;
+    background-color: white
+  }
+
+/* Accordian */
+.mat-expansion-panel{
+  width: 400px;
+}
+.mat-expansion-panel-header-title span{
+  line-height: 1.7rem
+}
+
+/*** Search Component ***/
+.searchBlock {
+  float: right;
+}
+.searchControls{
+  margin-top: 70px;
+  display: inline-block;
+}
+.d-inline-block {
+  margin-left: 1rem;
+}
+
+.summaryInfo {
+  line-height: 1.6rem;
+  margin-left: -0.6rem;
+}
+  .summaryInfo span {
+    font-size: .9rem;
+    display: inline-block;    
+  }
+  .summaryInfo span:first-child {
+    width: 8rem;
+    text-align: right;
+    padding-right: 0.5rem;
+  }
+  .summaryInfo span:nth-child(2) {
+    width: 4rem;
+    font-weight:600
+  }
+  .summaryInfo span:nth-child(3) {
+    width: 6rem;
+    text-align: right;
+    padding-right: 0.5rem;
+  }
+  .summaryInfo span:nth-child(4) {
+    width: 3rem;
+    font-weight: 600
+  }
+
+.warningIcon {
+  margin-left: 1.4rem;
+  color: red;
+  font-size: 1.6rem;
+  position: absolute;
+  margin-top: -0.4rem;
+}
+
+
+/* Search buttons */
+@-webkit-keyframes rotation {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+
+  to {
+    -webkit-transform: rotate(359deg);
+  }
+}
+
+.rotate {
+  -webkit-animation: rotation 1s 30 linear;
+}
+.progressIcon {
+  font-size: 1.1rem;
+  margin-left: 6px;
+  margin-top: 9px;
+  position: absolute;
+  color: white;
+  z-index: 1;
+}
+#typeList {
+  padding-left: 2rem;
+}
+.buttonEffect { 
+  -webkit-animation: glowBtn 1.4s ease-in-out infinite alternate;
+  -moz-animation: glowBtn 1.4s ease-in-out infinite alternate;
+  animation: glowBtn 1.4s ease-in-out infinite alternate;
+}
+
+@-webkit-keyframes glowBtn {
+  from {
+    box-shadow: 0 0 3px #fff, 0 0 6px #fff, 0 0 9px #fff, 0 0 12px #fff;
+  }
+
+  to {
+    box-shadow: 0 0 3px #1b6ec2, 0 0 6px #1b6ec2, 0 0 9px #1b6ec2, 0 0 8px #1b6ec2;
+  }
+}
+.searchIcon {
+  font-size: 1.1rem;
+  margin-left: 6px;
+  position: absolute;
+  color: #1565c0;
+  z-index: 1;
+}
+
+
+
+/*** TABLE ***/
+.mat-table {
+  width: 100%;
+  display: inline-table;
+}
+
+.table-container {
+  position: relative;
+  max-height: calc(100vh - 155px);
+  clear: both;
+  margin-top: .8rem;
+  /* or height: calc(100vh - 155px);
+    depending on your need change overflow: auto;*/
+}
+
+
+table:last-child {
+  margin-bottom: 30px;
+}
+
+th.mat-header-cell {
+  color: inherit;
+  font-size: .9rem;
+  font-weight: bold;
+  vertical-align: middle !important;
+}
+
+  th.mat-header-cell img {
+    margin-right: 2px
+  }
+
+td.mat-cell {
+  font-size: .9rem;
+  font-weight: 500;
+  vertical-align: middle;
+  height: 72px;
+  padding-right: .2em;
+}
+
+  td.mat-cell a {
+    display: inline-block;
+    padding: .5rem 0;
+  }
+
+td.boldfield {
+  font-weight: bold;
+}
+
+td.mat-column-ip_efficiency{
+  padding-left:1rem;
+}
+.mat-column-ip_efficiency span {
+  color: goldenrod;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+td.mat-column-pos span:nth-child(2){
+  display:block
+}
+
+/*** Table Flex columns ***/
+.mat-column-owner_nickname {
+  flex: 0 0 360px;
+  min-width: 240px;
+}
+
+  .mat-column-owner_nickname a {
+    display: inline-block;
+    padding-right: 0;
+    padding-left: .6rem;
+  }
+
+    .mat-column-owner_nickname a span {
+      width: 8rem;
+      display: inline-block;
+      white-space: nowrap;
+      overflow: hidden !important;
+      text-overflow: ellipsis;
+      vertical-align: super;
+      padding-left: .2rem;
+    }
+
+      .mat-column-owner_nickname a span:hover {
+        white-space: unset;
+        text-overflow: unset;
+        transition: 1s;
+      }
+
+  .mat-column-owner_nickname img {
+    display: inline-block;
+    vertical-align: sub
+  }
+
+.industryImg {
+  max-height: 44px;
+  margin-top: -3px;
+}
+
+/* Magnifier Icon */
+.magnifyHistoryPositioner {
+  display: inline-block;
+  position: relative;
+  vertical-align: top;
+}
+
+.magnifyHistoryIcon {
+  margin-top: -12px;
+  position: absolute;
+  opacity: .7
+}
+
+  .magnifyHistoryIcon:hover {
+    opacity: 1
+  }
+
+.lastUpdated {
+  vertical-align: middle;
+  font-size: .7rem;
+  position: absolute;
+  right: 0;
+  margin-top: 2rem;
+  color: gray;
+}
+
+  .lastUpdated .mat-icon {
+    font-size: 1.4rem;
+  }
+
+  .lastUpdated span {
+    vertical-align: super;
+  }
+
+.mat-column-ip_efficiency .rowWarning {
+  position: absolute;
+  margin-top: 7px;
+  margin-left: -51px;
+  vertical-align: top;
+}
+.rowWarning .mat-icon {
+  font-size: 1.2rem;
+  width: 21px;
+  height: 19px;
+  overflow: hidden;
+  color: orangered;
+}
+
+.rowWarning span {
+  font-size: .8rem;
+  color: orangered;
+  font-weight: 500;
+  display: inline-block;
+  vertical-align:super;
+}
+
+#producePredictionPanel {
+  display: inline-block;
+  vertical-align: top;
+  margin-top: 0
+}
+#doubleAppBonusPanel{
+  display: inline-block;
+  margin-left: 2rem;
+  vertical-align: top;
+  margin-top: 0
+}
+
+#totalProducePanel {
+  display: block;
+  margin-left: 0rem;
+  vertical-align: top;
+  margin-top: 1rem;
+  text-align: center;
+}
+.resourceCol {
+  display: inline-block;
+  width: 11rem;
+  text-align:left;
+}
+  .resourceCol div:first-child {
+    font-weight: 600;
+    text-align: left;
+    margin-left: 2.2rem;
+  }
+
+.resourceTotal span:first-child {
+  display: inline-block;
+  font-size: .9rem;
+  padding-right: 0.5rem;
+  width: 40%;
+}
+.resourceTotal span:nth-child(2){
+  display: inline-block;
+  font-size: .9rem;
+  padding-left: 0.5rem;
+  width: 3.6rem;
+  text-align:right;
+}
+.overProd{
+  font-weight:600;
+  margin-top:1rem;
+}
+
+.doubleAppHeaderSpan1 {
+  margin-left: .2rem
+}
+.doubleAppHeaderSpan2 {
+  color: darkorange;
+  margin-left: .2rem
+}

@@ -21,13 +21,13 @@ namespace MetaverseMax.Database
         public IEnumerable<DistrictFund> GetHistory(int districtId, int historyDays)
         {
             IEnumerable<DistrictFund> districtFund = Array.Empty<DistrictFund>();
-            DistrictDB distritDB = new DistrictDB(_context);
+            DistrictDB districtDB = new DistrictDB(_context);
             District district;
             DateTime activeFrom;
 
             try
             {
-                district = distritDB.DistrictGet(districtId);
+                district = districtDB.DistrictGet(districtId);
                 activeFrom = district.active_from ?? DateTime.MinValue;
 
                 districtFund = _context.districtFund.Where(row => row.district_id == districtId && row.update > DateTime.Today.AddDays(-historyDays) && row.update > activeFrom)

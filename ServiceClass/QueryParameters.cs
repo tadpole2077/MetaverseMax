@@ -35,6 +35,16 @@ namespace MetaverseMax.ServiceClass
         public string owner_matic_key { get; set; }
 
     }
+    public class QueryParametersOwnerDataMaticRefresh
+    {
+        // Using BingRequired attribute and not Required as it forces a specific use of a parameter name
+        [BindRequired]
+        public string owner_matic_key { get; set; }
+
+        [BindRequired]
+        public bool refresh { get; set; }
+
+    }
 
     public class QueryParametersOwnerDataTron
     {
@@ -86,8 +96,6 @@ namespace MetaverseMax.ServiceClass
 
     }
 
-
-    // Model Binding Class for Controller Parameters
     public class QueryParametersPlotSync
     {
 
@@ -100,6 +108,27 @@ namespace MetaverseMax.ServiceClass
 
         [BindRequired]
         public int interval { get; set; }
+    }
+
+    public class QueryParametersPlotSingle
+    {
+        [BindRequired]
+        public int plot_id { get; set; }
+
+        [BindRequired]
+        public int posX { get; set; }
+
+        [BindRequired]
+        public int posY { get; set; }
+    }
+
+    public class QueryParametersTypeLevel
+    {
+        [BindRequired]
+        public int type { get; set; }
+
+        [BindRequired]
+        public int level { get; set; }
     }
 
     public class QueryParametersGetPlotMatric
@@ -123,4 +152,40 @@ namespace MetaverseMax.ServiceClass
         public string interval { get; set; }
 
     }
+
+    public class QueryParametersTokenID
+    {
+
+        // Using BingRequired attribute and not Required as it forces a specific use of a parameter name
+        [BindRequired]
+        public int token_id { get; set; }
+
+    }
+
+    public class QueryParametersTokenID_IPEfficiency
+    {
+
+        // Using BingRequired attribute and not Required as it forces a specific use of a parameter name
+        [BindRequired]
+        public int token_id { get; set; }
+
+        [BindRequired]
+        public decimal ip_efficiency { get; set; }
+
+        [BindRequired]
+        public decimal ip_efficiency_bonus_bug { get; set; }        
+
+    }
+
+    public class QueryParametersCitizenHistory
+    {
+        // Using BingRequired attribute and not Required as it forces a specific use of a parameter name
+        [BindRequired]
+        public int token_id { get; set; }
+
+        [BindRequired]
+        public long production_date { get; set; }
+
+    }
+
 }

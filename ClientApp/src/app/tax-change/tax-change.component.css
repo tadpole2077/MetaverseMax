@@ -77,12 +77,6 @@ td.mat-column-buyer_offer{
   text-align:center
 }
 
-.ownerImgCol {
-  position: absolute;
-  margin-top: -10px;
-  margin-left:-.1rem;
-}
-
 .mat-column-token_district{
   padding-left: .3rem;
   text-align: center;

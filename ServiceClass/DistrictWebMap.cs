@@ -5,21 +5,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace MetaverseMax.ServiceClass
 {
-    public class DistrictWebMap
+    public class DistrictWebMap : ServiceBase
     {
-        private readonly MetaverseMaxDbContext _context;
         private DistrictDB districtDB;
         private Common common = new();
 
-        public DistrictWebMap(MetaverseMaxDbContext _serviceContext)
+        public DistrictWebMap(MetaverseMaxDbContext _parentContext) : base(_parentContext)
         {
-            _context = _serviceContext;
-            districtDB = new(_serviceContext);
+            districtDB = new(_context);
         }
 
         public IEnumerable<TaxChangeWeb> GetTaxChange(int districtId)
@@ -126,7 +125,7 @@ namespace MetaverseMax.ServiceClass
         private DistrictWeb MapData_DistrictWebAttributes(District district)
         {
             DistrictWeb districtWeb = new();
-            CitizenManage citizen = new();            
+            CitizenManage citizen = new(_context);            
             
             districtWeb.update_instance = district.update_instance;
             districtWeb.last_update = district.last_update;
@@ -167,32 +166,33 @@ namespace MetaverseMax.ServiceClass
             return districtWeb;
         }
 
-        public int UpdateDistrict(int district_id)
+        public async Task<int> UpdateDistrict(int district_id)
         {
             District district = new();
-            CitizenManage citizen = new();
             string content = string.Empty;
             Common common = new();
             int returnCode = 0;
 
             try
             {
-                // POST from Land/Get REST WS
-                byte[] byteArray = Encoding.ASCII.GetBytes("{\"region_id\": " + district_id.ToString() + "}");
-                WebRequest request = WebRequest.Create("https://ws-tron.mcp3d.com/regions/list");
-                request.Method = "POST";
-                request.ContentType = "application/json";
-
-                Stream dataStream = request.GetRequestStream();
-                dataStream.Write(byteArray, 0, byteArray.Length);
-                dataStream.Close();
-
-                // Ensure correct dispose of WebRespose IDisposable class even if exception
-                using (WebResponse response = request.GetResponse())
+                // POST REST WS
+                serviceUrl = "https://ws-tron.mcp3d.com/regions/list";
+                HttpResponseMessage response;
+                using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
                 {
-                    StreamReader reader = new(response.GetResponseStream());
-                    content = reader.ReadToEnd();
+                    StringContent stringContent = new StringContent("{\"region_id\": " + district_id.ToString() + "}", Encoding.UTF8, "application/json");
+
+                    response = await client.PostAsync(
+                        serviceUrl,
+                        stringContent);
+
+                    response.EnsureSuccessStatusCode(); // throws if not 200-299
+                    content = await response.Content.ReadAsStringAsync();
+
                 }
+                watch.Stop();
+                servicePerfDB.AddServiceEntry(serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, district_id.ToString());
+
                 if (content.Length == 0)
                 {
                     district.owner_name = "Unclaimed District";
@@ -220,28 +220,29 @@ namespace MetaverseMax.ServiceClass
             return returnCode;
         }
 
-        public List<DistrictName> GetDistrictsFromMCP(bool isOpened)
+        public async Task<List<DistrictName>> GetDistrictsFromMCP(bool isOpened)
         {
             List<DistrictName> districtList = new();
             string content = string.Empty;
             try
             {
-                // POST from Land/Get REST WS
-                byte[] byteArray = Encoding.ASCII.GetBytes("{}");
-                WebRequest request = WebRequest.Create("https://ws-tron.mcp3d.com/regions/list");
-                request.Method = "POST";
-                request.ContentType = "application/json";
-
-                Stream dataStream = request.GetRequestStream();
-                dataStream.Write(byteArray, 0, byteArray.Length);
-                dataStream.Close();
-
-                // Ensure correct dispose of WebRespose IDisposable class even if exception
-                using (WebResponse response = request.GetResponse())
+                // POST REST WS
+                serviceUrl = "https://ws-tron.mcp3d.com/regions/list";
+                HttpResponseMessage response;
+                using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
                 {
-                    StreamReader reader = new(response.GetResponseStream());
-                    content = reader.ReadToEnd();
+                    StringContent stringContent = new StringContent("{}", Encoding.UTF8, "application/json");
+
+                    response = await client.PostAsync(
+                        serviceUrl,
+                        stringContent);
+
+                    response.EnsureSuccessStatusCode(); // throws if not 200-299
+                    content = await response.Content.ReadAsStringAsync();
+
                 }
+                watch.Stop();
+                servicePerfDB.AddServiceEntry(serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, string.Empty);
 
                 if (content.Length == 0)
                 {

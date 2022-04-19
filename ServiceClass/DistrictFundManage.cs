@@ -5,23 +5,22 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace MetaverseMax.ServiceClass
 {
-    public class DistrictFundManage
+    public class DistrictFundManage : ServiceBase
     {
-        private readonly MetaverseMaxDbContext _context;
         private Common common = new();
 
         private DistrictDB districtDB;
         private DistrictFundDB districtFundDB;
         public IEnumerable<DistrictFund> districtFund;
 
-        public DistrictFundManage(MetaverseMaxDbContext _contextService)
+        public DistrictFundManage(MetaverseMaxDbContext _parentContext) : base(_parentContext)
         {
-            _context = _contextService;
         }
 
         public IEnumerable<DistrictFund> GetHistory(int districtId, int daysHistory)
@@ -44,12 +43,9 @@ namespace MetaverseMax.ServiceClass
             return districtFundList;
         }
 
-        public string UpdateFundAll(QueryParametersSecurity parameters)
+        public async Task<string> UpdateFundAll(QueryParametersSecurity parameters)
         {
             String content = string.Empty;
-            byte[] byteArray;
-            WebRequest request;
-            Stream dataStream;
             string period = "365";
             List<int> districtIDList;
             int districtId = 0;
@@ -71,22 +67,23 @@ namespace MetaverseMax.ServiceClass
                 {
                     districtId = districtIDList[listIndex];
 
-                    // POST from User/Get REST WS
-                    byteArray = Encoding.ASCII.GetBytes("{\"id\": \"" + districtId + "\",\"period\": " + period + " }");
-                    request = WebRequest.Create("https://ws-tron.mcp3d.com/newspaper/district/info");
-                    request.Method = "POST";
-                    request.ContentType = "application/json";
-
-                    dataStream = request.GetRequestStream();
-                    dataStream.Write(byteArray, 0, byteArray.Length);
-                    dataStream.Close();
-
-                    // Ensure correct dispose of WebRespose IDisposable class even if exception
-                    using (WebResponse response = request.GetResponse())
+                    // POST REST WS
+                    serviceUrl = "https://ws-tron.mcp3d.com/newspaper/district/info";
+                    HttpResponseMessage response;
+                    using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
                     {
-                        StreamReader reader = new(response.GetResponseStream());
-                        content = reader.ReadToEnd();
+                        StringContent stringContent = new StringContent("{\"id\": \"" + districtId + "\",\"period\": " + period + " }", Encoding.UTF8, "application/json");
+
+                        response = await client.PostAsync(
+                            serviceUrl,
+                            stringContent);
+
+                        response.EnsureSuccessStatusCode(); // throws if not 200-299
+                        content = await response.Content.ReadAsStringAsync();
+
                     }
+                    watch.Stop();
+                    servicePerfDB.AddServiceEntry(serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, districtId.ToString());
 
                     if (content.Length == 0)
                     {
@@ -116,12 +113,9 @@ namespace MetaverseMax.ServiceClass
             return status;
         }
 
-        public string UpdateFundPriorDay(int districtId)
+        public async Task<string> UpdateFundPriorDay(int districtId)
         {
             String content = string.Empty;
-            byte[] byteArray;
-            WebRequest request;
-            Stream dataStream;
             string period = "1";
             string status = string.Empty;
 
@@ -129,26 +123,27 @@ namespace MetaverseMax.ServiceClass
             {
                 districtFundDB = new(_context);
 
-                // POST from User/Get REST WS
-                byteArray = Encoding.ASCII.GetBytes("{\"id\": \"" + districtId + "\",\"period\": " + period + " }");
-                request = WebRequest.Create("https://ws-tron.mcp3d.com/newspaper/district/info");
-                request.Method = "POST";
-                request.ContentType = "application/json";
-
-                dataStream = request.GetRequestStream();
-                dataStream.Write(byteArray, 0, byteArray.Length);
-                dataStream.Close();
-
-                // Ensure correct dispose of WebRespose IDisposable class even if exception
-                using (WebResponse response = request.GetResponse())
+                // POST REST WS
+                serviceUrl = "https://ws-tron.mcp3d.com/newspaper/district/info";
+                HttpResponseMessage response;
+                using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
                 {
-                    StreamReader reader = new(response.GetResponseStream());
-                    content = reader.ReadToEnd();
+                    StringContent stringContent = new StringContent("{\"id\": \"" + districtId + "\",\"period\": " + period + " }", Encoding.UTF8, "application/json");
+
+                    response = await client.PostAsync(
+                        serviceUrl,
+                        stringContent);
+
+                    response.EnsureSuccessStatusCode(); // throws if not 200-299
+                    content = await response.Content.ReadAsStringAsync();
+
                 }
+                watch.Stop();
+                servicePerfDB.AddServiceEntry(serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, districtId.ToString());
 
                 if (content.Length == 0)
                 {
-                    status = string.Concat("No Reponse from MCP service for district ID", districtId);
+                    status = string.Concat("No Response from MCP service for district ID", districtId);
                 }
                 else
                 {

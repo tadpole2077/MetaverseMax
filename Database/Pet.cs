@@ -29,5 +29,8 @@ namespace MetaverseMax.Database
 
         [Column("token_owner_matic_key")]
         public string token_owner_matic_key { get; set; }
+
+        [Column("last_update")]
+        public DateTime? last_update { get; set; }
     }
 }

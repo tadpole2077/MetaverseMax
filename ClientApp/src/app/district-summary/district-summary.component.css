@@ -449,6 +449,11 @@ th.mat-column-owned_plots{
   vertical-align: text-top;
   
 }
+.arrivalIconSml {
+  margin-left: 0;
+  margin-top: -2px;
+  font-size: .8rem;
+}
 .arrivalIcon {
   -webkit-animation: glow 1s ease-in-out infinite alternate;
   -moz-animation: glow 1s ease-in-out infinite alternate;

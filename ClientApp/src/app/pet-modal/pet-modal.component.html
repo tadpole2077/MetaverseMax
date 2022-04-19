@@ -36,7 +36,10 @@
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
     <mat-paginator [hidden]="hidePaginator" [pageSize]="5" [hidePageSize] [showFirstLastButtons] class="paginatorContainer"></mat-paginator>
-
   </div>
 
+  <div class="lastUpdated">
+    <mat-icon>access_time</mat-icon>
+    <span *ngIf="portfolioPet">Last updated {{ portfolioPet.last_updated }}GMT</span>
+  </div>
 </div>

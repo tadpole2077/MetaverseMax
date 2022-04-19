@@ -14,8 +14,6 @@ import { TaxChange } from '../district-summary/data-district-interface';
 })
 export class TaxChangeComponent implements AfterViewInit {
 
-  @Output() searchPlotEvent = new EventEmitter<any>();
-
   public taxChangeList: TaxChange[];
   public hidePaginator: boolean;
   public hidePaginatorSold: boolean;

@@ -11,9 +11,11 @@ namespace MetaverseMax.Database
     [Table("Owner")]
     public class Owner
     {
-        [Key]
         [Column("owner_matic_key")]
         public string owner_matic_key { get; set; }
+
+        [Column("active_tron")]
+        public bool active_tron { get; set; }
 
         [Column("owner_tron_key")]
         public string owner_tron_key { get; set; }
@@ -37,10 +39,7 @@ namespace MetaverseMax.Database
         public int? owner_lookup_count { get; set; }
 
         [Column("district_lookup_count")]
-        public int? district_lookup_count { get; set; }
-
-        [Column("active_tron")]
-        public bool active_tron { get; set; }
+        public int? district_lookup_count { get; set; }        
 
         [Column("pet_count")]
         public int? pet_count { get; set; }

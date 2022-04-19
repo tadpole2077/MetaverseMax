@@ -1,0 +1,329 @@
+
+<div class="searchBlock">
+  <img src="https://mcp3d.com/tron/api/image/citizen/0" class="defaultAvatorImg" height="160" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <div class="searchControls">
+
+    <div ngbDropdown class="d-inline-block">
+      <i #progressIcon class="fas fa-sync-alt progressIcon"></i>
+      <button mat-raised-button color="primary" class="buttonEffect" id="typeList" ngbDropdownToggle>{{selectedType}}</button>
+      <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+        <button *ngFor="let building of typeList" ngbDropdownItem (click)="searchFromDropdown(building, '')"><span>{{building}}</span></button>
+      </div>
+    </div>
+
+    <div ngbDropdown class="d-inline-block">
+      <button mat-raised-button color="primary" class="buttonEffect" id="levelList" ngbDropdownToggle>{{selectedLevel}}</button>
+      <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+        <button *ngFor="let level of levelList" ngbDropdownItem (click)="searchFromDropdown('', level)"><span>{{level}}</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h3 id="tableLabel">Building IP League</h3>
+
+<h6>View ranked listing of buildings based on IP (Influence Points)</h6>
+<p style="margin-top:1rem">Select a building type and level to start search</p>
+<p class="loading" *ngIf="buildingType>0 && !buildingCollection"><em>Searching...</em><i id="searchIcon" class="fas fa-sync-alt searchIcon rotate" style=""></i></p>
+
+<app-prod-history [hidden]="!this.historyShow" (hideHistoryEvent)="hideHistory($event)"></app-prod-history>
+
+<mat-accordion multi *ngIf="buildingCollection && buildingCollection.buildings">
+
+  <mat-expansion-panel expanded="true">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>info</mat-icon>
+        <span style="margin-left:.2rem">Building Level IP Details</span>
+      </mat-panel-title>
+      <mat-panel-description>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <div class="summaryInfo" *ngIf="buildingCollection && buildingCollection.buildings">
+      <div>
+        <span>Buildings:</span>
+        <span>{{ buildingCollection.buildings.length }}</span>
+        <span title="Effect on IP max-to-min range">IP Impact:</span>
+        <span>{{ buildingCollection.buildingIP_impact }}%</span>
+      </div>
+      <div>
+        <span>Min IP:</span>
+        <span>{{ buildingCollection.minIP }}</span>
+        <span>Max IP:</span>
+        <span>{{ buildingCollection.maxIP }}</span>
+      </div>
+      <div>
+        <span>Range IP:</span>
+        <span>{{ buildingCollection.rangeIP }}</span>
+        <span>Avg IP:</span>
+        <span>{{ buildingCollection.avgIP }}</span>
+      </div>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel expanded="false" id="producePredictionPanel" *ngIf="buildingCollection && buildingCollection.buildings && (buildingType == 3 || buildingType == 5 || buildingType == 7) ">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>history</mat-icon>
+        <span style="margin-left:.2rem">Produce Prediction Eval</span>
+      </mat-panel-title>
+      <mat-panel-description>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <div class="summaryInfo">
+      <div>
+        <span>Produce Buildings:</span>
+        <span>{{ buildingCollection.buildings_predict }}</span>
+        <span style="width:8rem">* Last week period</span>
+      </div>
+      <div>
+        <span>Correct:</span>
+        <span>{{ buildingCollection.predict.correct }}</span>
+        <span>% Correct:</span>
+        <span>{{ buildingCollection.predict.correct_percent }}%</span>
+      </div>
+      <div>
+        <span>Miss:</span>
+        <span>{{ buildingCollection.predict.miss }}</span>
+        <span>% Miss:</span>
+        <span>{{ buildingCollection.predict.miss_percent }}%</span>
+      </div>
+      <div>
+        <span>Above:</span>
+        <span>{{ buildingCollection.predict.miss_above }}</span>
+        <span>% Above:</span>
+        <span>{{ buildingCollection.predict.miss_above_percent }}%</span>
+      </div>
+      <div>
+        <span>Below:</span>
+        <span>{{ buildingCollection.predict.miss_below }}</span>
+        <span>% Below:</span>
+        <span>{{ buildingCollection.predict.miss_below_percent }}%</span>
+      </div>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel *ngIf="buildingCollection && buildingCollection.building_lvl>5 && (buildingType == 3 || buildingType == 5 || buildingType == 7) " expanded="false" id="doubleAppBonusPanel">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>history</mat-icon>
+        <span class="doubleAppHeaderSpan1">Prediction Eval -</span>
+        <span *ngIf="buildingCollection.building_lvl==6" class="doubleAppHeaderSpan2">2x App Bonus Bug</span>
+        <span *ngIf="buildingCollection.building_lvl==7" class="doubleAppHeaderSpan2">4x App Bonus Bug</span>
+      </mat-panel-title>
+      <mat-panel-description>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <div class="summaryInfo" *ngIf="buildingCollection && buildingCollection.buildings">
+      <div>
+        <span>Produce Buildings:</span>
+        <span>{{ buildingCollection.buildings_predict }}</span>
+        <span style="width:8rem">* Last week period</span>
+      </div>
+      <div>
+        <span>Correct:</span>
+        <span>{{ buildingCollection.predict_bonus_bug.correct }}</span>
+        <span>% Correct:</span>
+        <span>{{ buildingCollection.predict_bonus_bug.correct_percent }}%</span>
+      </div>
+      <div>
+        <span>Miss:</span>
+        <span>{{ buildingCollection.predict_bonus_bug.miss }}</span>
+        <span>% Miss:</span>
+        <span>{{ buildingCollection.predict_bonus_bug.miss_percent }}%</span>
+      </div>
+      <div>
+        <span>Above:</span>
+        <span>{{ buildingCollection.predict_bonus_bug.miss_above }}</span>
+        <span>% Above:</span>
+        <span>{{ buildingCollection.predict_bonus_bug.miss_above_percent }}%</span>
+      </div>
+      <div>
+        <span>Below:</span>
+        <span>{{ buildingCollection.predict_bonus_bug.miss_below }}</span>
+        <span>% Below:</span>
+        <span>{{ buildingCollection.predict_bonus_bug.miss_below_percent }}%</span>
+      </div>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel *ngIf="buildingCollection && (buildingType == 3 || buildingType == 5 || buildingType == 7) " expanded="false" id="totalProducePanel">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>account_balance</mat-icon>
+        <span>Total Recent Produce</span>
+      </mat-panel-title>
+      <mat-panel-description>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <div *ngIf="buildingCollection && buildingCollection.buildings">
+      <div>
+        <div class="resourceCol">
+          <div><span>Weekly</span></div>
+          <div class="resourceTotal" *ngFor="let resource of buildingCollection.total_produced">
+            <span>{{resource.name}}</span>
+            <span>{{resource.totalFormat}}</span>
+          </div>
+        </div>
+        <div class="resourceCol">
+          <div><span>Monthly</span></div>
+          <div class="resourceTotal" *ngFor="let resource of buildingCollection.total_produced_month">
+            <span>{{resource.name}}</span>
+            <span>{{resource.totalFormat}}</span>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="buildingCollection.building_lvl>5">
+        <div class="overProd"><span>App Bonus Bug - Over Production</span></div>
+        <div>
+          <div class="resourceCol">
+            <div><span>Weekly</span></div>
+            <div class="resourceTotal" *ngFor="let resource of buildingCollection.total_produced_excess">
+              <span>{{resource.name}}</span>
+              <span>{{resource.totalFormat}}</span>
+            </div>
+          </div>
+          <div class="resourceCol">
+            <div><span>Monthly</span></div>
+            <div class="resourceTotal" *ngFor="let resource of buildingCollection.total_produced_month_excess">
+              <span>{{resource.name}}</span>
+              <span>{{resource.totalFormat}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-expansion-panel>
+</mat-accordion>
+
+
+<div class="table-container" [hidden]="!buildingCollection || !buildingCollection.buildings || !buildingCollection.buildings.length">
+
+  <div class="lastUpdated">
+    <mat-icon>access_time</mat-icon>
+    <span *ngIf="buildingCollection">Last updated {{ buildingCollection.sync_date }} GMT</span>
+  </div>
+
+  <div fxLayout fxLayoutAlign="center center" style="display:inline-block">
+    <mat-form-field fxFlex="30%" class="tableFilter">
+      <input matInput type="text" (keyup)="applyFilter($event.target.value)" placeholder="Owner Filter">
+    </mat-form-field>
+  </div>
+
+  <table mat-table [dataSource]="dataSource" matSort matSortStart="desc" class="table-striped mat-elevation-z8" style="width:100%; display:inline-table">
+    <ng-container matColumnDef="position">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        <span>#</span>
+      </th>
+      <td mat-cell *matCellDef="let row;">
+        <span class="salepos" *ngIf="row.current_price>0">{{row.current_price.toLocaleString()}}</span>
+        <span>{{row.position}}</span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="ip_efficiency">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        <span class="long-text">IP Efficiency %</span>
+      </th>
+      <td mat-cell *matCellDef="let row">
+        <span>{{row.ip_efficiency}}%</span>
+        <a class="magnifyHistoryPositioner" *ngIf="buildingType==5 || buildingType==3 || buildingType==7" role="button" (click)="showHistory(row.token_id, row.pos_x, row.pos_y, buildingType, row.ip_efficiency, row.ip_efficiency_bonus_bug)">
+          <img src="./assets/MagnifyHistory.png" class="magnifyHistoryIcon" height="30" />
+        </a>
+        <mat-icon *ngIf="row.influence_info!=row.influence" title="MCP IP glitch {{row.influence_info}} vs {{row.influence}}" class="warningIcon">error</mat-icon>
+        <div class="rowWarning" *ngIf="row.ip_warning != null">
+          <mat-icon>warning</mat-icon>
+          <span>{{row.ip_warning}}</span>
+        </div>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="total_ip">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        <span class="long-text">Total IP</span>
+      </th>
+      <td mat-cell *matCellDef="let row">
+        <span>{{ row.total_ip}}</span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="influence">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        <span class="long-text">Base influence</span>
+      </th>
+      <td mat-cell *matCellDef="let row">
+        <span>{{ row.influence_info }}</span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="influence_bonus">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        <span class="long-text">IP Bonus</span>
+      </th>
+      <td mat-cell *matCellDef="let row">
+        <span>{{ row.influence_bonus }}</span>%
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="owner_nickname">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Owner </th>
+      <td mat-cell *matCellDef="let row">
+
+        <img *ngIf="row.owner_avatar_id>0" src="https://mcp3d.com/tron/api/image/citizen/{{ row.owner_avatar_id }}" class="ownerImgCol" height="60" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <img *ngIf="row.owner_avatar_id==0" src="./images/MysteryOwner.png" class="ownerImgCol" height="50" style="margin-top:0" />
+
+        <a class="nav-link lineAnim" [routerLink]="['/owner-data']" [queryParams]="{matic: row.owner_matic}" title="{{ row.owner_nickname }}">
+          <span *ngIf="row.owner_nickname!=''">{{ row.owner_nickname }}</span>
+          <span class="maticLink" *ngIf="row.owner_nickname==''">{{ row.owner_matic.substring(0,14) }}</span>
+        </a>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="predict_eval_result">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        <span class="long-text">Predict Eval</span><span class="short-text"></span>
+      </th>
+      <td mat-cell *matCellDef="let row">
+        <div>
+          <span>{{row.predict_eval_result > 0 ? '+':''}}{{ row.predict_eval_result}}</span>
+        </div>
+        <div *ngIf="buildingCollection && buildingCollection.building_lvl > 5 && row.predict_eval_result != 0" style="color:darkorange">
+          <span>{{row.predict_eval_result_bonus_bug > 0 ? '+':''}}{{ row.predict_eval_result_bonus_bug}}</span>
+        </div>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="district_id">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        <span class="long-text">District #</span><span class="short-text"></span>
+      </th>
+      <td mat-cell *matCellDef="let row">
+        <a class="lineAnim" [routerLink]="['/district-summary']" [queryParams]="{district_id: row.district_id}" title="Open District page">{{ row.district_id}}</a>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="pos">
+      <th mat-header-cell *matHeaderCellDef disabled>Pos</th>
+      <td mat-cell *matCellDef="let row" class="linkCol">
+        <span> X:{{row.pos_x}} Y:{{row.pos_y}}</span>
+        <span><a class="lineAnim" target="_blank" href="https://play.mcp3d.com/tron/land?x={{ row.pos_x }}&y={{ row.pos_y }}">Map</a></span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="building_id">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Type & ID </th>
+      <td mat-cell *matCellDef="let row">
+        <img src="{{ row.building_img }}" class="industryImg">
+        <span>{{row.token_id }}</span>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+</div>

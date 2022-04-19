@@ -5,18 +5,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace MetaverseMax.ServiceClass
 {
-    public class DistrictPerkManage
+    public class DistrictPerkManage : ServiceBase
     {
-        private readonly MetaverseMaxDbContext _context;
-
-        public DistrictPerkManage(MetaverseMaxDbContext _contextService)
+        public DistrictPerkManage(MetaverseMaxDbContext _parentContext) : base(_parentContext)
         {
-            _context = _contextService;
         }
 
         public IEnumerable<DistrictPerk> GetPerks(int districtId, int updateInstance)
@@ -26,7 +24,7 @@ namespace MetaverseMax.ServiceClass
             return districtPerkDB.PerkGetAll(districtId, updateInstance);
         }
 
-        public IEnumerable<DistrictPerk> GetPerks()
+        public async Task<IEnumerable<DistrictPerk>> GetPerks()
         {   
             List<DistrictPerk> districtPerkList = new();
             string content = string.Empty;
@@ -34,22 +32,23 @@ namespace MetaverseMax.ServiceClass
 
             try
             {
-                // POST from Land/Get REST WS
-                //byte[] byteArray = Encoding.ASCII.GetBytes("{\"region_id\": " + district_id.ToString() + "}");
-                WebRequest request = WebRequest.Create("https://ws-tron.mcp3d.com/perks/districts");
-                request.Method = "POST";
-                request.ContentType = "application/json";
-
-                Stream dataStream = request.GetRequestStream();
-                //dataStream.Write(byteArray, 0, byteArray.Length);
-                dataStream.Close();
-
-                // Ensure correct dispose of WebRespose IDisposable class even if exception
-                using (WebResponse response = request.GetResponse())
+                // POST REST WS
+                serviceUrl = "https://ws-tron.mcp3d.com/perks/districts";
+                HttpResponseMessage response;
+                using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
                 {
-                    StreamReader reader = new(response.GetResponseStream());
-                    content = reader.ReadToEnd();
+                    StringContent stringContent = new StringContent("{}", Encoding.UTF8, "application/json");
+
+                    response = await client.PostAsync(
+                        serviceUrl,
+                        stringContent);
+
+                    response.EnsureSuccessStatusCode(); // throws if not 200-299
+                    content = await response.Content.ReadAsStringAsync();
+
                 }
+                watch.Stop();
+                servicePerfDB.AddServiceEntry(serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, string.Empty);
 
                 if (content.Length > 0)
                 {

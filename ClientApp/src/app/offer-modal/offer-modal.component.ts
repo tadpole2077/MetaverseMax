@@ -15,13 +15,13 @@ import { Offer } from '../owner-data/owner-interface';
 })
 export class OfferModalComponent implements AfterViewInit {
 
-  @Output() searchPlotEvent = new EventEmitter<any>();
   @Output() hideOfferEvent = new EventEmitter<boolean>();
 
   public offers: Offer[];
   public offersSold: Offer[];
   public hidePaginator: boolean;
   public hidePaginatorSold: boolean;
+  public lastUpdated: string = null;
 
   httpClient: HttpClient;
   baseUrl: string;
@@ -52,10 +52,11 @@ export class OfferModalComponent implements AfterViewInit {
     
   }
 
-  public loadTable(offerList: Offer[], offerSoldList: Offer[]) {
+  public loadTable(offerList: Offer[], offerSoldList: Offer[], lastUpdated: string) {
 
     this.tabGroup.selectedIndex = 0;
 
+    this.lastUpdated = lastUpdated;
     this.offers = offerList;
     this.offersSold = offerSoldList;
 

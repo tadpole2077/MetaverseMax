@@ -74,15 +74,15 @@ namespace MetaverseMax.ServiceClass
             PetDB petDB;
             OwnerCitizenDB ownerCitizenDB;
 
-            List<DistrictName> districtList;
-            List<DistrictPerk> districtPerkListMCP;
+            List<DistrictName> districtList = new();
+            List<DistrictPerk> districtPerkListMCP = new();
             List<DistrictPerk> districtPerkList = new();
 
-            int x = 0, y = 0, districtId = 0, saveCounter = 1, updateInstance = 0;
+            int districtId = 0, saveCounter = 1, updateInstance = 0, retryCount =0;
             List<Plot> plotList;
 
             try
-            {
+            {                
                 ArrayList threadParameters = (ArrayList)parameters;                
                 string dbConnectionString = (string)threadParameters[0];
                 int worldType = (int)threadParameters[1];
@@ -91,6 +91,7 @@ namespace MetaverseMax.ServiceClass
                 DbContextOptionsBuilder<MetaverseMaxDbContext> options = new();                
                 _context = new MetaverseMaxDbContext(options.UseSqlServer(dbConnectionString).Options);
 
+                BuildingManage buildingManage = new(_context);
                 dbLogger = new(_context);
                 districtPerkManage = new(_context);
                 districtFundManage = new(_context);
@@ -107,15 +108,33 @@ namespace MetaverseMax.ServiceClass
 
                 dbLogger.logInfo(String.Concat("Start Nightly Sync"));
 
-                // Update All Districts from MCP, as a new district may have opened.
-                districtList = districtWebMap.GetDistrictsFromMCP(true);
-                //districtList = districtDB.DistrictGetAll_Latest().ToList();
+                // Update All Districts from MCP, as a new district may have opened.  Attempt 3 times, before failing - as no districts mean no plot updates
+                retryCount = 0;
+                while (districtList.Count == 0 && retryCount < 3){
+
+                    districtList = await districtWebMap.GetDistrictsFromMCP(true);
+                    retryCount++;
+                }
+                if (retryCount > 1 && districtList.Count > 0)
+                {
+                    dbLogger.logException(new Exception(), String.Concat("SyncWorld:SyncPlotData() : GetDistrictsFromMCP() retry successful - no ", retryCount));
+                }
 
                 // Store copy of current plots as archived plot state
                 plotDB.ArchivePlots();
+                dbLogger.logInfo(String.Concat("Nightly Sync: Plots Archived"));
 
-                // Get district perks
-                districtPerkListMCP = districtPerkManage.GetPerks().ToList();
+                // Get district perks, attempt 3 times.
+                retryCount = 0;
+                while (districtPerkListMCP.Count == 0 && retryCount < 3)
+                {
+                    districtPerkListMCP = districtPerkManage.GetPerks().Result.ToList();
+                    retryCount++;
+                }
+                if (retryCount > 1 && districtPerkListMCP.Count > 0)
+                {
+                    dbLogger.logException(new Exception(), String.Concat("SyncWorld:SyncPlotData() : GetPerks() retry successful - no ", retryCount));
+                }
 
                 // Iterate each district, update all buildable plots within the district then sync district owners, and funds.
                 for (int index = 0; index < districtList.Count; index++)
@@ -126,9 +145,9 @@ namespace MetaverseMax.ServiceClass
                     for (int plotIndex = 0; plotIndex < plotList.Count; plotIndex++)
                     {
 
-                        plotDB.AddOrUpdatePlot(plotList[plotIndex].pos_x, plotList[plotIndex].pos_y, _context, plotList[plotIndex].plot_id, false);
+                        plotDB.AddOrUpdatePlot(plotList[plotIndex].pos_x, plotList[plotIndex].pos_y, plotList[plotIndex].plot_id, false);
 
-                        await Task.Delay(jobInterval);      // Typically minimum interval using this Delay thread method is about 1.5 seconds = 1500
+                        await Task.Delay(jobInterval); 
 
                         saveCounter++;
 
@@ -144,10 +163,10 @@ namespace MetaverseMax.ServiceClass
                     _context.SaveChanges();                    
 
                     // All plots for district now updated, ready to sync district details with MCP, and generation a new set of owner summary records.
-                    updateInstance = districtWebMap.UpdateDistrict( districtId );
+                    updateInstance = districtWebMap.UpdateDistrict( districtId ).Result;
 
                     // Sync Funding for current district
-                    districtFundManage.UpdateFundPriorDay(districtId);
+                    await districtFundManage.UpdateFundPriorDay(districtId);
 
                     // Assign Distrist update instance to related district perks (if any)
                     for (int perkIndex = 0; perkIndex < districtPerkListMCP.Count; perkIndex++) 
@@ -167,20 +186,30 @@ namespace MetaverseMax.ServiceClass
                     districtPerkList.Clear();
                 }
 
+                if (districtList.Count > 0)
+                {
+                    _context.ActionUpdate(ACTION_TYPE.PLOT);
+                }
+
                 ownerManage.SyncOwner();        // New owners found from nightly sync
 
                 dbLogger.logInfo(String.Concat("Start Offer,Pet,Cit Sync"));
+                
                 // Add/deactive Owner Offers                             
                 Dictionary<string, string> ownersList = ownerManage.GetOwners(true);  // Refresh list after nightly sync
                 ownerOfferDB.SetOffersInactive();
 
+                dbLogger.logInfo(String.Concat("All Owner Offers set to Inactive (recreate)"));
+
                 foreach (string maticKey in ownersList.Keys)
                 {
-                    ownerManage.GetOwnerOffer(true, maticKey);
-                    
-                    ownerManage.GetPetMCP(maticKey);                    
+                    await ownerManage.GetOwnerOffer(true, maticKey);
 
-                    citizenManage.GetCitizenMCP(maticKey);
+                    await citizenManage.GetPetMCP(maticKey);
+
+                    await citizenManage.GetCitizenMCP(maticKey);
+
+                    dbLogger.logInfo(String.Concat("Owner Offer, Pet, Citizen Updated for : ", maticKey));
 
                     // Add a delay of 2 seconds if active user.
                     if (saveDBOverride == true)
@@ -188,24 +217,33 @@ namespace MetaverseMax.ServiceClass
                         await Task.Delay(2000);      // 100ms delay to help prevent server side kicks
                     }
                 }
+                _context.ActionUpdate(ACTION_TYPE.CITIZEN);
+                _context.ActionUpdate(ACTION_TYPE.OFFER);
+                _context.ActionUpdate(ACTION_TYPE.PET);
                 dbLogger.logInfo(String.Concat("End Offer,Pet,Cit Sync"));
 
                 petDB.UpdatePetCount();
                 ownerCitizenDB.UpdateCitizenCount();
-
                 districtTaxChangeDB.UpdateTaxChanges();
+
+                dbLogger.logInfo(String.Concat("End Tax Change Sync"));
+
+                dbLogger.logInfo(String.Concat("Start IP Ranking Sync"));
+
+                await buildingManage.UpdateIPRanking(jobInterval);
+
                 dbLogger.logInfo(String.Concat("End Nightly Sync"));
 
             }
             catch (Exception ex)
             {
-                dbLogger.logException(ex, String.Concat("SyncPlotData() : Error Adding Plot X:", x, " Y:", y));                
+                dbLogger.logException(ex, String.Concat("SyncPlotData() : Error Processing Sync"));                
             }
             
             return;
         }
 
-        public static async void SyncPlotData_Reset()
+        public static void SyncPlotData_Reset()
         {
             jobInterval = jobIntervalRequested;
             saveDBOverride = false;

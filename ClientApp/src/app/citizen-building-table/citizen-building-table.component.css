@@ -1,0 +1,225 @@
+@-webkit-keyframes rotation {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+
+  to {
+    -webkit-transform: rotate(359deg);
+  }
+}
+
+.rotate {
+  -webkit-animation: rotation 1s 1 linear;
+}
+
+a {
+  display: inline-block;
+}
+
+.modalFrame {
+  margin-top: 3px;
+  text-align: left;
+  min-height: 50px;
+  border: solid 1px #ccc;
+  position: fixed;
+  padding-bottom: 10px;
+  left: 10%;
+  color: rgba(0, 0, 0, 0.87);
+  cursor: move;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: #fff;
+  border-radius: 4px;
+  z-index: 1000;
+  transition: box-shadow 200ms cubic-bezier(0, 0, 0.2, 1);
+  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+}
+
+  .modalFrame:active {
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  }
+
+
+.count {
+  float: right;
+  color: lightslategray;
+  font-size: .8em;
+  font-weight: 500;
+  margin-right: 50px;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.mat-button-toggle-group {
+  float: right;
+  margin-right: 2rem;
+  height: 2rem;
+  font-size: .7rem;
+  font-weight: bold;
+  color: white;
+}
+
+
+.table-container {
+  margin: 1em 1em 1.6em 1em;
+}
+
+tr.mat-header-row {
+  height: 38px
+}
+
+.paginatorContainer {
+  text-align: center;
+  height: 2.2em;
+  margin-top: -8px;
+}
+
+.closeframe {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  color: black;
+  z-index: 1001;
+}
+
+
+.mat-column-header-row-second-group{
+  text-align:center
+}
+
+.mat-column-name, .mat-column-token_id {
+  padding-right: 1em
+}
+
+.mat-column-token_id{
+  width:70px;
+  padding-left: .8rem;
+}
+
+.mat-column-name {
+  min-width: 130px;
+  vertical-align: middle;
+}
+  td.mat-column-name span {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    padding-left:.2rem;
+    width:5rem;
+  }
+  td.mat-column-name img {   
+    margin-top:-4px;
+    height:40px;
+  }
+
+td.mat-column-trait_agility, td.mat-column-trait_charisma, td.mat-column-trait_endurance, td.mat-column-trait_luck, td.mat-column-trait_strength, td.mat-column-trait_intelligence {
+  text-indent: .6rem;
+}
+th.mat-column-efficiency_industry{
+  font-weight: 600;
+}
+
+td.mat-column-efficiency_industry, td.mat-column-efficiency_production, td.mat-column-efficiency_energy, td.mat-column-efficiency_office, td.mat-column-efficiency_commercial, td.mat-column-efficiency_municipal {
+  text-align: left;
+  padding-left: .9rem;
+  color: #1565c0;
+}
+.industryImg {
+  max-height: 44px;
+  margin-top: -3px;
+}
+
+.mat-column-trait_agility span:nth-child(2), .mat-column-trait_intelligence span:nth-child(2), .mat-column-trait_charisma span:nth-child(2),
+.mat-column-trait_endurance span:nth-child(2), .mat-column-trait_luck span:nth-child(2), .mat-column-trait_strength span:nth-child(2) {
+  display: block;
+  text-indent: initial;
+}
+
+.fa-paw {
+  color: dodgerblue;
+  text-indent: initial;
+  padding-left: .2rem;
+}
+
+
+.topBtnDiv {
+  margin: 1rem 1rem 1rem;
+}
+
+.copy {
+  font-size:.74rem;
+  width: 148px;
+  padding-left: 1.7rem;
+  
+}
+.topBtnDiv i {
+  font-size: 1rem;
+  margin-left: 8px;
+  margin-top: 9px;
+  position: absolute;
+  color: white;
+  z-index: 1;
+}
+
+.topBtnDiv ::ng-deep .mat-button-toggle-label-content {
+  line-height: 2.4rem
+}
+
+.topBtnDiv ::ng-deep .mat-button-toggle-group {
+  height: 2.4rem;
+  font-size: .8rem;
+  font-weight: 500;
+}
+
+
+
+
+@media only screen and (max-width: 415px) {
+
+  .modalFrame {
+    left: 1%;
+    bottom: unset;
+  }
+
+  .table-container {
+    margin-left: 0;
+    margin-right: 0;
+    width:400px;
+  }
+
+  td.mat-cell {
+    font-size: .74rem;
+    font-weight: 500;
+  }
+
+    td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type, th.mat-header-cell:last-of-type {
+      padding-right: 10px
+    }
+
+  th.mat-column-name {
+    padding-left: 38px;
+    min-width: 120px;
+  }
+  td.mat-column-name {
+    min-width: 120px;
+    vertical-align: middle;
+    padding-left: 8px;
+    padding-right: 0px;
+  }
+
+    td.mat-column-name span {
+      width: 4rem;
+    }
+
+  td.mat-column-name img{
+    height: 38px
+  }
+
+  tr.mat-row{
+    height:44px
+  }
+}

@@ -35,7 +35,7 @@ namespace MetaverseMax.Controllers
             DistrictFundManage districtFundManage = new(_context);
             if (ModelState.IsValid)
             {
-                return Ok(districtFundManage.UpdateFundAll(parameters) );
+                return Ok(Task.Run(() => districtFundManage.UpdateFundAll(parameters)).Result );
             }
             return BadRequest("All District Fund update request is invalid");
         }
