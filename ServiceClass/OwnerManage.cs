@@ -488,13 +488,6 @@ namespace MetaverseMax.ServiceClass
                     watch.Stop();
                     servicePerfDB.AddServiceEntry(serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, ownerMaticKey);
 
-
-                    if (_context != null)
-                    {                        
-                        _context.LogEvent(String.Concat("https://ws-tron.mcp3d.com/user/get : service execution time : ", serviceTime));
-                    }
-
-
                     if (content.Length == 0)
                     {
                         ownerData.owner_name = string.Concat("Owner not Found matching Matic key ", ownerMaticKey);

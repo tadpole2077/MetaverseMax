@@ -717,6 +717,13 @@ a {
     margin-left:-1rem;
     font-size:.8rem;
   }
+
+  td.mat-column-owner_nickname{
+    padding-right:0
+  }
+  .mat-column-owner_nickname a span {
+    width: 3.1rem;
+  }
   .mat-column-owner_nickname a span.maticLink {
     width: 2.5rem;
   }

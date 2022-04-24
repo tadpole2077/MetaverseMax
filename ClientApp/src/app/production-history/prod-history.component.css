@@ -16,6 +16,8 @@ a {
   display: inline-block;
 }
 
+.predictControl{ display:none }
+
 .histroyframe {
   width: 545px;
   height: 400px;
@@ -337,10 +339,30 @@ tr.mat-row:not(.detailRow) {
     transform:none !important;
     width: 100vw;
   }
+  .predict{
+    position:relative;
+    right:unset;
+    margin-top:unset;
+  }
+  .predictControl {
+    position: absolute;
+    right: 0;
+    margin-top: -28px;
+  }
+  .predictionDetail {
+    margin: 0;
+    font-size: .7rem;
+  }
+  .predictionDetailCalc div > span:first-child {
+    margin-left:-2rem;
+  }
+  .predictionDetailCalc div > span:nth-child(2){
+    min-width:11.4rem
+  }
 
-  .citizenTable{
+  .citizenTable {
     margin-top: 0;
-    width:400px;
+    width: 400px;
   }
 
   .table-container {

@@ -9,18 +9,17 @@ using System.Threading.Tasks;
 
 namespace MetaverseMax.ServiceClass
 {
-    public class SyncWorld
+    public class SyncWorld : ServiceBase
     {
-        private readonly MetaverseMaxDbContext _context;
         private Common common = new();
 
         public static int jobInterval = 1;
         public static int jobIntervalRequested = 1;
-        public static bool saveDBOverride = false; 
+        public static bool saveDBOverride = false;
+        public static bool syncInProgress = false;
 
-        public SyncWorld(MetaverseMaxDbContext _contextService)
+        public SyncWorld(MetaverseMaxDbContext _parentContext) : base(_parentContext)
         {
-            _context = _contextService;
         }
 
         // Nightly Data Sync of all Open District plots that are buildable. Iterates through all districts, and 2nd tier of all plots within district
@@ -73,6 +72,7 @@ namespace MetaverseMax.ServiceClass
             OwnerOfferDB ownerOfferDB;
             PetDB petDB;
             OwnerCitizenDB ownerCitizenDB;
+            int citizenCount =0;
 
             List<DistrictName> districtList = new();
             List<DistrictPerk> districtPerkListMCP = new();
@@ -80,6 +80,7 @@ namespace MetaverseMax.ServiceClass
 
             int districtId = 0, saveCounter = 1, updateInstance = 0, retryCount =0;
             List<Plot> plotList;
+            syncInProgress = true;
 
             try
             {                
@@ -209,7 +210,7 @@ namespace MetaverseMax.ServiceClass
 
                     await citizenManage.GetCitizenMCP(maticKey);
 
-                    dbLogger.logInfo(String.Concat("Owner Offer, Pet, Citizen Updated for : ", maticKey));
+                    citizenCount++;                    
 
                     // Add a delay of 2 seconds if active user.
                     if (saveDBOverride == true)
@@ -217,6 +218,7 @@ namespace MetaverseMax.ServiceClass
                         await Task.Delay(2000);      // 100ms delay to help prevent server side kicks
                     }
                 }
+                dbLogger.logInfo(String.Concat("Owner (Offer, Pet, Citizen) Updated count : ", citizenCount));
                 _context.ActionUpdate(ACTION_TYPE.CITIZEN);
                 _context.ActionUpdate(ACTION_TYPE.OFFER);
                 _context.ActionUpdate(ACTION_TYPE.PET);
@@ -239,12 +241,14 @@ namespace MetaverseMax.ServiceClass
             {
                 dbLogger.logException(ex, String.Concat("SyncPlotData() : Error Processing Sync"));                
             }
-            
+
+            syncInProgress = false;
+
             return;
         }
 
         public static void SyncPlotData_Reset()
-        {
+        {            
             jobInterval = jobIntervalRequested;
             saveDBOverride = false;
         }

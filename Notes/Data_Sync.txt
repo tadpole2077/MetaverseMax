@@ -1,0 +1,23 @@
+﻿============================================================================
+Service call - limiter/Delay intervals - default 100ms
+============================================================================
+
+1)  plotDB.AddOrUpdatePlot() - 100ms(custom)
+On each Plot MCP WS request, applies a XXX delay (typically 100ms) after WS complete.   Delay internal set from task parameter.
+FN: SyncPlotData()
+
+2) CitizenManage.CheckSalePrice()  - 100ms(Fixed)
+Called on any CitizenManage.UpdateCitizen(invoke from CitizenManage.GetCitizenMCP())
+Triggered if a Cit has a price for-sale "change" since the last update.
+Expect limited new/expire/complted Citizen Sales per day (<100 per sync)
+
+
+
+============================================================================
+Active User - limiter/Delay interval
+============================================================================
+1) Additional wait interval of 2 seconds (Fixed/hard coded) invoked
+On: Owner - Pet - Offer Loop instance.
+Fn: SyncPlotData()
+
+

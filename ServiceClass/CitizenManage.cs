@@ -296,7 +296,7 @@ namespace MetaverseMax.ServiceClass
 
                         // Expire any db cits not found within current owner cit collection.  Citizens sold/transfered are handled here - citizens that are reassigned to another building handled later.
                         Expire(ownerMatic, citizens);
-                        _context.SaveChanges();
+                        
 
                         // Add 1 or 2 records per citizen owned, if citizen already exists then skip creating a new one, just create the link record if change (pet, owner, dates, land) found.
                         for (int index = 0; index < citizens.Count; index++)
@@ -335,6 +335,7 @@ namespace MetaverseMax.ServiceClass
         {            
             bool match = false;
             List<OwnerCitizen> dbCitizenList = ownerCitizenDB.GetOwnerCitizenByOwnerMatic(ownerMatic, null);
+            int count = 0;
 
             // find matching db cit in owners cit collection, if no match found then expire the db cit link 
             for (int index = 0; index < dbCitizenList.Count; index++)
@@ -355,11 +356,16 @@ namespace MetaverseMax.ServiceClass
                 {
                     // Find the Citizen History events since the last refresh event (this maybe 1 day or more if last sync failed, or less if updates occured from IP ranking features
                     CitizenUpdateEvents(dbCitizenList[index].link_key, (DateTime)dbCitizenList[index].refreshed_last, ownerMatic);
-                        
+                    count++;
                     //dbCitizenList[index].valid_to_date = DateTime.Now;          // Might need to review this - as cit transfer/sale would have occured any time between last sync run and now.
                 }
+            }
 
-            }            
+            // Save changes if any Citizens found transferred or sold. Needed for later sync type jobs
+            if (count > 0)
+            {
+                _context.SaveChanges();
+            }
 
             return 0;
         }

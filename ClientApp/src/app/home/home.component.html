@@ -28,7 +28,7 @@
       <span>District Report</span>
     </a>
 
-    <a class="action" [routerLink]="['/building-ip']">
+    <a class="action" style="display:none" [routerLink]="['/building-ip']">
       <i class="fas fa-building"></i>
       <span>Building IP</span>
     </a>
@@ -36,7 +36,7 @@
 
   <div id="introBlock">
     <ul class="introList">
-      <li>Beta Version 0.12 (2021_09_14) : Features may become unstable at any time due to active development</li>
+      <li>Beta Version 0.13 (2022_04_20) : Features may become unstable at any time due to active development</li>
       <li>Initial features tools are for MEGA WORLD. Specifically Tron World during early Beta</li>
       <li>If you love our tools, encourage us to keep on developing them for MCP World. A donation of Energy, Water, any materials or Trx keeps the dev production run going and fueled on coffee!</li>
       <li>Donate to our either our In-Game or Tron Trx account (click to copy): <button class="btn btn-primary" (click)="copyMessage('TWpDTFNtM7qQr9vKNJBxhsed7TTwZsyCPu')" title="click to copy">TWpDTFNtM7qQr9vKNJBxhsed7TTwZsyCPu</button></li>
@@ -58,7 +58,40 @@
 
       <ng-template matExpansionPanelContent>
 
-        <div>
+        <div style="margin-bottom:3rem">
+          <h3>District Summary [Release 0.13 Beta] (2022_04_19)</h3>
+          <h5>My Portfolio / Owner Report : Building Tabs </h5>
+          <img src="./assets/user_guide_tabs_desktop.png" class="promoImg" style="margin-right: 1rem" height="200" />
+          <img src="./assets/user_guide_tabs_mobile.png" class="promoImg" style="" height="200" />
+          <ul style="margin-top:.6rem">
+            <li>Desktop(left) & Mobile(right) support. Each tab shows a count of the building types matching the current filtered view.</li>
+            <li>Note that the view filter can be set to show all plots in a portfolio (default), or filtered by district.</li>
+          </ul>
+          <h5>Production History module - Citizens</h5>
+          <img src="./assets/user_guide_production_desktop.png" class="promoImg" style="margin-right: 1rem" height="200" />
+          <img src="./assets/user_guide_production_mobile.png" class="promoImg" style="" height="200" />
+          <ul>
+            <li>Desktop(left) & Mobile(right) supported</li>
+            <li>Click on a Run row to View citizens used per run, including pet usage.</li>
+            <li>New column: Eff(Cit) : citizen efficiency % for all citizens assigned to this building during each run.</li>
+            <li>If building supports a max of 2 citizens, but only 1 is assigned, then EFF(Cit) % is limited to a max of 50%.</li>
+            <li>Citizen traits and specific Citizen efficiency rating shown matching the building type (industry, production, energy)</li>
+            <li>Mobile view redesigned for optimal responsive and usability, secondary columns either combined or removed compared to desktop mode. </li>
+          </ul>
+          <h5> Citizen module - enhanced</h5>
+          <img src="./assets/user_guide_citizen_desktop.png" class="promoImg" style="margin-right: 1rem" height="200" />
+          <img src="./assets/user_guide_citizen_mobile.png" class="promoImg" style="" height="200" />
+          <ul>
+            <li>Desktop(left) & Mobile(right) supported</li>
+            <li>Pets currently assigned are now shown using a Paw icon</li>
+            <li>Citizen sale price shown</li>
+            <li>Citizen breed & name change updated</li>
+            <li>Timestamp shown when last updated</li>
+            <li>Support added to show Energy and Water efficiency</li>
+          </ul>
+        </div>
+
+        <div style="margin-bottom:3rem">
           <h3>District Summary [Release 0.12 Beta] (2021_09_14)</h3>
           <h5>My Portfolio / Owner Report : Pets & Citizens </h5>
           <img src="./assets/user-guide-cit-eff-sml.png" class="promoImg" style="margin-right:1rem" height="150" />

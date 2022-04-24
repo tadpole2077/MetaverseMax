@@ -20,6 +20,7 @@ export class CitizenModalComponent {
   public portfolioCitizen: PortfolioCitizen;
   public hidePaginator: boolean;
   private maticKey: string;
+  public isMobileView: boolean = false;
 
   httpClient: HttpClient;
   baseUrl: string;
@@ -42,6 +43,19 @@ export class CitizenModalComponent {
     this.portfolioCitizen = null;
 
     //const copiedData = JSON.stringify(this.dataSource.data);
+
+    // Mobile View - remove secondary columns
+    if (this.width < 768) {
+      this.isMobileView = true;
+      this.displayedColumnsTraits = ['current_price', 'name', 'sex', 'trait_agility', 'trait_intelligence', 'trait_charisma', 'trait_endurance', 'trait_luck', 'trait_strength', 'trait_avg'];
+      this.displayedColumnsEfficiency = ['name', 'trait_avg', 'efficiency_industry', 'efficiency_production', 'efficiency_energy_water', 'efficiency_office', 'efficiency_commercial', 'efficiency_municipal', 'building_level'];
+      this.displayedColumns = this.displayedColumnsTraits;
+    }
+
+  }
+
+  public get width() {
+    return window.innerWidth;
   }
 
   copyData() {
@@ -134,6 +148,9 @@ export class CitizenModalComponent {
     this.search(this.maticKey, true);
 
     return;
+  }
 
+  roundUp(source:number) {  
+    return this.isMobileView ? Math.round(source) : source;
   }
 }

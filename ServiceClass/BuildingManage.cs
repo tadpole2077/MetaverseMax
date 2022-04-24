@@ -180,8 +180,8 @@ namespace MetaverseMax.ServiceClass
                         && EvalBuildingHistory(buildingList[i].last_run_produce_date, buildingLevel) == true)
                     {
                         // Save each building's evaluated IP efficiency and predicted produce on next run.
-                        await GetHistory(buildingList[i].token_id, buildingList[i].ip_efficiency, buildingList[i].ip_efficiency_bonus_bug);
-                        Task.Run(async () => { await WaitPeriodAction(waitPeriodMS); }).Wait();         //Wait set period required reduce load on MCP services - min 100ms
+                        await GetHistory(buildingList[i].token_id, buildingList[i].ip_efficiency, buildingList[i].ip_efficiency_bonus_bug, waitPeriodMS);
+                        await WaitPeriodAction(waitPeriodMS); //Wait set period required reduce load on MCP services - min 100ms
                     }
                 }
 
@@ -288,7 +288,7 @@ namespace MetaverseMax.ServiceClass
             return (int)Math.Round(influence * (1 + (influenceBonus / 100.0)), 0, MidpointRounding.AwayFromZero);
         }
 
-        public async Task<BuildingHistory> GetHistory(int asset_id, decimal ipEfficiency, decimal ip_efficiency_bonus_bug = default)
+        public async Task<BuildingHistory> GetHistory(int asset_id, decimal ipEfficiency, decimal ip_efficiency_bonus_bug = default, int waitPeriodMS = 100)
         {            
             BuildingHistory buildingHistory = new();            
 
@@ -321,7 +321,7 @@ namespace MetaverseMax.ServiceClass
 
                 }
                 watch.Stop();
-                servicePerfDB.AddServiceEntry(serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, asset_id.ToString());
+                servicePerfDB.AddServiceEntry("Building - "+serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, asset_id.ToString());
 
                 JArray historyItems = JArray.Parse(content);
                 if (historyItems != null && historyItems.Count > 0)
@@ -417,7 +417,7 @@ namespace MetaverseMax.ServiceClass
                                 )
                             {
                                 // Find any missing Citizen events since last production run and save to db.                                
-                                actionCount = CheckBuildingCitizenHistory(ownerCitizenExt, (DateTime)lastRunTime, asset_id, buildingHistory.owner_matic);
+                                actionCount = CheckBuildingCitizenHistory(ownerCitizenExt, (DateTime)lastRunTime, asset_id, buildingHistory.owner_matic, waitPeriodMS);
 
                                 // PERF - if no changes found then dont continue re-eval
                                 if (actionCount > 0)
@@ -773,7 +773,7 @@ namespace MetaverseMax.ServiceClass
             return formatedTotal;
         }
 
-        private int CheckBuildingCitizenHistory(List<OwnerCitizenExt> citizens, DateTime eventDate, int buildingTokenId, string ownerMatic)
+        private int CheckBuildingCitizenHistory(List<OwnerCitizenExt> citizens, DateTime eventDate, int buildingTokenId, string ownerMatic, int waitPeriodMS = 100)
         {
             CitizenManage citizenManage = new(_context);
             DBLogger dbLogger = new(_context);
@@ -786,6 +786,7 @@ namespace MetaverseMax.ServiceClass
             {
                 //filterCitizens[index]
                 actionCount += citizenManage.CitizenUpdateEvents(filterCitizens[index].link_key, eventDate, ownerMatic);
+                Task.Run(async () => { await WaitPeriodAction(waitPeriodMS); }).Wait();         //Wait set period required reduce load on MCP services - min 100ms
             }
             
             if (actionCount > 0)

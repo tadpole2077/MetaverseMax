@@ -9,7 +9,7 @@
     
     <i class="fas fa-clipboard" style=""></i><button mat-raised-button color="primary" class="copy" (click)="copyData()">Copy All to Clipboard</button>
 
-    <mat-button-toggle-group name="tableView" aria-label="View">
+    <mat-button-toggle-group name="tableView" aria-label="View" id="tableView">
       <mat-button-toggle value="traits" checked="true" (change)="onTableViewChange($event.value)" matTooltip="View Citizen Traits"><span>Traits</span></mat-button-toggle>
       <mat-button-toggle value="efficiency" (change)="onTableViewChange($event.value)" matTooltip="View Citizen Efficiency"><span>Efficiency</span></mat-button-toggle>
     </mat-button-toggle-group>
@@ -23,6 +23,7 @@
         <span>( Refresh <i #progressIcon class="fas fa-sync-alt progressIcon"></i> )</span>
       </a>
     </div>
+
     <table mat-table [dataSource]="dataSource" matSort class="table-striped mat-elevation-z8" style="display:inline-table">
 
       <!--table table-striped-->
@@ -57,24 +58,28 @@
 
       <ng-container matColumnDef="sex">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Sex </th>
-        <td mat-cell *matCellDef="let citizen"> {{ citizen.sex}}</td>
+        <td mat-cell *matCellDef="let citizen">
+          <span>{{ citizen.sex}}</span>
+          <span class="mobileVisible">Gen: {{ citizen.generation}}</span>
+          <span class="mobileVisible">Br: {{ citizen.breeding }}</span>
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="breeding">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Breed </th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header><span>Breed</span></th>
         <td mat-cell *matCellDef="let citizen"> {{ citizen.breeding }}</td>
       </ng-container>
 
       <ng-container matColumnDef="trait_agility">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Agility </th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header><span>{{ isMobileView?"Agi":"Agility" }}</span></th>
         <td mat-cell *matCellDef="let citizen">
-          <span>{{ citizen.trait_agility }}</span>
+          <span>{{ citizen.trait_agility }}</span>          
           <span [hidden]="citizen.trait_agility_pet == 0"> + {{ citizen.trait_agility + citizen.trait_agility_pet > 10 ? 10 - citizen.trait_agility : citizen.trait_agility_pet}}<i class="fas fa-paw"></i></span>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="trait_intelligence">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Intel </th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header><span>{{ isMobileView?"Int":"Intel" }}</span></th>
         <td mat-cell *matCellDef="let citizen">
           <span>{{ citizen.trait_intelligence }}</span>
           <span [hidden]="citizen.trait_intelligence_pet == 0"> + {{ citizen.trait_intelligence + citizen.trait_intelligence_pet > 10 ? 10 - citizen.trait_intelligence : citizen.trait_intelligence_pet}}<i class="fas fa-paw"></i></span>
@@ -82,15 +87,15 @@
       </ng-container>
 
       <ng-container matColumnDef="trait_charisma">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Charisma </th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header><span>{{ isMobileView?"Cha":"Charisma" }}</span></th>
         <td mat-cell *matCellDef="let citizen">
           <span>{{ citizen.trait_charisma }}</span>
-          <span [hidden]="citizen.trait_charisma_pet_bonus == 0"> + {{ citizen.trait_charisma + citizen.trait_charisma_pet_bonus > 10 ? 10 - citizen.trait_charisma_pet_bonus : citizen.trait_charisma_pet}}<i class="fas fa-paw"></i></span>
+          <span [hidden]="citizen.trait_charisma_pet == 0"> + {{ citizen.trait_charisma + citizen.trait_charisma_pet > 10 ? 10 - citizen.trait_charisma_pet : citizen.trait_charisma_pet}}<i class="fas fa-paw"></i></span>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="trait_endurance">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Endurance </th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header><span>{{ isMobileView?"End":"Endurance" }}</span></th>
         <td mat-cell *matCellDef="let citizen">
           <span>{{ citizen.trait_endurance }}</span>
           <span [hidden]="citizen.trait_endurance_pet == 0"> + {{ citizen.trait_endurance + citizen.trait_endurance_pet > 10 ? 10 - citizen.trait_endurance : citizen.trait_endurance_pet}}<i class="fas fa-paw"></i></span>
@@ -98,7 +103,7 @@
       </ng-container>
 
       <ng-container matColumnDef="trait_luck">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Luck </th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header><span>{{ isMobileView?"Luc":"Luck" }}</span></th>
         <td mat-cell *matCellDef="let citizen">
           <span>{{ citizen.trait_luck }}</span>
           <span [hidden]="citizen.trait_luck_pet == 0"> + {{ citizen.trait_luck + citizen.trait_luck_pet > 10 ? 10 - citizen.trait_luck : citizen.trait_luck_pet}}<i class="fas fa-paw"></i></span>
@@ -106,7 +111,7 @@
       </ng-container>
 
       <ng-container matColumnDef="trait_strength">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Strength </th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header><span>{{ isMobileView?"Str":"Strength" }}</span></th>
         <td mat-cell *matCellDef="let citizen">
           <span>{{ citizen.trait_strength }}</span>
           <span [hidden]="citizen.trait_strength_pet == 0"> + {{ citizen.trait_strength + citizen.trait_strength_pet > 10 ? 10 - citizen.trait_strength : citizen.trait_strength_pet}}<i class="fas fa-paw"></i></span>
@@ -114,47 +119,47 @@
       </ng-container>
 
       <ng-container matColumnDef="trait_avg">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Avg. </th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ isMobileView?"Avg":"Avg." }}</th>
         <td mat-cell *matCellDef="let citizen">
           <span>{{ citizen.trait_avg }}</span>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="efficiency_industry">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Industry </th>
-        <td mat-cell *matCellDef="let citizen"> {{ citizen.efficiency_industry }}</td>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header><span>{{ isMobileView?"Ind":"Industry" }}</span></th>
+        <td mat-cell *matCellDef="let citizen"> {{ roundUp(citizen.efficiency_industry) }}</td>
       </ng-container>
 
       <ng-container matColumnDef="efficiency_production">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Production </th>
-        <td mat-cell *matCellDef="let citizen"> {{ citizen.efficiency_production }}</td>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header><span>{{ isMobileView?"Prd":"Production" }}</span></th>
+        <td mat-cell *matCellDef="let citizen"> {{ roundUp(citizen.efficiency_production) }}</td>
       </ng-container>
 
       <ng-container matColumnDef="efficiency_energy_water">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Energy </th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header><span>{{ isMobileView?"Ene":"Energy" }}</span></th>
         <td mat-cell *matCellDef="let citizen">
-          <span><i class="fas fa-tint"></i>{{ citizen.efficiency_energy_water }}</span>
-          <span><i class="fas fa-bolt"></i>{{ citizen.efficiency_energy_electric }}</span>
+          <span><i class="fas fa-tint"></i>{{ roundUp(citizen.efficiency_energy_water) }}</span>
+          <span><i class="fas fa-bolt"></i>{{ roundUp(citizen.efficiency_energy_electric) }}</span>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="efficiency_office">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Office </th>
-        <td mat-cell *matCellDef="let citizen"> {{ citizen.efficiency_office }}</td>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header><span>{{ isMobileView?"Off":"Office" }}</span></th>
+        <td mat-cell *matCellDef="let citizen"> {{ roundUp(citizen.efficiency_office) }}</td>
       </ng-container>
 
       <ng-container matColumnDef="efficiency_commercial">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Commercial </th>
-        <td mat-cell *matCellDef="let citizen"> {{ citizen.efficiency_commercial }}</td>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header><span>{{ isMobileView?"Com":"Commercial" }}</span></th>
+        <td mat-cell *matCellDef="let citizen"> {{ roundUp(citizen.efficiency_commercial) }}</td>
       </ng-container>
 
       <ng-container matColumnDef="efficiency_municipal">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Municipal </th>
-        <td mat-cell *matCellDef="let citizen"> {{ citizen.efficiency_municipal }}</td>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header><span>{{ isMobileView?"Mun":"Municipal" }}</span></th>
+        <td mat-cell *matCellDef="let citizen"> {{ roundUp(citizen.efficiency_municipal) }}</td>
       </ng-container>
 
       <ng-container matColumnDef="building_level">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Building </th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header><span>{{ isMobileView?"Land":"Building" }}</span></th>
         <td mat-cell *matCellDef="let citizen">
           <a [hidden]="citizen.pos_x == 0" class="lineAnim" target="_blank" href="https://play.mcp3d.com/tron/land?x={{ citizen.pos_x }}&y={{ citizen.pos_y }}">
             <span matBadge="L{{ citizen.building_level }}" matBadgePosition="above before">
@@ -170,7 +175,7 @@
       </ng-container>
 
       <ng-container matColumnDef="header-row-second-group">
-        <th mat-header-cell *matHeaderCellDef [attr.colspan]="9"> {{ tableHeader }}</th>
+        <th mat-header-cell *matHeaderCellDef [attr.colspan]="9"><span class="tableHeader">{{ tableHeader }}</span></th>
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="['header-row-first-group', 'header-row-second-group'];"></tr>

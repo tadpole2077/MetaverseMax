@@ -1,5 +1,7 @@
 ﻿
+============================================================================
 Web Service Calls - Limiter applied @ GetHistory level - default 100ms
+============================================================================
 Limiter: WaitPeriodAction()
 Where: After GetHistory() call, at least one service call will occur within GetHisory, potentially many more dependings on if Citizen History needs an eval.
 
@@ -19,3 +21,7 @@ BuildingIPbyTypeGet()
 
 ==============================================================================
 ==============================================================================
+
+Web Service Calls - Limiter applied user/assets/history level - default 100ms
+* Needed when retriving Citizen Histrory for a building, could be 20 cit history to retrive per building.
+* Applied to BuildingManage.CheckBuildingCitizenHistory()

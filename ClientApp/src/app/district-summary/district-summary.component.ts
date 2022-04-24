@@ -25,6 +25,7 @@ export class DistrictSummaryComponent implements AfterViewInit {
 
   DistrictInterface: any;
 
+  public isMobileView: boolean = false;
   public requestDistrictId: number;
   public district: District;
   public fundtotal: number;
@@ -97,10 +98,18 @@ export class DistrictSummaryComponent implements AfterViewInit {
     if (this.requestDistrictId) {
       this.searchDistrict(this.requestDistrictId);
     }
+
+    // Mobile View - remove secondary columns
+    if (this.width < 768) {
+      this.isMobileView = true;
+    }
   }
 
   ngAfterViewInit() {
     //this.dataSource.sort = this.sort;
+  }
+  public get width() {
+    return window.innerWidth;
   }
 
   // Single parameter struct containing 1 element, pushed by component search-district

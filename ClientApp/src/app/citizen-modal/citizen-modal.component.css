@@ -294,18 +294,113 @@ td.mat-column-efficiency_energy_water span {
   font-size: .7rem;
   z-index: 1;
 }
+.mobileVisible {
+  display: none
+}
 
 
 
 @media only screen and (max-width: 415px) {
+
+  .mobileVisible{
+    display:inline-block
+  }
+
+  .table-container {
+    margin-bottom: 20px
+  }
+
   .modalFrame {
-    left: 1%;
+    position: absolute;
+    left: 0;
     bottom: unset;
+    top: 0;
+    height: 100vh;
+    transform: none !important;
+    width: 100vw;
   }
 
   .table-container {
     margin-left: 0;
     margin-right: 0;
+  }
+
+  .closeframe {
+    left: 90vw;
+  }
+  .count {
+    left: 85vw;
+    top: 30px;
+    display: inline-block;
+    position: absolute;
+    margin-right: 0;
+  }
+
+  #tableView {
+    left: 50vw;
+    position: absolute;
+  }
+
+  .tableHeader {
+    display: inline-block;
+    left: 80vw;
+    position: absolute;
+    margin-top: -8px;
+  }
+  .mat-column-header-row-second-group{
+    text-align:right;
+  }
+
+  tr td:first-child {
+    padding-left: 2px;
+    text-align: center
+  }
+  th.mat-header-cell:first-of-type.mat-column-name{
+    padding-left: 10px;
+    padding-right: 0
+  }
+
+  td.mat-cell {
+    font-size: .74rem;
+    font-weight: 500;
+  }
+
+    td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type, th.mat-header-cell:last-of-type {
+      padding-right: 10px
+    }
+
+  th.mat-column-current_price {
+    min-width: 3.2rem;
+  }
+  tr td.mat-column-current_price{
+    text-align:left
+  }
+
+  .salepos {
+    margin-left: 3px
+  }
+    .salepos:before {
+      height: 30px;
+      width: 46px;
+      margin-top: -12px;
+    }
+
+  .saleposInner {
+    margin-left: -6px;
+    font-size: .7rem;
+    font-weight: 600;
+  }
+
+  .mat-column-name {
+    min-width: 3.2rem;    
+  }
+  td.mat-column-name img{
+    padding-top: 4px;
+  }
+  td.mat-column-name span {
+    width: 3rem;
+    padding-bottom: 4px;
+    padding-top: 6px;
   }
 
   .mat-column-buyer_matic_key a span {
@@ -325,12 +420,30 @@ td.mat-column-efficiency_energy_water span {
     padding-right: 8px;
   }
 
-  td.mat-cell {
-    font-size: .74rem;
-    font-weight: 500;
+  .mat-sort-header span {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden !important;
+    /*text-overflow: ellipsis;*/
+    vertical-align: middle;
+    width: 1.3rem;
+  }
+  th.mat-column-building_level span {
+    width: 1.8rem
   }
 
-    td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type, th.mat-header-cell:last-of-type {
-      padding-right: 10px
-    }
+  .mat-paginator {
+    margin-top: 10px;
+  }
+  .mat-badge-medium {
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+    font-size: .66rem;
+  }
+  .industryImg {
+    max-height: 40px;
+    margin-left: -2px;
+  }
+  
 }

@@ -68,7 +68,7 @@ namespace MetaverseMax.Database
                 owner.last_use = DateTime.Now;
 
                 // Slow down Nightly job process when 1+ user is active via (a)save on each db update (b) increase cycle wait interval to 1 second : avoids user db timeouts (such as opening large Cit collection).
-                if (SyncWorld.saveDBOverride == false)
+                if (SyncWorld.saveDBOverride == false && SyncWorld.syncInProgress == true)
                 {
                     _ = ResetDataSync();
                 }
@@ -116,6 +116,8 @@ namespace MetaverseMax.Database
         public async Task ResetDataSync()
         {
             var timeoutInMilliseconds = TimeSpan.FromMinutes(5);
+            ServicePerfDB servicePerfDB = new(_context);
+            servicePerfDB.AddServiceEntry("ResetDataSync() 5min period - 1 second interval calls", DateTime.Now, 5000, 0, "");
 
             await Task.Delay(timeoutInMilliseconds);
 
