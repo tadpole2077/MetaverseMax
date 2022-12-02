@@ -19,7 +19,7 @@ namespace MetaverseMax.Database
             RETURN_CODE returnCode = RETURN_CODE.ERROR;
             try
             {
-                if (Startup.logServiceInfo == null || Startup.logServiceInfo == "0")
+                if (Startup.logServiceInfo == false)
                 {
                     return RETURN_CODE.SUCCESS;
                 }

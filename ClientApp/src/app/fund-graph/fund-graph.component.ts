@@ -79,7 +79,7 @@ export class FundGraphComponent {
 
   setYaxisLabel(val) {
 
-    let graphPostAppend:string = " Trx";
+    let graphPostAppend:string = " MEGA";
 
     if (this.graphDataStored) {
       graphPostAppend = this.graphDataStored.y_axis_postappend;

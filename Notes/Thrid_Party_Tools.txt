@@ -19,9 +19,17 @@ https://fontawesome.com/v5.15/icons/search-location?style=solid
 <i class="fas fa-search-location"></i>
 <i class="fas fa-ambulance"></i>
 <i class="fas fa-comments-dollar"></i>
+<i class="fas fa-running"></i>
 
 
 Add FontAwesome to app.
 * Install FontAwesome. npm install @fortawesome/fontawesome-free --save.
 * Register it on angular.json under styles. "node_modules/@fortawesome/fontawesome-free/css/all.min.css"
 * Use it on your application.
+
+
+2) IMAGES
+=============================================================================
+For Rent
+For Sale
+Rented

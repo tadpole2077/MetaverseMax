@@ -34,7 +34,12 @@ namespace MetaverseMax.Database
         public int pet_token_id { get; set; }
 
         [Column("refreshed_last")]
-        public DateTime? refreshed_last { get; set; }        
+        public DateTime? refreshed_last { get; set; }
+
+        [NotMapped]
+        [Column("db_update_pending")]
+        public bool db_update_pending { get; set; }
 
     }
+
 }

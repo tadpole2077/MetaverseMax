@@ -47,8 +47,6 @@ namespace MetaverseMax.Database
         public int? pos_y { get; set; }
 
 
-        [Column("citizen_key")]
-        public int citizen_key { get; set; }
 
         [Column("token_id")]
         public int token_id { get; set; }

@@ -79,7 +79,7 @@ namespace MetaverseMax.ServiceClass
             return districtIDList.ToArray();
         }
 
-        public DistrictWeb MapData_DistrictWeb(District district, District districtHistory_1Mth, bool perksDetail)
+        public DistrictWeb MapData_DistrictWeb(District district, District districtHistory_1Mth, bool perksDetail, bool includeTaxHistory)
         {
             DistrictWeb districtWeb, districtWebHistory = new();                    
             DistrictContent districtContent = new();
@@ -87,6 +87,7 @@ namespace MetaverseMax.ServiceClass
             DistrictFundManage districtFundManage;
             DistrictPerkManage districtPerkManage = new(_context);
             PerkSchema perkSchema = new();
+            int historyDayCount = 365;
 
             districtWeb = MapData_DistrictWebAttributes(district);
             districtWebHistory = MapData_DistrictWebAttributes(districtHistory_1Mth ?? district);
@@ -102,15 +103,22 @@ namespace MetaverseMax.ServiceClass
             }
 
             // Distric Tax Current & Historic
-            districtTaxGraph = new(districtWeb, districtWebHistory);
-            districtFundManage = new(_context);
+            if (includeTaxHistory)
+            {
+                districtTaxGraph = new(districtWeb, districtWebHistory);
+                districtFundManage = new(_context);
 
-            districtWeb.constructTax = districtTaxGraph.Construct();
-            districtWeb.produceTax = districtTaxGraph.Produce();
+                districtWeb.constructTax = districtTaxGraph.Construct();
+                districtWeb.produceTax = districtTaxGraph.Produce();
 
-            IEnumerable<DistrictFund> districtFundList = districtFundManage.GetHistory(district.district_id, 365);
-            districtWeb.fundHistory = districtFundManage.FundChartData(districtFundList);
-            districtWeb.distributeHistory = districtFundManage.DistributeChartData(districtFundList);
+                // Find amount of days from start of MEGA conversion.
+                historyDayCount = DateTime.Today.DayOfYear - new DateTime(2022, 9, 8).DayOfYear;
+                historyDayCount = historyDayCount > 365 ? 365 : historyDayCount;
+
+                IEnumerable<DistrictFund> districtFundList = districtFundManage.GetHistory(district.district_id, historyDayCount);
+                districtWeb.fundHistory = districtFundManage.FundChartData(districtFundList);
+                districtWeb.distributeHistory = districtFundManage.DistributeChartData(districtFundList);
+            }
 
             // District Perks
             if (perksDetail)
@@ -280,7 +288,7 @@ namespace MetaverseMax.ServiceClass
         }
 
         // Get all districts from local db : used by district_list component
-        public IEnumerable<DistrictWeb> GetDistrictAll(bool isOpened)
+        public IEnumerable<DistrictWeb> GetDistrictAll(bool isOpened, bool includeTaxHistory)
         {
             List<District> districtList = new();
             List<DistrictWeb> districtWebList = new();
@@ -293,7 +301,7 @@ namespace MetaverseMax.ServiceClass
                 foreach (District district in districtList)
                 {
 
-                    districtWebList.Add(districtWebMap.MapData_DistrictWeb(district, null, perksDetail));
+                    districtWebList.Add(districtWebMap.MapData_DistrictWeb(district, null, perksDetail, includeTaxHistory));
                 }
             }
             catch (Exception ex)

@@ -2,17 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace MetaverseMax.Database
 {
     public class DBLogger
     {
-        private readonly MetaverseMaxDbContext _context;
+        public MetaverseMaxDbContext _context;
+        public readonly string dbConnectionString;
 
         // Protected base method, can only be accessed via code(methods) from same class or derived class. 
         public DBLogger(MetaverseMaxDbContext _parentContext)
         {
             _context = _parentContext;
+            dbConnectionString = _context.Database.GetConnectionString();
         }
 
         public int logException(Exception ex, string primaryLogEntry)
@@ -20,6 +23,13 @@ namespace MetaverseMax.Database
 
             string log = string.Concat(ex.Message, " Inner: ", ex.InnerException != null ? ex.InnerException.Message : "");
             log = log.Substring(0, log.Length > 500 ? 500 : log.Length);
+
+            if (_context == null)
+            {
+                DbContextOptionsBuilder<MetaverseMaxDbContext> options = new();
+                _context = new MetaverseMaxDbContext(options.UseSqlServer(dbConnectionString).Options);
+                _context.LogEvent(String.Concat("DBLogger::logException() : WARNING - DB Context lost & Recreated"));
+            }
 
             if (_context != null)
             {

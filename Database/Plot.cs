@@ -67,11 +67,20 @@ namespace MetaverseMax.Database
         [Column("on_sale")]
         public bool on_sale { get; set; }
 
+        [Column("for_rent")]
+        public int for_rent { get; set; }
+
+        [Column("rented")]
+        public bool rented { get; set; }
+        
         [Column("current_price", TypeName = "decimal(18, 2)")]
         public decimal current_price { get; set; }
 
         [Column("abundance")]
         public int? abundance { get; set; }
+
+        [Column("condition")]
+        public int? condition { get; set; }
 
         [Column("influence_info")]
         public int? influence_info { get; set; }
@@ -130,5 +139,10 @@ namespace MetaverseMax.Database
 
         [Column("low_stamina_alert")]
         public Boolean? low_stamina_alert { get; set; }
+
+        // Current production type within this building - Mapping to BUILDING_PRODUCT Enum.
+        // Only populated for Industry,  for Production, Energy the type of product produced is extracted from building type, meaning only one product possible.
+        [Column("action_id")]
+        public int action_id { get; set; }
     }
 }

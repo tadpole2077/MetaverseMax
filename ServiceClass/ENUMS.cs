@@ -1,5 +1,5 @@
 ﻿namespace MetaverseMax.ServiceClass
-{
+{    
     public enum APPLICATION
     {                
         WHITE_AIR_CON = 1,
@@ -131,7 +131,8 @@
         WATER = 7,
         ENERGY = 8,
         STEEL = 9,
-        CONCRETE = 10
+        CONCRETE = 10,
+        FACTORY_PRODUCT = 99
     }
 
     public enum BUILDING_SUBTYPE  //MCP.building_id
@@ -145,6 +146,7 @@
         SUPERMARKET = 7,
         TRADE_CENTER = 8,
         CONCRETE_PLANT = 9,
+        STEEL_PLANT = 9,
         FACTORY = 10,
         WATER_PLANT = 11,
         POWER_PLANT = 12,
@@ -163,10 +165,10 @@
         LEVEL_3 = 10,
         LEVEL_4 = 17,
         LEVEL_5 = 24,
-        LEVEL_6 = 32,
-        LEVEL_7 = 44,
+        LEVEL_6 = 31,
+        LEVEL_7 = 45,
         LEVEL_8 = 52,
-        LEVEL_9 = 68,
+        LEVEL_9 = 66,
         LEVEL_10 = 100
     }
 
@@ -177,11 +179,22 @@
         LEVEL_3 = 10,
         LEVEL_4 = 17,
         LEVEL_5 = 24,
-        LEVEL_6 = 32,
-        LEVEL_7 = 44,
+        LEVEL_6 = 31,
+        LEVEL_7 = 45,
         LEVEL_8 = 52,
-        LEVEL_9 = 68,
+        LEVEL_9 = 66,
         LEVEL_10 = 100
+    }
+
+    public enum DAMAGE_EFF
+    {
+        DMG_1_TO_5 = 40,
+        DMG_1_TO_20 = 55,
+        DMG_1_TO_35 = 69,
+        DMG_1_TO_50 = 80,
+        DMG_1_TO_65 = 92,
+        DMG_1_TO_80 = 104,
+        DMG_1_TO_90 = 111
     }
 
     public enum MIN_WOOD

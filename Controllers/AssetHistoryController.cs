@@ -17,6 +17,7 @@ namespace MetaverseMax.Controllers
     [Route("api/[controller]")]
     public class AssetHistoryController : ControllerBase
     {
+        private const int USE_STORED_EFFICIENCY = -1;
         private readonly ILogger<AssetHistoryController> _logger;
         private readonly MetaverseMaxDbContext _context;
         private Common common = new();
@@ -34,7 +35,8 @@ namespace MetaverseMax.Controllers
 
             if (ModelState.IsValid)
             {
-                return Ok(Task.Run(() => buildingManage.GetHistory(parameters.token_id, parameters.ip_efficiency, parameters.ip_efficiency_bonus_bug) ).Result);
+                return Ok(Task.Run(() => buildingManage.GetHistory(parameters.token_id, 50, true, parameters.full_refresh == 1, string.Empty, USE_STORED_EFFICIENCY) ).Result);
+
             }
             return BadRequest("Get Asset History request is invalid");
         }

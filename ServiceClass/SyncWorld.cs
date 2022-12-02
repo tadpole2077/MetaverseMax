@@ -14,7 +14,6 @@ namespace MetaverseMax.ServiceClass
         private Common common = new();
 
         public static int jobInterval = 1;
-        public static int jobIntervalRequested = 1;
         public static bool saveDBOverride = false;
         public static bool syncInProgress = false;
 
@@ -59,9 +58,8 @@ namespace MetaverseMax.ServiceClass
         public static async void SyncPlotData(object parameters)
         {
             MetaverseMaxDbContext _context = null;
-            DBLogger dbLogger = new(null);
+            DBLogger dbLogger = null;
             PlotDB plotDB;
-            DistrictDB districtDB;
             DistrictTaxChangeDB districtTaxChangeDB;
             DistrictFundManage districtFundManage;
             DistrictWebMap districtWebMap;
@@ -72,42 +70,40 @@ namespace MetaverseMax.ServiceClass
             OwnerOfferDB ownerOfferDB;
             PetDB petDB;
             OwnerCitizenDB ownerCitizenDB;
-            int citizenCount =0;
+            PlotManage plotManage;
+            int ownerCount =0;
+            int resetCount = 0;
+            string dbConnectionString = String.Empty;
 
             List<DistrictName> districtList = new();
             List<DistrictPerk> districtPerkListMCP = new();
             List<DistrictPerk> districtPerkList = new();
 
             int districtId = 0, saveCounter = 1, updateInstance = 0, retryCount =0;
-            List<Plot> plotList;
+
+            List<Plot> plotList, districtPlotList;
             syncInProgress = true;
 
             try
             {                
                 ArrayList threadParameters = (ArrayList)parameters;                
-                string dbConnectionString = (string)threadParameters[0];
+                dbConnectionString = (string)threadParameters[0];
                 int worldType = (int)threadParameters[1];
-                jobIntervalRequested = jobInterval = (int)threadParameters[2];
-                
-                DbContextOptionsBuilder<MetaverseMaxDbContext> options = new();                
-                _context = new MetaverseMaxDbContext(options.UseSqlServer(dbConnectionString).Options);
+                jobInterval = (int)threadParameters[2];
+
+                //DbContextOptionsBuilder<MetaverseMaxDbContext> options = new();                
+                //_context = new MetaverseMaxDbContext(options.UseSqlServer(dbConnectionString).Options);
+                _context = new MetaverseMaxDbContext(dbConnectionString);
 
                 BuildingManage buildingManage = new(_context);
                 dbLogger = new(_context);
                 districtPerkManage = new(_context);
-                districtFundManage = new(_context);
-                districtPerkDB = new(_context);
                 districtWebMap = new(_context);
-                districtDB = new(_context);
-                districtTaxChangeDB = new(_context);
-                plotDB = new(_context);
-                ownerManage = new(_context);
-                ownerOfferDB = new(_context);
-                petDB = new(_context);
-                ownerCitizenDB = new(_context);
-                citizenManage = new(_context);
+                plotDB = new(_context);                
+                plotManage = new(_context);
 
                 dbLogger.logInfo(String.Concat("Start Nightly Sync"));
+                saveDBOverride = false;
 
                 // Update All Districts from MCP, as a new district may have opened.  Attempt 3 times, before failing - as no districts mean no plot updates
                 retryCount = 0;
@@ -121,9 +117,11 @@ namespace MetaverseMax.ServiceClass
                     dbLogger.logException(new Exception(), String.Concat("SyncWorld:SyncPlotData() : GetDistrictsFromMCP() retry successful - no ", retryCount));
                 }
 
+
                 // Store copy of current plots as archived plot state
                 plotDB.ArchivePlots();
                 dbLogger.logInfo(String.Concat("Nightly Sync: Plots Archived"));
+
 
                 // Get district perks, attempt 3 times.
                 retryCount = 0;
@@ -137,31 +135,44 @@ namespace MetaverseMax.ServiceClass
                     dbLogger.logException(new Exception(), String.Concat("SyncWorld:SyncPlotData() : GetPerks() retry successful - no ", retryCount));
                 }
 
+                plotList = plotManage.CheckEmptyPlot(jobInterval);     // removes all empty plots from process list where plot owner unchanged and still plot empty
+
                 // Iterate each district, update all buildable plots within the district then sync district owners, and funds.
                 for (int index = 0; index < districtList.Count; index++)
                 {
-                    districtId = districtList[index].district_id;
-                    plotList = _context.plot.Where(r => r.district_id == districtId && r.land_type == 1).ToList();
+                    // Reset DB Context before each DISTRICT plot set sync (as db context may auto close/drop after a set period of time)
+                    _context.SaveWithRetry();
+                    saveCounter = 0;
+                    _context.Dispose();
+                    _context = new MetaverseMaxDbContext(dbConnectionString);
+                    plotDB = new(_context);
+                    dbLogger = new(_context);
+                    districtPerkDB = new(_context);
+                    districtWebMap = new(_context);
+                    districtFundManage = new(_context);
 
-                    for (int plotIndex = 0; plotIndex < plotList.Count; plotIndex++)
+                    // Extract list of plots for current target district
+                    districtId = districtList[index].district_id;
+                    districtPlotList = plotList.Where(r => r.district_id == districtId).ToList();
+
+                    for (int plotIndex = 0; plotIndex < districtPlotList.Count; plotIndex++)
                     {
 
-                        plotDB.AddOrUpdatePlot(plotList[plotIndex].pos_x, plotList[plotIndex].pos_y, plotList[plotIndex].plot_id, false);
-
+                        plotDB.AddOrUpdatePlot(districtPlotList[plotIndex].pos_x, districtPlotList[plotIndex].pos_y, districtPlotList[plotIndex].plot_id, false);
+                        
                         await Task.Delay(jobInterval); 
 
                         saveCounter++;
-
-                        // Save every 10 plot update collection- improve performance on local db updates.
-                        if (saveCounter >= 10 || saveDBOverride == true)
+                        
+                        // Save every 40 plot update collection - improve performance on local db updates.
+                        if (saveCounter >= 40 || saveDBOverride == true || plotIndex == plotList.Count -1)
                         {
-                            _context.SaveChanges();
+                            _context.SaveWithRetry();
                             saveCounter = 0;
-                        }
+                        }                
                     }
+                    dbLogger.logInfo(String.Concat("All ", districtPlotList.Count, " active plots for district ", districtId," updated"));
 
-                    // Save any pending plots before district sproc calls.
-                    _context.SaveChanges();                    
 
                     // All plots for district now updated, ready to sync district details with MCP, and generation a new set of owner summary records.
                     updateInstance = districtWebMap.UpdateDistrict( districtId ).Result;
@@ -184,7 +195,8 @@ namespace MetaverseMax.ServiceClass
                     }
                     // Save Perk list after each district update, to better support live use of db during sync.
                     districtPerkDB.Save(districtPerkList);
-                    districtPerkList.Clear();
+                    districtPerkList.Clear();                    
+
                 }
 
                 if (districtList.Count > 0)
@@ -192,37 +204,67 @@ namespace MetaverseMax.ServiceClass
                     _context.ActionUpdate(ACTION_TYPE.PLOT);
                 }
 
+
+                // Refresh db context - supposed to be a short term use + when using async tasks seems to be dropped over time (not sure what triggers the drop - perhaps memory leaks)
+                _context.SaveWithRetry();
+                _context.Dispose();
+                _context = new MetaverseMaxDbContext(dbConnectionString);
+                dbLogger = new(_context);
+                ownerManage = new(_context);
+                ownerOfferDB = new(_context);
+                citizenManage = new(_context);
+                ownerCitizenDB = new(_context);
+                petDB = new(_context);
+                districtTaxChangeDB = new(_context);
+
+
                 ownerManage.SyncOwner();        // New owners found from nightly sync
 
                 dbLogger.logInfo(String.Concat("Start Offer,Pet,Cit Sync"));
                 
+
                 // Add/deactive Owner Offers                             
                 Dictionary<string, string> ownersList = ownerManage.GetOwners(true);  // Refresh list after nightly sync
                 ownerOfferDB.SetOffersInactive();
-
                 dbLogger.logInfo(String.Concat("All Owner Offers set to Inactive (recreate)"));
 
                 foreach (string maticKey in ownersList.Keys)
                 {
+                    // refresh db contexts - in case of long running tasks casusing auto expiry
+                    if (resetCount > 100)
+                    {
+                        resetCount = 0;
+                        _context.SaveWithRetry();
+                        _context.Dispose();
+                        _context = new MetaverseMaxDbContext(dbConnectionString);
+                        dbLogger = new(_context);
+                        ownerManage = new(_context);
+                        citizenManage = new(_context);
+                    }
+
+
                     await ownerManage.GetOwnerOffer(true, maticKey);
-
                     await citizenManage.GetPetMCP(maticKey);
-
                     await citizenManage.GetCitizenMCP(maticKey);
 
-                    citizenCount++;                    
+                    ownerCount++;                    
 
-                    // Add a delay of 2 seconds if active user.
-                    if (saveDBOverride == true)
-                    {
-                        await Task.Delay(2000);      // 100ms delay to help prevent server side kicks
-                    }
+                    // Add a stardard delay between service calls component, or 2 seconds per cycle if any active users identified.
+                    await Task.Delay(saveDBOverride == true ? 2000 : jobInterval); 
+
+                    resetCount++;                    
                 }
-                dbLogger.logInfo(String.Concat("Owner (Offer, Pet, Citizen) Updated count : ", citizenCount));
+
+                dbLogger.logInfo(String.Concat("Owner (Offer, Pet, Citizen) Updated count : ", ownerCount));
                 _context.ActionUpdate(ACTION_TYPE.CITIZEN);
                 _context.ActionUpdate(ACTION_TYPE.OFFER);
                 _context.ActionUpdate(ACTION_TYPE.PET);
                 dbLogger.logInfo(String.Concat("End Offer,Pet,Cit Sync"));
+
+                // refresh db contexts - in case of long running tasks casusing auto expiry
+                ownerCitizenDB = new(_context);
+                petDB = new(_context);
+                districtTaxChangeDB = new(_context);
 
                 petDB.UpdatePetCount();
                 ownerCitizenDB.UpdateCitizenCount();
@@ -230,8 +272,14 @@ namespace MetaverseMax.ServiceClass
 
                 dbLogger.logInfo(String.Concat("End Tax Change Sync"));
 
-                dbLogger.logInfo(String.Concat("Start IP Ranking Sync"));
+                // Refresh db context - supposed to be a short term use + when using async tasks seems to be dropped over time (not sure what triggers the drop - perhaps memory leaks)
+                _context.SaveWithRetry();
+                _context.Dispose();
+                _context = new MetaverseMaxDbContext(dbConnectionString);
+                buildingManage = new(_context);
+                dbLogger = new(_context);
 
+                dbLogger.logInfo(String.Concat("Start IP Ranking Sync"));
                 await buildingManage.UpdateIPRanking(jobInterval);
 
                 dbLogger.logInfo(String.Concat("End Nightly Sync"));
@@ -239,18 +287,33 @@ namespace MetaverseMax.ServiceClass
             }
             catch (Exception ex)
             {
-                dbLogger.logException(ex, String.Concat("SyncPlotData() : Error Processing Sync"));                
+                if (_context == null)
+                {
+                    _context = new MetaverseMaxDbContext(dbConnectionString);
+                    dbLogger = new(_context);
+                    dbLogger.logException(ex, String.Concat("SyncWorld::SyncPlotData() : WARNING - DB Context lost & Recreated"));
+                }
+                if (dbLogger != null) {
+
+                    if (_context != null)
+                    {
+                        _context.Dispose();
+                    }
+                    _context = new MetaverseMaxDbContext(dbConnectionString);                    
+                    dbLogger = new(_context);
+
+                    dbLogger.logException(ex, String.Concat("SyncWorld::SyncPlotData() : Error Processing Sync"));
+                }
             }
 
             syncInProgress = false;
+            if (_context != null)
+            {
+                _context.Dispose();
+            }
 
             return;
         }
-
-        public static void SyncPlotData_Reset()
-        {            
-            jobInterval = jobIntervalRequested;
-            saveDBOverride = false;
-        }
+       
     }
 }

@@ -181,9 +181,9 @@ namespace MetaverseMax.ServiceClass
 
                 x_axis_label = "Date",
 
-                y_axis_label = "Trx",
+                y_axis_label = "MEGA",
 
-                y_axis_postappend = " Trx",
+                y_axis_postappend = " MEGA",
 
                 view = new int[] { 500, 200 },
 

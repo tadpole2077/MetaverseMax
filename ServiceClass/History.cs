@@ -42,6 +42,8 @@ namespace MetaverseMax.ServiceClass
         public string start_production { get; set; }
         public int run_count { get; set; }
         public int current_building_lvl { get; set; }
+        public int current_building_product_id { get; set; }
+        public int current_building_id { get; set; }
         public IEnumerable<ResourceTotal> totalProduced { get; set; }
         public IEnumerable<HistoryProduction> detail { get; set; }        
 
@@ -52,7 +54,13 @@ namespace MetaverseMax.ServiceClass
         public IEnumerable<string> changes_last_run { get; set; }
 
         public Prediction prediction { get; set; }
-        public Prediction prediction_bonus_bug { get; set; }
+        //public Prediction prediction_bonus_bug { get; set; }
+        public bool use_prediction { get; set; }
+        public bool check_citizens { get; set; }
+        public int damage { get; set; }
+        public decimal damage_eff { get; set; }
+        public decimal damage_eff_rounded { get; set; }
+        public decimal damage_partial { get; set; }
     }
 
     public class Prediction
@@ -67,6 +75,7 @@ namespace MetaverseMax.ServiceClass
         public decimal cit_efficiency_rounded { get; set; }
         public decimal cit_produce { get; set; }
         public decimal cit_produce_rounded { get; set; }
+        public decimal cit_produce_max { get; set; }
 
         public bool is_perk_activated { get; set; }
         public decimal ip_efficiency { get; set; }        
@@ -75,12 +84,18 @@ namespace MetaverseMax.ServiceClass
         public int ip_efficiency_rounded { get; set; }
         public decimal ip_produce { get; set; }
         public decimal ip_produce_rounded { get; set; }
+        public decimal ip_produce_max { get; set; }
 
         public decimal ip_and_cit_percent { get; set; }
+        public decimal ip_and_cit_percent_100 { get; set; }
         public decimal ip_and_cit_percent_rounded { get; set; }
         public decimal ip_and_cit_produce { get; set; }
-        public int ip_and_cit_produce_rounded { get; set; }
+        public decimal ip_and_cit_produce_rounded { get; set; }
 
+        public decimal ip_and_cit_percent_dmg { get; set; }
+        public int ip_and_cit_percent_rounded_dmg { get; set; }
+        public decimal ip_and_cit_produce_dmg { get; set; }
+        public decimal ip_and_cit_produce_dmg_rounded { get; set; }
 
         public int resource_lvl { get; set; }
         public int resource_range_percent { get; set; }
@@ -101,6 +116,9 @@ namespace MetaverseMax.ServiceClass
         public string total_note { get; set; }
 
         public decimal total_decimal { get; set; }
+
+        public int total_100 { get; set; }
+        public decimal total_decimal_100 { get; set; }
     }
 
 
@@ -110,5 +128,8 @@ namespace MetaverseMax.ServiceClass
         public long total { get; set; }
         public string totalFormat { get; set; }
         public string name { get; set; }
+        public int buildingCount { get; set; }
+        public int buildingActive { get; set; }
+
     }
 }

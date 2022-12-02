@@ -80,10 +80,16 @@ export class CitizenBuildingTableComponent {
         this.sort.sort({ id: 'efficiency_production', start: 'desc', disableClear: true });
       }
     }
-    else if (this.buildingType == BUILDING.ENERGY) {
-      this.displayedColumns.push('efficiency_energy');
+    else if (this.buildingType == BUILDING.ENERGY && this.productType == PRODUCT.ENERGY) {
+      this.displayedColumns.push('efficiency_energy_electric');
       if (this.dataSource.sort != this.sort) {
-        this.sort.sort({ id: 'efficiency_energy', start: 'desc', disableClear: true });
+        this.sort.sort({ id: 'efficiency_energy_electric', start: 'desc', disableClear: true });
+      }
+    }
+    else if (this.buildingType == BUILDING.ENERGY && this.productType == PRODUCT.WATER) {
+      this.displayedColumns.push('efficiency_energy_water');
+      if (this.dataSource.sort != this.sort) {
+        this.sort.sort({ id: 'efficiency_energy_water', start: 'desc', disableClear: true });
       }
     }
 

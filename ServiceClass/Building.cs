@@ -19,6 +19,17 @@ namespace MetaverseMax.ServiceClass
             return (int)(salePriceLarge / 1000000);
         }
 
+        public int GetRentPrice(JToken rentData)
+        {
+            long priceLarge = 0;
+            if (rentData != null && rentData.HasValues)
+            {
+                priceLarge = rentData.Value<long?>("price") ?? 0;
+            }
+
+            return (int)(priceLarge / 1000000);
+        }
+
         // Create an array of districts with summary data matching plots owned by player
         public IEnumerable<DistrictPlot> DistrictPlots(IEnumerable<OwnerLand> ownerLands)
         {

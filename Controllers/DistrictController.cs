@@ -74,13 +74,13 @@ namespace MetaverseMax.Controllers
         }
 
         [HttpGet("Get_All")]
-        public IActionResult Get_All([FromQuery] QueryParametersDistrictGetOpened parameters)
+        public IActionResult Get_All([FromQuery] QueryParametersDistrictGetAll parameters)
         {
             DistrictWebMap districtWebMap = new(_context);
 
             if (ModelState.IsValid)
             {
-                return Ok(districtWebMap.GetDistrictAll(parameters.opened));
+                return Ok(districtWebMap.GetDistrictAll(parameters.opened, parameters.includeTaxHistory));
             }
             return BadRequest("District.Get_All is invalid");       // 400 Error
         }
@@ -126,7 +126,8 @@ namespace MetaverseMax.Controllers
 
             District district, districtHistory_1Mth = new();
             DistrictContent districtContent = new();
-            
+            bool getTaxHistory = true;
+
             string content = string.Empty;
             Common common = new();
             bool perksDetail = true;
@@ -144,7 +145,7 @@ namespace MetaverseMax.Controllers
                 }
                 else
                 {
-                    districtWeb = districtWebMap.MapData_DistrictWeb(district, districtHistory_1Mth, perksDetail);                    
+                    districtWeb = districtWebMap.MapData_DistrictWeb(district, districtHistory_1Mth, perksDetail, getTaxHistory);                    
                 }
             }
             catch (Exception ex)

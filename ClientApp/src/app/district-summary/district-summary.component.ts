@@ -29,6 +29,7 @@ export class DistrictSummaryComponent implements AfterViewInit {
   public requestDistrictId: number;
   public district: District;
   public fundtotal: number;
+  public fundDaily: number;
 
   public ownerSummary: OwnerSummary[] = new Array();        //Holds Owner Summary collection used by table
   public ownerSummaryNewArrivals_Week: OwnerSummary[] = new Array();
@@ -142,7 +143,9 @@ export class DistrictSummaryComponent implements AfterViewInit {
         // Extract last fund total amount and display
         if (this.district.fundHistory) {
           let fund = this.district.fundHistory.graphColumns[0].series;
+          let distribute = this.district.distributeHistory.graphColumns[0].series;
           this.fundtotal = fund[fund.length - 1].value;
+          this.fundDaily = distribute[distribute.length - 1].value;
         }
 
       }, error => console.error(error));

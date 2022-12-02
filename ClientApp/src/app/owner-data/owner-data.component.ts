@@ -59,7 +59,7 @@ export class OwnerDataComponent implements AfterViewInit {
 
 
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
-  displayedColumns: string[] = ['district_id', 'pos_x', 'pos_y', 'building_type', 'building_level', 'last_action', 'current_influence_rank', 'plot_ip', 'citizen_count', 'token_id', 'citizen_stamina_alert' ];
+  displayedColumns: string[] = ['district_id', 'pos_x', 'pos_y', 'building_type', 'building_level', 'last_action', 'current_influence_rank', 'condition', 'plot_ip', 'citizen_count',/* 'token_id', */'citizen_stamina_alert' ];
  
   constructor(private location: Location, public router: Router, private route: ActivatedRoute, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef)
   {
@@ -235,12 +235,8 @@ export class OwnerDataComponent implements AfterViewInit {
       this.dataSource.sort = this.sort;
 
       // Add custom date column sort
-      this.dataSource.sortingDataAccessor = (item: OwnerLandData, property) => {
-        switch (property) {
-          case 'last_action': return item.last_action == "Empty Plot" ? new Date(0) : new Date(item.last_action);
-          default: return item[property];
-        }
-      };
+      this.applySortDataAsccessor(this.dataSource);
+      
       this.sort.sort(({ id: 'last_action', start: 'desc' }) as MatSortable);        // Default sort order on date
 
       // Reset the URL to reflect current account matic
@@ -270,6 +266,18 @@ export class OwnerDataComponent implements AfterViewInit {
     return;
   }
 
+  applySortDataAsccessor(targetDataSource: any) {
+    // Add custom date column sort
+    targetDataSource.sortingDataAccessor = (item: OwnerLandData, property) => {
+      switch (property) {
+        case 'last_action': return item.last_action == "Empty Plot" ? new Date(0) : new Date(item.last_action);
+        case 'building_type': return item.building_type * 10 + item.resource;
+        case 'current_influence_rank': return item.building_type == 0 && this.sort.direction == "asc" ? 1000 : item.current_influence_rank;   // Only sort plots with buildings
+        case 'condition': return item.building_type == 0 && this.sort.direction == "asc" ? 1000 : item.condition;   // Only sort plots with buildings
+        default: return item[property];
+      }
+    };
+  }
   sortData(sort: Sort) {
     //const data = this.owner;    
   }
@@ -351,6 +359,8 @@ export class OwnerDataComponent implements AfterViewInit {
     // Assign filtered dataset
     this.dataSource = new MatTableDataSource<OwnerLandData>(filterbyMulti);
     this.dataSource.sort = this.sort;
+    this.applySortDataAsccessor(this.dataSource);
+
 
     return;
   }
@@ -442,7 +452,7 @@ export class OwnerDataComponent implements AfterViewInit {
 
   showHistory(asset_id: number, pos_x: number, pos_y: number, building_type: number, ip_efficiency: number) {
     
-    this.prodHistory.searchHistory(asset_id, pos_x, pos_y, building_type, ip_efficiency, 0);
+    this.prodHistory.searchHistory(asset_id, pos_x, pos_y, building_type, false);
     this.historyShow = true;
 
     return;

@@ -1,3 +1,10 @@
+a {
+  display: inline-block;
+}
+
+.predictControl{}
+
+/* Progress Indicator */
 @-webkit-keyframes rotation {
   from {
     -webkit-transform: rotate(0deg);
@@ -9,14 +16,49 @@
 }
 
 .rotate {
-  -webkit-animation: rotation 1s 1 linear;
+  -webkit-animation: rotation 1s 30 linear;
 }
 
+.progressIcon {
+  font-size: .7rem;
+  z-index: 1;
+}
+
+/*** Link underline amine ***/
 a {
-  display: inline-block;
+  position: relative;
+  /*color: #000;*/
+  text-decoration: none;
+  /*opacity: .7*/
 }
 
-.predictControl{ display:none }
+  a.lineAnim:hover {
+    /*color: #000;*/
+    color: #1b6ec2;
+    opacity: 1;
+  }
+
+  a.lineAnim::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #1b6ec2;
+    /*background-color: #000;*/
+    visibility: hidden;
+    transform: scaleX(0);
+    transition: all 0.3s ease-in-out 0s;
+  }
+
+  a.lineAnim:hover::before {
+    visibility: visible;
+    transform: scaleX(1);
+  }
+
+
+
 
 .histroyframe {
   width: 545px;
@@ -88,12 +130,25 @@ tr.mat-header-row{
   margin: 6px 8px 0 10px
 }
 
-.historySummary div{
-  line-height: 1.8em;
+  .historySummary div{
+    line-height: 1.8em;
+  }
+  .historySummary .summaryLabel {
+    vertical-align: top;
+  }
+
+.summaryBlock{
+  display:inline-block;
 }
 
-.totalEle{
-  margin-right: 6px
+
+.produceRow {
+  max-width: 14rem
+}
+.totalEle {
+  margin-right: 10px;
+  max-width: 7rem;
+  display: inline-block
 }
 
 .summarydata {
@@ -120,12 +175,22 @@ tr.mat-header-row{
   margin-top:1px;
   color:darkorange;
 }
-
+.totalProduce {
+  border-top: white 4px solid;
+  border-bottom: white 4px solid;
+}
+.totalLabel{
+  font-weight:500
+}
+.nowarp {
+  white-space: nowrap;
+  width: 13rem
+}
 
 
 
 td.mat-column-run_datetime {
-    width: 100px;
+  width: 100px;
 }
 td.mat-column-building_ip{
   width: 4rem;
@@ -216,23 +281,26 @@ tr.mat-row:not(.detailRow) {
 
 /*Predict produce*/
 .predict {
-  position: absolute;
-  right: 10px;
-  margin-top: -50px;
+  /*display: none;*/
+  display:inline-block;
+  float: right;
 }
 .predictionTotal {
   font-weight: 500;
 }
 .predictionDetail {
   width: 100%;
-  /*height: 150px;*/
-  background-color: aliceblue;
-  padding: .3rem;
+  /*height: 150px;*/  
   overflow: hidden;
   visibility: hidden;
   margin: 0.6rem 0 0.8rem;
 }
-.predictionDetailHeader{
+.predictionDetailInner {
+  background-color: aliceblue;
+  padding: .3rem;
+}
+
+.predictionDetailHeader {
   border-bottom: 4px solid white
 }
   .predictionDetailHeader div {
@@ -292,8 +360,9 @@ tr.mat-row:not(.detailRow) {
   .predictionDetailCalc div > span:nth-child(4) {
     position: absolute;
     color: dimgray;
-    font-weight: 600;
-    text-align: left;
+    font-size: .6rem;
+    text-align: right;
+    width: 140px;
   }
   .extraWidth {
     min-width: 8rem;
@@ -320,7 +389,7 @@ tr.mat-row:not(.detailRow) {
 .predict .mat-icon {
 }
 .predictTotal {
-  width: 6rem;
+  /*width: 6rem;*/
   display: inline-block;
   text-align: left;
   padding-left: 0.3rem;
@@ -328,7 +397,10 @@ tr.mat-row:not(.detailRow) {
 .gold {
   color: goldenrod;
 }
-
+.borderTop {
+  border-top: white 3px solid;
+  padding-top: 4px;
+}
 
 @media only screen and (max-width: 415px) {
   .histroyframe {

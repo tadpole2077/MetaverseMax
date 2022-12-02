@@ -19,7 +19,7 @@
       <ng-container matColumnDef="trait_agility">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Agility </th>
         <td mat-cell *matCellDef="let citizen">
-          <span>{{ citizen.trait_agility }}</span>          
+          <span>{{ citizen.trait_agility }}</span>
           <span [hidden]="citizen.trait_agility_pet == 0"> + {{ citizen.trait_agility + citizen.trait_agility_pet > 10 ? 10 - citizen.trait_agility : citizen.trait_agility_pet}}<i class="fas fa-paw"></i></span>
         </td>
       </ng-container>
@@ -36,7 +36,7 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Charisma </th>
         <td mat-cell *matCellDef="let citizen">
           <span>{{ citizen.trait_charisma }}</span>
-          <span [hidden]="citizen.trait_intelligence_pet == 0"> + {{ citizen.trait_charisma + citizen.trait_charisma_pet > 10 ? 10 - citizen.trait_charisma : citizen.trait_charisma_pet}}<i class="fas fa-paw"></i></span>
+          <span [hidden]="citizen.trait_charisma_pet == 0"> + {{ citizen.trait_charisma + citizen.trait_charisma_pet > 10 ? 10 - citizen.trait_charisma : citizen.trait_charisma_pet}}<i class="fas fa-paw"></i></span>
         </td>
       </ng-container>
 
@@ -79,9 +79,13 @@
         <td mat-cell *matCellDef="let citizen">{{ citizen.efficiency_production }}%</td>
       </ng-container>
 
-      <ng-container matColumnDef="efficiency_energy">
+      <ng-container matColumnDef="efficiency_energy_water">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Water Efficiency% </th>
+        <td mat-cell *matCellDef="let citizen">{{ citizen.efficiency_energy_water }}%</td>
+      </ng-container>
+      <ng-container matColumnDef="efficiency_energy_electric">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Energy Efficiency% </th>
-        <td mat-cell *matCellDef="let citizen">{{ productType == 8 ? citizen.efficiency_energy_electric : citizen.efficiency_energy_water}}%</td>
+        <td mat-cell *matCellDef="let citizen">{{ citizen.efficiency_energy_electric }}%</td>
       </ng-container>
 
       <ng-container matColumnDef="efficiency_office">

@@ -108,17 +108,16 @@
         <div style="display:inline-block">
           <app-fund-graph #graphDistribute class="distributeGraph"></app-fund-graph>
           <div>
-            <span class="fundDataBlock">Distribution Period: <strong>{{ district.distribution_period }}</strong></span>
+            <span class="fundDataBlock">Distribution Period: <strong>{{ district.distribution_period }}</strong> (<strong>{{fundDaily}}</strong> MEGA)</span>
           </div>
         </div>
       </div>
     </mat-expansion-panel>
-
     <mat-expansion-panel [hidden]="!district.districtPerk || (district.districtPerk && district.districtPerk.length==0)">
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>stars</mat-icon>
-          <span style="margin-left:.2rem">District Perks <span class="perkCount">{{ district.districtPerk ? district.districtPerk.length : 0 }}</span></span>
+          <span style="margin-left:.2rem">District Perks <span class="perkCount">{{ district.districtPerk ? district.districtPerk.length : 0}}</span></span>
         </mat-panel-title>
         <mat-panel-description>
         </mat-panel-description>

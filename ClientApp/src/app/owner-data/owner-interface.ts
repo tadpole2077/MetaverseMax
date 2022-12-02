@@ -13,6 +13,7 @@ interface OwnerLandData
   ip_bonus: number;
   token_id: number;
   building_level: number;
+  resource: number;
   citizen_count: number;
   citizen_url: string;
   citizen_stamina: number;
@@ -22,6 +23,7 @@ interface OwnerLandData
   alert: boolean;
   rented: boolean;
   current_influence_rank: number;
+  condition: number;
 }
 
 interface OwnerData

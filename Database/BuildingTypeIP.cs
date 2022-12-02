@@ -23,26 +23,21 @@ namespace MetaverseMax.Database
         [Column("ip_efficiency")]
         public decimal ip_efficiency { get; set; }
 
-        [NotMapped]
-        [Column("ip_efficiency_bonus_bug")]
-        public decimal ip_efficiency_bonus_bug { get; set; }        
-
+        //[NotMapped]
+        //[Column("ip_efficiency_bonus_bug")]
+        //public decimal ip_efficiency_bonus_bug { get; set; }        
 
         //[NotMapped]
         //[Column("z_score")]
         //public double z_score { get; set; }
 
         [NotMapped]
-        [Column("eval_ip_bonus")]
-        public int eval_ip_bonus { get; set; }
-
-        [NotMapped]
         [Column("total_ip")]
         public int total_ip { get; set; }
 
-        [NotMapped]
-        [Column("total_ip_bonus_bug")]
-        public int total_ip_bonus_bug { get; set; }
+        //[NotMapped]
+        //[Column("total_ip_bonus_bug")]
+        //public int total_ip_bonus_bug { get; set; }
 
         [NotMapped]
         [Column("ip_warning")]
@@ -50,6 +45,12 @@ namespace MetaverseMax.Database
 
         [Column("on_sale")]
         public bool on_sale { get; set; }
+
+        [Column("for_rent")]
+        public int for_rent { get; set; }
+
+        [Column("rented")]
+        public bool rented { get; set; }
 
         [Column("current_price")]
         public decimal current_price { get; set; }
@@ -72,8 +73,8 @@ namespace MetaverseMax.Database
         [Column("app_123_bonus")]
         public int app_123_bonus { get; set; }
 
-        [Column("is_perk_activated")]
-        public bool is_perk_activated { get; set; }
+        [Column("production_poi_bonus", TypeName = "decimal(6, 2)")]
+        public decimal production_poi_bonus { get; set; }
 
         [Column("owner_nickname")]
         public string owner_nickname { get; set; }
@@ -115,8 +116,8 @@ namespace MetaverseMax.Database
         [Column("predict_produce")]
         public int? predict_produce { get; set; }
 
-        [Column("predict_produce_bonus_bug")]
-        public int? predict_produce_bonus_bug { get; set; }
+        //[Column("predict_produce_bonus_bug")]
+        //public int? predict_produce_bonus_bug { get; set; }
 
         [NotMapped]
         [Column("predict_eval")]
@@ -126,12 +127,18 @@ namespace MetaverseMax.Database
         [Column("predict_eval_result")]
         public int? predict_eval_result { get; set; }
 
-        [NotMapped]
-        [Column("predict_eval_double_bonus")]
-        public bool predict_eval_bonus_bug { get; set; }
+        //[NotMapped]
+        //[Column("predict_eval_double_bonus")]
+        //public bool predict_eval_bonus_bug { get; set; }
+
+        //[NotMapped]
+        //[Column("predict_eval_result_double_bonus")]
+        //public int? predict_eval_result_bonus_bug { get; set; }
+
+        [Column("condition")]
+        public int condition { get; set; }
 
         [NotMapped]
-        [Column("predict_eval_result_double_bonus")]
-        public int? predict_eval_result_bonus_bug { get; set; }
+        public bool active_building { get; set; }
     }
 }

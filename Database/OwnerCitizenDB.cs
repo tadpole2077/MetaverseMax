@@ -53,10 +53,26 @@ namespace MetaverseMax.Database
         public OwnerCitizen GetExistingOwnerCitizen(int tokenId)
         {
             OwnerCitizen ownerCitizenExisting = null;
+            List<OwnerCitizen> ownerCitizenExistingList = null;
+            DateTime? validToDate;
 
             try
             {
-                ownerCitizenExisting = _context.ownerCitizen.Where(r => r.citizen_token_id == tokenId && r.valid_to_date == null).FirstOrDefault();
+                // Check if Data anomoly - multiple active citizen link - log and fix.
+                ownerCitizenExistingList = _context.ownerCitizen.Where(r => r.citizen_token_id == tokenId && r.valid_to_date == null).OrderByDescending(x => x.link_date).ToList();
+                ownerCitizenExisting = ownerCitizenExistingList.Count > 0 ? ownerCitizenExistingList[0] : null;
+
+                if (ownerCitizenExistingList.Count > 1)
+                {
+                    validToDate = ownerCitizenExisting.link_date;
+                    for (int i = 1; i < ownerCitizenExistingList.Count; i++)
+                    {
+                        ownerCitizenExistingList[i].valid_to_date = validToDate;
+                        validToDate = ownerCitizenExistingList[i].link_date;
+
+                        logInfo(String.Concat("OwnerCitizenDB.GetExistingOwnerCitizen() : Fix dup active OwnerCitizen record for citizen: ", ownerCitizenExistingList[i].citizen_token_id," link_Key: ", ownerCitizenExistingList[i].link_key));
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -69,8 +85,7 @@ namespace MetaverseMax.Database
 
         public EntityEntry<OwnerCitizen> AddByLinkDateTime(OwnerCitizen ownerCitizen, bool saveFlag)
         {
-            EntityEntry<OwnerCitizen> ownerCitizenNew = null;
-            bool foundMatch = false;
+            EntityEntry<OwnerCitizen> ownerCitizenMatch = null;
             long tickDiff;
 
             try
@@ -80,22 +95,22 @@ namespace MetaverseMax.Database
                     r.pet_token_id == ownerCitizen.pet_token_id &&
                     r.owner_matic_key == ownerCitizen.owner_matic_key).ToList();
 
-                // Need to bring back to C# possible list, as DB.Linq unable to find match with Datetime & miliseconds when an actual match exists, causes dup creation.
+                // Need to bring back possible list, as DB.Linq unable to find match with Datetime & miliseconds when an actual match exists, causes dup creation.
                 foreach (OwnerCitizen ownerCitizenExisting in ownerCitizenExistingList)
                 {
                     tickDiff = ((DateTime)ownerCitizenExisting.link_date).Ticks - ((DateTime)ownerCitizen.link_date).Ticks;
                     if (tickDiff < 30000 && tickDiff > -30000) // + or - 3 milisecond range is good.
                     {
-                        foundMatch = true;
+                        ownerCitizenMatch = _context.Entry(ownerCitizenExisting);
                         break;
                     }
                 }
                     
 
                 // Find if record already exists, if not add it.
-                if (foundMatch == false)
+                if (ownerCitizenMatch == null)
                 {
-                    ownerCitizenNew = _context.ownerCitizen.Add(ownerCitizen);
+                    ownerCitizenMatch = _context.ownerCitizen.Add(ownerCitizen);
 
                 }
                 
@@ -110,7 +125,7 @@ namespace MetaverseMax.Database
                 logException(ex, String.Concat("OwnerCitizenDB.AddByLinkDateTime() : Error adding record to db with citizen token_id : ", ownerCitizen.citizen_token_id));
             }
 
-            return ownerCitizenNew;
+            return ownerCitizenMatch;
         }
 
         // Add a new OwnerCitizen action if land,pet,owner change found, ownerCitizen is newer then last recorded (ownerCitizen.link_date = ownerCitizenExisting.valid_to_date).
@@ -160,7 +175,7 @@ namespace MetaverseMax.Database
             int result = 0;
             try
             {
-                //exec sproc - update Owner table with count of pets per owner.
+                //exec sproc - update Owner table with count of citizens per owner.
                 result = _context.Database.ExecuteSqlRaw("EXEC dbo.sp_citizen_count");
 
             }

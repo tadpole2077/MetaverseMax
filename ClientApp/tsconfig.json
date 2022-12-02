@@ -2,14 +2,14 @@
   "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "./",
-    "module": "es2020",
+    "module": "ES2020",
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
     "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "target": "es2015",
+    "emitDecoratorMetadata": true,
+    "target": "ES2015",
     "typeRoots": [
       "node_modules/@types"
     ],

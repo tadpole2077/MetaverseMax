@@ -12,10 +12,6 @@ namespace MetaverseMax.Database
     public class Citizen : CitizenTrait
     {
         [Key]
-        [Column("citizen_key")]
-        public int citizen_key { get; set; }
-
-        [Index(IsUnique = true)]
         [Column("token_id")]
         public int token_id { get; set; }
 
@@ -54,7 +50,14 @@ namespace MetaverseMax.Database
 
         [Column("refresh_history")]
         public bool refresh_history { get; set; }
-               
+
     }
 
+    public class CitizenChange
+    {
+        public bool historyRefresh { get; set; }
+
+        public bool updateFound { get; set; }
+
+    }
 }

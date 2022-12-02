@@ -18,7 +18,8 @@ namespace MetaverseMax.Database
             Citizen citizen = null;
             try
             {
-                citizen = _context.citizen.Where(r => r.token_id == tokenId).FirstOrDefault();
+                citizen = _context.citizen.Find(tokenId);       // Gets from local contact using primary key, if not found in local then get from DB
+                //citizen = _context.citizen.Where(r => r.token_id == tokenId).FirstOrDefault();
             }
             catch (Exception ex)
             {
@@ -29,15 +30,15 @@ namespace MetaverseMax.Database
         }
 
         // ADD new Citizen record if none found, or UPDATE if key attributes changed (traits, name, onsale, price) - due to assignment or removal of PET
-        public bool AddorUpdate(Citizen citizen, Citizen storedCitizen, bool saveFlag)
+        public CitizenChange AddorUpdate(Citizen citizen, Citizen storedCitizen, bool saveFlag)
         {
-            bool citizenHistoryRefresh = false;
+            CitizenChange citizenChange = new (){ historyRefresh = false, updateFound = false };
             try
             {
                 // Extract flag used to indicate if a complete refresh of citizen history actions (over prior 40 days) is required - due to prior WS REST fault
                 if (storedCitizen != null)
                 {
-                    citizenHistoryRefresh = storedCitizen.refresh_history;
+                    citizenChange.historyRefresh = storedCitizen.refresh_history;                    
                 }
 
                 // Find if record already exists, if not add it.
@@ -47,6 +48,7 @@ namespace MetaverseMax.Database
                     citizen.create_date = DateTime.Now.ToUniversalTime();
 
                     _context.citizen.Add(citizen);
+                    citizenChange.updateFound = true;
 
                     if (saveFlag)
                     {
@@ -98,6 +100,7 @@ namespace MetaverseMax.Database
                     storedCitizen.last_update = DateTime.Now.ToUniversalTime();
                     storedCitizen.refresh_history = citizen.refresh_history;
 
+                    citizenChange.updateFound = true;
                     if (saveFlag)
                     {
                         _context.SaveChanges();
@@ -111,7 +114,7 @@ namespace MetaverseMax.Database
                 logException(ex, String.Concat("CitizenDB.AddorUpdate() : Error adding record to db with citizen token_id : ", citizen.token_id));
             }
 
-            return citizenHistoryRefresh;
+            return citizenChange;
         }
 
         public int UpdateRefreshHistory(int tokenId, bool refreshHistory, bool saveFlag)

@@ -122,7 +122,7 @@ namespace MetaverseMax.ServiceClass
             return ascii;
         }
 
-        public string UnixTimeStampToDateTime(double? unixTimeStamp, String noTime)
+        public string UnixTimeStampUTCToDateTime(double? unixTimeStamp, String noTime)
         {
             string dateFormated;
 
@@ -130,8 +130,7 @@ namespace MetaverseMax.ServiceClass
             if (unixTimeStamp != null)
             {
                 System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
-                dtDateTime = dtDateTime.AddSeconds((double)unixTimeStamp).ToLocalTime();
-                dateFormated = TimeFormatStandard("", dtDateTime);
+                dateFormated = TimeFormatStandard("", dtDateTime.AddSeconds((double)unixTimeStamp));
 
             }
             else

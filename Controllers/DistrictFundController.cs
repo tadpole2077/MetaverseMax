@@ -29,17 +29,6 @@ namespace MetaverseMax.Controllers
 
         }
 
-        [HttpGet("UpdateAllDistrictsFund")]
-        public IActionResult UpdateAllDistrictsFund([FromQuery] QueryParametersSecurity parameters)
-        {
-            DistrictFundManage districtFundManage = new(_context);
-            if (ModelState.IsValid)
-            {
-                return Ok(Task.Run(() => districtFundManage.UpdateFundAll(parameters)).Result );
-            }
-            return BadRequest("All District Fund update request is invalid");
-        }
-
         [HttpGet]
         public IActionResult Get([FromQuery] QueryParametersFund parameters)
         {
@@ -49,6 +38,28 @@ namespace MetaverseMax.Controllers
                 return Ok(districtFundManage.GetHistory(parameters.district_id, parameters.daysHistory));
             }
             return BadRequest("Get District Fund history request is invalid");
+        }
+
+        [HttpGet("UpdateAllDistrictsFund")]
+        public IActionResult UpdateAllDistrictsFund([FromQuery] QueryParametersSecurity parameters)
+        {
+            DistrictFundManage districtFundManage = new(_context);
+            if (ModelState.IsValid)
+            {
+                return Ok(Task.Run(() => districtFundManage.UpdateFundAll(parameters)).Result );
+            }
+            return BadRequest("All District Fund update request is invalid");
+        }        
+
+        [HttpGet("UpdateTaxHistoryChange")]
+        public IActionResult UpdateTaxHistoryChange()
+        {
+            DistrictTaxChangeDB districtTaxChangeDB = new(_context);
+            if (ModelState.IsValid)
+            {
+                return Ok(districtTaxChangeDB.UpdateTaxChanges());
+            }
+            return BadRequest("Update Tax History change request is invalid");
         }
     }
 }

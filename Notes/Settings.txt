@@ -1,0 +1,23 @@
+﻿
+
+1) Web Service Service Performance
+
+Class: ServicePerfDB
+What: Analytical log on each SOAP service call - start, end, response size
+Trigger: 
+* Startup.logServiceInfo  boolean
+* Settings:  appsettings.json >> "logServiceInfo":"1"
+
+
+
+2) Calling server IP (Custom IP) - SOAP WS
+Class: ServiceBase.SocketsHttpHandler
+What: defines an endpoint used by the service socket
+
+Setting: 
+* Startup.serverIP   boolean
+* Settings:  appsettings.json >> "ServerIP":""
+
+Notes:
+* Can be left as black (string) to use default IP (loacl machine IP)
+* Used on Web Server with more then 1 Public IP assigned, can be useful for load balancing calls, or if calls are blocked.

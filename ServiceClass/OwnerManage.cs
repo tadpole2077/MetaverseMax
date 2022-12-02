@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using MetaverseMax.Database;
 using Newtonsoft.Json.Linq;
 using SimpleBase;
+using Microsoft.EntityFrameworkCore;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -330,9 +331,10 @@ namespace MetaverseMax.ServiceClass
                             building_desc = building.BuildingType(landInstance.Value<int?>("building_type_id") ?? 0, landInstance.Value<int?>("building_id") ?? 0),
                             building_img = building.BuildingImg(landInstance.Value<int?>("building_type_id") ?? 0, landInstance.Value<int?>("building_id") ?? 0, landInstance.Value<int?>("building_level") ?? 0),
                             last_actionUx = landInstance.Value<double?>("last_action") ?? 0,
-                            last_action = common.UnixTimeStampToDateTime(landInstance.Value<double?>("last_action"), "Empty Plot"),
+                            last_action = common.UnixTimeStampUTCToDateTime(landInstance.Value<double?>("last_action"), "Empty Plot"),
                             token_id = landInstance.Value<int?>("token_id") ?? 0,
                             building_level = landInstance.Value<int?>("building_level") ?? 0,
+                            resource = landInstance.Value<int?>("abundance") ?? 0,
                             citizen_count = citizen.GetCitizenCount(landInstance.Value<JArray>("citizens")),
                             citizen_url = citizen.GetCitizenUrl(landInstance.Value<JArray>("citizens")),
                             citizen_stamina = citizen.GetLowStamina(landInstance.Value<JArray>("citizens")),
@@ -340,7 +342,8 @@ namespace MetaverseMax.ServiceClass
                             forsale_price = building.GetSalePrice(landInstance.Value<JToken>("sale_data")),
                             forsale = (landInstance.Value<string>("on_sale") ?? "False") == "False" ? false : true,
                             rented = landInstance.Value<string>("renter") != null,
-                            current_influence_rank = CheckInfluenceRank( localPlots.Where(x => x.token_id == (landInstance.Value<int?>("token_id") ?? 0)).FirstOrDefault() ) 
+                            current_influence_rank = CheckInfluenceRank( localPlots.Where(x => x.token_id == (landInstance.Value<int?>("token_id") ?? 0)).FirstOrDefault() ),
+                            condition = landInstance.Value<int?>("condition") ?? 0,
                         })
                         .OrderBy(row => row.district_id).ThenBy(row => row.pos_x).ThenBy(row => row.pos_y);
 
@@ -350,7 +353,7 @@ namespace MetaverseMax.ServiceClass
                             ).Count();
 
                         // Get Last Action across all lands for target player
-                        ownerData.last_action = string.Concat(common.UnixTimeStampToDateTime(ownerData.owner_land.Max(row => row.last_actionUx), "No Lands"), " GMT");
+                        ownerData.last_action = string.Concat(common.UnixTimeStampUTCToDateTime(ownerData.owner_land.Max(row => row.last_actionUx), "No Lands"), " GMT");
 
                         ownerData.plots_for_sale = ownerData.owner_land.Where(
                             row => row.forsale_price > 0
@@ -361,6 +364,9 @@ namespace MetaverseMax.ServiceClass
                         ownerData.stamina_alert_count = ownerData.owner_land.Where(
                             row => row.citizen_stamina_alert == true
                             ).Count();
+
+                        // CHECK owner buildings are recorded in local db - new plots recently purchased - token wont exist causing issues with linking to citizens
+                        _ = Task.Run(() => OwnerManage.CheckLandTokensExist(lands, _context.Database.GetConnectionString()));
                     }
                 }
                 else
@@ -388,6 +394,24 @@ namespace MetaverseMax.ServiceClass
 
             return ownerData;
         }
+
+        private static int CheckLandTokensExist(JArray ownerLandList, string dbConnectionString)
+        {
+            MetaverseMaxDbContext _contextTemp;
+            _contextTemp = new MetaverseMaxDbContext(dbConnectionString);
+
+            // CHECK land token exist - it may have been recently created and not in local db
+            PlotDB plotDB = new PlotDB(_contextTemp);
+
+            for(int i = 0; i < ownerLandList.Count; i++)
+            {                               
+                plotDB.UpdatePlot(ownerLandList[i], true);                                    
+            }
+
+            _contextTemp.SaveChanges();
+            return 0;
+        }
+
 
         private decimal CheckInfluenceRank(Plot plot) {
             return plot == null ? 0 : plot.current_influence_rank ?? 0;
@@ -453,7 +477,6 @@ namespace MetaverseMax.ServiceClass
             String content = string.Empty;
             CitizenManage citizen = new(_context);
             int returnCode = 0;
-            long serviceTime = 0;
             serviceUrl = "https://ws-tron.mcp3d.com/user/get";            
 
             try

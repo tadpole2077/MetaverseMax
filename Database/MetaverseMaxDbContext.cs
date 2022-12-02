@@ -30,9 +30,35 @@ namespace MetaverseMax.Database
         public virtual DbSet<EventLog> eventLog { get; set; }
         public virtual DbSet<ServicePerf> servicePerf { get; set; }
 
-        public MetaverseMaxDbContext(DbContextOptions<MetaverseMaxDbContext> options)
-        : base(options)
+        public MetaverseMaxDbContext(DbContextOptions<MetaverseMaxDbContext> options) : base(options)
         {
+        }
+        public MetaverseMaxDbContext(string dbConnectionString) : base(new DbContextOptionsBuilder<MetaverseMaxDbContext>().UseSqlServer(dbConnectionString).Options)
+        {
+        }
+
+
+        public RETURN_CODE SaveWithRetry()
+        {
+            DBLogger dBLogger = new(this);
+            int retryCount = 0;
+            bool success = false;
+
+            while (retryCount < 3 && success == false)
+            {
+                try
+                {
+                    retryCount++;
+                    this.SaveChanges();
+                    success = true;
+                }
+                catch (Exception ex)
+                {
+                    dBLogger.logException(ex, String.Concat("MetaverseMaxDbContext::SaveWithRetry() : Error Saving - likely deadlock/timeout - Retry Count ", retryCount));
+                }
+            }
+
+            return RETURN_CODE.SUCCESS;
         }
 
         public int LogEvent(string logDetail)

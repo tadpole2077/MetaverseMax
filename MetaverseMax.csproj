@@ -105,6 +105,7 @@
     <Content Include="ClientApp\src\app\district-list\district-list.component.css" />
     <Content Include="ClientApp\src\app\district-summary\district-summary.component.css" />
     <Content Include="ClientApp\src\app\owner-data\owner-data.component.css" />
+    <Content Include="ClientApp\src\assets\red-for-rent-sign.png" />
     <Content Include="ClientApp\src\assets\red-for-sale-sign.png" />
     <TypeScriptCompile Include="ClientApp\tsconfig.json" />
   </ItemGroup>

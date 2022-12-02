@@ -68,13 +68,11 @@ namespace MetaverseMax.Database
                 owner.last_use = DateTime.Now;
 
                 // Slow down Nightly job process when 1+ user is active via (a)save on each db update (b) increase cycle wait interval to 1 second : avoids user db timeouts (such as opening large Cit collection).
-                if (SyncWorld.saveDBOverride == false && SyncWorld.syncInProgress == true)
+                if (SyncWorld.syncInProgress == true && SyncWorld.saveDBOverride == false)
                 {
-                    _ = ResetDataSync();
-                }
-                SyncWorld.saveDBOverride = true;
-                SyncWorld.jobInterval = 1000;
-
+                    _ = ResetDataSync(_context);            // Allow aync to process in separate thread - 5 minute slowdown on data sync.
+                }             
+                
                 _context.SaveChanges();
 
             }
@@ -113,15 +111,23 @@ namespace MetaverseMax.Database
         }
 
         // 5 minute reset of Nightly Data sync job to default settings  (.Net 4.5+ rec solution)
-        public async Task ResetDataSync()
+        public async Task ResetDataSync(MetaverseMaxDbContext passedContext)
         {
-            var timeoutInMilliseconds = TimeSpan.FromMinutes(5);
-            ServicePerfDB servicePerfDB = new(_context);
-            servicePerfDB.AddServiceEntry("ResetDataSync() 5min period - 1 second interval calls", DateTime.Now, 5000, 0, "");
+            SyncWorld.saveDBOverride = true;
+            var oldInterval = SyncWorld.jobInterval;
+            SyncWorld.jobInterval = 1000;
 
+            if (passedContext != null)
+            {
+                ServicePerfDB servicePerfDB = new(passedContext);
+                servicePerfDB.AddServiceEntry("ResetDataSync() 5min period - 1 second interval calls", DateTime.Now, 5000, 0, "");
+            }
+
+            var timeoutInMilliseconds = TimeSpan.FromMinutes(5);                       
             await Task.Delay(timeoutInMilliseconds);
 
-            SyncWorld.SyncPlotData_Reset();
+            SyncWorld.jobInterval = oldInterval;
+            SyncWorld.saveDBOverride = false;
 
         }
 

@@ -25,6 +25,10 @@ interface BuildingHistory {
   detail: Detail[];
   changes_last_run: string[];
   prediction: object;
+  damage: number;
+  damage_eff: number;
+  damage_partial: number;
+  current_building_id: number;
 }
 
 @Component({
@@ -38,7 +42,7 @@ interface BuildingHistory {
       transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
     ]),
     trigger('predictionDetailExpand', [
-      state('collapsed', style({ height: '0px', minHeight: '0' })),
+      state('collapsed', style({ height: '0px', minHeight: '0', margin:'0' })),
       state('expanded', style({ height: '*', visibility:'visible' })),
       transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
     ]),
@@ -69,6 +73,7 @@ export class ProdHistoryComponent implements AfterViewInit {
   dataSourceHistory = new MatTableDataSource(null);
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
+  @ViewChild('progressIcon', { static: false }) progressIcon: ElementRef;
 
   @ViewChildren(CitizenBuildingTableComponent) citizenTables: QueryList<CitizenBuildingTableComponent>;
 
@@ -89,7 +94,6 @@ export class ProdHistoryComponent implements AfterViewInit {
     if (this.width < 768) {
       this.isMobileView = true;
       this.displayedColumns = ['building_product', 'efficiency', 'building_ip', 'run_datetime'];
-
     }
 
   }
@@ -106,9 +110,9 @@ export class ProdHistoryComponent implements AfterViewInit {
     return window.innerWidth;
   }
 
-  public searchHistory(asset_id: number, pos_x: number, pos_y: number, building_type: number, ip_efficiency: number, ip_efficiency_bonus_bug: number) {
+  public searchHistory(asset_id: number, pos_x: number, pos_y: number, building_type: number, refresh: boolean) {
 
-    this.showCalcDetail = false;  // Reset on each search
+    this.showCalcDetail = refresh;  // Reset on each search
     this.history = null;
     let params = new HttpParams();
     this.plot = {
@@ -118,19 +122,34 @@ export class ProdHistoryComponent implements AfterViewInit {
 
     this.assetId = asset_id;
     this.historyBuildingType = building_type;
-    this.ipEfficiency = ip_efficiency > -1 ? ip_efficiency : -1;
+    this.ipEfficiency = 0;    
 
     params = params.append('token_id', asset_id.toString());
-    params = params.append('ip_efficiency', ip_efficiency.toString());
-    params = params.append('ip_efficiency_bonus_bug', ip_efficiency_bonus_bug.toString());
+    //params = params.append('ip_efficiency', ip_efficiency.toString());
+    //params = params.append('ip_efficiency_bonus_bug', ip_efficiency_bonus_bug.toString());
+    params = params.append('full_refresh', refresh ? "1" : "0");
     
 
     this.httpClient.get<BuildingHistory>(this.baseUrl + 'api/assethistory', { params: params })
       .subscribe((result: BuildingHistory) => {
 
+        //if (this.progressIcon) {
+        //  this.progressIcon.nativeElement.classList.remove("rotate");
+        //}
+
         this.history = result;
 
         if (this.history.detail != null) {
+
+          if (this.history.current_building_id == 10) {
+            this.displayedColumns = this.isMobileView == true ? ['building_product', 'efficiency_c', 'building_ip', 'run_datetime'] : ['amount_produced', 'building_product', 'efficiency_c', 'building_ip', 'run_datetime'];
+          }
+          else if (this.isMobileView){
+            this.displayedColumns = ['building_product', 'efficiency', 'building_ip', 'run_datetime'];
+          }
+          else{
+            this.displayedColumns = ['amount_produced', 'building_product', 'efficiency_p', 'efficiency_m', 'efficiency_c', 'building_ip', 'run_datetime']
+          }
 
           this.dataSourceHistory = new MatTableDataSource<Detail>(this.history.detail);
           this.hidePaginator = this.history.detail == null || this.history.detail.length < 5 ? true : false;
@@ -201,6 +220,14 @@ export class ProdHistoryComponent implements AfterViewInit {
   toggleDetailBonus(event: Event) {
 
     this.showCalcDetailBonus = !this.showCalcDetailBonus;
+
+    return;
+  }
+
+  refresh() {
+
+    this.progressIcon.nativeElement.classList.add("rotate");
+    this.searchHistory(this.assetId, this.plot.x, this.plot.y, this.historyBuildingType, true);
 
     return;
   }

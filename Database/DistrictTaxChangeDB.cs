@@ -20,6 +20,7 @@ namespace MetaverseMax.Database
             try
             {
                 //exec sproc - refresh tax change records matching district table
+                _context.Database.SetCommandTimeout(300);
                 int result = _context.Database.ExecuteSqlRaw("EXEC dbo.sp_update_tax_change_history");    
 
             }

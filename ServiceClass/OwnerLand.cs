@@ -11,6 +11,7 @@ namespace MetaverseMax.ServiceClass
         public string building_desc { get; set; }
         public string building_img { get; set; }
         public int building_level { get; set; }
+        public int resource { get; set; }
         public string last_action { get; set; }
         public double last_actionUx { get; set; }
         public int plot_ip { get; set; }
@@ -25,5 +26,6 @@ namespace MetaverseMax.ServiceClass
         public bool alert { get; set; }
         public bool rented { get; set; }
         public decimal current_influence_rank { get; set; }
+        public int condition { get; set; }
     }
 }

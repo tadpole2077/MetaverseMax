@@ -79,6 +79,7 @@ export class DistrictListComponent implements AfterViewInit {
 
     let params = new HttpParams();
     params = params.append('opened', 'true');
+    params = params.append('includeTaxHistory', 'false');
 
     this.httpClient.get<District[]>(this.baseUrl + 'api/district/get_all', { params: params })
       .subscribe((result: District[]) => {

@@ -40,26 +40,45 @@ a {
     transform: scaleX(1);
   }
 
-/*Sale Sign*/
-.salepos {
+/*Signs*/
+.salepos, .toRent {
   position: absolute;
-  margin-left: -66px;
+  margin-left: -98px;
+  width: 80px;
+  text-align: center;
   z-index: 100;
 }
 
-  .salepos::before {
-    background: url("../../assets/red-for-sale-sign.png") no-repeat;
+  .salepos::before, .toRent::before {    
     content: "";
     height: 55px;
     width: 82px;
     display: inline-block;
-    background-size: contain;
     margin-top: -26px;
-    margin-left: -24px;
+    left: 0;
     position: absolute;
     z-index: -1;
+  }
+  .salepos::before {
+    background: url("../../assets/red-for-sale-sign.png") no-repeat;
+    background-size: contain;
     background-color: white
   }
+  .toRent::before {
+    background: url("../../assets/red-for-rent-sign.png") no-repeat;
+    background-size: contain;
+    background-color: white
+  }
+
+.rented {
+  position: absolute;
+  margin-left: -66px;
+  z-index: 100;
+  width: 70px;
+  margin-top: -20px;
+  margin-left: -70px;
+}
+
 
 /* Accordian */
 .mat-expansion-panel{
@@ -108,6 +127,61 @@ a {
     font-weight: 600
   }
 
+
+.activeBuilding span {
+  display: inline-block;
+  text-align: right;
+}
+  .activeBuilding span:first-child {
+    width: 6rem;
+  }
+  .activeBuilding span:nth-child(2) {
+    width: 4rem;
+  }
+  .activeBuilding span:nth-child(3) {
+    width: 6rem;
+  }
+  .activeBuilding span:nth-child(4) {
+    width: 3rem;
+  }
+  .activeBuilding div span:first-child {
+    width: 5rem;
+    margin-right: 1rem;
+  }
+  .activeBuilding div span:nth-child(3) {
+    width: 5rem;
+    margin-right: 1.2rem;
+  }
+
+.header {
+  text-align: center;
+  font-weight: 600;
+}
+  .header > span {
+    text-align: center
+  }
+  .header > span:first-child {
+    text-align: right;
+    margin-right: 2.5rem;
+    width: 3.5rem;
+  }
+
+.activeCount {
+  margin-bottom: .6rem;
+}
+  .activeCount span:first-child {  
+    width: 7rem;
+    display: inline-block;
+  }
+  .activeCount span:nth-child(2) {
+    font-weight: 600;
+  }
+  .activeCount span:last-child {
+    width: 8rem;
+    margin-left: 1rem;
+  }
+
+
 .warningIcon {
   margin-left: 1.4rem;
   color: red;
@@ -142,7 +216,12 @@ a {
 #typeList {
   padding-left: 2rem;
 }
-.buttonEffect { 
+.glowText {
+  -webkit-animation: glowText 1.4s ease-in-out infinite alternate;
+  -moz-animation: glowText 1.4s ease-in-out infinite alternate;
+  animation: glowText 1.4s ease-in-out infinite alternate;
+}
+.buttonEffect {
   -webkit-animation: glowBtn 1.4s ease-in-out infinite alternate;
   -moz-animation: glowBtn 1.4s ease-in-out infinite alternate;
   animation: glowBtn 1.4s ease-in-out infinite alternate;
@@ -157,6 +236,28 @@ a {
     box-shadow: 0 0 3px #1b6ec2, 0 0 6px #1b6ec2, 0 0 9px #1b6ec2, 0 0 8px #1b6ec2;
   }
 }
+
+@-webkit-keyframes glowText2 {
+  from {
+    text-shadow: 0 0 3px #fff, 0 0 6px #fff, 0 0 9px #fff, 0 0 12px #fff;
+  }
+
+  to {
+    text-shadow: 0 0 1px #ffc107, 0 0 2px #ffc107, 0 0 6px #ffc107, 0 0 4px #ffc107;
+  }
+}
+@-webkit-keyframes glowText {
+  from {
+    color: gray;
+  }
+
+  to {
+    color: #ffc107;
+  }
+}
+
+
+
 .searchIcon {
   font-size: 1.1rem;
   margin-left: 6px;
@@ -167,7 +268,116 @@ a {
 
 
 
+#producePredictionPanel {
+  display: inline-block;
+  vertical-align: top;
+  margin-top: 0;
+  margin-right: 1rem;
+}
+
+#doubleAppBonusPanel {
+  display: inline-block;
+  margin-left: 2rem;
+  vertical-align: top;
+  margin-top: 0
+}
+
+#totalProducePanel {
+  display: inline-block;
+  vertical-align: top;
+  margin-top: .2rem;
+  text-align: center;
+}
+#activeBuildingPanel {
+  display: inline-block;
+  margin-right: 1rem;
+  margin-top: .2rem
+}
+
+.resourceCol {
+  display: inline-block;
+  width: 11rem;
+  text-align: left;
+}
+
+  .resourceCol div:first-child {
+    font-weight: 600;
+    text-align: left;
+    margin-left: 2.2rem;
+  }
+
+.resourceTotal span:first-child {
+  display: inline-block;
+  font-size: .9rem;
+  padding-right: 0.5rem;
+  width: 40%;
+}
+
+.resourceTotal span:nth-child(2) {
+  display: inline-block;
+  font-size: .9rem;
+  padding-left: 0.5rem;
+  width: 3.6rem;
+  text-align: right;
+}
+
+
+.overProd {
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.doubleAppHeaderSpan1 {
+  margin-left: .2rem
+}
+
+.doubleAppHeaderSpan2 {
+  color: darkorange;
+  margin-left: .2rem
+}
+
+
+.helpTip {
+  vertical-align: middle;
+  font-size: .8rem;
+  /*position: absolute;*/
+  margin-top: 2rem;
+  color: gray;
+}
+  .helpTip .mat-icon {
+    font-size: 1.4rem;
+  }
+  .helpTip span {
+    vertical-align: super;
+  }
+  .helpTip span:last-child{
+    padding-left:10px
+  }
+  .helpTip .magnifyHistoryIcon{
+    position:relative;
+  }
+
+
+
+
+
 /*** TABLE ***/
+.mat-column-ip_t, .mat-column-ip_b, .mat-column-bon, .mat-column-pre, .mat-column-dis, .mat-column-id {
+  text-align: center;
+}
+
+td.mat-cell:last-of-type {
+  padding-right: 48px
+}
+
+.paginatorContainer {
+  display: inline-block;
+  float: right;
+}
+  .paginatorContainer.top{
+    margin-top: 10px
+  }
+
 .mat-table {
   width: 100%;
   display: inline-table;
@@ -215,10 +425,10 @@ td.boldfield {
   font-weight: bold;
 }
 
-td.mat-column-ip_efficiency{
-  padding-left:1rem;
+td.mat-column-rank {
+  padding-left: 1rem;
 }
-.mat-column-ip_efficiency span {
+.mat-column-rank span {
   color: goldenrod;
   font-weight: 600;
   letter-spacing: 1px;
@@ -228,18 +438,18 @@ td.mat-column-pos span:nth-child(2){
 }
 
 /*** Table Flex columns ***/
-.mat-column-owner_nickname {
+.mat-column-name {
   flex: 0 0 360px;
   min-width: 240px;
 }
 
-  .mat-column-owner_nickname a {
+  .mat-column-name a {
     display: inline-block;
     padding-right: 0;
     padding-left: .6rem;
   }
 
-    .mat-column-owner_nickname a span {
+    .mat-column-name a span {
       width: 8rem;
       display: inline-block;
       white-space: nowrap;
@@ -249,21 +459,18 @@ td.mat-column-pos span:nth-child(2){
       padding-left: .2rem;
     }
 
-      .mat-column-owner_nickname a span:hover {
+      .mat-column-name a span:hover {
         white-space: unset;
         text-overflow: unset;
         transition: 1s;
       }
 
-  .mat-column-owner_nickname img {
+  .mat-column-name img {
     display: inline-block;
     vertical-align: sub
   }
 
-.industryImg {
-  max-height: 44px;
-  margin-top: -3px;
-}
+
 
 /* Magnifier Icon */
 .magnifyHistoryPositioner {
@@ -285,10 +492,8 @@ td.mat-column-pos span:nth-child(2){
 .lastUpdated {
   vertical-align: middle;
   font-size: .7rem;
-  position: absolute;
-  right: 0;
-  margin-top: 2rem;
   color: gray;
+  margin-top: 0.2rem;
 }
 
   .lastUpdated .mat-icon {
@@ -299,14 +504,14 @@ td.mat-column-pos span:nth-child(2){
     vertical-align: super;
   }
 
-.mat-column-ip_efficiency .rowWarning {
+.mat-column-rank .rowWarning {
   position: absolute;
-  margin-top: 7px;
+  margin-top: 10px;
   margin-left: -51px;
   vertical-align: top;
 }
 .rowWarning .mat-icon {
-  font-size: 1.2rem;
+  font-size: 1rem;
   width: 21px;
   height: 19px;
   overflow: hidden;
@@ -314,65 +519,128 @@ td.mat-column-pos span:nth-child(2){
 }
 
 .rowWarning span {
-  font-size: .8rem;
+  font-size: .6rem;
   color: orangered;
-  font-weight: 500;
+  font-weight: 400;
   display: inline-block;
   vertical-align:super;
 }
 
-#producePredictionPanel {
-  display: inline-block;
-  vertical-align: top;
-  margin-top: 0
-}
-#doubleAppBonusPanel{
-  display: inline-block;
-  margin-left: 2rem;
-  vertical-align: top;
-  margin-top: 0
+.mat-column-id {
+  width: 100px;
 }
 
-#totalProducePanel {
-  display: block;
-  margin-left: 0rem;
-  vertical-align: top;
-  margin-top: 1rem;
-  text-align: center;
+
+.activeProduce {
+  position: absolute;
+  color: #28a745;
+  font-size: 1.8rem;
+  right: -34px;
+  margin-top: 16px;
+  border: gray 1px solid;
+  padding: 5px;
+  box-shadow: 0 5px 10px rgb(0 0 0 / 12%);
+  border-radius: 0 5px 5px 0;
+  border-left: none;
+  padding-left: 4px
 }
-.resourceCol {
+.activeFilter{
   display: inline-block;
-  width: 11rem;
-  text-align:left;
+  margin-left: 1rem;
+  font-size:.9rem;
 }
-  .resourceCol div:first-child {
-    font-weight: 600;
-    text-align: left;
-    margin-left: 2.2rem;
+.filterIcon {
+  color: #28a745;
+  font-size: 1.6rem;
+  vertical-align: sub;
+  margin-right: 0.2rem;
+}
+
+.poiBonus {
+  font-weight: 800;
+  font-size: .8rem;
+  color: gold;
+  background-color: #121888;
+  border-radius: 50%;
+  width: 2rem;
+  display: inline-block;
+  text-align: center;
+  height: 1.6rem;
+  padding-top: .16rem;
+  
+  position:absolute;
+  right:2px;
+  margin-top:20px
+}
+  .poiBonus::before {
+    background: url("../../assets/POI.png") no-repeat;
+    background-size: contain;
+    content: "";
+    height: 60px;
+    width: 26px;
+    display: inline-block;
+    position: absolute;
+    right: 18px;
+    top: -22px;
   }
 
-.resourceTotal span:first-child {
-  display: inline-block;
-  font-size: .9rem;
-  padding-right: 0.5rem;
-  width: 40%;
+.buildingNum {
+  position: absolute;
+  margin-top: 36px;
+  /* margin-top: -20px; */
+  color: lightcoral;
+  font-size: .6rem;
+  font-weight: bold;
+  text-shadow: -1px -1px 1px #fff, 1px 1px 1px #fff;
 }
-.resourceTotal span:nth-child(2){
-  display: inline-block;
-  font-size: .9rem;
-  padding-left: 0.5rem;
-  width: 3.6rem;
-  text-align:right;
-}
-.overProd{
-  font-weight:600;
-  margin-top:1rem;
+.industryImg {
+  max-height: 60px;
 }
 
-.doubleAppHeaderSpan1 {
-  margin-left: .2rem
-}
-.doubleAppHeaderSpan2 {
-  color: darkorange;
-  margin-left: .2rem
+
+
+@media only screen and (max-width: 415px) {
+  .mat-expansion-panel{
+    width:380px
+  }
+
+  #doubleAppBonusPanel {
+    margin-top: 1rem;
+    margin-left: unset;
+  }
+
+  .resourceCol {
+    width: 48%;
+    text-align: center;
+    margin-top: 0;
+  }
+  .resourceTotal{
+    text-align: left;
+  }
+
+  .lastUpdated {
+    line-height: .8rem;
+    margin-top: .8rem;
+    text-indent: 1rem;
+    width: 48%;
+    text-align: center;
+  }
+  .lastUpdated .mat-icon {
+    position: absolute;
+    margin-top: 0.3rem;
+    left: -10px;
+  }
+
+  #totalProducePanel .mat-expansion-panel-body{
+    padding-left: 18px
+  }
+
+  .rented {
+    margin-top: 0;
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    margin-right: 6px;
+    margin-left: 0px;
+  }
 }

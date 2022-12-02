@@ -201,9 +201,9 @@ namespace MetaverseMax.Database
             return;
         }
 
-        public int AddOrUpdatePlot(int posX, int posY, int plotId, bool saveEvent)
+        public Plot AddOrUpdatePlot(int posX, int posY, int plotId, bool saveEvent)
         {                        
-            Plot plotMatched;
+            Plot plotMatched = null;
             PlotManage plotManage = new(_context);
             CitizenManage citizen = new(_context);
             Building building = new();
@@ -213,18 +213,9 @@ namespace MetaverseMax.Database
             {
                 jsonContent = Task.Run(() => plotManage.GetPlotMCP(posX, posY)).Result;
              
-                if (jsonContent == null)
-                {
-                    _context.plot.Add(new Plot()
-                    {
-                        pos_x = posX,
-                        pos_y = posY,
-                        notes = "No plot data returned from MCP",
-                        last_updated = DateTime.Now
-                    });
-                }
-                else
-                {                    
+                // Only process if MCP service returned plot obj
+                if (jsonContent != null)
+                {                                   
                     // Based on the callers passed plotId, either add a new plot or update an existing plot record.
                     if (plotId == 0) {
 
@@ -247,7 +238,10 @@ namespace MetaverseMax.Database
                             building_type_id = jsonContent.Value<int?>("building_type_id") ?? 0,
                             token_id = jsonContent.Value<int?>("token_id") ?? 0,
                             on_sale = jsonContent.Value<bool?>("on_sale") ?? false,
+                            for_rent = (jsonContent.Value<int?>("for_rent") ?? 0 ) > 0 ? building.GetRentPrice(jsonContent.Value<JToken>("rent_info")) : 0,
+                            rented = jsonContent.Value<string>("renter") != null,
                             abundance = jsonContent.Value<int?>("abundance") ?? 0,
+                            condition = jsonContent.Value<int?>("condition") ?? 0,
 
                             influence_info = GetInfluenceInfoTotal(jsonContent.Value<JToken>("influence_info"), jsonContent.Value<Boolean?>("influence_poi_bonus") ?? false, posX, posY, jsonContent.Value<int?>("building_type_id") ?? 0),
                             current_influence_rank = 0,
@@ -265,14 +259,15 @@ namespace MetaverseMax.Database
                             last_run_produce_id = 0,
                             last_run_produce_predict = false,
 
-                            low_stamina_alert = citizen.CheckCitizenStamina(jsonContent.Value<JArray>("citizens"), jsonContent.Value<int?>("building_type_id") ?? 0)
+                            low_stamina_alert = citizen.CheckCitizenStamina(jsonContent.Value<JArray>("citizens"), jsonContent.Value<int?>("building_type_id") ?? 0),
+                            action_id = jsonContent.Value<int?>("action_id") ?? 0
                         }); ;
                     }
                     else // UPDATE
                     {
                         plotMatched = _context.plot.Find(plotId);
 
-                        plotMatched.last_updated = DateTime.Now;
+                        plotMatched.last_updated = DateTime.UtcNow;
                         plotMatched.current_price = building.GetSalePrice(jsonContent.Value<JToken>("sale_data"));
                         plotMatched.unclaimed_plot = string.IsNullOrEmpty(jsonContent.Value<string>("owner"));
                         plotMatched.owner_nickname = jsonContent.Value<string>("owner_nickname");
@@ -284,7 +279,10 @@ namespace MetaverseMax.Database
                         plotMatched.building_type_id = jsonContent.Value<int?>("building_type_id") ?? 0;
                         plotMatched.token_id = jsonContent.Value<int?>("token_id") ?? 0;
                         plotMatched.on_sale = jsonContent.Value<bool?>("on_sale") ?? false;
+                        plotMatched.for_rent = (jsonContent.Value<int?>("for_rent") ?? 0) > 0 ? building.GetRentPrice(jsonContent.Value<JToken>("rent_info")) : 0;                        
+                        plotMatched.rented = jsonContent.Value<string>("renter") != null;
                         plotMatched.abundance = jsonContent.Value<int?>("abundance") ?? 0;
+                        plotMatched.condition = jsonContent.Value<int?>("condition") ?? 0;
 
                         plotMatched.influence_info = GetInfluenceInfoTotal(jsonContent.Value<JToken>("influence_info"), jsonContent.Value<Boolean?>("influence_poi_bonus") ?? false, posX, posY, jsonContent.Value<int?>("building_type_id") ?? 0);
                         plotMatched.influence = jsonContent.Value<int?>("influence") ?? 0;
@@ -298,6 +296,7 @@ namespace MetaverseMax.Database
                         plotMatched.app_123_bonus = GetApplication123Bonus(jsonContent.Value<JToken>("appliances"), posX, posY);
 
                         plotMatched.low_stamina_alert = citizen.CheckCitizenStamina(jsonContent.Value<JArray>("citizens"), plotMatched.building_type_id);
+                        plotMatched.action_id = jsonContent.Value<int?>("action_id") ?? 0;
                     }
                 }
 
@@ -311,7 +310,106 @@ namespace MetaverseMax.Database
                 logException(ex, String.Concat("PlotDB:AddOrUpdatePlot() : Error Adding/update Plot X:", posX, " Y:", posY));
             }
 
-            return 0;
+            return plotMatched;
+        }
+
+        // Special Case : Partial update during day - if building was recently built/upgraded, partial update of plot data found in /user/assets/lands WS calls.
+        public Plot UpdatePlot(JToken ownerLand, bool saveEvent)
+        {
+            Plot plotMatched = null;
+            List<Plot> buildingPlotList = null;
+            PlotManage plotManage = new(_context);
+            CitizenManage citizen = new(_context);
+            Building building = new();
+            int tokenId = 0;
+            //bool trigerFullPlotRefresh = false;
+
+            try
+            {                
+                if (ownerLand != null)
+                {
+                    tokenId = ownerLand.Value<int?>("token_id") ?? 0;
+
+                    // Can update plots lvl5 or less, as all others have multiple plots per building causing problems with dups on some sprocs.
+                    // Notes: for_rent is not populated by this WS call, unknown if rental data is valid.
+                    if (ownerLand.Value<int?>("building_level") <= 5)
+                    {                        
+                        plotMatched = _context.plot.Where(x => x.pos_x == (ownerLand.Value<int?>("x") ?? 0) && x.pos_y == (ownerLand.Value<int?>("y") ?? 0)).FirstOrDefault();
+
+                        plotMatched.last_updated = DateTime.UtcNow;
+                        plotMatched.current_price = building.GetSalePrice(ownerLand.Value<JToken>("sale_data"));
+                        plotMatched.unclaimed_plot = string.IsNullOrEmpty(ownerLand.Value<string>("owner"));
+                        //plotMatched.owner_nickname = jsonContent.Value<string>("owner_nickname");
+                        plotMatched.owner_matic = ownerLand.Value<string>("owner");
+                        //plotMatched.owner_avatar_id = jsonContent.Value<int>("owner_avatar_id");
+                        //plotMatched.resources = jsonContent.Value<int?>("resources") ?? 0;
+                        plotMatched.building_id = ownerLand.Value<int?>("building_id") ?? 0;
+                        plotMatched.building_level = ownerLand.Value<int?>("building_level") ?? 0;
+                        plotMatched.building_type_id = ownerLand.Value<int?>("building_type_id") ?? 0;
+                        plotMatched.token_id = ownerLand.Value<int?>("token_id") ?? 0;
+                        plotMatched.on_sale = ownerLand.Value<bool?>("on_sale") ?? false;
+                        //plotMatched.for_rent = (ownerLand.Value<int?>("for_rent") ?? 0) > 0 ? building.GetRentPrice(ownerLand.Value<JToken>("rent_info")) : 0;
+                        plotMatched.rented = ownerLand.Value<string>("renter") != null;
+                        plotMatched.abundance = ownerLand.Value<int?>("abundance") ?? 0;
+                        plotMatched.condition = ownerLand.Value<int?>("condition") ?? 0;
+
+                        //plotMatched.influence_info = GetInfluenceInfoTotal(jsonContent.Value<JToken>("influence_info"), jsonContent.Value<Boolean?>("influence_poi_bonus") ?? false, posX, posY, jsonContent.Value<int?>("building_type_id") ?? 0);
+                        plotMatched.influence = ownerLand.Value<int?>("influence") ?? 0;
+                        
+                        //if (plotMatched.influence_bonus != (ownerLand.Value<int?>("influence_bonus") ?? 0)) {
+                        //    trigerFullPlotRefresh = true;           // App bonus check is not fully updated, as Application collection not included with this MCP WS call
+                        //}
+                        //plotMatched.influence_bonus = ownerLand.Value<int?>("influence_bonus") ?? 0;
+
+                        //plotMatched.influence_poi_bonus = jsonContent.Value<Boolean?>("influence_poi_bonus") ?? false;
+                        //plotMatched.production_poi_bonus = jsonContent.Value<decimal?>("production_poi_bonus") ?? 0.0m;
+                        //plotMatched.is_perk_activated = jsonContent.Value<Boolean?>("is_perk_activated") ?? false;
+
+                        //plotMatched.app_4_bonus = GetApplicationBonus(4, jsonContent.Value<JArray>("extra_appliances"), posX, posY);
+                        //plotMatched.app_5_bonus = GetApplicationBonus(5, jsonContent.Value<JArray>("extra_appliances"), posX, posY);
+                        //plotMatched.app_123_bonus = GetApplication123Bonus(jsonContent.Value<JToken>("appliances"), posX, posY);
+
+                        plotMatched.low_stamina_alert = citizen.CheckCitizenStamina(ownerLand.Value<JArray>("citizens"), plotMatched.building_type_id);
+                    }
+                    else
+                    {
+                        buildingPlotList = _context.plot.Where(x => x.token_id == tokenId).ToList();
+                        for(int i = 0; i < buildingPlotList.Count; i++)
+                        {
+                            plotMatched = buildingPlotList[i];
+
+                            plotMatched.last_updated = DateTime.UtcNow;
+                            plotMatched.current_price = building.GetSalePrice(ownerLand.Value<JToken>("sale_data"));
+                            plotMatched.unclaimed_plot = string.IsNullOrEmpty(ownerLand.Value<string>("owner"));
+                            plotMatched.owner_matic = ownerLand.Value<string>("owner");
+                            plotMatched.building_id = ownerLand.Value<int?>("building_id") ?? 0;
+                            plotMatched.building_level = ownerLand.Value<int?>("building_level") ?? 0;
+                            plotMatched.building_type_id = ownerLand.Value<int?>("building_type_id") ?? 0;
+                            plotMatched.token_id = ownerLand.Value<int?>("token_id") ?? 0;
+                            plotMatched.on_sale = ownerLand.Value<bool?>("on_sale") ?? false;
+                           // plotMatched.for_rent = (ownerLand.Value<int?>("for_rent") ?? 0) > 0 ? building.GetRentPrice(ownerLand.Value<JToken>("rent_info")) : 0;
+                            plotMatched.rented =  ownerLand.Value<string>("renter") != null;
+                            plotMatched.abundance = ownerLand.Value<int?>("abundance") ?? 0;
+                            plotMatched.condition = ownerLand.Value<int?>("condition") ?? 0;
+                            
+                            plotMatched.influence = ownerLand.Value<int?>("influence") ?? 0;
+                            plotMatched.influence_bonus = ownerLand.Value<int?>("influence_bonus") ?? 0;
+                            plotMatched.low_stamina_alert = citizen.CheckCitizenStamina(ownerLand.Value<JArray>("citizens"), plotMatched.building_type_id);
+                        }
+                    }
+                }
+
+                if (saveEvent)
+                {
+                    _context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                logException(ex, String.Concat("PlotDB:UpdatePlot() : Error Adding/update Plot token_id: ", tokenId));
+            }
+
+            return plotMatched;
         }
 
         private int GetApplicationBonus(int appNumber, JArray extraAppliances, int pos_x, int pos_y)

@@ -62,7 +62,89 @@
     </div>
   </mat-expansion-panel>
 
-  <mat-expansion-panel expanded="false" id="producePredictionPanel" *ngIf="buildingCollection && buildingCollection.buildings && (buildingType == 3 || buildingType == 5 || buildingType == 7) ">
+  <mat-expansion-panel id="activeBuildingPanel" expanded="false" *ngIf="buildingCollection && buildingCollection.active_buildings && (buildingType == 3 || buildingType == 5 || buildingType == 7) ">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>build</mat-icon>
+        <span style="margin-left:.2rem">Active Buildings</span>
+      </mat-panel-title>
+      <mat-panel-description>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <div class="header activeBuilding">
+      <span>Type</span>
+      <span>Total</span>
+      <span>Active</span>
+      <span>Shutdown</span>
+    </div>
+    <div class="activeBuilding" *ngFor="let resource of buildingCollection.active_buildings">
+      <div>
+        <span>{{ resource.name }}</span>
+        <span>{{ resource.total }}</span>
+        <span>{{ resource.active }}</span>
+        <span>{{ resource.shutdown }}</span>
+      </div>      
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel id="totalProducePanel" *ngIf="buildingCollection && (buildingType == 3 || buildingType == 5 || buildingType == 7) " expanded="false">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>account_balance</mat-icon>
+        <span>Total Recent Produce</span>
+      </mat-panel-title>
+      <mat-panel-description>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <div *ngIf="buildingCollection && buildingCollection.buildings">
+      <div active_buildings>
+        <div class="activeCount">
+          <span>Active Buildings:</span>
+          <span>{{ buildingCollection.active_count }}</span>
+          <span>* Recent Estimate</span>
+        </div>
+        <div class="resourceCol" >
+          <div><span>Weekly</span></div>
+          <div class="resourceTotal" *ngFor="let resource of buildingCollection.total_produced">
+            <span>{{resource.name}}</span>
+            <span>{{resource.totalFormat}}</span>
+          </div>
+        </div>
+        <div class="resourceCol">
+          <div><span>Monthly</span></div>
+          <div class="resourceTotal" *ngFor="let resource of buildingCollection.total_produced_month">
+            <span>{{resource.name}}</span>
+            <span>{{resource.totalFormat}}</span>
+          </div>
+        </div>
+      </div>
+      <!--
+      <div *ngIf="buildingCollection.building_lvl>5">
+        <div class="overProd"><span>App Bonus Bug - Over Production</span></div>
+        <div>
+          <div class="resourceCol">
+            <div><span>Weekly</span></div>
+            <div class="resourceTotal" *ngFor="let resource of buildingCollection.total_produced_excess">
+              <span>{{resource.name}}</span>
+              <span>{{resource.totalFormat}}</span>
+            </div>
+          </div>
+          <div class="resourceCol">
+            <div><span>Monthly</span></div>
+            <div class="resourceTotal" *ngFor="let resource of buildingCollection.total_produced_month_excess">
+              <span>{{resource.name}}</span>
+              <span>{{resource.totalFormat}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      -->
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel expanded="false" id="producePredictionPanel" *ngIf="buildingCollection && buildingCollection.show_prediction && buildingCollection.buildings && (buildingType == 3 || buildingType == 5 || buildingType == 7) ">
     <mat-expansion-panel-header>
       <mat-panel-title>
         <mat-icon>history</mat-icon>
@@ -105,103 +187,64 @@
     </div>
   </mat-expansion-panel>
 
-  <mat-expansion-panel *ngIf="buildingCollection && buildingCollection.building_lvl>5 && (buildingType == 3 || buildingType == 5 || buildingType == 7) " expanded="false" id="doubleAppBonusPanel">
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        <mat-icon>history</mat-icon>
-        <span class="doubleAppHeaderSpan1">Prediction Eval -</span>
-        <span *ngIf="buildingCollection.building_lvl==6" class="doubleAppHeaderSpan2">2x App Bonus Bug</span>
-        <span *ngIf="buildingCollection.building_lvl==7" class="doubleAppHeaderSpan2">4x App Bonus Bug</span>
-      </mat-panel-title>
-      <mat-panel-description>
-      </mat-panel-description>
-    </mat-expansion-panel-header>
+  <!--
+    <mat-expansion-panel *ngIf="buildingCollection && buildingCollection.building_lvl>5 && (buildingType == 3 || buildingType == 5 || buildingType == 7) " expanded="false" id="doubleAppBonusPanel">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>history</mat-icon>
+          <span class="doubleAppHeaderSpan1">Prediction Eval -</span>
+          <span *ngIf="buildingCollection.building_lvl==6" class="doubleAppHeaderSpan2">2x App Bonus Bug</span>
+          <span *ngIf="buildingCollection.building_lvl==7" class="doubleAppHeaderSpan2">4x App Bonus Bug</span>
+        </mat-panel-title>
+        <mat-panel-description>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
 
-    <div class="summaryInfo" *ngIf="buildingCollection && buildingCollection.buildings">
-      <div>
-        <span>Produce Buildings:</span>
-        <span>{{ buildingCollection.buildings_predict }}</span>
-        <span style="width:8rem">* Last week period</span>
-      </div>
-      <div>
-        <span>Correct:</span>
-        <span>{{ buildingCollection.predict_bonus_bug.correct }}</span>
-        <span>% Correct:</span>
-        <span>{{ buildingCollection.predict_bonus_bug.correct_percent }}%</span>
-      </div>
-      <div>
-        <span>Miss:</span>
-        <span>{{ buildingCollection.predict_bonus_bug.miss }}</span>
-        <span>% Miss:</span>
-        <span>{{ buildingCollection.predict_bonus_bug.miss_percent }}%</span>
-      </div>
-      <div>
-        <span>Above:</span>
-        <span>{{ buildingCollection.predict_bonus_bug.miss_above }}</span>
-        <span>% Above:</span>
-        <span>{{ buildingCollection.predict_bonus_bug.miss_above_percent }}%</span>
-      </div>
-      <div>
-        <span>Below:</span>
-        <span>{{ buildingCollection.predict_bonus_bug.miss_below }}</span>
-        <span>% Below:</span>
-        <span>{{ buildingCollection.predict_bonus_bug.miss_below_percent }}%</span>
-      </div>
-    </div>
-  </mat-expansion-panel>
-
-  <mat-expansion-panel *ngIf="buildingCollection && (buildingType == 3 || buildingType == 5 || buildingType == 7) " expanded="false" id="totalProducePanel">
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        <mat-icon>account_balance</mat-icon>
-        <span>Total Recent Produce</span>
-      </mat-panel-title>
-      <mat-panel-description>
-      </mat-panel-description>
-    </mat-expansion-panel-header>
-
-    <div *ngIf="buildingCollection && buildingCollection.buildings">
-      <div>
-        <div class="resourceCol">
-          <div><span>Weekly</span></div>
-          <div class="resourceTotal" *ngFor="let resource of buildingCollection.total_produced">
-            <span>{{resource.name}}</span>
-            <span>{{resource.totalFormat}}</span>
-          </div>
-        </div>
-        <div class="resourceCol">
-          <div><span>Monthly</span></div>
-          <div class="resourceTotal" *ngFor="let resource of buildingCollection.total_produced_month">
-            <span>{{resource.name}}</span>
-            <span>{{resource.totalFormat}}</span>
-          </div>
-        </div>
-      </div>
-      <div *ngIf="buildingCollection.building_lvl>5">
-        <div class="overProd"><span>App Bonus Bug - Over Production</span></div>
+      <div class="summaryInfo" *ngIf="buildingCollection && buildingCollection.buildings">
         <div>
-          <div class="resourceCol">
-            <div><span>Weekly</span></div>
-            <div class="resourceTotal" *ngFor="let resource of buildingCollection.total_produced_excess">
-              <span>{{resource.name}}</span>
-              <span>{{resource.totalFormat}}</span>
-            </div>
-          </div>
-          <div class="resourceCol">
-            <div><span>Monthly</span></div>
-            <div class="resourceTotal" *ngFor="let resource of buildingCollection.total_produced_month_excess">
-              <span>{{resource.name}}</span>
-              <span>{{resource.totalFormat}}</span>
-            </div>
-          </div>
+          <span>Produce Buildings:</span>
+          <span>{{ buildingCollection.buildings_predict }}</span>
+          <span style="width:8rem">* Last week period</span>
+        </div>
+        <div>
+          <span>Correct:</span>
+          <span>{{ buildingCollection.predict_bonus_bug.correct }}</span>
+          <span>% Correct:</span>
+          <span>{{ buildingCollection.predict_bonus_bug.correct_percent }}%</span>
+        </div>
+        <div>
+          <span>Miss:</span>
+          <span>{{ buildingCollection.predict_bonus_bug.miss }}</span>
+          <span>% Miss:</span>
+          <span>{{ buildingCollection.predict_bonus_bug.miss_percent }}%</span>
+        </div>
+        <div>
+          <span>Above:</span>
+          <span>{{ buildingCollection.predict_bonus_bug.miss_above }}</span>
+          <span>% Above:</span>
+          <span>{{ buildingCollection.predict_bonus_bug.miss_above_percent }}%</span>
+        </div>
+        <div>
+          <span>Below:</span>
+          <span>{{ buildingCollection.predict_bonus_bug.miss_below }}</span>
+          <span>% Below:</span>
+          <span>{{ buildingCollection.predict_bonus_bug.miss_below_percent }}%</span>
         </div>
       </div>
-    </div>
-  </mat-expansion-panel>
+    </mat-expansion-panel>
+  -->
+
 </mat-accordion>
 
 
 <div class="table-container" [hidden]="!buildingCollection || !buildingCollection.buildings || !buildingCollection.buildings.length">
+
+  <div *ngIf="buildingType==5 || buildingType==3 || buildingType==7" class="helpTip">    
+    <mat-icon class="glowText">help</mat-icon>    
+    <span>Click </span>
+    <img src="./assets/MagnifyHistory.png" class="magnifyHistoryIcon" height="30" />
+    <span>to show history and production analysis</span>
+  </div>
 
   <div class="lastUpdated">
     <mat-icon>access_time</mat-icon>
@@ -214,116 +257,169 @@
     </mat-form-field>
   </div>
 
-  <table mat-table [dataSource]="dataSource" matSort matSortStart="desc" class="table-striped mat-elevation-z8" style="width:100%; display:inline-table">
-    <ng-container matColumnDef="position">
+  <div class="activeFilter" fxLayout fxLayoutAlign="center center" [hidden]="buildingType!=5 && buildingType!=3 && buildingType!=7 && buildingType!=1">
+    <div>
+      <mat-checkbox #activeChkbox
+                    fxFlex="30%"
+                    class="activeWeek"
+                    (change)="filterActive($event)">
+        <i class="fas fa-running filterIcon" title="Active production during prior week"></i>Active (Prior Week)
+      </mat-checkbox>
+    </div>
+  </div>
+  <div class="activeFilter" fxLayout fxLayoutAlign="center center" [hidden]="buildingType==6">
+    <div>
+      <mat-checkbox #toRentChkbox
+                    fxFlex="30%"
+                    class="activeWeek"
+                    (change)="filterToRent($event)">
+        <i class="fas fa-truck-moving filterIcon" title="Available to rent"></i>To Rent
+      </mat-checkbox>
+    </div>
+  </div>
+  <div class="activeFilter" fxLayout fxLayoutAlign="center center">
+    <div>
+      <mat-checkbox #forSaleChkbox
+                    fxFlex="30%"
+                    class="activeWeek"
+                    (change)="filterForSale($event)">
+        <i class="fas fa-ad filterIcon" title="Available for sale"></i>For Sale
+      </mat-checkbox>
+    </div>
+  </div>
+
+  <mat-paginator #paginatorTop (page)="handlePaginatorBottom($event)" [hidden]="hidePaginator" [pageSize]="500" [hidePageSize] [showFirstLastButtons] class="paginatorContainer top"></mat-paginator>
+
+  <table #ipRank mat-table [dataSource]="dataSource" matSort matSortStart="desc" class="table-striped mat-elevation-z8" style="width:100%; display:inline-table">
+    <ng-container matColumnDef="pos">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>
         <span>#</span>
       </th>
-      <td mat-cell *matCellDef="let row;">
-        <span class="salepos" *ngIf="row.current_price>0">{{row.current_price.toLocaleString()}}</span>
-        <span>{{row.position}}</span>
+      <td mat-cell *matCellDef="let row">
+        <span class="salepos" *ngIf="row.price>0">{{row.price.toLocaleString()}}</span>
+        <span class="toRent" *ngIf="row.r_p>0">{{row.r_p.toLocaleString()}} / day</span>
+        <img class="rented" *ngIf="row.ren==1" src="./images/rented.png" />
+
+        <span>{{row.pos}}</span>
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="ip_efficiency">
+    <ng-container matColumnDef="rank">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>
         <span class="long-text">IP Efficiency %</span>
       </th>
-      <td mat-cell *matCellDef="let row">
-        <span>{{row.ip_efficiency}}%</span>
-        <a class="magnifyHistoryPositioner" *ngIf="buildingType==5 || buildingType==3 || buildingType==7" role="button" (click)="showHistory(row.token_id, row.pos_x, row.pos_y, buildingType, row.ip_efficiency, row.ip_efficiency_bonus_bug)">
+      <td mat-cell *matCellDef="let row" [style.height]="row.warn != '' ? '5.1rem' :'0'">
+        <span>{{row.rank}}%</span>
+
+        <a class="magnifyHistoryPositioner" *ngIf="buildingType==5 || buildingType==3 || buildingType==7" role="button" (click)="showHistory(row.id, row.pos_x, row.pos_y, buildingType, row.rank)">
           <img src="./assets/MagnifyHistory.png" class="magnifyHistoryIcon" height="30" />
         </a>
-        <mat-icon *ngIf="row.influence_info!=row.influence" title="MCP IP glitch {{row.influence_info}} vs {{row.influence}}" class="warningIcon">error</mat-icon>
-        <div class="rowWarning" *ngIf="row.ip_warning != null">
+
+        <div class="rowWarning" *ngIf="row.warn != ''">
           <mat-icon>warning</mat-icon>
-          <span>{{row.ip_warning}}</span>
+          <span>{{row.warn}}</span>
         </div>
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="total_ip">
+    <ng-container matColumnDef="ip_t">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>
         <span class="long-text">Total IP</span>
       </th>
       <td mat-cell *matCellDef="let row">
-        <span>{{ row.total_ip}}</span>
+        <span>{{ row.ip_t}}</span>
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="influence">
+    <ng-container matColumnDef="ip_b">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>
         <span class="long-text">Base influence</span>
       </th>
       <td mat-cell *matCellDef="let row">
-        <span>{{ row.influence_info }}</span>
+        <span>{{ row.ip_b }}</span>
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="influence_bonus">
+    <ng-container matColumnDef="bon">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>
         <span class="long-text">IP Bonus</span>
       </th>
       <td mat-cell *matCellDef="let row">
-        <span>{{ row.influence_bonus }}</span>%
+        <span>{{ row.bon }}</span>%
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="owner_nickname">
+    <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Owner </th>
       <td mat-cell *matCellDef="let row">
 
-        <img *ngIf="row.owner_avatar_id>0" src="https://mcp3d.com/tron/api/image/citizen/{{ row.owner_avatar_id }}" class="ownerImgCol" height="60" crossorigin="anonymous" referrerpolicy="no-referrer" />
-        <img *ngIf="row.owner_avatar_id==0" src="./images/MysteryOwner.png" class="ownerImgCol" height="50" style="margin-top:0" />
+        <img *ngIf="row.name_id >0" src="https://mcp3d.com/tron/api/image/citizen/{{ row.name_id }}" class="ownerImgCol" height="60" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <img *ngIf="row.name_id ==0" src="./images/MysteryOwner.png" class="ownerImgCol" height="50" style="margin-top:0" />
 
-        <a class="nav-link lineAnim" [routerLink]="['/owner-data']" [queryParams]="{matic: row.owner_matic}" title="{{ row.owner_nickname }}">
-          <span *ngIf="row.owner_nickname!=''">{{ row.owner_nickname }}</span>
-          <span class="maticLink" *ngIf="row.owner_nickname==''">{{ row.owner_matic.substring(0,14) }}</span>
+        <a class="nav-link lineAnim" [routerLink]="['/owner-data']" [queryParams]="{matic: row.name_m}" title="{{ row.name }}">
+          <span *ngIf="row.name !=''">{{ row.name }}</span>
+          <span class="maticLink" *ngIf="row.name==''">{{ row.name_m.substring(0,14) }}</span>
         </a>
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="predict_eval_result">
+    <ng-container matColumnDef="con">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        <span class="long-text">Damage%</span><span class="short-text"></span>
+      </th>
+      <td mat-cell *matCellDef="let row">
+        <span *ngIf="row.con ==100" style="color:green">{{ 100 - row.con }}%</span>
+        <span *ngIf="row.con >60 && row.con <100" style="color:darkorange">{{ 100 - row.con }}%</span>
+        <span *ngIf="row.con <=60" style="color:red">{{ 100 - row.con }}%</span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="pre">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>
         <span class="long-text">Predict Eval</span><span class="short-text"></span>
       </th>
       <td mat-cell *matCellDef="let row">
         <div>
-          <span>{{row.predict_eval_result > 0 ? '+':''}}{{ row.predict_eval_result}}</span>
-        </div>
-        <div *ngIf="buildingCollection && buildingCollection.building_lvl > 5 && row.predict_eval_result != 0" style="color:darkorange">
-          <span>{{row.predict_eval_result_bonus_bug > 0 ? '+':''}}{{ row.predict_eval_result_bonus_bug}}</span>
+          <i *ngIf="row.pre==0 && row.act == true" class="fas fa-check filterIcon"></i>
+          <span *ngIf="row.act == true && row.pre!=0">{{row.pre > 0 ? '+':''}}{{ row.pre}}</span>
         </div>
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="district_id">
+
+    <ng-container matColumnDef="dis">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>
         <span class="long-text">District #</span><span class="short-text"></span>
       </th>
       <td mat-cell *matCellDef="let row">
-        <a class="lineAnim" [routerLink]="['/district-summary']" [queryParams]="{district_id: row.district_id}" title="Open District page">{{ row.district_id}}</a>
+        <a class="lineAnim" [routerLink]="['/district-summary']" [queryParams]="{district_id: row.dis}" title="Open District page">{{ row.dis}}</a>
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="pos">
-      <th mat-header-cell *matHeaderCellDef disabled>Pos</th>
+    <ng-container matColumnDef="pos_x">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Map</th>
       <td mat-cell *matCellDef="let row" class="linkCol">
         <span> X:{{row.pos_x}} Y:{{row.pos_y}}</span>
         <span><a class="lineAnim" target="_blank" href="https://play.mcp3d.com/tron/land?x={{ row.pos_x }}&y={{ row.pos_y }}">Map</a></span>
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="building_id">
+    <ng-container matColumnDef="id">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Type & ID </th>
       <td mat-cell *matCellDef="let row">
-        <img src="{{ row.building_img }}" class="industryImg">
-        <span>{{row.token_id }}</span>
+        <i *ngIf="row.act == true" class="fas fa-running activeProduce"></i>
+        <span *ngIf="row.poi>0" class="poiBonus">+{{row.poi}}%</span>
+        <div>
+          <span class="buildingNum">{{row.id }}</span>
+          <img *ngIf="buildingCollection" src="{{ buildingCollection.img_url + row.img }}" class="industryImg">
+        </div>
+
       </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
+  <mat-paginator #paginatorBottom (page)="handlePaginatorTop($event)" [hidden]="hidePaginator" [pageSize]="500" [hidePageSize] [showFirstLastButtons] class="paginatorContainer"></mat-paginator>
 
 </div>

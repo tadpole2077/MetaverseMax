@@ -64,6 +64,7 @@ namespace MetaverseMax.ServiceClass
 
     }
 
+
     public class QueryParametersSecurity
     {
         [BindRequired]
@@ -93,6 +94,15 @@ namespace MetaverseMax.ServiceClass
     {
         [BindRequired]
         public bool opened { get; set; }
+
+    }
+
+    public class QueryParametersDistrictGetAll
+    {
+        [BindRequired]
+        public bool opened { get; set; }
+
+        public bool includeTaxHistory { get; set; } = true;
 
     }
 
@@ -170,10 +180,7 @@ namespace MetaverseMax.ServiceClass
         public int token_id { get; set; }
 
         [BindRequired]
-        public decimal ip_efficiency { get; set; }
-
-        [BindRequired]
-        public decimal ip_efficiency_bonus_bug { get; set; }        
+        public int full_refresh { get; set; }            
 
     }
 

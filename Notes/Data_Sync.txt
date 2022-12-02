@@ -21,3 +21,12 @@ On: Owner - Pet - Offer Loop instance.
 Fn: SyncPlotData()
 
 
+
+============================================================================
+Issue: DB context getting dropped during long running Data-Sync job
+============================================================================
+Articles that support short running dbcontext obj
+1) https://stackoverflow.com/questions/40113035/life-time-of-dbcontext-in-a-long-running-process
+
+Dispose of dbcontext
+1) https://stackoverflow.com/questions/15666824/entity-framework-and-calling-context-dispose

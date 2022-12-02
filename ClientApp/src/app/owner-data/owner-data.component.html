@@ -65,7 +65,7 @@
 
     <div class="ownerPlotSection" aria-live="polite">
       <div>
-        <span class="mediaLarge">Owner Plots: </span>
+        <span class="mediaLarge">Owned Plots: </span>
         <span class="media415">Owned: </span>
         <strong>{{ owner.plot_count }}</strong>
       </div>
@@ -136,16 +136,23 @@
     </ng-container>
     <ng-container matColumnDef="building_type">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
-      <td mat-cell *matCellDef="let land" class="industryCol">
-
-        <img *ngIf="land.building_type==0" src="{{ land.building_img }}" class="industryImg" crossorigin="anonymous" referrerpolicy="no-referrer">
-        <img *ngIf="land.building_type!=0" src="{{ land.building_img }}" class="industryImg">
-        <span *ngIf="land.building_type!=5 && land.building_type!=3 && land.building_type!=7" class="tableWrapline"> {{ land.building_desc }} </span>
-
-        <a class="lineAnim" *ngIf="land.building_type==5 || land.building_type==3 || land.building_type==7" role="button" (click)="showHistory(land.token_id, land.pos_x, land.pos_y, land.building_type, land.current_influence_rank)">
-          <span class="tableWrapline"> {{ land.building_desc }} </span>
-          <div class="magnifyHistoryPositioner"><img src="./assets/MagnifyHistory.png" class="magnifyHistoryIcon" height="34" /></div>
-        </a>
+      <td mat-cell *matCellDef="let land">
+        <div class="buildingContain">
+          <span class="buildingNum">{{ land.token_id }}</span>
+          <img *ngIf="land.building_type==0" src="{{ land.building_img }}" class="industryImg" crossorigin="anonymous" referrerpolicy="no-referrer">
+          <img *ngIf="land.building_type!=0" src="{{ land.building_img }}" class="industryImg">
+        </div>
+        <div *ngIf="land.building_type!=5 && land.building_type!=3 && land.building_type!=7" class="buildDesc">
+          <span> {{ land.building_desc }} </span>
+          <span *ngIf="land.resource>0" class="resource"> R:{{ land.resource }} </span>
+        </div>
+        <div *ngIf="land.building_type==5 || land.building_type==3 || land.building_type==7" class="buildDesc">
+          <a class="lineAnim buildingMaglink" role="button" (click)="showHistory(land.token_id, land.pos_x, land.pos_y, land.building_type, land.current_influence_rank)">
+            <span> {{ land.building_desc }} </span>
+            <span *ngIf="land.resource>0" class="resource"> R:{{ land.resource }} </span>
+            <span class="magnifyHistoryPositioner"><img src="./assets/MagnifyHistory.png" class="magnifyHistoryIcon" height="36" /></span>
+          </a>
+        </div>
 
       </td>
     </ng-container>
@@ -155,17 +162,34 @@
     </ng-container>
     <ng-container matColumnDef="last_action">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Last Action GMT </th>
-      <td mat-cell *matCellDef="let land"> {{ land.last_action }} </td>
+      <td mat-cell *matCellDef="let land">
+        <div *ngIf="land.last_action !=='Empty Plot'">
+          <span>{{ land.last_action.substring(0, land.last_action.length - 8) }}</span>
+          <span class="timePart">{{ land.last_action.substring(land.last_action.length - 8) }}</span>
+        </div>
+        <span *ngIf="land.last_action =='Empty Plot'">{{ land.last_action }}</span>
+      </td>
     </ng-container>
     <ng-container matColumnDef="current_influence_rank">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> IP Eff%</th>
-      <td mat-cell *matCellDef="let land"><span>{{ land.current_influence_rank }}%</span></td>
+      <td mat-cell *matCellDef="let land"><span *ngIf="land.building_type!=0">{{ land.current_influence_rank }}%</span></td>
     </ng-container>
+    <ng-container matColumnDef="condition">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Dmg%</th>
+      <td mat-cell *matCellDef="let land">
+        <div *ngIf="land.building_type!=0">
+          <span *ngIf="land.condition==100" style="color:green">{{ 100-land.condition }}%</span>
+          <span *ngIf="land.condition>60 && land.condition<100" style="color:darkorange">{{ 100-land.condition }}%</span>
+          <span *ngIf="land.condition<=60" style="color:red">{{ 100-land.condition }}%</span>
+        </div>
+      </td>
+    </ng-container>
+
     <ng-container matColumnDef="plot_ip">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> IP + Bonus </th>
       <td mat-cell *matCellDef="let land">
         <span>{{ land.plot_ip }}</span>
-        <span>+ {{ land.ip_bonus }}</span>
+        <span class="ipBonus">+ {{ land.ip_bonus }}</span>
       </td>
     </ng-container>
     <ng-container matColumnDef="citizen_count">
@@ -175,10 +199,10 @@
         <img *ngIf="land.citizen_count" src="{{ land.citizen_url }}" title="Lowest stamina citizen : {{ land.citizen_stamina }}" style="max-width:44px; max-height:44px;" crossorigin="anonymous" referrerpolicy="no-referrer" />
       </td>
     </ng-container>
-    <ng-container matColumnDef="token_id">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Token ID </th>
-      <td mat-cell *matCellDef="let land"> {{ land.token_id }}</td>
-    </ng-container>
+    <!--<ng-container matColumnDef="token_id">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Token ID </th>
+    <td mat-cell *matCellDef="let land"> {{ land.token_id }}</td>
+    </ng-container>-->
     <ng-container matColumnDef="citizen_stamina_alert">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Alerts</th>
       <td mat-cell *matCellDef="let land"><img *ngIf="land.citizen_stamina_alert" src="./assets/OutOfStamina.png" height="60" class="staminaOutImg"></td>
