@@ -14,14 +14,17 @@ namespace MetaverseMax.ServiceClass
     {
         protected readonly MetaverseMaxDbContext _context;
         
+        public WORLD_TYPE worldType { get; set; }
         public ServicePerfDB servicePerfDB { get; set; }
         public string serviceUrl { get; set; }
         public DateTime serviceStartTime { get; set; }
         public Stopwatch watch { get; set; }
 
-        public ServiceBase(MetaverseMaxDbContext _contextService)
+        public ServiceBase(MetaverseMaxDbContext _contextService, WORLD_TYPE worldType)
         {
             _context = _contextService;
+            _context.worldTypeSelected = worldType;
+
             servicePerfDB = new ServicePerfDB(_context);
         }
 

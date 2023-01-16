@@ -17,20 +17,42 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MetaverseMax.ServiceClass
 {
-    
+
     public class OwnerManage : ServiceBase
     {
-        private static Dictionary<string, string> ownersList = new();
+        private static Dictionary<string, string> ownersListTRON = new();
+        private static Dictionary<string, string> ownersListETH = new();
+        private static Dictionary<string, string> ownersListBNB = new();
+
         public OwnerData ownerData = new() { plot_count = -1 };
         private Common common = new();
 
-        public OwnerManage(MetaverseMaxDbContext _parentContext) : base(_parentContext)
-        {            
+        public OwnerManage(MetaverseMaxDbContext _parentContext, WORLD_TYPE worldTypeSelected) : base(_parentContext, worldTypeSelected)
+        {
+            worldType = worldTypeSelected;
+            _parentContext.worldTypeSelected = worldType;
             GetOwners(false); // Check if static dictionary has been loaded
         }
 
+        // Dictionary is a ref type - return the reference so that it can be populated, and avoid use of local dictionary as it will create another layer reference to a reference.
+        private ref Dictionary<string, string> GetOwnersListByWorldType()
+        {
+            switch (worldType)
+            {
+                case WORLD_TYPE.ETH:
+                    return ref ownersListETH;                    
+                case WORLD_TYPE.BNB:
+                    return ref ownersListBNB;                    
+                case WORLD_TYPE.TRON:
+                default:
+                    return ref ownersListTRON;                    
+            };
+        }
+
         public Dictionary<string, string> GetOwners(bool refresh)
-        {   
+        {
+            ref Dictionary<string, string> ownersList = ref GetOwnersListByWorldType();         // use the root dictionary to populate data.
+
             if (refresh)
             {
                 ownersList.Clear();
@@ -39,7 +61,7 @@ namespace MetaverseMax.ServiceClass
             if (ownersList.Count == 0)
             {
                 OwnerDB ownerDB = new OwnerDB(_context);
-                ownersList = ownerDB.GetOwners(WORLD_TYPE.TRON);
+                ownerDB.GetOwners(worldType, ref ownersList);       // Pass dictionary which is a reference type - called method will populate that list, set local ownerList to same ref.
             }
 
             return ownersList;
@@ -51,26 +73,45 @@ namespace MetaverseMax.ServiceClass
             return ownerDB.SyncOwner();
         }
 
-        public OwnerAccount FindOwnerByMatic(string maticKey, string tronKey)
+        // Finding match on maticKey as this is the key used by MCP for ownership of assets in-world and within local db's
+        public OwnerAccount FindOwnerByMatic(string maticKey, string walletPublicKey)
         {
             OwnerAccount ownerAccount = new();
-            string dbTronKey = string.Empty;
+            Owner owner = null;
+            string dbWalletKey = string.Empty;
+            ref Dictionary<string, string> ownersList = ref GetOwnersListByWorldType();
 
-            if (ownersList.TryGetValue(maticKey, out dbTronKey))
+            if (ownersList.TryGetValue(maticKey, out dbWalletKey))
             {
                 // Matic found, but no Tron key
-                if (dbTronKey == string.Empty)
+                if (dbWalletKey == string.Empty)
                 {
-                    dbTronKey = tronKey;
+                    dbWalletKey = walletPublicKey;
                 }
 
+                // Update db - apply the tron key or amend the record.
                 OwnerDB ownerDB = new OwnerDB(_context);
-                ownerDB.UpdateOwner(maticKey, dbTronKey);
+                owner = ownerDB.UpdateOwner(maticKey, walletPublicKey);
 
-                ownersList[maticKey] = tronKey;                
+                ownersList[maticKey] = walletPublicKey;                
 
                 ownerAccount.matic_key = maticKey;
-                ownerAccount.tron_key = tronKey;
+                ownerAccount.public_key = walletPublicKey;
+
+                ownerAccount.pro_tools_enabled = (owner.pro_access_expiry ?? DateTime.UtcNow) > DateTime.UtcNow ? true : false;
+
+                DateTime expiry = (owner.pro_access_expiry ?? DateTime.UtcNow);
+                // Handler for expiry next year or current year.
+                if (ownerAccount.pro_tools_enabled && expiry.Year >= DateTime.UtcNow.Year)
+                {
+                    if (DateTime.UtcNow.Year < expiry.Year)
+                    {
+                        ownerAccount.pro_expiry_days = (365 - DateTime.UtcNow.DayOfYear) + expiry.DayOfYear;
+                    }
+                    else {
+                        ownerAccount.pro_expiry_days = (owner.pro_access_expiry ?? DateTime.UtcNow).DayOfYear - DateTime.UtcNow.DayOfYear;
+                    }
+                }
             }
             else
             {
@@ -144,16 +185,18 @@ namespace MetaverseMax.ServiceClass
 
             return tokenType;
         }
-        
+
         // Get from MCP 3rd tier services
-        public async Task<RETURN_CODE> GetOwnerOffer(bool activeOffer, string maticKey)
+        // LEGACY SYSTEM : 2019 offers WS response a few offers contain no root>sale_data>buyer_matic_key && root>sale_data>value (Buyer offer).  Skip these offers
+        public async Task<RETURN_CODE> GetOwnerOffer(string maticKey)
         {
             String content = string.Empty;
             OwnerOffer ownerOffer = new();
             OwnerOfferDB ownerOfferDB = new(_context);
+            Building building = new();
             RETURN_CODE returnCode = RETURN_CODE.ERROR;
-            int retryCount = 0;
-            serviceUrl = "https://ws-tron.mcp3d.com/sales/offers";
+            int retryCount = 0;            
+            serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.SALES_OFFER, WORLD_TYPE.BNB => BNB_WS.SALES_OFFER, WORLD_TYPE.ETH => ETH_WS.SALES_OFFER, _ => TRON_WS.SALES_OFFER};
 
             while (returnCode == RETURN_CODE.ERROR && retryCount < 3)
             {
@@ -186,6 +229,7 @@ namespace MetaverseMax.ServiceClass
 
                         for (int index = 0; index < offers.Count; index++)
                         {
+                            // In-active offers may have additional data such as Sold date
                             if (offers[index].Value<bool>("is_active"))
                             {
                                 ownerOffer = new OwnerOffer();
@@ -200,7 +244,7 @@ namespace MetaverseMax.ServiceClass
 
                                 JObject sale_data = offers[index].Value<JObject>("sale_data");
                                 ownerOffer.buyer_matic_key = sale_data.Value<string>("buyer");
-                                ownerOffer.buyer_offer = sale_data.Value<decimal>("value") / 1000000; //Tron to Trx
+                                ownerOffer.buyer_offer = building.GetPrice(sale_data, worldType, "value", true);
 
                                 JObject data = offers[index].Value<JObject>("data");
                                 if (data != null && data.Count > 0)
@@ -215,8 +259,11 @@ namespace MetaverseMax.ServiceClass
                                     }
                                 }
 
-                                ownerOfferDB.AddorUpdate(ownerOffer);
-                                returnCode++;
+                                if (!string.IsNullOrEmpty(ownerOffer.buyer_matic_key))
+                                {
+                                    ownerOfferDB.AddorUpdate(ownerOffer);
+                                }
+
                             }
                             else if (offers[index].Value<bool>("is_active") == false && (offers[index].Value<int?>("is_cancelled") ?? 0) == 0)
                             {
@@ -232,7 +279,7 @@ namespace MetaverseMax.ServiceClass
 
                                 JObject sale_data = offers[index].Value<JObject>("sale_data");
                                 ownerOffer.buyer_matic_key = sale_data.Value<string>("buyer");
-                                ownerOffer.buyer_offer = sale_data.Value<decimal>("value") / 1000000; //Tron to Trx
+                                ownerOffer.buyer_offer = building.GetPrice(sale_data, worldType, "value", false);       //Return price even if sale is not active
 
                                 JObject data = offers[index].Value<JObject>("data");
                                 if (data != null && data.Count > 0)
@@ -249,7 +296,10 @@ namespace MetaverseMax.ServiceClass
                                 ownerOffer.sold = true;
                                 ownerOffer.sold_date = common.TimeFormatStandardDT(offers[index].Value<string>("sale_time"), null);
 
-                                ownerOfferDB.AddorUpdate(ownerOffer);
+                                if (!string.IsNullOrEmpty(ownerOffer.buyer_matic_key))
+                                {
+                                    ownerOfferDB.AddorUpdate(ownerOffer);
+                                }
                             }
                         }
                     }
@@ -258,12 +308,8 @@ namespace MetaverseMax.ServiceClass
                 }
                 catch (Exception ex)
                 {
-                    string log = ex.Message;
-                    if (_context != null)
-                    {
-                        _context.LogEvent(String.Concat("OwnerMange.GetOwnerOffer() : Error on WS calls for owner matic : ", maticKey));
-                        _context.LogEvent(log);
-                    }
+                    DBLogger dBLogger = new(_context.worldTypeSelected);
+                    dBLogger.logException(ex, String.Concat("OwnerMange.GetOwnerOffer() : Error on WS calls for owner matic : ", maticKey));
                 }
             }
 
@@ -278,17 +324,18 @@ namespace MetaverseMax.ServiceClass
             return returnCode;            
         }
 
-        public async Task<OwnerData> GetOwnerLands(string ownerMaticKey)
+        public async Task<OwnerData> GetOwnerLands(string ownerMaticKey, bool checkLandTokensExist = true)
         {
             try
             {
                 string content = string.Empty;
                 List<Plot> localPlots = new();
                 Building building = new();
-                CitizenManage citizen = new(_context);
-                PlotDB plotDB = new(_context);
+                CitizenManage citizen = new(_context, worldType);
+
+                PlotDB plotDB = new(_context, worldType);
                 string landOwner;
-                serviceUrl = "https://ws-tron.mcp3d.com/user/assets/lands";
+                serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.OWNER_LANDS, WORLD_TYPE.BNB => BNB_WS.OWNER_LANDS, WORLD_TYPE.ETH => ETH_WS.OWNER_LANDS, _ => TRON_WS.OWNER_LANDS};
 
                 HttpResponseMessage response;
                 using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
@@ -320,30 +367,35 @@ namespace MetaverseMax.ServiceClass
 
                     if (lands.Any())
                     {
-                        ownerData.owner_land = lands.Select(landInstance => new OwnerLand
-                        {
-                            district_id = landInstance.Value<int?>("region_id") ?? 0,
-                            pos_x = landInstance.Value<int?>("x") ?? 0,
-                            pos_y = landInstance.Value<int?>("y") ?? 0,
-                            plot_ip = landInstance.Value<int?>("influence") ?? 0,
-                            ip_bonus = (landInstance.Value<int?>("influence") ?? 0) * (landInstance.Value<int?>("influence_bonus") ?? 0) / 100,
-                            building_type = landInstance.Value<int?>("building_type_id") ?? 0,
-                            building_desc = building.BuildingType(landInstance.Value<int?>("building_type_id") ?? 0, landInstance.Value<int?>("building_id") ?? 0),
-                            building_img = building.BuildingImg(landInstance.Value<int?>("building_type_id") ?? 0, landInstance.Value<int?>("building_id") ?? 0, landInstance.Value<int?>("building_level") ?? 0),
-                            last_actionUx = landInstance.Value<double?>("last_action") ?? 0,
-                            last_action = common.UnixTimeStampUTCToDateTime(landInstance.Value<double?>("last_action"), "Empty Plot"),
-                            token_id = landInstance.Value<int?>("token_id") ?? 0,
-                            building_level = landInstance.Value<int?>("building_level") ?? 0,
-                            resource = landInstance.Value<int?>("abundance") ?? 0,
-                            citizen_count = citizen.GetCitizenCount(landInstance.Value<JArray>("citizens")),
-                            citizen_url = citizen.GetCitizenUrl(landInstance.Value<JArray>("citizens")),
-                            citizen_stamina = citizen.GetLowStamina(landInstance.Value<JArray>("citizens")),
-                            citizen_stamina_alert = citizen.CheckCitizenStamina(landInstance.Value<JArray>("citizens"), landInstance.Value<int?>("building_type_id") ?? 0),
-                            forsale_price = building.GetSalePrice(landInstance.Value<JToken>("sale_data")),
-                            forsale = (landInstance.Value<string>("on_sale") ?? "False") == "False" ? false : true,
-                            rented = landInstance.Value<string>("renter") != null,
-                            current_influence_rank = CheckInfluenceRank( localPlots.Where(x => x.token_id == (landInstance.Value<int?>("token_id") ?? 0)).FirstOrDefault() ),
-                            condition = landInstance.Value<int?>("condition") ?? 0,
+                        ownerData.owner_land = lands.Select(landInstance => {
+                            var plot = localPlots.Where(x => x.token_id == (landInstance.Value<int?>("token_id") ?? 0)).FirstOrDefault();
+
+                            return new OwnerLand
+                            {
+                                district_id = landInstance.Value<int?>("region_id") ?? 0,
+                                pos_x = landInstance.Value<int?>("x") ?? 0,
+                                pos_y = landInstance.Value<int?>("y") ?? 0,
+                                plot_ip = landInstance.Value<int?>("influence") ?? 0,
+                                ip_info = plot == null ? 0 : plot.influence_info ?? 0,
+                                ip_bonus = (landInstance.Value<int?>("influence") ?? 0) * (landInstance.Value<int?>("influence_bonus") ?? 0) / 100,
+                                building_type = landInstance.Value<int?>("building_type_id") ?? 0,
+                                building_desc = building.BuildingType(landInstance.Value<int?>("building_type_id") ?? 0, landInstance.Value<int?>("building_id") ?? 0),
+                                building_img = building.BuildingImg(landInstance.Value<int?>("building_type_id") ?? 0, landInstance.Value<int?>("building_id") ?? 0, landInstance.Value<int?>("building_level") ?? 0),
+                                last_actionUx = landInstance.Value<double?>("last_action") ?? 0,
+                                last_action = common.UnixTimeStampUTCToDateTime(landInstance.Value<double?>("last_action"), "Empty Plot"),
+                                token_id = landInstance.Value<int?>("token_id") ?? 0,
+                                building_level = landInstance.Value<int?>("building_level") ?? 0,
+                                resource = landInstance.Value<int?>("abundance") ?? 0,
+                                citizen_count = citizen.GetCitizenCount(landInstance.Value<JArray>("citizens")),
+                                citizen_url = citizen.GetCitizenUrl(landInstance.Value<JArray>("citizens")),
+                                citizen_stamina = citizen.GetLowStamina(landInstance.Value<JArray>("citizens")),
+                                citizen_stamina_alert = citizen.CheckCitizenStamina(landInstance.Value<JArray>("citizens"), landInstance.Value<int?>("building_type_id") ?? 0),
+                                forsale_price = building.GetSalePrice(landInstance.Value<JToken>("sale_data"), worldType),
+                                forsale = (landInstance.Value<string>("on_sale") ?? "False") == "False" ? false : true,
+                                rented = landInstance.Value<string>("renter") != null,
+                                current_influence_rank = CheckInfluenceRank(plot),
+                                condition = landInstance.Value<int?>("condition") ?? 0,
+                            };
                         })
                         .OrderBy(row => row.district_id).ThenBy(row => row.pos_x).ThenBy(row => row.pos_y);
 
@@ -366,18 +418,30 @@ namespace MetaverseMax.ServiceClass
                             ).Count();
 
                         // CHECK owner buildings are recorded in local db - new plots recently purchased - token wont exist causing issues with linking to citizens
-                        _ = Task.Run(() => OwnerManage.CheckLandTokensExist(lands, _context.Database.GetConnectionString()));
+                        if (checkLandTokensExist == true)
+                        {
+                            CheckLandTokensExist(lands);
+                        }
                     }
                 }
                 else
                 {
+                    ownerData.owner_land = null;
+                    ownerData.developed_plots = 0;
+                    ownerData.last_action = "";
+                    ownerData.plots_for_sale = 0;
+                    ownerData.district_plots = null;
+                    ownerData.stamina_alert_count = 0;
+
                     if (string.Equals(ownerMaticKey, "Owner not Found"))
                     {
                         ownerData.search_info = "Unclaimed Plot, available for purchase!";
                     }
                     else
-                    {
-                        ownerData.last_action = "This player owns no land plots in Tron World";
+                    {                        
+                        ownerData.last_action = "This player owns no land plots in " +
+                             worldType switch { WORLD_TYPE.TRON => "Tron", WORLD_TYPE.BNB => "Binance", WORLD_TYPE.ETH => "Ethereum", _ => "Tron" }
+                            + " World";
                     }
                 }
 
@@ -395,23 +459,28 @@ namespace MetaverseMax.ServiceClass
             return ownerData;
         }
 
-        private static int CheckLandTokensExist(JArray ownerLandList, string dbConnectionString)
+        private int CheckLandTokensExist(JArray ownerLandList)
         {
-            MetaverseMaxDbContext _contextTemp;
-            _contextTemp = new MetaverseMaxDbContext(dbConnectionString);
 
-            // CHECK land token exist - it may have been recently created and not in local db
-            PlotDB plotDB = new PlotDB(_contextTemp);
+            // This separate use of context likely is not required, possible helpful during data sync due to lost context over long running ops.
+            using (var _contextTemp = new MetaverseMaxDbContext(worldType))
+            {
+                // CHECK land token exist - it may have been recently created and not in local db
+                PlotDB plotDB = new PlotDB(_contextTemp, worldType);
 
-            for(int i = 0; i < ownerLandList.Count; i++)
-            {                               
-                plotDB.UpdatePlot(ownerLandList[i], true);                                    
+                for (int i = 0; i < ownerLandList.Count; i++)
+                {
+                    if (ownerLandList[i] != null)
+                    {
+                        plotDB.UpdatePlotPartial(ownerLandList[i], false);
+                    }
+                }
+
+                _contextTemp.SaveChanges();
             }
 
-            _contextTemp.SaveChanges();
             return 0;
         }
-
 
         private decimal CheckInfluenceRank(Plot plot) {
             return plot == null ? 0 : plot.current_influence_rank ?? 0;
@@ -424,7 +493,7 @@ namespace MetaverseMax.ServiceClass
             
             try
             {
-                serviceUrl = "https://ws-tron.mcp3d.com/land/get";
+                serviceUrl = worldType switch {WORLD_TYPE.TRON => TRON_WS.LAND_GET,  WORLD_TYPE.BNB => BNB_WS.LAND_GET, WORLD_TYPE.ETH => ETH_WS.LAND_GET, _ => TRON_WS.LAND_GET};
 
                 HttpResponseMessage response;
                 using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
@@ -470,14 +539,13 @@ namespace MetaverseMax.ServiceClass
             return returnCode;
         }
 
-
         // See multi Nic IP use with HttpWebRequest https://github.com/dotnet/runtime/issues/23267
         public async Task<int> GetFromMaticKey(string ownerMaticKey)
         {
             String content = string.Empty;
-            CitizenManage citizen = new(_context);
+            CitizenManage citizen = new(_context, worldType);
             int returnCode = 0;
-            serviceUrl = "https://ws-tron.mcp3d.com/user/get";            
+            serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.USER_GET, WORLD_TYPE.BNB => BNB_WS.USER_GET, WORLD_TYPE.ETH => ETH_WS.USER_GET, _ => TRON_WS.USER_GET};
 
             try
             {                
@@ -511,9 +579,11 @@ namespace MetaverseMax.ServiceClass
                     watch.Stop();
                     servicePerfDB.AddServiceEntry(serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, ownerMaticKey);
 
-                    if (content.Length == 0)
+                    if (content.Length == 0 || JObject.Parse(content).Count == 0)
                     {
-                        ownerData.owner_name = string.Concat("Owner not Found matching Matic key ", ownerMaticKey);
+                        AssignUnknownOwner(string.Concat("Owner not Found matching Matic key ", ownerMaticKey));
+                        ownerData.owner_matic_key = ownerMaticKey;
+                        ownerData.search_info = "";
                         returnCode = -1;
                     }
                     else
@@ -556,11 +626,11 @@ namespace MetaverseMax.ServiceClass
             return returnCode;
         }
 
-        private int AssignUnknownOwner()
+        private int AssignUnknownOwner(string ownerName = "")
         {
-            CitizenManage citizen = new(_context);
+            CitizenManage citizen = new(_context, worldType);
 
-            ownerData.owner_name = "Owner not Found";
+            ownerData.owner_name = string.IsNullOrEmpty(ownerName) ? "Owner not Found" : ownerName;
             ownerData.search_info = "Unclaimed Plot, available for purchase!";
             ownerData.owner_url = citizen.AssignDefaultOwnerImg("0");
             ownerData.plot_count = -1;
@@ -568,32 +638,45 @@ namespace MetaverseMax.ServiceClass
             return 0;
         }
 
-        public OwnerAccount CheckLocalDB_OwnerTron(string tronPublic)
+        public OwnerAccount MatchOwner(string publicKey)
         {
             string maticKey = string.Empty;
-            OwnerAccount ownerAccount = new();            
+            OwnerAccount ownerAccount = new();
 
-            // Check if passed string is valid Tron key
-            if (tronPublic == "false")
+            if (worldType == WORLD_TYPE.TRON)
             {
-                ownerAccount.matic_key = "Not Found";
-                return ownerAccount;
+                // Check if passed string is valid Tron key
+                if (publicKey == "false")
+                {
+                    ownerAccount.matic_key = "Not Found";
+                    return ownerAccount;
+                }
+
+                // Base58 Public Tron to Hex Conversion.
+                // Span<byte> is analogous to byte[] in usage but allows the library
+                // to avoid unnecessary memory copy operations unless needed.
+                // you can also use "Ripple" or "Flickr" as decoder flavors            
+                Span<byte> result = Base58.Bitcoin.Decode(publicKey);
+                Span<byte> resultParsed = result;
+                resultParsed = resultParsed.Slice(1, result.Length - 5);
+                ownerAccount.checked_matic_key = string.Concat("0x", Convert.ToHexString(resultParsed)).ToLower();
+            }
+            else
+            {
+                ownerAccount.checked_matic_key = publicKey;
             }
 
-            // Base58 Public Tron to Hex Conversion.
-            // Span<byte> is analogous to byte[] in usage but allows the library
-            // to avoid unnecessary memory copy operations unless needed.
-            // you can also use "Ripple" or "Flickr" as decoder flavors            
-            Span<byte> result = Base58.Bitcoin.Decode(tronPublic);
-            Span<byte> resultParsed = result;
-            resultParsed = resultParsed.Slice(1, result.Length - 5);
-            ownerAccount.checked_matic_key = string.Concat("0x", Convert.ToHexString(resultParsed)).ToLower();
 
-            ownerAccount = FindOwnerByMatic(ownerAccount.checked_matic_key, tronPublic);
+            ownerAccount = FindOwnerByMatic(ownerAccount.checked_matic_key, publicKey);
 
             return ownerAccount;
         }
        
+        public List<OwnerSummaryDistrict> GetOwnerSummaryDistrict(int districtId, int instanceNo)
+        {
+            OwnerSummaryDistrictDB ownerSummaryDistrictDB = new(_context);
+            return ownerSummaryDistrictDB.GetOwnerSummeryDistrict(districtId, instanceNo);
+        }
     }
    
 }

@@ -6,6 +6,9 @@
   position: relative;
 }
 
+.mat-badge-content {
+  color:white !important;
+}
 
 /*** Link underline amine ***/
 a {
@@ -271,7 +274,7 @@ a {
 #producePredictionPanel {
   display: inline-block;
   vertical-align: top;
-  margin-top: 0;
+  margin-top: .2rem;
   margin-right: 1rem;
 }
 
@@ -357,13 +360,24 @@ a {
     position:relative;
   }
 
-
+.filterControls{
+  display: inline-block;
+}
 
 
 
 /*** TABLE ***/
-.mat-column-ip_t, .mat-column-ip_b, .mat-column-bon, .mat-column-pre, .mat-column-dis, .mat-column-id {
+.mat-column-ip_t, .mat-column-ip_b, .mat-column-bon, .mat-column-pre, .mat-column-id{
   text-align: center;
+}
+
+td.mat-column-dis {
+  text-indent: .5rem;
+  text-align: left;
+  line-height: .5rem;
+}
+td.mat-column-pos_x{
+  line-height: 1rem;
 }
 
 td.mat-cell:last-of-type {
@@ -438,6 +452,13 @@ td.mat-column-pos span:nth-child(2){
 }
 
 /*** Table Flex columns ***/
+.mat-column-con {
+  flex: 0 0 80px;
+  width: 80px;
+  text-align: left;
+  text-indent: 1.6rem;
+}
+
 .mat-column-name {
   flex: 0 0 360px;
   min-width: 240px;
@@ -493,7 +514,7 @@ td.mat-column-pos span:nth-child(2){
   vertical-align: middle;
   font-size: .7rem;
   color: gray;
-  margin-top: 0.2rem;
+  margin: 0.5rem 0 0.5rem;
 }
 
   .lastUpdated .mat-icon {
@@ -565,7 +586,7 @@ td.mat-column-pos span:nth-child(2){
   width: 2rem;
   display: inline-block;
   text-align: center;
-  height: 1.6rem;
+  height: 1.5rem;
   padding-top: .16rem;
   
   position:absolute;
@@ -593,15 +614,63 @@ td.mat-column-pos span:nth-child(2){
   font-weight: bold;
   text-shadow: -1px -1px 1px #fff, 1px 1px 1px #fff;
 }
+.buildingRes {
+  position: absolute;
+  margin-top: 44px;
+  margin-left: -20px;
+  /* margin-top: -20px; */
+  color: lightcoral;
+  font-size: .6rem;
+  font-weight: bold;
+  text-shadow: -1px -1px 1px #fff, 1px 1px 1px white, -1px 1px 1px white, 1px -1px 1px white
+}
 .industryImg {
   max-height: 60px;
 }
 
+.districtTax{
+  font-size: .7rem;
+  margin-left: -10px;
+}
+  .districtTax img{
+    height:16px;
+    vertical-align:top;
+  }
+  .districtTax span {
+    margin-left: -8px;
+    margin-top: 6px;
+    display: inline-block;
+    color: lightslategray
+  }
 
 
 @media only screen and (max-width: 415px) {
-  .mat-expansion-panel{
-    width:380px
+  .searchBlock {
+    height: 150px;
+    float: unset;
+  }
+  .searchBlock .defaultAvatorImg {
+    height: 130px;
+    position: absolute;
+    right: 1rem;
+  }
+  .searchControls {
+    padding-right: 1rem;
+    margin-top: 3rem;
+  }
+  .d-inline-block{
+    margin: 0 .5rem 0 .5rem
+  }
+
+  .mat-expansion-panel {
+    width: 380px
+  }
+
+  .mat-expansion-panel-body {
+    padding: 0 4px 16px
+  }
+  .summaryInfo span:first-child{
+    width:7rem;
   }
 
   #doubleAppBonusPanel {
@@ -621,17 +690,19 @@ td.mat-column-pos span:nth-child(2){
   .lastUpdated {
     line-height: .8rem;
     margin-top: .8rem;
-    text-indent: 1rem;
-    width: 48%;
-    text-align: center;
   }
-  .lastUpdated .mat-icon {
-    position: absolute;
-    margin-top: 0.3rem;
-    left: -10px;
+    .lastUpdated .mat-icon {     
+    }
+    .lastUpdated span {
+      margin-top: 0.2rem;
+      display: inline-block;
+    }
+
+  .activeFilter{
+    margin: 0 2rem 0 0;   
   }
 
-  #totalProducePanel .mat-expansion-panel-body{
+  #totalProducePanel .mat-expansion-panel-body {
     padding-left: 18px
   }
 
@@ -642,5 +713,44 @@ td.mat-column-pos span:nth-child(2){
     width: 40px;
     margin-right: 6px;
     margin-left: 0px;
+  }
+
+  .toRent, .salepos {
+    font-size: .6rem;
+    width: 44px;
+    margin-left: -36px;
+    margin-top: -12px;
+  }
+    .toRent:before, .salepos:before {
+      width: 42px;
+      height: 28px;
+      margin-top: -12px;
+    }
+
+  .rented {
+    margin-left: -30px;
+  }
+
+  .activeProduce {
+    left: -14px;
+    border-left: 1px;
+    border-right: 0;
+    border-radius: 5px 0 0 5px;
+    font-size: .9rem;
+    margin-top: 2rem;
+    width: .8rem;
+    padding: 9px 2px;
+  }
+
+  .rowWarning{
+    white-space: nowrap;    
+  }
+    .rowWarning span {
+      display: inline-block;
+    }
+
+  .poiBonus{
+    margin-left: 52px;
+    right: unset;
   }
 }

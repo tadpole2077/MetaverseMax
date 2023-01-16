@@ -17,10 +17,14 @@ namespace MetaverseMax.Controllers
 
     [ApiController]
     [Route("api/[controller]")]
+    [Route("api/trx/[controller]")]
+    [Route("api/bnb/[controller]")]
+    [Route("api/eth/[controller]")]
     public class DistrictFundController : ControllerBase
     {
         private readonly ILogger<DistrictController> _logger;
         private readonly MetaverseMaxDbContext _context;
+        private Common common = new();
 
         public DistrictFundController(MetaverseMaxDbContext context, ILogger<DistrictController> logger)
         {
@@ -32,7 +36,7 @@ namespace MetaverseMax.Controllers
         [HttpGet]
         public IActionResult Get([FromQuery] QueryParametersFund parameters)
         {
-            DistrictFundManage districtFundManage = new(_context);
+            DistrictFundManage districtFundManage = new(_context, common.IdentifyWorld(Request.Path));
             if (ModelState.IsValid)
             {
                 return Ok(districtFundManage.GetHistory(parameters.district_id, parameters.daysHistory));
@@ -43,7 +47,7 @@ namespace MetaverseMax.Controllers
         [HttpGet("UpdateAllDistrictsFund")]
         public IActionResult UpdateAllDistrictsFund([FromQuery] QueryParametersSecurity parameters)
         {
-            DistrictFundManage districtFundManage = new(_context);
+            DistrictFundManage districtFundManage = new(_context, common.IdentifyWorld(Request.Path));
             if (ModelState.IsValid)
             {
                 return Ok(Task.Run(() => districtFundManage.UpdateFundAll(parameters)).Result );
@@ -54,10 +58,10 @@ namespace MetaverseMax.Controllers
         [HttpGet("UpdateTaxHistoryChange")]
         public IActionResult UpdateTaxHistoryChange()
         {
-            DistrictTaxChangeDB districtTaxChangeDB = new(_context);
+            DistrictFundManage districtFundManage = new(_context, common.IdentifyWorld(Request.Path));
             if (ModelState.IsValid)
             {
-                return Ok(districtTaxChangeDB.UpdateTaxChanges());
+                return Ok(districtFundManage.UpdateTaxChanges());
             }
             return BadRequest("Update Tax History change request is invalid");
         }

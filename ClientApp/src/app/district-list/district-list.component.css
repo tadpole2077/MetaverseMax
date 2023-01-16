@@ -353,7 +353,8 @@ th.mat-column-district_id span{
   margin-right:10px
 }
 td.mat-column-district_id a{
-  font-weight:600
+  font-weight:600;
+  font-size: 1rem;
 }
 
 .mat-column-plots_claimed {

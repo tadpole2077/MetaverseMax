@@ -1,0 +1,37 @@
+﻿IIS Core Configuration:
+============================
+2023/01/12 :  Using AppNetCore Module V2
+			  App Pool:
+				.NET CLR Version: v4.0.30319
+				Managed pipleline: Integrated
+				Start application pool immediately (enabled)
+				Idle Time-out: 0   (Default: 200 ,  0 = no idle timeout)
+				Idle Time-out action: Terminate
+
+			  Recycling > Regular Time interval >  0 ( = no regular interval of recycle time :  20 (default in minutes))
+			  Recycling > Specific Time : 24:00:00
+
+NOTES:
+* Idle timeout :  If no request is received within x minutes - IIS kills the worker process and frees up RAM
+				  Useful in a server with many small sites with low load, and server resources are limited
+				  High availability website might consider using 0 for this setting
+
+* Recycing > Regular Time interval
+				  https://sitecore.stackexchange.com/questions/26880/any-reason-not-to-set-iis-regular-time-interval-minutes-to-0-on-a-sitecore-ser
+				  No issue with disabling recycling, its use is if/when an application has memeory leaks
+				  or some anomoly that slowly builds.  If after monitoring your app for a period - no memory issues, then 
+				  acceptly to disable this.
+				  Alternatively set Recycling to a specific time each time each day.
+
+
+Error
+===========================
+1) Data sync - job failure
+Event Log:  Event 1005, IIS AspNetCore ModuleV2
+			Failed to gracefully shutdown application 'MACHINE/WEBROOT/APPHOST/METAVERSEMAX/API'
+
+Background: https://github.com/dotnet/aspnetcore/issues/7367
+			Job fails after 6 or 7 hours processing, but can fail at any time
+			No exception details logged, its a hard fail/hang.
+			Likely due to the prior Recycling setting at 29hours (1740 mins) - default
+

@@ -11,6 +11,7 @@ import { PetModalComponent } from '../pet-modal/pet-modal.component';
 import { CitizenModalComponent } from '../citizen-modal/citizen-modal.component';
 import { MatButton } from '@angular/material/button';
 import { OwnerLandData, OwnerData, PlotPosition, BUILDING, FilterCount } from './owner-interface';
+import { Globals, WORLD } from '../common/global-var';
 
 
 @Component({
@@ -59,12 +60,12 @@ export class OwnerDataComponent implements AfterViewInit {
 
 
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
-  displayedColumns: string[] = ['district_id', 'pos_x', 'pos_y', 'building_type', 'building_level', 'last_action', 'current_influence_rank', 'condition', 'plot_ip', 'citizen_count',/* 'token_id', */'citizen_stamina_alert' ];
+  displayedColumns: string[] = ['district_id', 'pos_x', 'pos_y', 'building_type', 'building_level', 'last_action', 'current_influence_rank', 'condition', 'ip_info', 'citizen_count',/* 'token_id', */'citizen_stamina_alert' ];
  
-  constructor(private location: Location, public router: Router, private route: ActivatedRoute, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef)
+  constructor(public globals: Globals, private location: Location, public router: Router, private route: ActivatedRoute, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef)
   {
-    this.httpClient = http;
-    this.baseUrl = baseUrl;
+    this.httpClient = http;    
+    this.baseUrl = baseUrl + "api/" + globals.worldCode;
     this.setInitVar();
     this.initFilterCount();
 
@@ -75,12 +76,13 @@ export class OwnerDataComponent implements AfterViewInit {
       if (event instanceof NavigationEnd) {
 
         // CASE reset the search to empty when moving from My Portfolio to Owner Report
-        if (this.router.url.startsWith("/owner-data")) {
+        if (this.router.url.indexOf("/owner-data?") > -1) {
           this.triggerSearchByMatic();
         }
 
       }
     });
+
   }
 
   ngAfterViewInit() {
@@ -123,9 +125,10 @@ export class OwnerDataComponent implements AfterViewInit {
   }
 
   setInitVar() {
+
     this.owner = {
       owner_name: "",
-      owner_url: "https://mcp3d.com/tron/api/image/citizen/0",
+      owner_url: this.globals.worldURLPath +"citizen/" + this.globals.firstCitizen,
       owner_matic_key: "",
       last_action: null,
       registered_date: "",
@@ -169,7 +172,7 @@ export class OwnerDataComponent implements AfterViewInit {
     var rotateEle = document.getElementById("searchIcon");
     rotateEle.classList.add("rotate");
     
-    this.httpClient.get<OwnerData>(this.baseUrl + 'api/ownerdata/getusingmatic', { params: params })
+    this.httpClient.get<OwnerData>(this.baseUrl + '/ownerdata/getusingmatic', { params: params })
       .subscribe((result: OwnerData) => {
 
         this.loadClientData(result);     
@@ -197,7 +200,7 @@ export class OwnerDataComponent implements AfterViewInit {
     }
 
     //this.httpClient.get<OwnerData>(this.baseUrl + 'ownerdata/Get?plotX=' + encodeURIComponent(plotPos.plotX) + '&plotY=' + encodeURIComponent(plotPos.plotY))
-    this.httpClient.get<OwnerData>(this.baseUrl + 'api/ownerdata', { params: params })
+    this.httpClient.get<OwnerData>(this.baseUrl + '/ownerdata', { params: params })
       .subscribe((result: OwnerData) => {
 
         this.loadClientData(result);
@@ -305,11 +308,12 @@ export class OwnerDataComponent implements AfterViewInit {
       
       filterbyMulti = this.currentDistrictFilter == 0 ? this.owner.owner_land : this.filterLandByDistrict;
       event.srcElement.closest("div").classList.remove("activeFilter");
+      //event.srcElement.classList.remove("activeFilter");
 
     }
     // Filter by District
-    else if (filterValue > 0) {
-
+    else if (filterValue > 0 && this.currentDistrictFilter != filterValue) {
+      
       this.filterLandByDistrict.length = 0;     // Dont create new array, as reference to may be lost
       this.currentDistrictFilter = filterValue;
 
@@ -320,8 +324,8 @@ export class OwnerDataComponent implements AfterViewInit {
       });
 
       this.buttonShowAll = true;
-      event.srcElement.parentElement.parentElement.classList.add("districtEleActive");
-      filterbyMulti = this.filterLandByDistrict;
+      event.currentTarget.classList.add("districtEleActive");
+      filterbyMulti = this.filterLandByDistrict;    
 
       this.hideBuildingFilter(filterbyMulti);
     }

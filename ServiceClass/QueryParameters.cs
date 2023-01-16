@@ -46,11 +46,11 @@ namespace MetaverseMax.ServiceClass
 
     }
 
-    public class QueryParametersOwnerDataTron
+    public class QueryParametersOwnerDataKey
     {
         // Using BingRequired attribute and not Required as it forces a specific use of a parameter name
         [BindRequired]
-        public string owner_tron_public { get; set; }
+        public string owner_public_key { get; set; }
 
     }
 
@@ -112,9 +112,6 @@ namespace MetaverseMax.ServiceClass
         // Using BingRequired attribute and not Required as it forces a specific use of a parameter name
         [BindRequired]
         public string secure_token { get; set; }
-
-        [BindRequired]
-        public int world_type { get; set; }
 
         [BindRequired]
         public int interval { get; set; }

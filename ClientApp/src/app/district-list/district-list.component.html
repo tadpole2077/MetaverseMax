@@ -1,9 +1,9 @@
 
 <div class="searchBlock">
-  <img src="https://mcp3d.com/tron/api/image/citizen/0" class="defaultAvatorImg" height="160" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <img src="{{ globals.worldURLPath }}citizen/{{ globals.firstCitizen }}" class="defaultAvatorImg" height="160" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <app-search-district class="searchDistrict" (searchDistrictEvent)="searchDistrict($event)"></app-search-district>
 </div>
-<h3 id="tableLabel">Tron District List</h3>
+<h3 id="tableLabel">{{globals.worldName}} District List</h3>
 
 <h6>View detailed district info and district owners by searching or selecting a district row.</h6>
 
@@ -32,10 +32,10 @@
     <ng-container matColumnDef="owner_name">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Owner </th><!-- start="asc"-->
       <td mat-cell *matCellDef="let district">
-        <img *ngIf="district.owner_avatar_id>0" src="https://mcp3d.com/tron/api/image/citizen/{{ district.owner_avatar_id }}" class="ownerImgCol" height="60" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <img *ngIf="district.owner_avatar_id>0" src="{{ globals.worldURLPath }}citizen/{{ district.owner_avatar_id }}" class="ownerImgCol" height="60" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <img *ngIf="district.owner_avatar_id==0" src="./images/MysteryOwner.png" class="ownerImgCol mysteryImg" height="50" style="margin-top:0;margin-left:-5px" />
 
-        <a class="nav-link lineAnim maticLinkCol" [routerLink]="['/owner-data']" [queryParams]="{matic: district.owner_matic}" title="{{ district.owner_name }}">
+        <a class="nav-link lineAnim maticLinkCol" [routerLink]="['/', globals.worldCode, 'owner-data']" [queryParams]="{matic: district.owner_matic}" title="{{ district.owner_name }}">
           <span class="long-text" *ngIf="district.owner_name!=''">{{ district.owner_name.substring(0,16) }}</span>
           <span class="short-text" *ngIf="district.owner_name!=''">{{ district.owner_name.substring(0,9) }}</span>
 
@@ -116,7 +116,7 @@
     <ng-container matColumnDef="citizen_tax">
       <th mat-header-cell *matHeaderCellDef mat-sort-header title="Citizen" class="taxCol">
         <img src="https://play.mcp3d.com/assets/images/buildings/Residential3_LVL1-1.png" height="30" />
-        <span>C</span>
+        <span>R</span>
       </th>
       <td mat-cell *matCellDef="let district" class="taxColCell"><span>{{ district.citizen_tax }}%</span></td>
     </ng-container>

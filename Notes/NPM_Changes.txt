@@ -1,0 +1,28 @@
+﻿NPM - Node Project Manager
+=====================================================
+2022/12/28: Version Info (currently using)
+  Angular: 9.1.13
+  Node: 16.6.1
+  typescript: 3.8.3
+
+Find list of currently installed packages: 
+	npm list --depth=0
+
+
+2022/12/28  Add Explicit support For Metamask
+=====================================================
+URL : https://www.npmjs.com/package/@metamask/detect-provider
+
+Install using: 
+1) VS2022 > Developer Powershell (integrated panal)
+2) CMD (admin) > cd D:\0_Development\2_Applications\GitHub\MetaverseMax\MetaverseMax\ClientApp
+
+Install : npm i @metamask/detect-provider
+
+Version installed: @metamask/detect-provider@2.0.0
+Requires:
+	Add new settings to ClientApp/tsconfig.json
+	"allowSyntheticDefaultImports": true,
+	"esModuleInterop": true,
+
+

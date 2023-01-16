@@ -6,6 +6,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { DragDrop } from '@angular/cdk/drag-drop';
 import { PortfolioPet, Pet } from '../owner-data/owner-interface';
 import { Clipboard } from '@angular/cdk/clipboard';
+import { Globals, WORLD } from '../common/global-var';
 
 //let HISTORY_ASSETS: Detail[] = null;
 
@@ -31,10 +32,10 @@ export class PetModalComponent implements AfterViewInit {
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumns: string[] = ['token_id', 'name', 'trait', 'level'];
 
-  constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string, private clipboard: Clipboard) {
+  constructor(public globals: Globals, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private clipboard: Clipboard) {
 
     this.httpClient = http;
-    this.baseUrl = baseUrl;
+    this.baseUrl = baseUrl + "api/" + globals.worldCode;
 
     this.portfolioPet = null;
 
@@ -86,7 +87,7 @@ export class PetModalComponent implements AfterViewInit {
     let params = new HttpParams();
     params = params.append('owner_matic_key', maticKey);
 
-    this.httpClient.get<PortfolioPet>(this.baseUrl + 'api/ownerdata/getpet', { params: params })
+    this.httpClient.get<PortfolioPet>(this.baseUrl + '/ownerdata/getpet', { params: params })
       .subscribe((result: PortfolioPet) => {
 
         this.portfolioPet = result;

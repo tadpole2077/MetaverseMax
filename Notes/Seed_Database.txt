@@ -1,0 +1,50 @@
+﻿============================
+Clear DB Copy
+============================
+delete EventLog
+delete ServicePerf
+delete PlotArchive
+delete Owner
+delete Citizen
+delete District
+delete DistrictContent
+delete DistrictPerk
+delete DistrictTaxChange
+delete DistrictUpdateInstance
+delete OwnerCitizen
+
+delete OwnerOffer
+delete OwnerSummaryDistrict
+delete OwnerWalletLink
+delete Pet
+delete Plot
+delete ActionTime
+
+
+
+============================
+Seed records
+============================
+
+INSERT INTO [dbo].[ActionTime]
+           ([action_type],[last_update])
+     VALUES
+           ('OFFER',GETDATE())
+GO
+INSERT INTO [dbo].[ActionTime]
+           ([action_type],[last_update])
+     VALUES
+           ('CITIZEN',GETDATE())
+GO
+INSERT INTO [dbo].[ActionTime]
+           ([action_type],[last_update])
+     VALUES
+           ('PET',GETDATE())
+GO
+INSERT INTO [dbo].[ActionTime]
+           ([action_type],[last_update])
+     VALUES
+           ('PLOT',GETDATE())
+GO
+
+

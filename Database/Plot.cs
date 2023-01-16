@@ -67,17 +67,20 @@ namespace MetaverseMax.Database
         [Column("on_sale")]
         public bool on_sale { get; set; }
 
-        [Column("for_rent")]
-        public int for_rent { get; set; }
+        [Column("for_rent", TypeName = "decimal(16, 4)")]
+        public decimal for_rent { get; set; }
 
         [Column("rented")]
         public bool rented { get; set; }
         
-        [Column("current_price", TypeName = "decimal(18, 2)")]
+        [Column("current_price", TypeName = "decimal(16, 4)")]
         public decimal current_price { get; set; }
 
         [Column("abundance")]
         public int? abundance { get; set; }
+        
+        [Column("building_abundance")]
+        public int? building_abundance { get; set; }
 
         [Column("condition")]
         public int? condition { get; set; }
@@ -88,9 +91,6 @@ namespace MetaverseMax.Database
 
         [Column("current_influence_rank", TypeName = "decimal(6, 2)")]
         public decimal? current_influence_rank { get; set; }
-
-        [Column("influence_rank_bonus_bug", TypeName = "decimal(6, 2)")]
-        public decimal? influence_rank_bonus_bug { get; set; }
 
 
         [Column("last_run_produce_date")]
@@ -106,10 +106,7 @@ namespace MetaverseMax.Database
         public bool last_run_produce_predict { get; set; }        
 
         [Column("predict_produce")]
-        public int? predict_produce { get; set; }
-
-        [Column("predict_produce_bonus_bug")]
-        public int? predict_produce_bonus_bug { get; set; }        
+        public int? predict_produce { get; set; }    
 
         [Column("influence")]
         public int? influence { get; set; }

@@ -11,6 +11,7 @@ import { TaxGraphComponent } from '../tax-graph/tax-graph.component';
 import { TaxChangeComponent } from '../tax-change/tax-change.component';
 import { OwnerSummary, District } from './data-district-interface';
 import { MatExpansionPanel } from '@angular/material/expansion';
+import { Globals, WORLD } from '../common/global-var';
 
 
 @Component({
@@ -22,7 +23,8 @@ export class DistrictSummaryComponent implements AfterViewInit {
 
   httpClient: HttpClient;
   baseUrl: string;
-
+  public worldCode: string;
+  districtImgURL: string;
   DistrictInterface: any;
 
   public isMobileView: boolean = false;
@@ -56,9 +58,12 @@ export class DistrictSummaryComponent implements AfterViewInit {
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumnsOwners: string[] = ['owner_nickname', 'owned_plots', 'energy_count', 'industry_count', 'production_count', 'residential_count', 'office_count', 'poi_count', 'commercial_count', 'municipal_count'];
 
-  constructor(private route: ActivatedRoute, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef) {
+  constructor(public globals: Globals, private activedRoute: ActivatedRoute, private router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef) {
+
     this.httpClient = http;
-    this.baseUrl = baseUrl;
+    this.worldCode = (globals.selectedWorld == WORLD.TRON ? "trx" : globals.selectedWorld == WORLD.BNB ? "bnb" : "eth")
+    this.baseUrl = baseUrl + "api/" + this.worldCode;    
+
     this.district = {
       update_instance: 0,
       last_updateFormated: "",
@@ -66,7 +71,7 @@ export class DistrictSummaryComponent implements AfterViewInit {
       district_id: 0,
       owner_name: "Search for an Owner, Enter Plot X and Y position, click Find Owner.",
       owner_avatar_id: 0,
-      owner_url: "https://mcp3d.com/tron/api/image/citizen/0",
+      owner_url: globals.worldURLPath +"citizen/" + globals.firstCitizen,
       owner_matic: "",
       active_from: "",
       land_count: 0,
@@ -95,7 +100,7 @@ export class DistrictSummaryComponent implements AfterViewInit {
     };
 
     // CHECK request Parameter, search by districtId
-    this.requestDistrictId = this.route.snapshot.queryParams["district_id"];
+    this.requestDistrictId = this.activedRoute.snapshot.queryParams["district_id"];
     if (this.requestDistrictId) {
       this.searchDistrict(this.requestDistrictId);
     }
@@ -104,6 +109,12 @@ export class DistrictSummaryComponent implements AfterViewInit {
     if (this.width < 768) {
       this.isMobileView = true;
     }
+
+    this.districtImgURL = "https://play.mcp3d.com/assets/images/districts/"
+      + (globals.selectedWorld == WORLD.TRON ? "trx/" : globals.selectedWorld == WORLD.BNB ? "bnb/" : "" )      
+      + this.requestDistrictId + ".png";
+
+
   }
 
   ngAfterViewInit() {
@@ -122,10 +133,17 @@ export class DistrictSummaryComponent implements AfterViewInit {
     this.adShow = false;
     this.requestDistrictId = district_id;
 
-    this.httpClient.get<District>(this.baseUrl + 'api/district', { params: params })
-      .subscribe((result: District) => {        
+    this.httpClient.get<District>(this.baseUrl + '/district', { params: params })
+      .subscribe((result: District) => {                
 
         this.district = result;
+
+        // Redirect back to list if no district found matching id
+        if (this.district.district_id == 0) {        
+          let navigateTo: string = '/' + this.globals.worldCode + '/district-list';
+          this.router.navigate([navigateTo]);
+        }
+
         this.searchOwnerSummaryDistrict(district_id, this.district.update_instance);
 
         this.arrivalsWeek.checked = false;
@@ -178,16 +196,13 @@ export class DistrictSummaryComponent implements AfterViewInit {
     this.ownerSummaryNewArrivals_Month = new Array();
     this.taxChangePanel.close();
     
-    this.httpClient.get<OwnerSummary[]>(this.baseUrl + 'api/ownersummary', { params: params })
+    this.httpClient.get<OwnerSummary[]>(this.baseUrl + '/ownersummary', { params: params })
       .subscribe((result: OwnerSummary[]) => {
 
         this.ownerSummary = result;
-
-        if (this.ownerSummary) {
-          this.dataSourceOwnerSummary = new MatTableDataSource<OwnerSummary>(this.ownerSummary);
-
-          this.dataSourceOwnerSummary.sort = this.sort;
-        }
+        
+        this.dataSourceOwnerSummary = new MatTableDataSource<OwnerSummary>(this.ownerSummary);
+        this.dataSourceOwnerSummary.sort = this.sort;                
 
         this.removeLinkHighlight();
         //plotPos.rotateEle.classList.remove("rotate");

@@ -8,15 +8,19 @@ namespace MetaverseMax.Database
 {
     public class ServicePerfDB : DatabaseBase
     {
-        private static int counter { get; set; }
+        private static int counterETH { get; set; }
+        private static int counterBNB { get; set; }
+        private static int counterTRX { get; set; }
 
         public ServicePerfDB(MetaverseMaxDbContext _parentContext) : base(_parentContext)
         {
+            worldType = _parentContext.worldTypeSelected;
         }
 
         public RETURN_CODE AddServiceEntry(string serviceUrl, DateTime startTime, long runTime, int responseSize, string serviceParam)
         {
             RETURN_CODE returnCode = RETURN_CODE.ERROR;
+            int counter = 0;
             try
             {
                 if (Startup.logServiceInfo == false)
@@ -24,7 +28,7 @@ namespace MetaverseMax.Database
                     return RETURN_CODE.SUCCESS;
                 }
 
-                counter++;
+                counter = worldType switch { WORLD_TYPE.ETH => ++counterETH, WORLD_TYPE.BNB => ++counterBNB, _ or WORLD_TYPE.TRON => ++counterTRX };
 
                 ServicePerf servicePerf = new()
                 {

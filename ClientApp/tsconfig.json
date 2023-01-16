@@ -9,6 +9,8 @@
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "target": "ES2015",
     "typeRoots": [
       "node_modules/@types"
@@ -18,5 +20,9 @@
       "dom"
     ],
     "skipLibCheck": true
+  },
+  "angularCompilerOptions": {
+    /*"allowSyntheticDefaultImports": true,
+    "esModuleInterop": true*/
   }
 }

@@ -1,8 +1,7 @@
 
 <div class="searchBlock">
-  <img src="https://mcp3d.com/tron/api/image/citizen/0" class="defaultAvatorImg" height="160" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <div class="searchControls">
 
+  <div class="searchControls">
     <div ngbDropdown class="d-inline-block">
       <i #progressIcon class="fas fa-sync-alt progressIcon"></i>
       <button mat-raised-button color="primary" class="buttonEffect" id="typeList" ngbDropdownToggle>{{selectedType}}</button>
@@ -18,6 +17,8 @@
       </div>
     </div>
   </div>
+
+  <img src="{{ globals.worldURLPath }}citizen/{{ globals.firstCitizen }}" class="defaultAvatorImg" height="160" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </div>
 
 <h3 id="tableLabel">Building IP League</h3>
@@ -92,7 +93,7 @@
     <mat-expansion-panel-header>
       <mat-panel-title>
         <mat-icon>account_balance</mat-icon>
-        <span>Total Recent Produce</span>
+        <span>Max Produce - Currently Active</span>
       </mat-panel-title>
       <mat-panel-description>
       </mat-panel-description>
@@ -187,53 +188,6 @@
     </div>
   </mat-expansion-panel>
 
-  <!--
-    <mat-expansion-panel *ngIf="buildingCollection && buildingCollection.building_lvl>5 && (buildingType == 3 || buildingType == 5 || buildingType == 7) " expanded="false" id="doubleAppBonusPanel">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon>history</mat-icon>
-          <span class="doubleAppHeaderSpan1">Prediction Eval -</span>
-          <span *ngIf="buildingCollection.building_lvl==6" class="doubleAppHeaderSpan2">2x App Bonus Bug</span>
-          <span *ngIf="buildingCollection.building_lvl==7" class="doubleAppHeaderSpan2">4x App Bonus Bug</span>
-        </mat-panel-title>
-        <mat-panel-description>
-        </mat-panel-description>
-      </mat-expansion-panel-header>
-
-      <div class="summaryInfo" *ngIf="buildingCollection && buildingCollection.buildings">
-        <div>
-          <span>Produce Buildings:</span>
-          <span>{{ buildingCollection.buildings_predict }}</span>
-          <span style="width:8rem">* Last week period</span>
-        </div>
-        <div>
-          <span>Correct:</span>
-          <span>{{ buildingCollection.predict_bonus_bug.correct }}</span>
-          <span>% Correct:</span>
-          <span>{{ buildingCollection.predict_bonus_bug.correct_percent }}%</span>
-        </div>
-        <div>
-          <span>Miss:</span>
-          <span>{{ buildingCollection.predict_bonus_bug.miss }}</span>
-          <span>% Miss:</span>
-          <span>{{ buildingCollection.predict_bonus_bug.miss_percent }}%</span>
-        </div>
-        <div>
-          <span>Above:</span>
-          <span>{{ buildingCollection.predict_bonus_bug.miss_above }}</span>
-          <span>% Above:</span>
-          <span>{{ buildingCollection.predict_bonus_bug.miss_above_percent }}%</span>
-        </div>
-        <div>
-          <span>Below:</span>
-          <span>{{ buildingCollection.predict_bonus_bug.miss_below }}</span>
-          <span>% Below:</span>
-          <span>{{ buildingCollection.predict_bonus_bug.miss_below_percent }}%</span>
-        </div>
-      </div>
-    </mat-expansion-panel>
-  -->
-
 </mat-accordion>
 
 
@@ -245,7 +199,6 @@
     <img src="./assets/MagnifyHistory.png" class="magnifyHistoryIcon" height="30" />
     <span>to show history and production analysis</span>
   </div>
-
   <div class="lastUpdated">
     <mat-icon>access_time</mat-icon>
     <span *ngIf="buildingCollection">Last updated {{ buildingCollection.sync_date }} GMT</span>
@@ -256,35 +209,36 @@
       <input matInput type="text" (keyup)="applyFilter($event.target.value)" placeholder="Owner Filter">
     </mat-form-field>
   </div>
-
-  <div class="activeFilter" fxLayout fxLayoutAlign="center center" [hidden]="buildingType!=5 && buildingType!=3 && buildingType!=7 && buildingType!=1">
-    <div>
-      <mat-checkbox #activeChkbox
-                    fxFlex="30%"
-                    class="activeWeek"
-                    (change)="filterActive($event)">
-        <i class="fas fa-running filterIcon" title="Active production during prior week"></i>Active (Prior Week)
-      </mat-checkbox>
+  <div class="filterControls">
+    <div class="activeFilter" fxLayout fxLayoutAlign="center center" [hidden]="buildingType!=5 && buildingType!=3 && buildingType!=7">
+      <div>
+        <mat-checkbox #activeChkbox
+                      fxFlex="30%"
+                      class="activeWeek"
+                      (change)="filterActive($event)">
+          <i class="fas fa-running filterIcon" title="Active production during prior week"></i>Active (Prior Week)
+        </mat-checkbox>
+      </div>
     </div>
-  </div>
-  <div class="activeFilter" fxLayout fxLayoutAlign="center center" [hidden]="buildingType==6">
-    <div>
-      <mat-checkbox #toRentChkbox
-                    fxFlex="30%"
-                    class="activeWeek"
-                    (change)="filterToRent($event)">
-        <i class="fas fa-truck-moving filterIcon" title="Available to rent"></i>To Rent
-      </mat-checkbox>
+    <div class="activeFilter" fxLayout fxLayoutAlign="center center" [hidden]="buildingType==6">
+      <div>
+        <mat-checkbox #toRentChkbox
+                      fxFlex="30%"
+                      class="activeWeek"
+                      (change)="filterToRent($event)">
+          <i class="fas fa-truck-moving filterIcon" title="Available to rent"></i>To Rent
+        </mat-checkbox>
+      </div>
     </div>
-  </div>
-  <div class="activeFilter" fxLayout fxLayoutAlign="center center">
-    <div>
-      <mat-checkbox #forSaleChkbox
-                    fxFlex="30%"
-                    class="activeWeek"
-                    (change)="filterForSale($event)">
-        <i class="fas fa-ad filterIcon" title="Available for sale"></i>For Sale
-      </mat-checkbox>
+    <div class="activeFilter" fxLayout fxLayoutAlign="center center">
+      <div>
+        <mat-checkbox #forSaleChkbox
+                      fxFlex="30%"
+                      class="activeWeek"
+                      (change)="filterForSale($event)">
+          <i class="fas fa-ad filterIcon" title="Available for sale"></i>For Sale
+        </mat-checkbox>
+      </div>
     </div>
   </div>
 
@@ -306,7 +260,7 @@
 
     <ng-container matColumnDef="rank">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>
-        <span class="long-text">IP Efficiency %</span>
+        <span matBadge="B" matBadgePosition="above before" matBadgeSize="small" class="long-text">IP Efficiency %</span>
       </th>
       <td mat-cell *matCellDef="let row" [style.height]="row.warn != '' ? '5.1rem' :'0'">
         <span>{{row.rank}}%</span>
@@ -353,10 +307,10 @@
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Owner </th>
       <td mat-cell *matCellDef="let row">
 
-        <img *ngIf="row.name_id >0" src="https://mcp3d.com/tron/api/image/citizen/{{ row.name_id }}" class="ownerImgCol" height="60" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <img *ngIf="row.name_id >0" src="{{ globals.worldURLPath }}citizen/{{ row.name_id }}" class="ownerImgCol" height="60" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <img *ngIf="row.name_id ==0" src="./images/MysteryOwner.png" class="ownerImgCol" height="50" style="margin-top:0" />
 
-        <a class="nav-link lineAnim" [routerLink]="['/owner-data']" [queryParams]="{matic: row.name_m}" title="{{ row.name }}">
+        <a class="nav-link lineAnim" [routerLink]="['/', globals.worldCode, 'owner-data']" [queryParams]="{matic: row.name_m}" title="{{ row.name }}">
           <span *ngIf="row.name !=''">{{ row.name }}</span>
           <span class="maticLink" *ngIf="row.name==''">{{ row.name_m.substring(0,14) }}</span>
         </a>
@@ -365,12 +319,13 @@
 
     <ng-container matColumnDef="con">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>
-        <span class="long-text">Damage%</span><span class="short-text"></span>
+        <span matBadge="C" matBadgePosition="above before" matBadgeSize="small" class="long-text">Damage Points</span>
+        <span class="short-text"></span>
       </th>
       <td mat-cell *matCellDef="let row">
-        <span *ngIf="row.con ==100" style="color:green">{{ 100 - row.con }}%</span>
-        <span *ngIf="row.con >60 && row.con <100" style="color:darkorange">{{ 100 - row.con }}%</span>
-        <span *ngIf="row.con <=60" style="color:red">{{ 100 - row.con }}%</span>
+        <span *ngIf="row.con ==100" style="color:green">{{ 100 - row.con }}</span>
+        <span *ngIf="row.con >60 && row.con <100" style="color:darkorange">{{ 100 - row.con }}</span>
+        <span *ngIf="row.con <=60" style="color:red">{{ 100 - row.con }}</span>
       </td>
     </ng-container>
 
@@ -392,7 +347,11 @@
         <span class="long-text">District #</span><span class="short-text"></span>
       </th>
       <td mat-cell *matCellDef="let row">
-        <a class="lineAnim" [routerLink]="['/district-summary']" [queryParams]="{district_id: row.dis}" title="Open District page">{{ row.dis}}</a>
+        <a class="lineAnim" [routerLink]="['/', globals.worldCode, 'district-summary']" [queryParams]="{district_id: row.dis}" title="Open District page">{{ row.dis}}</a>
+        <div class="districtTax">
+          <img src="./images/coin-m.png" />
+          <span>Tax {{row.tax}}%</span>
+        </div>
       </td>
     </ng-container>
 
@@ -400,7 +359,9 @@
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Map</th>
       <td mat-cell *matCellDef="let row" class="linkCol">
         <span> X:{{row.pos_x}} Y:{{row.pos_y}}</span>
-        <span><a class="lineAnim" target="_blank" href="https://play.mcp3d.com/tron/land?x={{ row.pos_x }}&y={{ row.pos_y }}">Map</a></span>
+        <div>
+          <a class="lineAnim" target="_blank" href="https://play.mcp3d.com/tron/land?x={{ row.pos_x }}&y={{ row.pos_y }}">Map</a>
+        </div>
       </td>
     </ng-container>
 
@@ -408,10 +369,11 @@
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Type & ID </th>
       <td mat-cell *matCellDef="let row">
         <i *ngIf="row.act == true" class="fas fa-running activeProduce"></i>
-        <span *ngIf="row.poi>0" class="poiBonus">+{{row.poi}}%</span>
+        <span *ngIf="row.poi>0" class="poiBonus">{{row.poi}}%</span>
         <div>
           <span class="buildingNum">{{row.id }}</span>
           <img *ngIf="buildingCollection" src="{{ buildingCollection.img_url + row.img }}" class="industryImg">
+          <span *ngIf="row.r > 0" class="buildingRes">R: {{row.r }}</span>
         </div>
 
       </td>

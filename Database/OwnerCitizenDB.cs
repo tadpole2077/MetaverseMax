@@ -10,9 +10,14 @@ namespace MetaverseMax.Database
 {
     public class OwnerCitizenDB : DatabaseBase
     {
-
         public OwnerCitizenDB(MetaverseMaxDbContext _parentContext) : base(_parentContext)
-        {     
+        {
+            worldType = _parentContext.worldTypeSelected;
+        }
+        public OwnerCitizenDB(MetaverseMaxDbContext _parentContext, WORLD_TYPE worldTypeSelected) : base(_parentContext)
+        {
+            worldType = worldTypeSelected;
+            _parentContext.worldTypeSelected = worldType;
         }
 
         public List<OwnerCitizen> GetOwnerCitizenByOwnerMatic(string ownerMatic, DateTime? validToDate)
@@ -150,6 +155,7 @@ namespace MetaverseMax.Database
 
                     // Add new record
                     _context.ownerCitizen.Add(ownerCitizen);
+
                 }
                 else
                 {

@@ -6,7 +6,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatTabGroup } from '@angular/material/tabs';
 import { DragDrop } from '@angular/cdk/drag-drop';
 import { Offer } from '../owner-data/owner-interface';
-
+import { Globals, WORLD } from '../common/global-var';
 
 @Component({
   selector: 'app-offer-modal',
@@ -25,6 +25,7 @@ export class OfferModalComponent implements AfterViewInit {
 
   httpClient: HttpClient;
   baseUrl: string;
+
   dataSource = new MatTableDataSource(null);
   dataSourceSold = new MatTableDataSource(null);
 
@@ -38,13 +39,12 @@ export class OfferModalComponent implements AfterViewInit {
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumns: string[] = ['offer_date', 'buyer_matic_key', 'buyer_offer', 'token_type', 'token_district'];
 
-  constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string) {//, cdr: ChangeDetectorRef) {
+  constructor(public globals: Globals, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {//, cdr: ChangeDetectorRef) {
 
     this.httpClient = http;
-    this.baseUrl = baseUrl;
+    this.baseUrl = baseUrl + "api/" + globals.worldCode;
 
     this.offers = null;
-
   }
 
   // AfterViewInit called after the View has been rendered, hook to this method via the implements class hook
@@ -54,13 +54,13 @@ export class OfferModalComponent implements AfterViewInit {
 
   public loadTable(offerList: Offer[], offerSoldList: Offer[], lastUpdated: string) {
 
-    this.tabGroup.selectedIndex = 0;
-
+    
     this.lastUpdated = lastUpdated;
     this.offers = offerList;
     this.offersSold = offerSoldList;
 
     if (this.offers != null) {
+
       this.dataSource = new MatTableDataSource<Offer>(this.offers);
       this.dataSourceSold = new MatTableDataSource<Offer>(this.offersSold);
 
@@ -79,6 +79,8 @@ export class OfferModalComponent implements AfterViewInit {
 
       this.dataSource.sort = this.sorterOffer;
       this.dataSourceSold.sort = this.sorterSold;
+      
+      this.tabGroup.selectedIndex = this.offers.length > 0 ? 0 : this.offersSold.length > 0 ? 1 : 0 ;      // Removed html attribute  [selectedIndex]="1" , as it takes presidence over code on intial load
 
     }
     else {

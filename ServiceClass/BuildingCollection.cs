@@ -96,8 +96,12 @@ namespace MetaverseMax.ServiceClass
 
         public int ren { get; set; }
 
-        public int r_p { get; set; }
+        public decimal r_p { get; set; }
 
         public decimal poi { get; set; }
+
+        public int tax { get; set; }
+
+        public int r { get; set; }
     }
 }

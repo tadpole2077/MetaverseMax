@@ -4,6 +4,7 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { AfterViewInit } from '@angular/core';
+import { Globals, WORLD } from '../common/global-var';
 
 
 interface District {
@@ -53,7 +54,6 @@ export class DistrictListComponent implements AfterViewInit {
 
   httpClient: HttpClient;
   baseUrl: string;
-
   public districtList: District [] = new Array();
 
   dataSource = new MatTableDataSource(null);
@@ -62,10 +62,10 @@ export class DistrictListComponent implements AfterViewInit {
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumns: string[] = ['district_id', 'district_name', 'owner_name', 'land_count', 'plots_claimed', 'construction_energy_tax', 'construction_industry_production_tax', 'construction_commercial_tax', 'construction_municipal_tax', 'construction_residential_tax', 'energy_tax', 'production_tax', 'commercial_tax', 'citizen_tax'];
  
-  constructor(public router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef)
+  constructor(public globals: Globals, public router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef)
   {
-    this.httpClient = http;
-    this.baseUrl = baseUrl;    
+    this.httpClient = http; 
+    this.baseUrl = baseUrl + "api/" + globals.worldCode;
 
     this.searchAllDistrict();
   }
@@ -81,7 +81,7 @@ export class DistrictListComponent implements AfterViewInit {
     params = params.append('opened', 'true');
     params = params.append('includeTaxHistory', 'false');
 
-    this.httpClient.get<District[]>(this.baseUrl + 'api/district/get_all', { params: params })
+    this.httpClient.get<District[]>(this.baseUrl + '/district/get_all', { params: params })
       .subscribe((result: District[]) => {
 
         this.districtList = result;
@@ -100,9 +100,9 @@ export class DistrictListComponent implements AfterViewInit {
     return;
   }  
 
-
   // Single parameter struct containing 2 members, pushed by component search-plot
   searchDistrict(district_id: number) {
-    this.router.navigate(['/district-summary'], { queryParams: { district_id: district_id } });
+    this.router.navigate([this.globals.worldCode + '/district-summary'], { queryParams: { district_id: district_id } });
   }
+
 }

@@ -10,6 +10,7 @@ interface OwnerLandData
   building_img: string;
   last_action: string;
   plot_ip: number;
+  ip_info: number;
   ip_bonus: number;
   token_id: number;
   building_level: number;

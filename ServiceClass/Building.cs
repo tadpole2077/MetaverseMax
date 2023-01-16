@@ -8,26 +8,53 @@ namespace MetaverseMax.ServiceClass
 {
     public class Building
      {
-        public int GetSalePrice(JToken saleData)
+        // Price format differs per World token type
+        //    TRON :  6 places - need to divide by 1 million to get value in Tron.
+        //    BNB  :  18 places - need to divide by 1,000,000,000,000,000,000 to get integer value in BNB
+        //    ETH  :  18 places 
+        public decimal GetSalePrice(JToken saleData, WORLD_TYPE worldTypeSelected)
         {
-            long salePriceLarge = 0;
-            if (saleData != null && saleData.HasValues && (saleData.Value<bool?>("active") ?? false))
-            {
-                salePriceLarge = saleData.Value<long?>("sellPrice") ?? 0;
-            }
-
-            return (int)(salePriceLarge / 1000000);
+            return GetPrice(saleData, worldTypeSelected, "sellPrice", true);
         }
 
-        public int GetRentPrice(JToken rentData)
+        public decimal GetPrice(JToken saleData, WORLD_TYPE worldTypeSelected, string fieldName, bool checkActive)
         {
-            long priceLarge = 0;
-            if (rentData != null && rentData.HasValues)
+            decimal salePriceLarge = 0;
+            if (saleData != null && saleData.HasValues && (checkActive || (saleData.Value<bool?>("active") ?? false)))
             {
-                priceLarge = rentData.Value<long?>("price") ?? 0;
+                salePriceLarge = saleData.Value<decimal?>(fieldName) ?? 0;
             }
 
-            return (int)(priceLarge / 1000000);
+            salePriceLarge = worldTypeSelected switch
+            {
+                WORLD_TYPE.TRON => salePriceLarge / 1000000,                   // 6 places back
+                WORLD_TYPE.BNB => salePriceLarge / 1000000000000000000,        // 18 places back
+                WORLD_TYPE.ETH => salePriceLarge / 1000000000000000000,        // 18 places back
+                _ => salePriceLarge / 1000000
+            };
+
+            return salePriceLarge;
+
+        }
+
+
+        public decimal GetRentPrice(JToken rentData, WORLD_TYPE worldTypeSelected)
+        {
+            decimal priceLarge = 0;
+            if (rentData != null && rentData.HasValues)
+            {
+                priceLarge = rentData.Value<decimal?>("price") ?? 0;
+            }
+
+            priceLarge = worldTypeSelected switch
+            {
+                WORLD_TYPE.TRON => priceLarge / 1000000,                   // 6 places back
+                WORLD_TYPE.BNB => priceLarge / 1000000000000000000,        // 18 places back
+                WORLD_TYPE.ETH => priceLarge / 1000000000000000000,        // 18 places back
+                _ => priceLarge / 1000000
+            };
+
+            return priceLarge;
         }
 
         // Create an array of districts with summary data matching plots owned by player

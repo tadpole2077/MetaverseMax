@@ -6,7 +6,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { ProdHistoryComponent } from '../production-history/prod-history.component';
 import { BUILDING } from '../owner-data/owner-interface';
-
+import { Globals, WORLD } from '../common/global-var';
 
 interface BuildingCollection {
   minIP: number;
@@ -59,12 +59,15 @@ export class BuildingIPComponent {
   public buildingType: number = 0;
   public selectedType: string = "Select Type";
   public selectedLevel: string = "Level 1";
+  public activeTextFilter: string = "";
+
 
   public typeList: string[] = ["Residential", "Industry", "Production","Energy", "Office", "Commercial", "Municipal"];
   public levelList: string[] = ["Level 1","Level 2","Level 3","Level 4","Level 5","Huge","Mega"];
 
   httpClient: HttpClient;
   baseUrl: string;
+
   dataSource = new MatTableDataSource(null);
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatTable, { static: false }) ipRankTable: MatTable<BuildingDetail>;
@@ -80,12 +83,12 @@ export class BuildingIPComponent {
   displayedColumnsPredict: string[] = ['pos', 'rank', 'ip_t', 'ip_b', 'bon', 'name', 'con', 'pre', 'dis', 'pos_x', 'id']
   displayedColumnsOffice: string[] = ['pos', 'ip_t', 'ip_b', 'bon', 'name', 'con', 'pre', 'dis', 'pos_x', 'id'];
   isLoadingResults: boolean;
-    resultsLength: any;
+  resultsLength: any;
 
-  constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
+  constructor(public globals: Globals, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
 
     this.httpClient = http;
-    this.baseUrl = baseUrl;
+    this.baseUrl = baseUrl + "api/" + globals.worldCode;
   
   }
 
@@ -112,7 +115,7 @@ export class BuildingIPComponent {
     params = params.append('type', type.toString());
     params = params.append('level', level.toString());
 
-    this.httpClient.get<BuildingCollection>(this.baseUrl + 'api/plot/BuildingIPbyTypeGet', { params: params })
+    this.httpClient.get<BuildingCollection>(this.baseUrl + '/plot/BuildingIPbyTypeGet', { params: params })
       .subscribe((result: BuildingCollection) => {
 
         this.buildingCollection = result;
@@ -155,6 +158,8 @@ export class BuildingIPComponent {
     this.dataSource.sort = this.sort;
     this.sort.sort({ id: null, start: 'desc', disableClear: false }); //Clear any prior sort - reset sort arrows. best option to reset on each load.
     this.sort.sort(({ id: 'ip_efficiency', start: 'desc' }) as MatSortable);        // Default sort order on date
+
+    this.dataSource.filter = this.activeTextFilter;
 
     // Add custom sort
     //this.dataSource.sortingDataAccessor = (item: BuildingDetail, property) => {
@@ -237,7 +242,10 @@ export class BuildingIPComponent {
   }
 
   public applyFilter = (value: string) => {
+
+    this.activeTextFilter = value.trim().toLocaleLowerCase();
     this.dataSource.filter = value.trim().toLocaleLowerCase();
+
   }
 
   public hideHistory(componentVisible: boolean) {
@@ -265,6 +273,8 @@ export class BuildingIPComponent {
       }
 
       this.dataSource = new MatTableDataSource<BuildingDetail>(activeBuildings);
+      this.dataSource.sort = this.sort;
+      this.dataSource.filter = this.activeTextFilter;
     }
     else {
       this.loadBuildingData();
@@ -288,6 +298,8 @@ export class BuildingIPComponent {
       }
 
       this.dataSource = new MatTableDataSource<BuildingDetail>(toRentBuildings);
+      this.dataSource.sort = this.sort;
+      this.dataSource.filter = this.activeTextFilter;
     }
     else {
       this.loadBuildingData();
@@ -312,6 +324,8 @@ export class BuildingIPComponent {
       }
 
       this.dataSource = new MatTableDataSource<BuildingDetail>(forSaleBuildings);
+      this.dataSource.sort = this.sort;
+      this.dataSource.filter = this.activeTextFilter;
     }
     else {
       this.loadBuildingData();

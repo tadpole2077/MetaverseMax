@@ -1,0 +1,26 @@
+﻿
+Usage Patterns:
+1) MetaverseMaxDbContext : dbContext
+* inherits base class dbContext
+* Overriding methods:
+	1) OnConfiguring()
+		Assigning correct db connection string based on reqesting client service (matching metavere world)
+		Using optionsBuilder.UseSqlServer()  and assigning explicit query timeout
+
+	2) OnModelCreating()
+		Assigning decimal percision for specific table models
+		Assigning composite key for specific table models
+		Identifiy tables with no primary key  (such as results from some DB SPROC's)
+
+* Defining Common DB Methods
+	1) LogEvent()
+		Simple Log event to db, with single text blurb
+
+
+
+2) DBLogger
+* Defining Common DB log menthods used as base by parent database classes
+	1) logException()
+		Complex log exception to db as Log Entry A, and inner exception extraction as Log Entry B : 2 separate entries.
+		Also checks if dbContext is valid/null, and recreates to ensure log event.  (UNTESTED)
+		Calls the [_context.LogEvent]  which is MetaverseMaxDbContext.LogEvent()

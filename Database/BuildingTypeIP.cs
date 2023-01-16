@@ -23,6 +23,7 @@ namespace MetaverseMax.Database
         [Column("ip_efficiency")]
         public decimal ip_efficiency { get; set; }
 
+        
         //[NotMapped]
         //[Column("ip_efficiency_bonus_bug")]
         //public decimal ip_efficiency_bonus_bug { get; set; }        
@@ -47,7 +48,7 @@ namespace MetaverseMax.Database
         public bool on_sale { get; set; }
 
         [Column("for_rent")]
-        public int for_rent { get; set; }
+        public decimal for_rent { get; set; }
 
         [Column("rented")]
         public bool rented { get; set; }
@@ -94,8 +95,15 @@ namespace MetaverseMax.Database
         [Column("district_id")]
         public int district_id { get; set; }
 
+        [NotMapped]
+        [Column("produce_tax")]
+        public int produce_tax { get; set; }
+
         [Column("building_id")]
         public int building_id { get; set; }
+
+        [Column("building_abundance")]
+        public int building_abundance { get; set; }
 
         [NotMapped]
         [Column("building_img")]
@@ -116,9 +124,6 @@ namespace MetaverseMax.Database
         [Column("predict_produce")]
         public int? predict_produce { get; set; }
 
-        //[Column("predict_produce_bonus_bug")]
-        //public int? predict_produce_bonus_bug { get; set; }
-
         [NotMapped]
         [Column("predict_eval")]
         public bool predict_eval { get; set; }
@@ -126,14 +131,6 @@ namespace MetaverseMax.Database
         [NotMapped]
         [Column("predict_eval_result")]
         public int? predict_eval_result { get; set; }
-
-        //[NotMapped]
-        //[Column("predict_eval_double_bonus")]
-        //public bool predict_eval_bonus_bug { get; set; }
-
-        //[NotMapped]
-        //[Column("predict_eval_result_double_bonus")]
-        //public int? predict_eval_result_bonus_bug { get; set; }
 
         [Column("condition")]
         public int condition { get; set; }

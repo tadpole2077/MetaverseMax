@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Component, Output, EventEmitter, Inject } from '@angular/core';
 import { NgbDropdown } from '@ng-bootstrap/ng-bootstrap';
 import { Router, ActivatedRoute, Params } from '@angular/router';
+import { Globals, WORLD } from '../common/global-var';
 
 
 @Component({
@@ -17,10 +18,10 @@ export class SearchDistrictComponent {
 
   @Output() searchDistrictEvent = new EventEmitter<any>();
 
-  constructor(public router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
+  constructor(public globals: Globals, public router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
 
     this.httpClient = http;
-    this.baseUrl = baseUrl;
+    this.baseUrl = baseUrl + "api/" + (globals.selectedWorld == WORLD.TRON ? "trx" : globals.selectedWorld == WORLD.BNB ? "bnb" : "eth");
 
     this.loadDistrictDropDown();
   }
@@ -30,7 +31,7 @@ export class SearchDistrictComponent {
     let params = new HttpParams();
     params = params.append('opened', 'true');
 
-    this.httpClient.get<number[]>(this.baseUrl + 'api/district/getdistrictid_list', { params: params })
+    this.httpClient.get<number[]>(this.baseUrl + '/district/getdistrictid_list', { params: params })
       .subscribe((result: number[]) => {
 
         this.districtId_list = result;

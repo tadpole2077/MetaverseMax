@@ -200,7 +200,8 @@
 
 .districtSell {
   color: darkred;
-  opacity:.7
+  opacity: .7;
+  font-size: .7rem;
 }
 
 .districtCount{
@@ -324,7 +325,7 @@ td.boldfield {
 
 .mat-column-building_type {
   min-width: 150px;
-  white-space: nowrap;
+  /*white-space: nowrap;*/
 }
 td.mat-column-building_type div{
   display: inline-block;
@@ -368,9 +369,9 @@ td.mat-column-building_type div{
 }
 /* Magnifier Icon */
 .magnifyHistoryPositioner {
-  display: inline-block;
-  position: relative;
-  vertical-align: top;
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 .magnifyHistoryIcon {
   margin-top: -6px;
@@ -387,8 +388,24 @@ td.mat-column-building_type div{
 .industryLvlCol {
   min-width: 36px
 }
-.mat-column-citizen_stamina_alert{
-    max-width:64px;
+
+.citizenImg {
+  max-width: 44px;
+  max-height: 44px;
+  margin-top: -10px;
+}
+
+.mat-column-citizen_stamina_alert {
+  max-width: 64px;
+}
+.staminaLow {
+  position: absolute;
+  margin-top: 42px;
+  margin-left: 26px;
+  color: lightcoral;
+  font-size: .6rem;
+  font-weight: bold;
+  text-shadow: -1px -1px 1px #fff, 1px 1px 1px #fff;
 }
 
 .timePart{

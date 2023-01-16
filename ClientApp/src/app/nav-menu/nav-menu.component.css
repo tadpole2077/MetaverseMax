@@ -45,3 +45,16 @@ a {
     visibility: visible;
     transform: scaleX(1);
   }
+
+.dayExpiry {
+  position: absolute;
+  margin-top: 18px;
+  margin-left: -22px;
+  color: lightcoral;
+  font-size: .6rem;
+  font-weight: bold;
+  text-shadow: -1px -1px 1px #fff, 1px 1px 1px #fff;
+  width:3rem;
+}
+
+

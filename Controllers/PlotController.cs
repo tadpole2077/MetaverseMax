@@ -2,30 +2,28 @@
 using MetaverseMax.ServiceClass;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data.SqlTypes;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
 
 namespace MetaverseMax.Controllers
 {   
 
     [ApiController]
     [Route("api/[controller]")]
+    [Route("api/trx/[controller]")]
+    [Route("api/bnb/[controller]")]
+    [Route("api/eth/[controller]")]
     public class PlotController : ControllerBase
     {
         private readonly ILogger<PlotController> _logger;
         private readonly MetaverseMaxDbContext _context;
+        private Common common = new();
 
         public PlotController(MetaverseMaxDbContext context, ILogger<PlotController> logger)        
         {
@@ -33,91 +31,51 @@ namespace MetaverseMax.Controllers
             _context = context;
         }
 
-        [HttpGet]
-        public PollingPlot Get([FromQuery] QueryParametersGetPlotMatric parameters)
+        [HttpGet("GetPlotsMCP")]
+        public IActionResult GetPlotsMCP([FromQuery] QueryParametersGetPlotMatric parameters)
         {
-            PollingPlot pollingPlot = new();
-            PlotDB plotDB;
-            SyncWorld syncWorld;
+            //Example: BNB first 3 rows 1500plots / 13 mins https://localhost:44360/api/bnb/plot/GetPlotsMCP?secure_token=JUST_SIMPLE_CHECK123&interval=100&start_pos_x=0&start_pos_y=&end_pos_x=499&end_pos_y=3
+            PlotManage plotManage = new(_context, common.IdentifyWorld(Request.Path));
 
-            try
+            if (ModelState.IsValid)
             {
-                plotDB = new(_context);
-                syncWorld = new(_context);
-
-                // As this service could be abused as a DDOS a security token is needed.
-                if (parameters.secure_token == null || !parameters.secure_token.Equals("JUST_SIMPLE_CHECK123"))
-                {
-                    return pollingPlot;
-                }
-
-                int jobInterval = Convert.ToInt32(string.IsNullOrEmpty(parameters.interval) ? 150 : parameters.interval);
-
-
-                ArrayList threadParameters = new();
-                threadParameters.Add(Convert.ToInt32(parameters.start_pos_x));
-                threadParameters.Add(Convert.ToInt32(parameters.start_pos_y));
-                threadParameters.Add(Convert.ToInt32(parameters.end_pos_x));
-                threadParameters.Add(Convert.ToInt32(parameters.end_pos_y));
-                threadParameters.Add(_context.Database.GetConnectionString());
-                threadParameters.Add(jobInterval);
-
-
-                // Assign delegate function type to parameter thread object           
-                ParameterizedThreadStart pollWorldPlots = new(PlotDB.PollWorldPlots);
-
-                // Create a new thread utilizing the parameter thread object
-                Thread tPollWorldPlots = new(pollWorldPlots)
-                {
-                    //*** next we set the priority of our thread to normal default setting
-                    Priority = ThreadPriority.Normal
-                };
-
-                //*** start execution of thread
-                tPollWorldPlots.Start(threadParameters);
-
-                // Select type query using LINQ returning a collection of row matching condition - selecting first row.               
-                pollingPlot.last_plot_updated = plotDB.GetLastPlotUpdated();
-                pollingPlot.status = "Polling World Started";
+                return Ok(plotManage.GetPlotsMCP(parameters));
             }
-            catch (Exception ex)
-            {
-                string log = ex.Message;
-            }
-            // The property 'Plot.last_updated' could not be mapped because it is of type 'Nullable<SqlString>
-            return pollingPlot;
+
+            return BadRequest("GetPlotsMCP Failed");       // 400 Error     
         }
+
 
         [HttpGet("UpdatePlotSync")]
         public IActionResult UpdatePlotSync([FromQuery] QueryParametersPlotSync parameters)
         {
-            SyncWorld syncWorld = new(_context);
+            SyncWorld syncWorld = new(_context, common.IdentifyWorld(Request.Path));
 
             if (ModelState.IsValid)
             {
-                return Ok(syncWorld.SyncActiveDistrictPlot( (WORLD_TYPE)parameters.world_type, parameters.secure_token, parameters.interval) );
+                return Ok(syncWorld.SyncActiveDistrictPlot( parameters.secure_token, parameters.interval) );
             }
 
             return BadRequest("Sync Failed");       // 400 Error     
         }
 
-        [HttpGet("UpdatePlotSingle")]
-        public IActionResult UpdatePlotSingle([FromQuery] QueryParametersPlotSingle parameters)
+        [HttpGet("AddUpdatePlotSingle")]
+        public IActionResult AddUpdatePlotSingle([FromQuery] QueryParametersPlotSingle parameters)
         {
-            PlotDB plotDB = new(_context);
+            PlotManage plotManage = new(_context, common.IdentifyWorld(Request.Path));
 
             if (ModelState.IsValid)
             {
-                return Ok(plotDB.AddOrUpdatePlot(parameters.posX, parameters.posY, parameters.plot_id, true));
+                return Ok(plotManage.AddOrUpdatePlot(parameters.plot_id, parameters.posX, parameters.posY, true));
             }
 
-            return BadRequest("Sync Failed");       // 400 Error     
+            return BadRequest("AddUpdatePlotSingle is invalid");       // 400 Error     
         }
 
         [HttpGet("BuildingIPbyTypeGet")]
         public IActionResult BuildingIPbyTypeGet([FromQuery] QueryParametersTypeLevel parameters)
         {
-            BuildingManage buildingManage = new(_context);
+            BuildingManage buildingManage = new(_context, common.IdentifyWorld(Request.Path));
 
             if (ModelState.IsValid)
             {
@@ -130,7 +88,7 @@ namespace MetaverseMax.Controllers
         [HttpGet("UpdateIPRanking")]
         public IActionResult UpdateIPRanking()
         {
-            BuildingManage buildingManage = new(_context);
+            BuildingManage buildingManage = new(_context, common.IdentifyWorld(Request.Path));
 
             if (ModelState.IsValid)
             {
@@ -143,7 +101,7 @@ namespace MetaverseMax.Controllers
         [HttpGet("UpdateIPRankingByType")]
         public IActionResult UpdateIPRankingByType([FromQuery] QueryParametersTypeLevel parameters)
         {
-            BuildingManage buildingManage = new(_context);
+            BuildingManage buildingManage = new(_context, common.IdentifyWorld(Request.Path));
 
             if (ModelState.IsValid)
             {
@@ -153,5 +111,42 @@ namespace MetaverseMax.Controllers
             return BadRequest("UpdateIPRankingByType is invalid");       // 400 Error     
         }
 
+        [HttpGet("GetWorldNames")]
+        public IActionResult GetWorldNames()
+        {
+            PlotManage plotManage = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(Task.Run(() => plotManage.GetWorldNames()).Result);
+            }
+
+            return BadRequest("GetWorldNames is invalid");       // 400 Error     
+        }
+
+        [HttpGet("UnitTest_ActivePlotByDistrictDataSync")]
+        public IActionResult UnitTest_ActivePlotByDistrictDataSync([FromQuery] QueryParametersDistrict parameters)
+        {
+            PlotManage plotManage = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(Task.Run(() => plotManage.UnitTest_ActivePlotByDistrictDataSync(parameters.district_id)).Result);
+            }
+
+            return BadRequest("UnitTest is invalid");       // 400 Error     
+        }
+
+        [HttpGet("UnitTest_RoutePathTest")]
+        public IActionResult UnitTest_RoutePathTest()
+        {
+            // should would with full range of routes : https://localhost:44360/api/bnb/plot/UnitTest_RoutePathTest , https://localhost:44360/api/eth/plot/UnitTest_RoutePathTest
+            if (ModelState.IsValid)
+            {
+                return Ok(Request.Path.ToString().ToLower().Contains("/api/bnb/"));
+            }
+
+            return BadRequest("UnitTest_RoutePathTest is invalid");       // 400 Error   
+        }
     }
 }

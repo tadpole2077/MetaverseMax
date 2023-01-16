@@ -17,6 +17,9 @@ namespace MetaverseMax.Controllers
     //[Route("[controller]")]
     [ApiController]
     [Route("api/[controller]")]
+    [Route("api/trx/[controller]")]
+    [Route("api/bnb/[controller]")]
+    [Route("api/eth/[controller]")]
     public class OwnerDataController : ControllerBase
     {
         private readonly ILogger<OwnerDataController> _logger;
@@ -29,14 +32,13 @@ namespace MetaverseMax.Controllers
         {
             _logger = logger;
             _context = context;
-
         }
 
 
         [HttpGet]
         public IActionResult Get([FromQuery] QueryParametersOwnerData parameters )
         {
-            OwnerManage ownerManage = new(_context);
+            OwnerManage ownerManage = new(_context, common.IdentifyWorld(Request.Path));
             if (ModelState.IsValid)
             {
                 if (Task.Run(() => ownerManage.GetFromLandCoord(parameters.plotX, parameters.plotY)).Result != -1) 
@@ -53,7 +55,7 @@ namespace MetaverseMax.Controllers
         [HttpGet("GetUsingMatic")]       
         public IActionResult GetUsingMatic([FromQuery] QueryParametersOwnerDataMatic parameters)
         {
-            OwnerManage ownerManage = new(_context);
+            OwnerManage ownerManage = new(_context, common.IdentifyWorld(Request.Path));
 
             if (ModelState.IsValid)
             {
@@ -70,13 +72,13 @@ namespace MetaverseMax.Controllers
 
 
         [HttpGet("CheckHasPortfolio")]
-        public IActionResult CheckHasPortfolio([FromQuery] QueryParametersOwnerDataTron parameters)
+        public IActionResult CheckHasPortfolio([FromQuery] QueryParametersOwnerDataKey parameters)
         {
-            OwnerManage ownerManage = new(_context);
+            OwnerManage ownerManage = new(_context, common.IdentifyWorld(Request.Path));
 
             if (ModelState.IsValid)
             {               
-                return Ok( ownerManage.CheckLocalDB_OwnerTron(parameters.owner_tron_public) );
+                return Ok( ownerManage.MatchOwner(parameters.owner_public_key) );
             }
 
             return BadRequest("Call is invalid");       // 400 Error   
@@ -86,11 +88,11 @@ namespace MetaverseMax.Controllers
         [HttpGet("GetOffer")]
         public IActionResult GetOffer([FromQuery] QueryParametersOwnerOffer parameters)
         {
-            OwnerManage ownerManage = new(_context);
+            OwnerManage ownerManage = new(_context, common.IdentifyWorld(Request.Path));
 
             if (ModelState.IsValid)
             {
-                return Ok(Task.Run(() => ownerManage.GetOwnerOffer(parameters.active, parameters.matic_key)).Result);                
+                return Ok(Task.Run(() => ownerManage.GetOwnerOffer(parameters.matic_key)).Result);                
             }
 
             return BadRequest("Call is invalid");       // 400 Error   
@@ -99,8 +101,8 @@ namespace MetaverseMax.Controllers
         [HttpGet("GetCitizen")]
         public IActionResult GetCitizen([FromQuery] QueryParametersOwnerDataMaticRefresh parameters)
         {
-            CitizenManage citizenManage = new(_context);
-            OwnerCitizenDB ownerCitizenDB = new(_context);
+            CitizenManage citizenManage = new(_context, common.IdentifyWorld(Request.Path));
+            OwnerCitizenDB ownerCitizenDB = new(_context, common.IdentifyWorld(Request.Path));
 
             if (ModelState.IsValid)
             {
@@ -120,8 +122,8 @@ namespace MetaverseMax.Controllers
         [HttpGet("GetCitizenMCP")]
         public IActionResult GetCitizenMCP([FromQuery] QueryParametersOwnerDataMatic parameters)
         {
-            CitizenManage citizenManage = new(_context);
-            OwnerCitizenDB ownerCitizenDB = new(_context);
+            CitizenManage citizenManage = new(_context, common.IdentifyWorld(Request.Path));
+            OwnerCitizenDB ownerCitizenDB = new(_context, common.IdentifyWorld(Request.Path));
 
             if (ModelState.IsValid)
             {
@@ -136,7 +138,7 @@ namespace MetaverseMax.Controllers
         [HttpGet("GetPet")]
         public IActionResult GetPet([FromQuery] QueryParametersOwnerDataMatic parameters)
         {
-            CitizenManage citizenManage = new(_context);
+            CitizenManage citizenManage = new(_context, common.IdentifyWorld(Request.Path));
 
             if (ModelState.IsValid)
             {
@@ -149,7 +151,7 @@ namespace MetaverseMax.Controllers
         [HttpGet("GetPetMCP")]
         public IActionResult GetPetMCP([FromQuery] QueryParametersOwnerDataMatic parameters)
         {
-            CitizenManage citizenManage = new(_context);
+            CitizenManage citizenManage = new(_context, common.IdentifyWorld(Request.Path));
 
             if (ModelState.IsValid)
             {
@@ -162,7 +164,7 @@ namespace MetaverseMax.Controllers
         [HttpGet("GetPetAllMCP")]
         public IActionResult GetPetAllMCP([FromQuery] QueryParametersSecurity parameters)
         {
-            CitizenManage citizenManage = new(_context);
+            CitizenManage citizenManage = new(_context, common.IdentifyWorld(Request.Path));
 
             // As this service could be abused as a DDOS a security token is needed.                     
             if (ModelState.IsValid && parameters.secure_token.Equals("JUST_SIMPLE_CHECK123"))

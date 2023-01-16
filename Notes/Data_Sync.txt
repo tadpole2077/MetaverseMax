@@ -9,7 +9,7 @@ FN: SyncPlotData()
 2) CitizenManage.CheckSalePrice()  - 100ms(Fixed)
 Called on any CitizenManage.UpdateCitizen(invoke from CitizenManage.GetCitizenMCP())
 Triggered if a Cit has a price for-sale "change" since the last update.
-Expect limited new/expire/complted Citizen Sales per day (<100 per sync)
+Expectation: limited New/Expired/Completed Citizen Sales per day (<100 per sync)
 
 
 
@@ -30,3 +30,72 @@ Articles that support short running dbcontext obj
 
 Dispose of dbcontext
 1) https://stackoverflow.com/questions/15666824/entity-framework-and-calling-context-dispose
+
+
+
+===========================================================================
+Performance Enhancements (Nightly Sync):
+===========================================================================
+1) Check each recorded player account (SINGLE call to user/assets/lands WS)
+	- if they have >1 empty plot THEN get the Owners full plot list
+	- remove all player empty plots from Sync list -  these plots details have not changed and still owned by player.
+	Enhancment June-2022
+
+2) Only process OPENED DISTRICTS plots
+
+3) Check each District (regions/list WS) - Remove unclaimed plots from process List
+	- if claimed plot count has not changed since last run then skip check on all unclimed plots for this district
+	Outcome: 40 to 50% of all plots are unclaimed per district, many districts do not have day to day sales. Major perf improvement.
+	Enhancement Dec-2022
+
+4) Filter out all plots from MEGA and HUGE buildings, leaving only 1 master plot to process during nightly sync.
+	- Results in ~15% reduction in total plots to sync in Tron & Eth world (as of 1-2023)
+	- all related MEGA & HUGE plots are updated to match the master plot sync data (while retaining plot unique data such as abundance, resources, etc)
+
+
+
+===========================================================================
+Nightly Sync - Setup/Install Instructions :
+===========================================================================
+1) Directory Structure:
+	[Drive]:\MetaverseMax\[World]\Job\[SyncJob Install fileset]
+	C:\7_MetaverseMax\BNB\JOB\..
+
+2) Settings:
+	File: SyncJob.dll.config
+	2x AppSettings:
+    <add key="requestURL" value="https://metaversemax.com/api/api/bnb/plot/updateplotsync" />
+    <add key="urlParameters" value="?secure_token=JUST_SIMPLE_CHECK123&amp;interval=100" />
+
+	Change requestURL to match target world.
+
+
+3) Scheduled Job Creation:
+	Create Task
+	General Tab:
+		Name >  MetaverseMax BNB - Sync MCP
+		location > \MetaverseMax   (folder of all related jobs for metaverseMax)
+		Description > Nightly Sync
+		Security options:
+			user account: TADPOLEHOST1\Administrator
+			(option selected) : "Run whether user is logged on or not" + No_tick "Do not store password"
+		Configure For > Windows Server 2019
+
+	Triggers Tab:
+		(New Trigger)
+		Begin the task > "On a schedule"
+		Daily (selected radio)
+		Start: select following morning + scheduled time (eg 5:00)
+		Recur every: 1 days
+
+	Action Tab:
+		(new)
+		Action > "Start a program"
+		Programe/Script: C:\7_MetaverseMax\BNB\Job\SyncJob.exe
+		No arguments or Start In parameters.
+
+	Notes:
+		On Save of new scheduled job - assign the Administrator password for use by the job.
+
+
+		

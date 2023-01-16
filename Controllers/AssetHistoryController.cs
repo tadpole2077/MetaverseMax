@@ -15,6 +15,9 @@ namespace MetaverseMax.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Route("api/trx/[controller]")]
+    [Route("api/bnb/[controller]")]
+    [Route("api/eth/[controller]")]
     public class AssetHistoryController : ControllerBase
     {
         private const int USE_STORED_EFFICIENCY = -1;
@@ -31,7 +34,7 @@ namespace MetaverseMax.Controllers
         [HttpGet]        
         public IActionResult Get([FromQuery] QueryParametersTokenID_IPEfficiency parameters)
         {
-            BuildingManage buildingManage = new(_context);
+            BuildingManage buildingManage = new(_context, common.IdentifyWorld(Request.Path));
 
             if (ModelState.IsValid)
             {
@@ -45,7 +48,7 @@ namespace MetaverseMax.Controllers
         [HttpGet("GetCitizenHistory")]
         public IActionResult GetCitizenHistory([FromQuery] QueryParametersCitizenHistory parameters)
         {
-            CitizenManage citizenManage = new(_context);
+            CitizenManage citizenManage = new(_context, common.IdentifyWorld(Request.Path));
 
             if (ModelState.IsValid)
             {
@@ -58,7 +61,7 @@ namespace MetaverseMax.Controllers
         [HttpGet("WaitPeriod")]
         public IActionResult WaitPeriod()
         {
-            CitizenManage citizenManage = new(_context);
+            CitizenManage citizenManage = new(_context, common.IdentifyWorld(Request.Path));
 
             if (ModelState.IsValid)
             {

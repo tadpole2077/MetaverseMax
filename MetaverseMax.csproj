@@ -55,12 +55,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <TypeScriptCompile Remove="ClientApp\src\app\account-approve\account-approve.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\citizen-building-table\citizen-building-table.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\citizen-modal\citizen-modal.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\district-list\district-list.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\district-notification\district-notification.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\district-summary\district-summary.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\fund-graph\fund-graph.component.ts" />
+    <TypeScriptCompile Remove="ClientApp\src\app\nav-menu-world\nav-menu-world.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\note-modal\note-modal.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\offer-modal\offer-modal.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\owner-data\owner-interface.ts" />

@@ -4,6 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { Citizen, BUILDING, PRODUCT } from '../owner-data/owner-interface';
+import { Globals, WORLD } from '../common/global-var';
 
 
 @Component({
@@ -29,10 +30,10 @@ export class CitizenBuildingTableComponent {
 
   displayedColumns: string[] = ['token_id', 'name', 'trait_agility', 'trait_intelligence', 'trait_charisma', 'trait_endurance', 'trait_luck', 'trait_strength', 'trait_avg'];
 
-  constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
+  constructor(public globals: Globals, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
 
     this.httpClient = http;
-    this.baseUrl = baseUrl;
+    this.baseUrl = baseUrl + "api/" + globals.worldCode;
 
     this.citizenList = null;
 
@@ -98,7 +99,7 @@ export class CitizenBuildingTableComponent {
     params = params.append('token_id', tokenId.toString());
     params = params.append('production_date', productionDate.toString());
 
-    this.httpClient.get<Citizen[]>(this.baseUrl + 'api/assetHistory/getCitizenHistory', { params: params })
+    this.httpClient.get<Citizen[]>(this.baseUrl + '/assetHistory/getCitizenHistory', { params: params })
       .subscribe((result: Citizen[]) => {
 
         this.citizenList = result;

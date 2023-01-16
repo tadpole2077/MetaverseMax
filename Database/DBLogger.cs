@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MetaverseMax.ServiceClass;
 using Microsoft.EntityFrameworkCore;
 
 namespace MetaverseMax.Database
@@ -9,13 +10,23 @@ namespace MetaverseMax.Database
     public class DBLogger
     {
         public MetaverseMaxDbContext _context;
-        public readonly string dbConnectionString;
+        private WORLD_TYPE worldType;
+        private bool noContextPassed = false;
 
         // Protected base method, can only be accessed via code(methods) from same class or derived class. 
+        public DBLogger(MetaverseMaxDbContext _parentContext, WORLD_TYPE worldTypeSelected)
+        {
+            _context = _parentContext;
+            worldType = worldTypeSelected;
+        }
         public DBLogger(MetaverseMaxDbContext _parentContext)
         {
             _context = _parentContext;
-            dbConnectionString = _context.Database.GetConnectionString();
+        }
+        public DBLogger(WORLD_TYPE worldTypeSelected)
+        {
+            worldType = worldTypeSelected;
+            noContextPassed = true;
         }
 
         public int logException(Exception ex, string primaryLogEntry)
@@ -23,18 +34,30 @@ namespace MetaverseMax.Database
 
             string log = string.Concat(ex.Message, " Inner: ", ex.InnerException != null ? ex.InnerException.Message : "");
             log = log.Substring(0, log.Length > 500 ? 500 : log.Length);
+            primaryLogEntry = primaryLogEntry.Substring(0, primaryLogEntry.Length > 500 ? 500 : primaryLogEntry.Length);
 
-            if (_context == null)
+            if (_context == null || _context.IsDisposed())
             {
-                DbContextOptionsBuilder<MetaverseMaxDbContext> options = new();
-                _context = new MetaverseMaxDbContext(options.UseSqlServer(dbConnectionString).Options);
-                _context.LogEvent(String.Concat("DBLogger::logException() : WARNING - DB Context lost & Recreated"));
+                // Generate a new dbContext as a safety measure - insuring log is recorded.
+                using (var _contextEvent = new MetaverseMaxDbContext(worldType))
+                {
+                    // Additional log entry if context was pased but found to be disposed already
+                    if (noContextPassed == false)
+                    {
+                        _contextEvent.eventLog.Add(new EventLog() { detail = ("DBLogger::logException() : WARNING - DB Context lost & Recreated"), recorded_time = DateTime.UtcNow });
+                    }
+                    
+                    _contextEvent.eventLog.Add(new EventLog() { detail = primaryLogEntry, recorded_time = DateTime.UtcNow });
+                    _contextEvent.eventLog.Add(new EventLog() { detail = log, recorded_time = DateTime.UtcNow });
+
+                    _contextEvent.SaveChanges();
+                }
             }
-
-            if (_context != null)
+            else
             {
-                _context.LogEvent(primaryLogEntry);
-                _context.LogEvent(log);
+                _context.eventLog.Add(new EventLog() { detail = primaryLogEntry, recorded_time = DateTime.UtcNow });
+                _context.eventLog.Add(new EventLog() { detail = log, recorded_time = DateTime.UtcNow });
+                _context.SaveChanges();
             }
 
             return 0;

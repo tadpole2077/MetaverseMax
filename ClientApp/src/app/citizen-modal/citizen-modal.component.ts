@@ -6,7 +6,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { DragDrop } from '@angular/cdk/drag-drop';
 import { Citizen, PortfolioCitizen } from '../owner-data/owner-interface';
 import { Clipboard } from '@angular/cdk/clipboard';
-
+import { Globals, WORLD } from '../common/global-var';
 
 @Component({
   selector: 'app-citizen-modal',
@@ -35,10 +35,10 @@ export class CitizenModalComponent {
   displayedColumns: string[] = this.displayedColumnsTraits;
   tableHeader: string = "Traits";
 
-  constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string, private clipboard: Clipboard) {
+  constructor(public globals: Globals, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private clipboard: Clipboard) {
 
     this.httpClient = http;
-    this.baseUrl = baseUrl;
+    this.baseUrl = baseUrl + "api/" + globals.worldCode;
 
     this.portfolioCitizen = null;
 
@@ -98,7 +98,7 @@ export class CitizenModalComponent {
     params = params.append('owner_matic_key', maticKey);
     params = params.append('refresh', refresh == true ? "true" : "false");
 
-    this.httpClient.get<PortfolioCitizen>(this.baseUrl + 'api/ownerdata/getcitizen', { params: params })
+    this.httpClient.get<PortfolioCitizen>(this.baseUrl + '/ownerdata/getcitizen', { params: params })
       .subscribe((result: PortfolioCitizen) => {
 
         this.progressIcon.nativeElement.classList.remove("rotate");

@@ -5,11 +5,21 @@ using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using System.IO;
+using System.Reflection;
 
 namespace MetaverseMax.Database
 {
     public partial class MetaverseMaxDbContext : DbContext
     {
+        public static string dbConnectionStringTron { get; set; }
+        public static string dbConnectionStringBNB { get; set; }
+        public static string dbConnectionStringETH { get; set; }
+        public static int dbCommandTimeout { get; set; }
+
+        public WORLD_TYPE worldTypeSelected { get; set; }
+
         public virtual DbSet<BuildingTypeIP> buildingTypeIP { get; set; }
         public virtual DbSet<Plot> plot { get; set; }
         public virtual DbSet<PlotIP> plotIP { get; set; }
@@ -19,9 +29,9 @@ namespace MetaverseMax.Database
         public virtual DbSet<DistrictContent> districtContent { get; set; }
         public virtual DbSet<DistrictTaxChange> districtTaxChange { get; set; }
 
-        //public virtual DbSet<DistrictUpdateInstance> districtUpdateInstance { get; set; }
         public virtual DbSet<OwnerSummaryDistrict> ownerSummaryDistrict { get; set; }
         public virtual DbSet<Owner> owner { get; set; }
+        public virtual DbSet<OwnerName> ownerName { get; set; }
         public virtual DbSet<OwnerOffer> ownerOffer { get; set; }
         public virtual DbSet<Citizen> citizen { get; set; }
         public virtual DbSet<OwnerCitizen> ownerCitizen { get; set; }
@@ -29,18 +39,72 @@ namespace MetaverseMax.Database
         public virtual DbSet<Pet> pet { get; set; }
         public virtual DbSet<EventLog> eventLog { get; set; }
         public virtual DbSet<ServicePerf> servicePerf { get; set; }
+        public virtual DbSet<Sync> sync { get; set; }
+        public virtual DbSet<SyncHistory> syncHistory { get; set; }
 
+        // options will be assigned on OnConfiguring()
+        public MetaverseMaxDbContext() : base()
+        {
+
+        }
+        public MetaverseMaxDbContext(WORLD_TYPE worldType) : base()
+        {
+            worldTypeSelected = worldType;
+        }        
         public MetaverseMaxDbContext(DbContextOptions<MetaverseMaxDbContext> options) : base(options)
         {
+            init();            
         }
         public MetaverseMaxDbContext(string dbConnectionString) : base(new DbContextOptionsBuilder<MetaverseMaxDbContext>().UseSqlServer(dbConnectionString).Options)
         {
+            init();
+        }
+
+        private void init()
+        {
+            if (string.IsNullOrEmpty(dbConnectionStringTron))
+            {
+                string appSettingFileName = "appsettings.json";
+                                
+                if (Startup.isDevelopment)
+                {
+                    appSettingFileName = "appsettings.Development.json";
+                }
+                
+
+                // Get Configuration Settings 
+                IConfigurationRoot configuration = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile(appSettingFileName)
+                    .Build();
+
+                dbConnectionStringTron = configuration.GetConnectionString("DatabaseConnection");
+                dbConnectionStringBNB = configuration.GetConnectionString("DatabaseConnectionBNB");
+                dbConnectionStringETH = configuration.GetConnectionString("DatabaseConnectionETH");
+                dbCommandTimeout = (int)configuration.GetValue(typeof(int), "DBCommandTimeout");
+            }
+        }
+
+        // Triggered on first actual use of DbContext - such as _context.table.Where(..),  not triggered on creation of a new context unless specfically set via passed init options
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+
+            if (!optionsBuilder.IsConfigured)
+            {
+                _ = worldTypeSelected switch
+                {
+                    WORLD_TYPE.TRON => optionsBuilder.UseSqlServer(dbConnectionStringTron, sqlServerOptionsOptions => sqlServerOptionsOptions.CommandTimeout(dbCommandTimeout)),
+                    WORLD_TYPE.BNB => optionsBuilder.UseSqlServer(dbConnectionStringBNB, sqlServerOptionsOptions => sqlServerOptionsOptions.CommandTimeout(dbCommandTimeout)),
+                    WORLD_TYPE.ETH => optionsBuilder.UseSqlServer(dbConnectionStringETH, sqlServerOptionsOptions => sqlServerOptionsOptions.CommandTimeout(dbCommandTimeout)),
+                    _ => optionsBuilder.UseSqlServer(dbConnectionStringTron, sqlServerOptionsOptions => sqlServerOptionsOptions.CommandTimeout(dbCommandTimeout))
+                };
+            }
         }
 
 
         public RETURN_CODE SaveWithRetry()
         {
-            DBLogger dBLogger = new(this);
+            DBLogger dBLogger = new(this, worldTypeSelected);
             int retryCount = 0;
             bool success = false;
 
@@ -63,21 +127,22 @@ namespace MetaverseMax.Database
 
         public int LogEvent(string logDetail)
         {
-            MetaverseMaxDbContext _contextEvent = null;
-
-            // Event log should used a separate context in case problem thrown with a prior call to SaveChanges
+            // Event log should use a separate context in case problem thrown with a prior call to SaveChanges.  Creating and disposing of context for optimal safe usage as no other dependency on usage.
             try
-            {
+            {                
                 DbContextOptionsBuilder<MetaverseMaxDbContext> options = new();
-                _contextEvent = new MetaverseMaxDbContext(options.UseSqlServer(Database.GetConnectionString()).Options);
+                logDetail = logDetail.Substring(0, logDetail.Length > 500 ? 500 : logDetail.Length);        // db field max length
 
-                _contextEvent.eventLog.Add(new EventLog()
+                using (var _contextEvent = new MetaverseMaxDbContext(options.UseSqlServer(Database.GetConnectionString()).Options))
                 {
-                    detail = logDetail,
-                    recorded_time = DateTime.Now
-                });
+                    _contextEvent.eventLog.Add(new EventLog()
+                    {
+                        detail = logDetail,
+                        recorded_time = DateTime.Now
+                    });
 
-                _contextEvent.SaveChanges();
+                    _contextEvent.SaveChanges();
+                }                    
             }
             catch (Exception ex)
             {
@@ -87,25 +152,17 @@ namespace MetaverseMax.Database
 
         public int ActionUpdate(ACTION_TYPE actionType)
         {
-            MetaverseMaxDbContext _context = null;
             int result = 0;
 
             // Event log should used a separate context in case problem thrown with a prior call to SaveChanges
             try
             {                
-                DbContextOptionsBuilder<MetaverseMaxDbContext> options = new();
-                _context = new MetaverseMaxDbContext(options.UseSqlServer(Database.GetConnectionString()).Options);
-
-                result = _context.Database.ExecuteSqlInterpolated($"UPDATE ActionTime set [last_update] = getDate() where [action_type] = {actionType.ToString("G")}");
+                result = Database.ExecuteSqlInterpolated($"UPDATE ActionTime set [last_update] = getDate() where [action_type] = {actionType.ToString("G")}");
             }
             catch (Exception ex)
             {
                 string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("MetaverseMaxDbContext.UpdateAction() : Error updating action datetime for ", actionType.ToString("G")));
-                    _context.LogEvent(log);
-                }
+                LogEvent(String.Concat("MetaverseMaxDbContext.UpdateAction() : Error updating action datetime for ", actionType.ToString("G")));              
             }
 
             return 0;
@@ -113,7 +170,6 @@ namespace MetaverseMax.Database
 
         public DateTime ActionTimeGet(ACTION_TYPE actionType)
         {
-            MetaverseMaxDbContext _context = null;
             int result = 0;
             SqlParameter lastUpdated = null;
 
@@ -128,19 +184,19 @@ namespace MetaverseMax.Database
                     Direction = System.Data.ParameterDirection.Output,
                 };
 
-                DbContextOptionsBuilder<MetaverseMaxDbContext> options = new();
-                _context = new MetaverseMaxDbContext(options.UseSqlServer(Database.GetConnectionString()).Options);
+                result = Database.ExecuteSqlInterpolated($"Select {lastUpdated} = [last_update] from ActionTime where [action_type] = {actionType.ToString("G")}");
 
-                result = _context.Database.ExecuteSqlInterpolated($"Select {lastUpdated} = [last_update] from ActionTime where [action_type] = {actionType.ToString("G")}");
+                if (lastUpdated.Value == DBNull.Value)
+                {
+                    LogEvent(String.Concat("MetaverseMaxDbContext.ActionTimeGet() : Error no action record found for ", actionType.ToString("G")));
+                }
+
             }
             catch (Exception ex)
             {
                 string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("MetaverseMaxDbContext.UpdateAction() : Error updating action datetime for ", actionType.ToString("G")));
-                    _context.LogEvent(log);
-                }
+                LogEvent(String.Concat("MetaverseMaxDbContext.UpdateAction() : Error updating action datetime for ", actionType.ToString("G")));
+                LogEvent(log);
             }
 
             return (DateTime)lastUpdated.Value;
@@ -151,17 +207,34 @@ namespace MetaverseMax.Database
         {
             modelBuilder.Entity<DistrictFund>().Property(p => p.balance).HasPrecision(12, 6);           // Set decimal format to match defualt for C#
             modelBuilder.Entity<DistrictFund>().Property(p => p.distribution).HasPrecision(12, 6);
-            modelBuilder.Entity<BuildingTypeIP>().Property(p => p.current_price).HasPrecision(18, 2);
+            modelBuilder.Entity<BuildingTypeIP>().Property(p => p.current_price).HasPrecision(16, 4);
 
             //modelBuilder.Entity<OwnerOffer>().HasKey(p => new { p.offer_id });      // Explicitly set the primary key, as using key from source and not db seed generated.
             modelBuilder.Entity<OwnerOffer>().Property(p => p.buyer_offer).HasPrecision(12, 6);
 
             // Setup Composite primary keys
-            modelBuilder.Entity<Owner>().HasKey(o => new { o.owner_matic_key, o.active_tron }).HasName("PrimaryKey_Owner");
+            modelBuilder.Entity<Owner>().HasKey(o => new { o.owner_matic_key, o.public_key }).HasName("PrimaryKey_Owner");
 
+            // Tag Entity's with no key.
+            //modelBuilder.Entity<Owner>().HasNoKey();
             modelBuilder.Entity<PlotIP>().HasNoKey();            
 
             base.OnModelCreating(modelBuilder);
+        }
+
+        // Using Type: 5.0.16.0  EntityFrameworkCore.DbContext (confirm if working with any core library upgrades)
+        public bool IsDisposed()
+        {
+            bool result = true;            
+            var typeDbContext = typeof(DbContext);
+            var isDisposedTypeField = typeDbContext.GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            if (isDisposedTypeField != null)
+            {
+                result = (bool)isDisposedTypeField.GetValue(this);
+            }
+            
+            return result;
         }
     }
 }

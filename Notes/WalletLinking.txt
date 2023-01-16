@@ -1,0 +1,22 @@
+﻿All world types support player swap of wallet account linked to in-world account.
+This requires mapping a Public Wallet key to an existing L2 account.
+A new L2 account is not generated during this process.
+Thus, it is no longer possible to find a matching L1 wallet key from L2 account after this switch occurs.
+Outstanding problem - a few account have switched (Example: Noblus)
+
+
+
+TRON
+==========
+* To Extract Matic public key from Tron Public Key
+  resultParsed = Base58.Bitcoin.Decode(TronPublicKey)	// 25 byte response
+  maticKey = resultParsed.Slice(1, result.Length - 5)	// 20 byte reduced
+  Convert.ToHexString(resultParsed)).ToLower()
+
+Example:
+	TEezLac6wpckwoxtfMQiipyUKJtcMyZPVZ
+	41 3366921A0BCA183050F92BBEA0DDBD8922F7206E 82484BD0 using base58 tool http://lenschulwitz.com/base58	
+	matic: 0x3366921A0BCA183050F92BBEA0DDBD8922F7206E82
+
+ETH
+==========

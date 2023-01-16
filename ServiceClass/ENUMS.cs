@@ -1,4 +1,6 @@
-﻿namespace MetaverseMax.ServiceClass
+﻿using System.Runtime.Serialization;
+
+namespace MetaverseMax.ServiceClass
 {    
     public enum APPLICATION
     {                
@@ -118,6 +120,19 @@
         PRODUCTION = 7,
         MUNICIPAL = 8,
         POI = 100
+    }
+
+    public enum LAND_TYPE
+    {
+        TRON_BUILDABLE_LAND = 1,
+        BNB_BUILDABLE_LAND = 3
+    }
+
+    public enum BUILDING_SIZE
+    {
+        HUGE = 6,
+        MEGA = 7
+
     }
 
     public enum BUILDING_PRODUCT
@@ -399,8 +414,56 @@
     }
 
     public enum WORLD_TYPE
-    {
+    {   
+        UNKNOWN =0,
         TRON = 1,
-        ETH = 2
+        ETH = 2,
+        BNB = 3
+    }
+
+    public class TRON_WS
+    {
+        public static readonly string LAND_GET = "https://ws-tron.mcp3d.com/land/get";
+        public static readonly string OWNER_LANDS = "https://ws-tron.mcp3d.com/user/assets/lands";
+        public static readonly string USER_GET = "https://ws-tron.mcp3d.com/user/get";
+        public static readonly string SALES_OFFER = "https://ws-tron.mcp3d.com/sales/offers";
+        public static readonly string SALES_INFO = "https://ws-tron.mcp3d.com/sales/info";
+        public static readonly string ASSETS_PETS = "https://ws-tron.mcp3d.com/user/assets/pets";
+        public static readonly string ASSETS_HISTORY = "https://ws-tron.mcp3d.com/user/assets/history";
+        public static readonly string ASSETS_CITIZENS = "https://ws-tron.mcp3d.com/user/assets/citizens";
+        public static readonly string REGIONS_LIST = "https://ws-tron.mcp3d.com/regions/list";
+        public static readonly string PERKS_DISTRICT = "https://ws-tron.mcp3d.com/perks/districts";
+        public static readonly string DISTRICT_INFO = "https://ws-tron.mcp3d.com/newspaper/district/info";
+
+    }
+
+    public class BNB_WS
+    {
+        public static readonly string LAND_GET = "https://ws-bsc.mcp3d.com/land/get";
+        public static readonly string OWNER_LANDS = "https://ws-bsc.mcp3d.com/user/assets/lands";
+        public static readonly string USER_GET = "https://ws-bsc.mcp3d.com/user/get";
+        public static readonly string SALES_OFFER = "https://ws-bsc.mcp3d.com/sales/offers";
+        public static readonly string SALES_INFO = "https://ws-bsc.mcp3d.com/sales/info";
+        public static readonly string ASSETS_PETS = "https://ws-bsc.mcp3d.com/user/assets/pets";
+        public static readonly string ASSETS_HISTORY = "https://ws-bsc.mcp3d.com/user/assets/history";
+        public static readonly string ASSETS_CITIZENS = "https://ws-bsc.mcp3d.com/user/assets/citizens";
+        public static readonly string REGIONS_LIST = "https://ws-bsc.mcp3d.com/regions/list";
+        public static readonly string PERKS_DISTRICT = "https://ws-bsc.mcp3d.com/perks/districts";
+        public static readonly string DISTRICT_INFO = "https://ws-bsc.mcp3d.com/newspaper/district/info";
+    }
+
+    public class ETH_WS
+    {
+        public static readonly string LAND_GET = "https://ws.mcp3d.com/land/get";
+        public static readonly string OWNER_LANDS = "https://ws.mcp3d.com/user/assets/lands";
+        public static readonly string USER_GET = "https://ws.mcp3d.com/user/get";
+        public static readonly string SALES_OFFER = "https://ws.mcp3d.com/sales/offers";
+        public static readonly string SALES_INFO = "https://ws.mcp3d.com/sales/info";
+        public static readonly string ASSETS_PETS = "https://ws.mcp3d.com/user/assets/pets";
+        public static readonly string ASSETS_HISTORY = "https://ws.mcp3d.com/user/assets/history";
+        public static readonly string ASSETS_CITIZENS = "https://ws.mcp3d.com/user/assets/citizens";
+        public static readonly string REGIONS_LIST = "https://ws.mcp3d.com/regions/list";
+        public static readonly string PERKS_DISTRICT = "https://ws.mcp3d.com/perks/districts";
+        public static readonly string DISTRICT_INFO = "https://ws.mcp3d.com/newspaper/district/info";
     }
 }

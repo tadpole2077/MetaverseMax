@@ -1,0 +1,15 @@
+.accountContainer {
+  background-color: midnightblue;
+  color: white;
+  height: 2rem;
+  position: absolute;
+  width: 100%;
+  left: 0;
+}
+
+.promptLink {
+  color: white;
+  margin-bottom: 0.3rem;
+  position: relative;
+  line-height: 2rem;
+}

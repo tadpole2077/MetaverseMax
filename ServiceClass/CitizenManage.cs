@@ -18,8 +18,11 @@ namespace MetaverseMax.ServiceClass
         private Common common = new();
         private OwnerCitizenDB ownerCitizenDB;
 
-        public CitizenManage(MetaverseMaxDbContext _parentContext) : base(_parentContext)
+        public CitizenManage(MetaverseMaxDbContext _parentContext, WORLD_TYPE worldTypeSelected) : base(_parentContext, worldTypeSelected)
         {
+            worldType = worldTypeSelected;
+            _parentContext.worldTypeSelected = worldType;
+
             ownerCitizenDB = new(_context);
         }
 
@@ -32,7 +35,13 @@ namespace MetaverseMax.ServiceClass
             }
             else
             {
-                ownerID = "https://mcp3d.com/tron/api/image/citizen/" + ownerID;
+                ownerID = worldType switch
+                    {
+                        WORLD_TYPE.ETH => "https://mcp3d.com/api/image/citizen/",
+                        WORLD_TYPE.BNB => "https://mcp3d.com/bnb/api/image/citizen/",
+                        WORLD_TYPE.TRON or _ => "https://mcp3d.com/tron/api/image/citizen/"
+                    }
+                     + ownerID;
             }
 
             return ownerID;
@@ -108,7 +117,14 @@ namespace MetaverseMax.ServiceClass
                 int minStamina = GetLowStamina(citizens);
                 JToken minStaminaCitizen = citizens.Where(row => (row.Value<int?>("stamina") ?? 0) == minStamina).First();
                 
-                citizenUrl = string.Concat("https://mcp3d.com/tron/api/image/citizen/", minStaminaCitizen.Value<int?>("id") ?? 0 );
+                
+                citizenUrl = string.Concat(
+                    worldType switch {
+                        WORLD_TYPE.ETH => "https://mcp3d.com/api/image/citizen/",
+                        WORLD_TYPE.BNB => "https://mcp3d.com/bnb/api/image/citizen/",
+                        WORLD_TYPE.TRON or _ => "https://mcp3d.com/tron/api/image/citizen/" }
+                    ,
+                    minStaminaCitizen.Value<int?>("id") ?? 0 );
             }
             return citizenUrl;
         }
@@ -161,12 +177,8 @@ namespace MetaverseMax.ServiceClass
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("CitizenManage.GetCitizen() : Error on WS calls for owner matic : ", ownerMatic));
-                    _context.LogEvent(log);
-                }
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("CitizenManage.GetCitizen() : Error on WS calls for owner matic : ", ownerMatic));
             }
 
             return citizenCollection;
@@ -261,7 +273,7 @@ namespace MetaverseMax.ServiceClass
             RETURN_CODE returnCode = RETURN_CODE.ERROR;
             int retryCount = 0, changeCount = 0;
             CitizenChange citizenChange;
-            serviceUrl = "https://ws-tron.mcp3d.com/user/assets/citizens";
+            serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.ASSETS_CITIZENS, WORLD_TYPE.BNB => BNB_WS.ASSETS_CITIZENS, WORLD_TYPE.ETH => ETH_WS.ASSETS_CITIZENS, _ => TRON_WS.ASSETS_CITIZENS };
 
             while (returnCode == RETURN_CODE.ERROR && retryCount < 3)
             {
@@ -319,12 +331,8 @@ namespace MetaverseMax.ServiceClass
                 }
                 catch (Exception ex)
                 {
-                    string log = ex.Message;
-                    if (_context != null)
-                    {
-                        _context.LogEvent(String.Concat("CitizenManage.GetCitizenMCP() : Error on WS calls for owner matic : ", ownerMatic));
-                        _context.LogEvent(log);
-                    }
+                    DBLogger dBLogger = new(_context.worldTypeSelected);
+                    dBLogger.logException(ex, String.Concat("CitizenManage.GetCitizenMCP() : Error on WS calls for owner matic : ", ownerMatic));
                 }
             }
 
@@ -350,7 +358,7 @@ namespace MetaverseMax.ServiceClass
             for (int index = 0; index < dbCitizenList.Count; index++)
             {
                 match = false;
-
+                // Find match of Citizen in local database linked to this account.
                 for (int index2 = 0; index2 < citizens.Count; index2++)
                 {
                     if (dbCitizenList[index].citizen_token_id == (citizens[index2].Value<int?>("id") ?? 0))
@@ -360,7 +368,7 @@ namespace MetaverseMax.ServiceClass
                     }
                 }
 
-                // Citizen transfered to another owner
+                // Not Found = Citizen sold/transfered to another owner
                 if (match == false)
                 {
                     // Find the Citizen History events since the last refresh event (this maybe 1 day or more if last sync failed, or less if updates occured from IP ranking features
@@ -376,7 +384,7 @@ namespace MetaverseMax.ServiceClass
                 _context.SaveChanges();
             }
 
-            return 0;
+            return count;
         }
 
         // Scenario : Cit pet assigned(missing), then moved to new building(incorrect link date when assigned), then building produce run,  Cit pet removed,  nightly sync. Local DB shows cit assigned to correct building with no pet.
@@ -407,7 +415,7 @@ namespace MetaverseMax.ServiceClass
                 // CHECK if existing OwnerCitizen record occured prior to first found action. if it is then deactivate link (set valid_to_date)
                 if (CompareDateTime(targetOwnerCitizen.link_date, startAction) < 0)
                 {
-                    targetOwnerCitizen.valid_to_date = startAction;      // Set existing action 
+                    targetOwnerCitizen.valid_to_date = startAction;      // Set vali_to_date last citizen action in local db to next oldest history action start date
                 }
 
                 ProcessCitizenActions(citizenAction, citizenTokenId, targetOwnerCitizen, ownerMatic);
@@ -592,12 +600,8 @@ namespace MetaverseMax.ServiceClass
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("CitizenManage.UpdateCitizen() : Error on Updating Citizen - ", citizen.token_id));
-                    _context.LogEvent(log);
-                }
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("CitizenManage.UpdateCitizen() : Error on Updating Citizen - ", citizen.token_id));
             }
 
             return citizenChange;
@@ -623,12 +627,8 @@ namespace MetaverseMax.ServiceClass
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("CitizenManage.FindPetAction() : Error retrieving Pet Action Record with token_id : ", ownerCitizenActive.pet_token_id, " and Citizen token_id :", ownerCitizenActive.citizen_token_id));
-                    _context.LogEvent(log);
-                }
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("CitizenManage.FindPetAction() : Error retrieving Pet Action Record with token_id : ", ownerCitizenActive.pet_token_id, " and Citizen token_id :", ownerCitizenActive.citizen_token_id));
             }
 
             return matchingAction;
@@ -641,7 +641,7 @@ namespace MetaverseMax.ServiceClass
 
             try
             {
-                serviceUrl = "https://ws-tron.mcp3d.com/user/assets/history";
+                serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.ASSETS_HISTORY, WORLD_TYPE.BNB => BNB_WS.ASSETS_HISTORY, WORLD_TYPE.ETH => ETH_WS.ASSETS_HISTORY, _ => TRON_WS.ASSETS_HISTORY };
                 // POST REST WS
                 HttpResponseMessage response;
                 using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
@@ -725,12 +725,8 @@ namespace MetaverseMax.ServiceClass
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("CitizenManage.GetPetHistory() : Error on WS calls for pet token_id : ", ownerCitizenActive.pet_token_id));
-                    _context.LogEvent(log);
-                }
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("CitizenManage.GetPetHistory() : Error on WS calls for pet token_id : ", ownerCitizenActive.pet_token_id));
             }
 
             return citizenAction;
@@ -778,7 +774,7 @@ namespace MetaverseMax.ServiceClass
                     ownerCitizenAction.pet_token_id != ownerCitizenActionLast.Entity.pet_token_id ||
                     ownerCitizenAction.owner_matic_key != ownerCitizenActionLast.Entity.owner_matic_key)
                 {
-                    // Add new record
+                    // Add new record - dont commit to db(PERF)
                     ownerCitizenActionLast = ownerCitizenDB.AddByLinkDateTime(ownerCitizenAction, false);
 
                     // Mark prior record as expired but retain for use in Production history eval. exact date time used when cit was reassigned.
@@ -806,7 +802,7 @@ namespace MetaverseMax.ServiceClass
 
             try
             {
-                serviceUrl = "https://ws-tron.mcp3d.com/user/assets/history";
+                serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.ASSETS_HISTORY, WORLD_TYPE.BNB => BNB_WS.ASSETS_HISTORY, WORLD_TYPE.ETH => ETH_WS.ASSETS_HISTORY, _ => TRON_WS.ASSETS_HISTORY };
 
                 // POST REST WS
                 HttpResponseMessage response;
@@ -903,12 +899,8 @@ namespace MetaverseMax.ServiceClass
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("CitizenManage.GetCitizenHistoryMCP() : Error on WS calls for citizen token_id : ", tokenId));
-                    _context.LogEvent(log);
-                }
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("CitizenManage.GetCitizenHistoryMCP() : Error on WS calls for citizen token_id : ", tokenId));
 
                 // Add flag to refresh history (40 days prior) on next full sync - this clear the prior 40 day history and recreates it.
                 CitizenDB citizenDB = new(_context);
@@ -980,12 +972,8 @@ namespace MetaverseMax.ServiceClass
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("OwnerMange.GetPet() : Error on WS calls for owner matic : ", ownerMaticKey));
-                    _context.LogEvent(log);
-                }
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("OwnerMange.GetPet() : Error on WS calls for owner matic : ", ownerMaticKey));
             }
 
             return ownerPet;
@@ -994,7 +982,7 @@ namespace MetaverseMax.ServiceClass
         public async Task<RETURN_CODE> GetPetAllMCP()
         {
             RETURN_CODE returnCode = RETURN_CODE.ERROR;
-            OwnerManage ownerManage = new(_context);
+            OwnerManage ownerManage = new(_context, worldType);
 
             // Iterate all distinct OwnerMatic keys found in local db - update pets on all owners
             foreach (KeyValuePair<string, string> owner in ownerManage.GetOwners(true))
@@ -1019,7 +1007,7 @@ namespace MetaverseMax.ServiceClass
                 try
                 {
                     retryCount++;
-                    serviceUrl = "https://ws-tron.mcp3d.com/user/assets/pets";
+                    serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.ASSETS_PETS, WORLD_TYPE.BNB => BNB_WS.ASSETS_PETS, WORLD_TYPE.ETH => ETH_WS.ASSETS_PETS, _ => TRON_WS.ASSETS_PETS};
 
                     // POST from Land/Get REST WS
                     HttpResponseMessage response;
@@ -1068,12 +1056,8 @@ namespace MetaverseMax.ServiceClass
                 }
                 catch (Exception ex)
                 {
-                    string log = ex.Message;
-                    if (_context != null)
-                    {
-                        _context.LogEvent(String.Concat("OwnerMange.GetPetMCP() : Error on WS calls for owner matic : ", ownerMaticKey));
-                        _context.LogEvent(log);
-                    }
+                    DBLogger dBLogger = new(_context.worldTypeSelected);
+                    dBLogger.logException(ex, String.Concat("OwnerMange.GetPetMCP() : Error on WS calls for owner matic : ", ownerMaticKey));
                 }
             }
 
@@ -1116,11 +1100,11 @@ namespace MetaverseMax.ServiceClass
         {
             string content = string.Empty;
             decimal salePrice = 0;
-            long salePriceLarge = 0;
+            decimal salePriceLarge = 0;
 
             try
             {   
-                // CHECK if MCP version is onSale, then check if stored matches (a) on sale (b) price  -  the OnSaleKey is a reference identifier number that indicates if item is on sale but does reflect the current price.
+                // CHECK if MCP version is onSale, then check if stored matches (a) on sale (b) price  -  the OnSaleKey is a reference identifier number that indicates if item is on sale but does not reflect the current price.
                 if (onSale == true)
                 {
                     if (onSaleKey == storedOnSaleKey)
@@ -1129,7 +1113,7 @@ namespace MetaverseMax.ServiceClass
                     }
                     else
                     {
-                        serviceUrl = "https://ws-tron.mcp3d.com/sales/info";
+                        serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.SALES_INFO, WORLD_TYPE.BNB => BNB_WS.SALES_INFO, WORLD_TYPE.ETH => ETH_WS.SALES_INFO, _ => TRON_WS.SALES_INFO};
 
                         // POST REST WS
                         HttpResponseMessage response;
@@ -1155,9 +1139,15 @@ namespace MetaverseMax.ServiceClass
 
                             if (saleData != null && saleData.HasValues && (saleData.Value<bool?>("active") ?? false))
                             {
-                                salePriceLarge = saleData.Value<long?>("sellPrice") ?? 0;
+                                salePriceLarge = saleData.Value<Decimal?>("sellPrice") ?? 0;
 
-                                salePrice = (decimal)(salePriceLarge / 1000000);
+                                salePrice = worldType switch
+                                {
+                                    WORLD_TYPE.TRON => salePriceLarge / 1000000,                   // 6 places back
+                                    WORLD_TYPE.BNB => salePriceLarge / 1000000000000000000,        // 18 places back
+                                    WORLD_TYPE.ETH => salePriceLarge / 1000000000000000000,        // 18 places back
+                                    _ => salePrice / 1000000
+                                };
                             }
 
                         }
@@ -1167,12 +1157,8 @@ namespace MetaverseMax.ServiceClass
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("CitizenManage.CheckSalePrice() : Error on WS calls for token_id : ", tokenId));
-                    _context.LogEvent(log);
-                }
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("CitizenManage.CheckSalePrice() : Error on WS calls for token_id : ", tokenId));
             }
 
             return salePrice;

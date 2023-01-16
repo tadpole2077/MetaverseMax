@@ -13,8 +13,10 @@ namespace MetaverseMax.ServiceClass
 {
     public class DistrictPerkManage : ServiceBase
     {
-        public DistrictPerkManage(MetaverseMaxDbContext _parentContext) : base(_parentContext)
+        public DistrictPerkManage(MetaverseMaxDbContext _parentContext, WORLD_TYPE worldTypeSelected) : base(_parentContext, worldTypeSelected)
         {
+            worldType = worldTypeSelected;
+            _parentContext.worldTypeSelected = worldType;
         }
 
         public IEnumerable<DistrictPerk> GetPerks(int districtId, int updateInstance)
@@ -33,7 +35,7 @@ namespace MetaverseMax.ServiceClass
             try
             {
                 // POST REST WS
-                serviceUrl = "https://ws-tron.mcp3d.com/perks/districts";
+                serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.PERKS_DISTRICT, WORLD_TYPE.BNB => BNB_WS.PERKS_DISTRICT, WORLD_TYPE.ETH => ETH_WS.PERKS_DISTRICT, _ => TRON_WS.PERKS_DISTRICT };
                 HttpResponseMessage response;
                 using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
                 {

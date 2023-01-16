@@ -8,6 +8,25 @@ namespace MetaverseMax.ServiceClass
 {
     public class Common
     {
+        public WORLD_TYPE IdentifyWorld(string url)
+        {
+            WORLD_TYPE identifiedWorld = WORLD_TYPE.TRON;
+
+            if (url.ToLower().Contains("/api/trx/"))
+            {
+                identifiedWorld = WORLD_TYPE.TRON;
+            }
+            else if(url.ToLower().Contains("/api/bnb/"))
+            {
+                identifiedWorld = WORLD_TYPE.BNB;
+            }
+            else if (url.ToLower().Contains("/api/eth/"))
+            {
+                identifiedWorld = WORLD_TYPE.ETH;
+            }
+
+            return identifiedWorld;
+        }
         public string DateFormatStandard(DateTime? dtSourceTime)
         {
             string timeFormated = string.Empty;

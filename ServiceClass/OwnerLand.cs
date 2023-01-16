@@ -15,6 +15,7 @@ namespace MetaverseMax.ServiceClass
         public string last_action { get; set; }
         public double last_actionUx { get; set; }
         public int plot_ip { get; set; }
+        public int ip_info { get; set; }
         public int ip_bonus { get; set; }
         public int token_id { get; set; }
         public int citizen_count { get; set; }
@@ -22,7 +23,7 @@ namespace MetaverseMax.ServiceClass
         public int citizen_stamina { get; set; }
         public bool citizen_stamina_alert { get; set; }
         public bool forsale { get; set; }
-        public int forsale_price { get; set; }
+        public decimal forsale_price { get; set; }
         public bool alert { get; set; }
         public bool rented { get; set; }
         public decimal current_influence_rank { get; set; }

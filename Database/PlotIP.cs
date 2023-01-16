@@ -10,8 +10,8 @@ namespace MetaverseMax.Database
     [Table("PlotIP")]
     public class PlotIP
     {
-        [Column("influence")]
-        public int? influence { get; set; }
+        [Column("influence_info")]
+        public int? influence_info { get; set; }
 
         [Column("influence_bonus")]
         public int? influence_bonus { get; set; }

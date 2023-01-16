@@ -1,30 +1,27 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
+#nullable enable
 namespace MetaverseMax.Database
 {
     // Using Entity Framework Attributes to define tables (other method is API Fluent)
+    [Keyless]       // Available from EF Core 5 
     [Table("Owner")]
     public class Owner
     {
         [Column("owner_matic_key")]
-        public string owner_matic_key { get; set; }
+        public string? owner_matic_key { get; set; }
 
-        [Column("active_tron")]
-        public bool active_tron { get; set; }
+        [Column("tool_active")]
+        public bool tool_active { get; set; }
 
-        [Column("owner_tron_key")]
-        public string owner_tron_key { get; set; }
-
-        [Column("owner_name")]
-        public string owner_name { get; set; }
-
-        [Column("avatar_id")]
-        public int? avatar_id { get; set; }
+        [Column("public_key")]
+        public string? public_key { get; set; }        
 
         [Column("type")]
         public int? type { get; set; }
@@ -47,5 +44,19 @@ namespace MetaverseMax.Database
         [Column("citizen_count")]
         public int? citizen_count { get; set; }
 
+        [Column("pro_access_expiry")]
+        public DateTime? pro_access_expiry { get; set; }
+
+        [Column("pro_access_renew_code")]
+        public string? pro_access_renew_code { get; set; }
+
+        // Account can update names - this is the last updated name that is not blank.
+        [NotMapped]
+        [Column("owner_name")]
+        public string? owner_name { get; set; }
+
+        [NotMapped]
+        [Column("avatar_id")]
+        public int? avatar_id { get; set; }
     }
 }

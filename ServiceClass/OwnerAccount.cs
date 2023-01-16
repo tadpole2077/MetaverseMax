@@ -9,7 +9,9 @@ namespace MetaverseMax.ServiceClass
     {
         public string matic_key { get; set; }
         public string checked_matic_key { get; set; }
-        public string tron_key { get; set; }
+        public string public_key { get; set; }
         public string name { get; set; }
+        public bool pro_tools_enabled { get; set; }
+        public int pro_expiry_days { get; set; }
     }
 }

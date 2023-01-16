@@ -16,8 +16,11 @@ namespace MetaverseMax.ServiceClass
         private DistrictDB districtDB;
         private Common common = new();
 
-        public DistrictWebMap(MetaverseMaxDbContext _parentContext) : base(_parentContext)
+        public DistrictWebMap(MetaverseMaxDbContext _parentContext, WORLD_TYPE worldTypeSelected) : base(_parentContext, worldTypeSelected)
         {
+            worldType = worldTypeSelected;
+            _parentContext.worldTypeSelected = worldType;
+
             districtDB = new(_context);
         }
 
@@ -85,9 +88,10 @@ namespace MetaverseMax.ServiceClass
             DistrictContent districtContent = new();
             TaxGraph districtTaxGraph;
             DistrictFundManage districtFundManage;
-            DistrictPerkManage districtPerkManage = new(_context);
+            DistrictPerkManage districtPerkManage = new(_context, worldType);
             PerkSchema perkSchema = new();
             int historyDayCount = 365;
+            DateTime startGraphDate = new DateTime(2022, 9, 8);
 
             districtWeb = MapData_DistrictWebAttributes(district);
             districtWebHistory = MapData_DistrictWebAttributes(districtHistory_1Mth ?? district);
@@ -106,14 +110,20 @@ namespace MetaverseMax.ServiceClass
             if (includeTaxHistory)
             {
                 districtTaxGraph = new(districtWeb, districtWebHistory);
-                districtFundManage = new(_context);
+                districtFundManage = new(_context, worldType);
 
                 districtWeb.constructTax = districtTaxGraph.Construct();
                 districtWeb.produceTax = districtTaxGraph.Produce();
 
                 // Find amount of days from start of MEGA conversion.
-                historyDayCount = DateTime.Today.DayOfYear - new DateTime(2022, 9, 8).DayOfYear;
-                historyDayCount = historyDayCount > 365 ? 365 : historyDayCount;
+                if (DateTime.Today.Year == 2022) {
+                    historyDayCount = DateTime.Today.DayOfYear - new DateTime(2022, 9, 8).DayOfYear;
+                }
+                else
+                {
+                    historyDayCount = (365 - startGraphDate.DayOfYear) + DateTime.Today.DayOfYear;
+                }
+                historyDayCount = historyDayCount > 365 ? 365 : historyDayCount;                // Limit Fund history graph to max of 365 days
 
                 IEnumerable<DistrictFund> districtFundList = districtFundManage.GetHistory(district.district_id, historyDayCount);
                 districtWeb.fundHistory = districtFundManage.FundChartData(districtFundList);
@@ -133,7 +143,7 @@ namespace MetaverseMax.ServiceClass
         private DistrictWeb MapData_DistrictWebAttributes(District district)
         {
             DistrictWeb districtWeb = new();
-            CitizenManage citizen = new(_context);            
+            CitizenManage citizen = new(_context, worldType);            
             
             districtWeb.update_instance = district.update_instance;
             districtWeb.last_update = district.last_update;
@@ -172,127 +182,15 @@ namespace MetaverseMax.ServiceClass
             districtWeb.citizen_tax = district.citizen_tax ?? 0;
 
             return districtWeb;
-        }
-
-        public async Task<int> UpdateDistrict(int district_id)
-        {
-            District district = new();
-            string content = string.Empty;
-            Common common = new();
-            int returnCode = 0;
-
-            try
-            {
-                // POST REST WS
-                serviceUrl = "https://ws-tron.mcp3d.com/regions/list";
-                HttpResponseMessage response;
-                using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
-                {
-                    StringContent stringContent = new StringContent("{\"region_id\": " + district_id.ToString() + "}", Encoding.UTF8, "application/json");
-
-                    response = await client.PostAsync(
-                        serviceUrl,
-                        stringContent);
-
-                    response.EnsureSuccessStatusCode(); // throws if not 200-299
-                    content = await response.Content.ReadAsStringAsync();
-
-                }
-                watch.Stop();
-                servicePerfDB.AddServiceEntry(serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, district_id.ToString());
-
-                if (content.Length == 0)
-                {
-                    district.owner_name = "Unclaimed District";
-                }
-                else
-                {
-                    JObject jsonContent = JObject.Parse(content);
-                    JArray districtData = jsonContent.Value<JArray>("stat");
-                    if (districtData != null && districtData.HasValues)
-                    {
-                        returnCode = districtDB.UpdateDistrictByToken(districtData[0]);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("GetDistrict() : Error District_id: ", district_id.ToString()));
-                    _context.LogEvent(log);
-                }
-            }
-
-            return returnCode;
-        }
-
-        public async Task<List<DistrictName>> GetDistrictsFromMCP(bool isOpened)
-        {
-            List<DistrictName> districtList = new();
-            string content = string.Empty;
-            try
-            {
-                // POST REST WS
-                serviceUrl = "https://ws-tron.mcp3d.com/regions/list";
-                HttpResponseMessage response;
-                using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
-                {
-                    StringContent stringContent = new StringContent("{}", Encoding.UTF8, "application/json");
-
-                    response = await client.PostAsync(
-                        serviceUrl,
-                        stringContent);
-
-                    response.EnsureSuccessStatusCode(); // throws if not 200-299
-                    content = await response.Content.ReadAsStringAsync();
-
-                }
-                watch.Stop();
-                servicePerfDB.AddServiceEntry(serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, string.Empty);
-
-                if (content.Length == 0)
-                {
-                    districtList.Add(new DistrictName { district_id = 0, district_name = "Loading Issue" });
-                }
-                else
-                {
-                    JObject jsonContent = JObject.Parse(content);
-                    JArray districts = jsonContent.Value<JArray>("stat");
-                    if (districts != null && districts.HasValues)
-                    {
-                        for (int index = 0; index < districts.Count; index++)
-                        {
-                            JToken districtToken = districts[index];
-                            districtList.Add(new DistrictName()
-                            {
-                                district_id = districtToken.Value<int?>("region_id") ?? 0,
-                                district_name = ""
-                            });
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("DistrictWebMap::GetDistrictsFromMCP() : Error "));
-                    _context.LogEvent(log);
-                }
-            }
-
-            return districtList;
-        }
+        }       
+       
 
         // Get all districts from local db : used by district_list component
         public IEnumerable<DistrictWeb> GetDistrictAll(bool isOpened, bool includeTaxHistory)
         {
             List<District> districtList = new();
             List<DistrictWeb> districtWebList = new();
-            DistrictWebMap districtWebMap = new(_context);
+            DistrictWebMap districtWebMap = new(_context, worldType);
             bool perksDetail = false;
 
             try

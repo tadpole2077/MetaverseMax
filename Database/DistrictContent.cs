@@ -19,7 +19,7 @@ namespace MetaverseMax.Database
         public string district_name { get; set; }
 
         [Column("last_update")]
-        public DateTime last_update { get; set; }
+        public DateTime? last_update { get; set; }
 
         [Column("district_promotion")]
         public string district_promotion { get; set; }

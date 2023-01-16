@@ -25,12 +25,8 @@ namespace MetaverseMax.Database
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("OwnerOfferDB.SetOffersInactive() : Error executing Raw query "));
-                    _context.LogEvent(log);
-                }
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("OwnerOfferDB.SetOffersInactive() : Error executing Raw query "));               
             }
 
             return ownerOfferList;
@@ -48,12 +44,8 @@ namespace MetaverseMax.Database
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("OwnerOfferDB.SetOffersInactive() : Error executing Raw query "));
-                    _context.LogEvent(log);
-                }
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("OwnerOfferDB.SetOffersInactive() : Error executing Raw query "));
             }
 
             return 0;
@@ -80,12 +72,8 @@ namespace MetaverseMax.Database
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("OwnerOfferDB.AddorUpdate() : Error adding offer record to db with offer_id : ", ownerOffer.offer_id.ToString()));
-                    _context.LogEvent(log);
-                }
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("OwnerOfferDB.AddorUpdate() : Error adding offer record to db with offer_id : ", ownerOffer.offer_id.ToString()));
             }
 
             return 0;

@@ -11,20 +11,28 @@ using Microsoft.Extensions.Hosting;
 namespace MetaverseMax
 {
     public class Startup
-    {        
-        public IConfiguration Configuration { get; }
+    {
+        public static bool isDevelopment { get; set; }
         public static string serverIP { get; set; }
         public static bool logServiceInfo { get; set; }
         public static bool showPrediction { get; set; }
+        public static string dbConnectionStringTron { get; set; }
+        public static string dbConnectionStringBNB { get; set; }
+        public static string dbConnectionStringETH { get; set; }
 
         public Startup(IConfiguration configuration)
         {
             // Hook into the appsettings.json file to pull database and app settings used by services - within published site pulling from web.config
-            Configuration = configuration;
-            serverIP = Configuration["ServerIP"];
-            logServiceInfo = Configuration["logServiceInfo"] == "1" ? true : false;
-            showPrediction = Configuration["showPrediction"] == "1" ? true : false;
-        }        
+            serverIP = configuration["ServerIP"];
+            logServiceInfo = configuration["logServiceInfo"] == "1";
+            showPrediction = configuration["showPrediction"] == "1";
+            dbConnectionStringTron = configuration.GetConnectionString("DatabaseConnection");
+            dbConnectionStringBNB = configuration.GetConnectionString("DatabaseConnectionBNB");
+            dbConnectionStringETH = configuration.GetConnectionString("DatabaseConnectionETH");
+        }
+
+        // Persist the current environment settings to use within other app classes/code
+        public IWebHostEnvironment CurrentEnvironment { get; set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // The third segment, {id?} is used for an optional id. The ? in {id?} makes it optional. id is used to map to a model entity.
@@ -37,14 +45,19 @@ namespace MetaverseMax
                 configuration.RootPath = "ClientApp/dist";
             });
 
-            string connectionString = Configuration.GetConnectionString("DatabaseConnection");
-            services.AddDbContext<MetaverseMaxDbContext>(options => options.UseSqlServer(connectionString));
+            //services.AddDbContext<MetaverseMaxDbContext>(options => options.UseSqlServer(dbConnectionStringTron));
+            services.AddDbContext<MetaverseMaxDbContext>();
+
+
+            //services.AddDbContextPool
         }
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
+        {            
+            isDevelopment = env.IsDevelopment();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -71,7 +84,7 @@ namespace MetaverseMax
                     name: "default",
                     pattern: "api/{controller}/{id?}"
                     //defaults: new { id = RouteParameter.Optional }
-                    );                    
+                    );
                 //pattern: "api/{controller}/{action=Index}/{id?}");
             });
 

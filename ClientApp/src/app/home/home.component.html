@@ -11,24 +11,24 @@
   </div>
 
   <div class="actionPanel" style="--card-margin-bottom: var(--spacing-3xl); ">
-    <a [hidden]="globals.ownerAccount.matic_key == 'Not Found'" [routerLink]="['/owner-data']" [queryParams]="{matic: globals.ownerAccount.matic_key}" class="action">
+    <a [hidden]="globals.ownerAccount.matic_key == 'Not Found'" [routerLink]="['/', worldCode, 'owner-data']" [queryParams]="{matic: globals.ownerAccount.matic_key}" class="action">
       <i class="fas fa-city"></i>
       <span>My Portfolio</span>
       <!--<i class="fa-solid fa-house-building" style=""></i>-->
     </a>
 
-    <a class="action" [routerLink]="['/owner-data']">
+    <a class="action" [routerLink]="['/', worldCode, 'owner-data']">
       <i class="fas fa-search-location"></i>
       <span>Plot Owner Report</span>
       <!--<i class="fa-solid fa-tower-control"></i>-->
     </a>
 
-    <a class="action" [routerLink]="['/district-list']">
+    <a class="action" [routerLink]="['/', worldCode, 'district-list']">
       <i class="fas fa-landmark"></i>
       <span>District Report</span>
     </a>
 
-    <a class="action" style="display:none" [routerLink]="['/building-ip']">
+    <a class="action" style="display:none" [routerLink]="['/', worldCode, 'building-ip']">
       <i class="fas fa-building"></i>
       <span>Building IP</span>
     </a>

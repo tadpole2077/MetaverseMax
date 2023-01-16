@@ -1,7 +1,7 @@
 ﻿
 Which .NET framework is currently used?
 * As shown within [Project Overview] >> Publish >> Target Framework 
-* 11/11/2011 :  .NET V5
+* 11/11/2021 :  .NET V5
 
 
 
