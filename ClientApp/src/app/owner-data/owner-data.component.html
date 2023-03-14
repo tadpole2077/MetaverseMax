@@ -1,6 +1,4 @@
 
-<app-account-approve></app-account-approve>
-
 <div *ngIf="!owner.owner_matic_key" class="introSection">
   <h3>Plot Owner Report</h3>
   <img src="{{ globals.worldURLPath }}citizen/{{ globals.firstCitizen }}" class="introImg" height="160" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -32,7 +30,7 @@
     <span>{{ owner.search_info }}</span>
   </div>
 
-  <div *ngIf="owner.owner_name">
+  <div *ngIf="owner.owner_name || owner.owner_matic_key">
     <div class="ownerSection ownerName">
       Owner: <span>{{ owner.owner_name == "" ? "(unknown)" : owner.owner_name }}</span>
     </div>
@@ -105,16 +103,16 @@
 
   <app-prod-history [hidden]="!this.historyShow" (hideHistoryEvent)="hideHistory($event)"></app-prod-history>
 
-  <div class="typeFilter">
-    <div #emptyPlotFilter><a role="button" (click)="filterTable($event, 0, BUILDING.EMPTYPLOT)"><span matBadge="{{ this.filterCount.empty }}" matBadgePosition="above after"><img src="https://mcp3d.com/api/image/land/2" crossorigin="anonymous" referrerpolicy="no-referrer" /></span></a></div>
-    <div #industrialFilter><a role="button" (click)="filterTable($event, 0, BUILDING.INDUSTRIAL)"><span matBadge="{{ this.filterCount.industry }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/MetalSmelterFactory_V2_LVL1-1.png" /></span></a></div>
-    <div #productionFilter><a role="button" (click)="filterTable($event, 0, BUILDING.PRODUCTION)"><span matBadge="{{ this.filterCount.production }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/ConcreteMill_Mega-1.png" /></span></a></div>
-    <div #energyFilter><a role="button" (click)="filterTable($event, 0, BUILDING.ENERGY)"><span matBadge="{{ this.filterCount.energy }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/WaterPlant_LVL1-1.png" /></span></a></div>
-    <div #officeFilter><a role="button" (click)="filterTable($event, 0, BUILDING.OFFICE)"><span matBadge="{{ this.filterCount.office }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/OfficeRing_LVL1-1.png" /></span></a></div>
-    <div #residentialFilter><a role="button" (click)="filterTable($event, 0, BUILDING.RESIDENTIAL)"><span matBadge="{{ this.filterCount.residential }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/Residential2_LVL1-1.png" /></span></a></div>
-    <div #commercialFilter><a role="button" (click)="filterTable($event, 0, BUILDING.COMMERCIAL)"><span matBadge="{{ this.filterCount.commercial }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/Supermarket_V2_LVL1-1.png" /></span></a></div>
-    <div #municipalFilter><a role="button" (click)="filterTable($event, 0, BUILDING.MUNICIPAL)"><span matBadge="{{ this.filterCount.municipal }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/Hospital_V2_LVL4-1.png" /></span></a></div>
-    <div #aoiFilter><a role="button" (click)="filterTable($event, 0, BUILDING.AOI)"><span matBadge="{{ this.filterCount.poi }}" matBadgePosition="above after"><img src="./images/IndustrialMonument.PNG" /></span></a></div>
+  <div class="typeFilter">    
+    <div #emptyPlotFilter [ngClass]="{'hideFilter': hideEmptyFilter }"><a role="button" (click)="filterTable($event, 0, BUILDING.EMPTYPLOT)"><span matBadge="{{ this.filterCount.empty }}" matBadgePosition="above after"><img src="https://mcp3d.com/api/image/land/2" crossorigin="anonymous" referrerpolicy="no-referrer" /></span></a></div>
+    <div #industrialFilter [ngClass]="{'hideFilter': hideIndFilter }"><a role="button" (click)="filterTable($event, 0, BUILDING.INDUSTRIAL)"><span matBadge="{{ this.filterCount.industry }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/MetalSmelterFactory_V2_LVL1-1.png" /></span></a></div>
+    <div #productionFilter [ngClass]="{'hideFilter': hideProdFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.PRODUCTION)"><span matBadge="{{ this.filterCount.production }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/ConcreteMill_Mega-1.png" /></span></a></div>
+    <div #energyFilter [ngClass]="{'hideFilter': hideEngFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.ENERGY)"><span matBadge="{{ this.filterCount.energy }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/WaterPlant_LVL1-1.png" /></span></a></div>
+    <div #officeFilter [ngClass]="{'hideFilter': hideOffFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.OFFICE)"><span matBadge="{{ this.filterCount.office }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/OfficeRing_LVL1-1.png" /></span></a></div>
+    <div #residentialFilter [ngClass]="{'hideFilter': hideResFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.RESIDENTIAL)"><span matBadge="{{ this.filterCount.residential }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/Residential2_LVL1-1.png" /></span></a></div>
+    <div #commercialFilter [ngClass]="{'hideFilter': hideComFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.COMMERCIAL)"><span matBadge="{{ this.filterCount.commercial }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/Supermarket_V2_LVL1-1.png" /></span></a></div>
+    <div #municipalFilter [ngClass]="{'hideFilter': hideMuniFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.MUNICIPAL)"><span matBadge="{{ this.filterCount.municipal }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/Hospital_V2_LVL4-1.png" /></span></a></div>
+    <div #aoiFilter [ngClass]="{'hideFilter': hideAOIFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.AOI)"><span matBadge="{{ this.filterCount.poi }}" matBadgePosition="above after"><img src="./images/IndustrialMonument.PNG" /></span></a></div>
   </div>
 
   <table mat-table [dataSource]="dataSource" matSort matSortStart="desc" (matSortChange)="sortData($event)" class="table-striped mat-elevation-z8" style="width:100%; display:inline-table">
@@ -131,11 +129,14 @@
     </ng-container>
     <ng-container matColumnDef="pos_x">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Pos </th>
-      <td mat-cell *matCellDef="let land"><span>X:{{ land.pos_x}} Y:{{ land.pos_y }}</span></td>
+      <td mat-cell *matCellDef="let land">
+        <span>X:{{ land.pos_x}} Y:{{ land.pos_y }}</span>
+        <a class="lineAnim mobileView" target="_blank" href="https://play.mcp3d.com/tron/land?x={{ land.pos_x }}&y={{ land.pos_y }}">MAP</a>
+      </td>
     </ng-container>
     <ng-container matColumnDef="pos_y">
       <th mat-header-cell *matHeaderCellDef disabled> Link </th>
-      <td mat-cell *matCellDef="let land" class="linkCol"> <a class="lineAnim" target="_blank" href="https://play.mcp3d.com/tron/land?x={{ land.pos_x }}&y={{ land.pos_y }}">MCP-Tron</a> </td>
+      <td mat-cell *matCellDef="let land" class="linkCol"> <a class="lineAnim" target="_blank" href="https://play.mcp3d.com/{{ globals.worldName.toLowerCase() }}/land?x={{ land.pos_x }}&y={{ land.pos_y }}">Map</a> </td>
     </ng-container>
     <ng-container matColumnDef="building_type">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
@@ -188,17 +189,17 @@
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="ip_info">
+    <ng-container matColumnDef="plot_ip">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> IP + Bonus </th>
       <td mat-cell *matCellDef="let land">
-        <span>{{ land.ip_info }}</span>
+        <span>{{ land.plot_ip }}</span>
         <span class="ipBonus">+ {{ land.ip_bonus }}</span>
       </td>
     </ng-container>
     <ng-container matColumnDef="citizen_count">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Cit. </th>
       <td mat-cell *matCellDef="let land">
-        {{ land.citizen_count }}<span *ngIf="land.citizen_count"> X </span>
+        <span class="citCount" *ngIf="land.citizen_count">{{ land.citizen_count }} X </span>
         <img *ngIf="land.citizen_count" src="{{ land.citizen_url }}" title="Lowest stamina citizen : {{ land.citizen_stamina }}" class="citizenImg" crossorigin="anonymous" referrerpolicy="no-referrer" />
       </td>
     </ng-container>

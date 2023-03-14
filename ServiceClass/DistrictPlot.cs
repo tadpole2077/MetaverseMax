@@ -5,12 +5,8 @@ using System.Threading.Tasks;
 
 namespace MetaverseMax.ServiceClass
 {
-    public class DistrictPloter
+    public class DistrictPlot
     {
-        int district_id { get; set; }
-
-        int plot_count { get; set; }
-
-        int for_sale { get; set; }
+        public int[] district { get; set; }
     }
 }

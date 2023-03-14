@@ -7,6 +7,7 @@ import { DragDrop } from '@angular/cdk/drag-drop';
 import { Citizen, PortfolioCitizen } from '../owner-data/owner-interface';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Globals, WORLD } from '../common/global-var';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-citizen-modal',
@@ -21,13 +22,17 @@ export class CitizenModalComponent {
   public hidePaginator: boolean;
   private maticKey: string;
   public isMobileView: boolean = false;
+  public notifySubscription: Subscription = null;
 
   httpClient: HttpClient;
   baseUrl: string;
   dataSource = new MatTableDataSource(null);
+
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
   @ViewChild('progressIcon', { static: false }) progressIcon: ElementRef;
+  @ViewChild('refreshLink', { static: false }) refreshLink: ElementRef;
+  @ViewChild('progressFan', { static: false }) progressFanIcon: ElementRef;
 
   displayedColumnsTraits: string[] = ['current_price','token_id', 'name', 'sex', 'generation', 'breeding', 'trait_agility', 'trait_intelligence', 'trait_charisma', 'trait_endurance', 'trait_luck', 'trait_strength', 'trait_avg'];
   displayedColumnsEfficiency: string[] = ['current_price','token_id', 'name', 'sex', 'trait_avg', 'efficiency_industry', 'efficiency_production', 'efficiency_energy_water', 'efficiency_office', 'efficiency_commercial', 'efficiency_municipal', 'building_level'];
@@ -52,6 +57,16 @@ export class CitizenModalComponent {
       this.displayedColumns = this.displayedColumnsTraits;
     }
 
+  }
+
+  ngAfterViewInit() {
+  }
+
+  ngOnDestroy() {
+    //Prevent multi subscriptions relating to router change events
+    if (this.notifySubscription) {
+      this.notifySubscription.unsubscribe();
+    }
   }
 
   public get width() {
@@ -97,9 +112,14 @@ export class CitizenModalComponent {
     let params = new HttpParams();
     params = params.append('owner_matic_key', maticKey);
     params = params.append('refresh', refresh == true ? "true" : "false");
+    params = params.append('requester', this.globals.ownerAccount.matic_key);
 
     this.httpClient.get<PortfolioCitizen>(this.baseUrl + '/ownerdata/getcitizen', { params: params })
       .subscribe((result: PortfolioCitizen) => {
+
+        if (this.globals.ownerAccount.pro_tools_enabled && this.refreshLink) {
+          this.refreshLink.nativeElement.classList.remove("hideLink");
+        }
 
         this.progressIcon.nativeElement.classList.remove("rotate");
         this.portfolioCitizen = result;
@@ -118,7 +138,9 @@ export class CitizenModalComponent {
         }
         else {
           this.dataSource = new MatTableDataSource<Citizen>(null);
-        }       
+        }
+
+        setTimeout(() => this.checkRefresh());
 
       }, error => console.error(error));
 
@@ -152,5 +174,32 @@ export class CitizenModalComponent {
 
   roundUp(source:number) {  
     return this.isMobileView ? Math.round(source) : source;
+  }
+
+  checkRefresh() {
+
+    if (this.portfolioCitizen && this.portfolioCitizen.slowdown > 0) {
+
+      this.progressFanIcon.nativeElement.classList.remove("hideLink");
+      this.progressFanIcon.nativeElement.closest("a").classList.add("refreshDisable");
+
+      //Showing fan, countdown controls when to remove cooldown period
+      if (this.notifySubscription == null) {
+
+        //this.notifySubscription = interval(this.history.slowdown).subscribe(x => {
+        this.notifySubscription = interval(this.portfolioCitizen.slowdown * 1000).subscribe(x => {
+
+          if (this.progressFanIcon) {
+            this.progressFanIcon.nativeElement.classList.add("hideLink");
+            this.progressFanIcon.nativeElement.closest("a").classList.remove("refreshDisable");
+          }
+          this.portfolioCitizen.slowdown = 0;
+
+          this.notifySubscription.unsubscribe();
+          this.notifySubscription = null;
+        });
+      }
+    }
+
   }
 }

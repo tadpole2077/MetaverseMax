@@ -53,17 +53,15 @@ namespace MetaverseMax.Database
         }
 
         // GET all citizens actions + history related to a building.  May cause issues when db grows REEVAL use.
-        public List<OwnerCitizenExt> GetBuildingCitizen(int landTokenId)
+        public int GetBuildingCitizen(int landTokenId, ref List<OwnerCitizenExt> citizens)
         {
-            List<OwnerCitizenExt> citizens = new();
-
             try
             {
                 // Using string interpolation syntax to pull in parameters
                 citizens = _context.OwnerCitizenExt.FromSqlInterpolated($"sp_building_citizen_get {landTokenId}").AsNoTracking().ToList();
 
                 // Assign any pet bonus parts to Cit attributes.
-                for(int counter=0; counter < citizens.Count; counter++){
+                for(int counter =0; counter < citizens.Count; counter++){
                     if (citizens[counter].pet_token_id > 0)
                     {
                         citizens[counter].trait_strength_pet_bonus = citizens[counter].pet_bonus_id == (int)PET_BONUS_TYPE.STRENGTH ? CheckMaxTrait(citizens[counter].pet_bonus_level, citizens[counter].trait_strength) : 0;
@@ -81,7 +79,7 @@ namespace MetaverseMax.Database
                 logException(ex, String.Concat("OwnerCitizenExtDB.GetBuildingCitizen() : Error with query to get all building citizens with land token_id : ", landTokenId));
             }
 
-            return citizens;
+            return citizens.Count;
         }
 
         private int CheckMaxTrait(int? petBonusLevel, int traitStrength)

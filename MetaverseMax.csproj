@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
     <IsPackable>false</IsPackable>
@@ -14,21 +14,21 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EntityFramework" Version="6.4.4" />
     <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.16" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.16" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.16">
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.13" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" Version="7.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.16" />
-    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="4.2.4">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.2" />
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="4.9.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="SimpleBase" Version="3.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="SimpleBase" Version="4.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,6 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\app\building-filter\building-filter.component.ts" />
     <None Remove="ClientApp\src\app\building-ip\building-ip.component.ts" />
     <None Remove="ClientApp\src\app\common\global-var.ts" />
     <None Remove="ClientApp\src\app\common\graph-interface.ts" />
@@ -46,11 +47,13 @@
     <None Remove="ClientApp\src\app\district-notification\district-notification.component.css" />
     <None Remove="ClientApp\src\app\district-summary\data-district-interface.ts" />
     <None Remove="ClientApp\src\app\district-summary\district-summary.component.css" />
-    <None Remove="ClientApp\src\app\fund-graph\data-fund-test.ts" />
+    <None Remove="ClientApp\src\app\graph-damage\data-damage-test.ts" />
+    <None Remove="ClientApp\src\app\graph-damage\graph-damage.component.ts" />
+    <None Remove="ClientApp\src\app\graph-fund\data-fund-test.ts" />
     <None Remove="ClientApp\src\app\numberonly.directive.ts" />
     <None Remove="ClientApp\src\app\owner-data\owner-data.component.css" />
-    <None Remove="ClientApp\src\app\tax-graph\data-construct.ts" />
-    <None Remove="ClientApp\src\app\tax-graph\data-produce.ts" />
+    <None Remove="ClientApp\src\app\graph-tax\data-construct.ts" />
+    <None Remove="ClientApp\src\app\graph-tax\data-produce.ts" />
     <None Remove="ClientApp\tsconfig.json" />
   </ItemGroup>
 
@@ -61,7 +64,8 @@
     <TypeScriptCompile Remove="ClientApp\src\app\district-list\district-list.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\district-notification\district-notification.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\district-summary\district-summary.component.ts" />
-    <TypeScriptCompile Remove="ClientApp\src\app\fund-graph\fund-graph.component.ts" />
+    <TypeScriptCompile Remove="ClientApp\src\app\graph-fund\graph-fund.component.ts" />
+    <TypeScriptCompile Remove="ClientApp\src\app\graph-tax\graph-tax.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\nav-menu-world\nav-menu-world.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\note-modal\note-modal.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\offer-modal\offer-modal.component.ts" />
@@ -70,7 +74,6 @@
     <TypeScriptCompile Remove="ClientApp\src\app\production-history\prod-history.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\search-district\search-district.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\tax-change\tax-change.component.ts" />
-    <TypeScriptCompile Remove="ClientApp\src\app\tax-graph\tax-graph.component.ts" />
   </ItemGroup>
 
   <ItemGroup>
@@ -1802,10 +1805,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <TypeScriptCompile Update="ClientApp\src\app\fund-graph\data-fund-test.ts">
+    <TypeScriptCompile Update="ClientApp\src\app\graph-damage\data-damage-test.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
-    <TypeScriptCompile Update="ClientApp\src\app\tax-graph\data-construct.ts">
+    <TypeScriptCompile Update="ClientApp\src\app\graph-fund\data-fund-test.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Update="ClientApp\src\app\graph-tax\data-construct.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
   </ItemGroup>

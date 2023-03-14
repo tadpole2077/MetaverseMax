@@ -1,3 +1,8 @@
+
+.featureInstruct {
+  margin-top: 1rem
+}
+
 /*** Top Right Avator ***/
 .defaultAvatorImg {
   float: right;
@@ -89,6 +94,9 @@ a {
 }
 .mat-expansion-panel-header-title span{
   line-height: 1.7rem
+}
+.mat-expansion-panel-header-title span {
+  margin-left: .2rem;
 }
 
 /*** Search Component ***/
@@ -367,6 +375,13 @@ a {
 
 
 /*** TABLE ***/
+.short-text {
+  display: none;
+}
+
+.long-text {
+  display: inline-block;
+}
 .mat-column-ip_t, .mat-column-ip_b, .mat-column-bon, .mat-column-pre, .mat-column-id{
   text-align: center;
 }
@@ -491,13 +506,18 @@ td.mat-column-pos span:nth-child(2){
     vertical-align: sub
   }
 
-
+.rankEff{
+  width: 3.5rem;
+  display: inline-block;
+}
 
 /* Magnifier Icon */
 .magnifyHistoryPositioner {
   display: inline-block;
   position: relative;
   vertical-align: top;
+  /*float: right;
+  margin-right: 3rem;*/
 }
 
 .magnifyHistoryIcon {
@@ -509,6 +529,10 @@ td.mat-column-pos span:nth-child(2){
   .magnifyHistoryIcon:hover {
     opacity: 1
   }
+
+.mat-column-ip_t{
+  padding-left: .3rem;
+}
 
 .lastUpdated {
   vertical-align: middle;
@@ -644,7 +668,29 @@ td.mat-column-pos span:nth-child(2){
   }
 
 
+
+
 @media only screen and (max-width: 415px) {
+
+  .short-text {
+    display: inline-block;
+  }
+
+  .long-text {
+    display: none;
+  }
+
+  .featureHeader {
+    font-size: 1.3rem;
+  }
+  .featureDesc{
+    font-size: .8rem;
+  }
+  .featureInstruct{
+    font-size: .8rem;
+    font-weight: 500;
+  }
+
   .searchBlock {
     height: 150px;
     float: unset;
@@ -664,6 +710,18 @@ td.mat-column-pos span:nth-child(2){
 
   .mat-expansion-panel {
     width: 380px
+  }
+  .mat-expansion-panel-header-title span{
+    margin-left: .4rem;
+    font-size: .9rem;
+  }
+
+  .summaryInfo span{
+    font-size: .8rem;
+  }
+
+  #producePredictionPanel {
+    margin-top: .6rem;
   }
 
   .mat-expansion-panel-body {
@@ -698,8 +756,15 @@ td.mat-column-pos span:nth-child(2){
       display: inline-block;
     }
 
-  .activeFilter{
-    margin: 0 2rem 0 0;   
+  .filterControls{
+    margin-bottom: .8rem;
+  }
+  .activeFilter {
+    margin: 0 2rem 0 0;
+    font-size: .8rem;
+  }
+  .filterIcon{
+    font-size: 1.2rem;
   }
 
   #totalProducePanel .mat-expansion-panel-body {
@@ -753,4 +818,37 @@ td.mat-column-pos span:nth-child(2){
     margin-left: 52px;
     right: unset;
   }
+
+  .rankEff{
+    width: 3.2rem;
+  }
+
+  th.mat-header-cell, td.mat-cell {
+    font-size: .7rem;
+  }
+  th .mat-badge-content .mat-badge-active {
+    top: -12px
+  }
+
+  td.mat-column-rank {
+    padding-left: 0;
+  }
+
+  .magnifyHistoryPositioner {
+    margin-left: -1.4rem;
+    margin-top: -1rem;
+  }
+
+  .mat-column-ip_t{
+    padding-left: .6rem;
+  }
+  td.mat-column-ip_b, td.mat-column-ip_t {
+    text-indent: 0.3rem;
+    text-align: left;
+  }
+
+  th > div > div{
+    margin-left: 0;
+  }
+  
 }

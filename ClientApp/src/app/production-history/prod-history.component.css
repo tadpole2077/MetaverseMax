@@ -18,11 +18,24 @@ a {
 .rotate {
   -webkit-animation: rotation 1s 30 linear;
 }
+.rotateFan {
+  -webkit-animation: rotation 2s 120 linear;
+}
 
 .progressIcon {
   font-size: .7rem;
   z-index: 1;
 }
+.progressFan {
+  margin-left: .2rem;
+  font-size: .9rem;
+  z-index: 1;
+  color: #1565c0;
+}
+.refreshDisable{
+  color:lightgray
+}
+
 
 /*** Link underline amine ***/
 a {
@@ -191,6 +204,7 @@ tr.mat-header-row{
 
 td.mat-column-run_datetime {
   width: 100px;
+  line-height: 1.3rem;
 }
 td.mat-column-building_ip{
   width: 4rem;
@@ -211,6 +225,24 @@ tr td.mat-column-expandedDetail{
 
 tr.detailRow {
   height: 0;
+}
+
+.predict-row td {
+  border-style: solid;
+  border-width: 2px 0 2px 0;
+  -webkit-animation: glowLine 1.4s ease-in-out infinite alternate;
+  -moz-animation: glowLine 1.4s ease-in-out infinite alternate;
+  animation: glowLine 1.4s ease-in-out infinite alternate;
+}
+
+@-webkit-keyframes glowLine {
+  from {
+    border-color: rgba(0,0,0,.05);
+  }
+
+  to {
+    border-color: #1b6ec2;   
+  }
 }
 
 /* Special stripe - every 3rd row stripe, row 2 is hidden */
@@ -265,6 +297,9 @@ tr.mat-row:not(.detailRow) {
 
   .helpTip .mat-icon {
     font-size: 1.4rem;
+    -webkit-animation: glowHelpTip 1.4s ease-in-out infinite alternate;
+    -moz-animation: glowHelpTip 1.4s ease-in-out infinite alternate;
+    animation: glowHelpTip 1.4s ease-in-out infinite alternate;
   }
 
   .helpTip span {
@@ -278,11 +313,23 @@ tr.mat-row:not(.detailRow) {
   margin-left: 2.1rem;
   color: gray;
 }
+@-webkit-keyframes glowHelpTip {
+  from {
+    color: gray;
+  }
+
+  to {
+    color: #ffc107;
+  }
+}
 
 /*Predict produce*/
+.hideLink{
+  display:none;
+}
 .predict {
-  display: none;
-  /*display: inline-block;*/
+  /*display: none;*/
+  display: inline-block;
   float: right;
 }
 .predictionTotal {
@@ -319,6 +366,23 @@ tr.mat-row:not(.detailRow) {
   .predictControlBonus span {
     vertical-align: top;
   }
+
+.glowCalcText {
+  -webkit-animation: glowCalcText 1.4s ease-in-out infinite alternate;
+  -moz-animation: glowCalcText 1.4s ease-in-out infinite alternate;
+  animation: glowCalcText 1.4s ease-in-out infinite alternate;
+}
+
+@-webkit-keyframes glowCalcText {
+  from {
+    color: gray;
+  }
+
+  to {
+    color: #1565c0;
+  }
+}
+
 
 .noMargin {
   min-height: 0px;
@@ -363,6 +427,8 @@ tr.mat-row:not(.detailRow) {
     font-size: .6rem;
     text-align: right;
     width: 140px;
+    line-height: .6rem;
+    padding-top: 0.5rem;
   }
   .extraWidth {
     min-width: 8rem;
@@ -402,7 +468,10 @@ tr.mat-row:not(.detailRow) {
   padding-top: 4px;
 }
 
+
+
 @media only screen and (max-width: 415px) {
+
   .histroyframe {
     left: 0;
     bottom: unset;
@@ -411,10 +480,17 @@ tr.mat-row:not(.detailRow) {
     transform:none !important;
     width: 100vw;
   }
-  .predict{
-    position:relative;
-    right:unset;
-    margin-top:unset;
+  .summaryBlock{
+    font-size: .8rem;
+  }
+
+  .predict {
+    position: relative;
+    float: unset;
+    right: unset;
+    margin-top: unset;
+    width: 95%;
+    font-size: .8rem;
   }
   .predictControl {
     position: absolute;
@@ -426,10 +502,19 @@ tr.mat-row:not(.detailRow) {
     font-size: .7rem;
   }
   .predictionDetailCalc div > span:first-child {
-    margin-left:-2rem;
+    margin-left:-5.2rem;
+    width: 4rem;
   }
   .predictionDetailCalc div > span:nth-child(2){
-    min-width:11.4rem
+    min-width:10rem
+  }
+  .predictionDetailCalc div > span:nth-child(4) {    
+    width: 5rem;
+    line-height: .6rem;
+    margin-top: .6rem;
+  }
+  .nowarp {
+    width: unset;
   }
 
   .citizenTable {
@@ -451,5 +536,22 @@ tr.mat-row:not(.detailRow) {
     font-weight: 500;
     padding-top: .3rem;
     padding-bottom: .3rem;
+  }
+
+  .historySummary{
+    margin-left: 4px;
+  }
+  .historySummary div{
+    line-height: 1.6rem;
+  }
+
+  .summaryWarning {
+    position: absolute;
+    right: 0;
+    margin-top: -1.8rem;
+  }
+
+  .table-container{
+    margin-left: -10px;
   }
 }

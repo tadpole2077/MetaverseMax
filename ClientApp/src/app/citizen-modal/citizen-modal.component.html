@@ -19,8 +19,13 @@
     <div class="lastUpdated">
       <mat-icon>access_time</mat-icon>
       <span *ngIf="portfolioCitizen">Last updated {{ portfolioCitizen.last_updated }}GMT </span>
-      <a class="lineAnim" role="button" (click)="refresh()">
-        <span>( Refresh <i #progressIcon class="fas fa-sync-alt progressIcon"></i> )</span>
+      <a #refreshLink class="lineAnim hideLink" role="button" (click)="refresh()">
+        <span>
+          ( Refresh
+          <i #progressIcon class="fas fa-sync-alt progressIcon"></i>
+          <i #progressFan class="fas fa-solid fa-fan progressFan rotateFan hideLink"></i>
+          )
+        </span>
       </a>
     </div>
 

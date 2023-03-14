@@ -127,6 +127,7 @@ interface Citizen {
 
 interface PortfolioCitizen {
   last_updated: string;
+  slowdown: number;
   citizen: Citizen[];
 }
 

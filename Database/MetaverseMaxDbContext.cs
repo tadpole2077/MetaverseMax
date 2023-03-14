@@ -31,6 +31,7 @@ namespace MetaverseMax.Database
 
         public virtual DbSet<OwnerSummaryDistrict> ownerSummaryDistrict { get; set; }
         public virtual DbSet<Owner> owner { get; set; }
+        public virtual DbSet<OwnerEXT> ownerEXT { get; set; }
         public virtual DbSet<OwnerName> ownerName { get; set; }
         public virtual DbSet<OwnerOffer> ownerOffer { get; set; }
         public virtual DbSet<Citizen> citizen { get; set; }
@@ -126,26 +127,23 @@ namespace MetaverseMax.Database
         }
 
         public int LogEvent(string logDetail)
-        {
-            // Event log should use a separate context in case problem thrown with a prior call to SaveChanges.  Creating and disposing of context for optimal safe usage as no other dependency on usage.
+        {            
             try
             {                
-                DbContextOptionsBuilder<MetaverseMaxDbContext> options = new();
                 logDetail = logDetail.Substring(0, logDetail.Length > 500 ? 500 : logDetail.Length);        // db field max length
-
-                using (var _contextEvent = new MetaverseMaxDbContext(options.UseSqlServer(Database.GetConnectionString()).Options))
+                
+                eventLog.Add(new EventLog()
                 {
-                    _contextEvent.eventLog.Add(new EventLog()
-                    {
-                        detail = logDetail,
-                        recorded_time = DateTime.Now
-                    });
+                    detail = logDetail,
+                    recorded_time = DateTime.Now
+                });
 
-                    _contextEvent.SaveChanges();
-                }                    
+                this.SaveChanges();
             }
             catch (Exception ex)
             {
+                DBLogger dBLogger = new(this, worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("MetaverseMaxDbContext::LogEvent() : Error during Event_Log() call storing message :", logDetail));
             }
             return 0;
         }
@@ -205,6 +203,7 @@ namespace MetaverseMax.Database
         // Define the decimal precision to match that of sql server column definition. 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Note precision can also be defined within column metadata >> [Column("for_rent", TypeName = "decimal(16, 4)")]
             modelBuilder.Entity<DistrictFund>().Property(p => p.balance).HasPrecision(12, 6);           // Set decimal format to match defualt for C#
             modelBuilder.Entity<DistrictFund>().Property(p => p.distribution).HasPrecision(12, 6);
             modelBuilder.Entity<BuildingTypeIP>().Property(p => p.current_price).HasPrecision(16, 4);
@@ -213,7 +212,7 @@ namespace MetaverseMax.Database
             modelBuilder.Entity<OwnerOffer>().Property(p => p.buyer_offer).HasPrecision(12, 6);
 
             // Setup Composite primary keys
-            modelBuilder.Entity<Owner>().HasKey(o => new { o.owner_matic_key, o.public_key }).HasName("PrimaryKey_Owner");
+            // modelBuilder.Entity<Owner>().HasKey(o => new { o.owner_matic_key, o.public_key }).HasName("PrimaryKey_Owner");
 
             // Tag Entity's with no key.
             //modelBuilder.Entity<Owner>().HasNoKey();

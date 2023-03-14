@@ -18,9 +18,11 @@ namespace MetaverseMax.Database
         [Column("owner_matic")]
         public string owner_matic { get; set; }
 
-        [Column("owner_nickname")]
-        public string owner_nickname { get; set; }
-
+        [NotMapped]
+        [Column("owner_name")]
+        public string owner_name { get; set; }
+        
+        [NotMapped]
         [Column("owner_avatar_id")]
         public int owner_avatar_id { get; set; }
 

@@ -1,0 +1,52 @@
+.charts-legend {
+  width: 90px
+}
+
+.ngx-charts {
+  float: none;
+}
+
+.ngx-charts-axis-label {
+  font-weight: 600
+}
+
+.legend-title-text, .GraphFundDistrict {
+  font-size: .8rem;
+  font-weight: 500;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.textDataLabel {
+  opacity: .3;
+}
+
+.GraphFundDistrict {
+  opacity: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.showTrans2 {
+  opacity: 1;
+  /*border: 1px solid black;*/
+  transition: all 4s ease-in-out;
+  /*background-color: red;*/
+}
+
+.showTrans {
+  animation: 3s fadeIn;
+  animation-fill-mode: forwards;
+  visibility: hidden;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    visibility: visible;
+    opacity: 1;
+  }
+}

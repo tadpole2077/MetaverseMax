@@ -295,13 +295,27 @@ td.mat-column-efficiency_energy_water span {
   z-index: 1;
 }
 .mobileVisible {
-  display: none
+  display: none;
+}
+.hideLink{
+  display: none;
+}
+
+.progressFan {
+  margin-left: .2rem;
+  font-size: .9rem;
+  z-index: 1;
+  color: #1565c0;
+}
+.rotateFan {
+  -webkit-animation: rotation 2s 120 linear;
+}
+.refreshDisable {
+  color: lightgray
 }
 
 
-
 @media only screen and (max-width: 415px) {
-
   .mobileVisible{
     display:inline-block
   }
@@ -337,7 +351,7 @@ td.mat-column-efficiency_energy_water span {
   }
 
   #tableView {
-    left: 50vw;
+    left: 48vw;
     position: absolute;
   }
 
@@ -391,9 +405,14 @@ td.mat-column-efficiency_energy_water span {
     font-weight: 600;
   }
 
-  .mat-column-name {
-    min-width: 3.2rem;    
+  .mat-sort-header-container {
+    
   }
+  .mat-column-name {
+    min-width: 3.2rem;
+    padding-right: .3em
+  }
+
   td.mat-column-name img{
     padding-top: 4px;
   }

@@ -29,20 +29,21 @@ namespace MetaverseMax.ServiceClass
         public int active_count { get; set; }
 
         public string img_url { get; set; }
-        public IEnumerable<ResourceActive> active_buildings { get; set; }
+        public IEnumerable<ResourceActiveWeb> active_buildings { get; set; }
         public IEnumerable<BuildingIPWeb> buildings { get; set; }
         public IEnumerable<ResourceTotal> total_produced { get; set; }
-        public IEnumerable<ResourceTotal> total_produced_month { get; set; }
-        public IEnumerable<ResourceTotal> total_produced_excess { get; set; }
-        public IEnumerable<ResourceTotal> total_produced_month_excess { get; set; }
+        public IEnumerable<ResourceTotal> total_produced_month { get; set; }        
     }
 
-    public class ResourceActive
+    public class ResourceActiveWeb
     {
         public string name { get; set; }
         public int total { get; set; }
         public int active { get; set; }
         public int shutdown { get; set; }
+        public string building_img { get; set; }
+        public int building_id { get; set; }
+        public string building_name { get; set; }
     }
 
     public class PredictOutcome{
@@ -78,10 +79,11 @@ namespace MetaverseMax.ServiceClass
 
         public string name_m { get; set; }
 
-        public int name_id { get; set; }
+        public int nid { get; set; }
 
         public int con { get; set; }
 
+        // Active Produce - flag used to control building Running icon, Also used in Predict Eval column - controls if tick is shown when column view is enabled.
         public bool act { get; set; }
 
         public int pre { get; set; }
@@ -103,5 +105,8 @@ namespace MetaverseMax.ServiceClass
         public int tax { get; set; }
 
         public int r { get; set; }
+
+        // Building_id - used for filtering by building subtype.
+        public int bid { get; set; }
     }
 }

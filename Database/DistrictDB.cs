@@ -181,7 +181,7 @@ namespace MetaverseMax.Database
                 };
 
                 //exec sproc to add set of owner summary rows matching instanct of district.
-                result = _context.Database.ExecuteSqlRaw("EXEC @update_instance = dbo.sp_update_district_summary @district_id", new[] { districtParameter, updateInstance });
+                result = _context.Database.ExecuteSqlRaw("EXEC @update_instance = dbo.sp_owner_summary_district_insert @district_id", new[] { districtParameter, updateInstance });
 
                 //Use the new update_instance returned from summary sproc and assign to new district row.
                 district.update_instance = instance = (int)updateInstance.Value;
@@ -192,7 +192,7 @@ namespace MetaverseMax.Database
 
                 //Update summary totals for district
                 updateInstance.Direction = System.Data.ParameterDirection.Input;    // reusing parameter but now using as input - not output.
-                result = _context.Database.ExecuteSqlRaw("EXEC dbo.sp_update_district_by_instance @district_id, @update_instance", new[] { districtParameter, updateInstance });
+                result = _context.Database.ExecuteSqlRaw("EXEC dbo.sp_district_update_by_instance @district_id, @update_instance", new[] { districtParameter, updateInstance });
                
 
             }
@@ -237,6 +237,25 @@ namespace MetaverseMax.Database
             }
 
             return 0;
+        }
+
+        public int ArchiveOwnerSummaryDistrict()
+        {
+            int result = 0;
+            try
+            {
+                //exec sproc - create a dup set of plots within Archive table if not previously archived.
+                result = _context.Database.ExecuteSqlRaw("EXEC dbo.sp_owner_summary_district_archive");
+
+            }
+            catch (Exception ex)
+            {
+                string log = ex.Message;
+                _context.LogEvent(String.Concat("DistrictDB::ArchiveOwnerSummaryDistrict() : Error Archiving OwnerSummaryDistrict row using sproc sp_owner_summary_district_archive "));
+                _context.LogEvent(log);
+            }
+
+            return result;
         }
     }
 }

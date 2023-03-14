@@ -20,6 +20,8 @@ namespace MetaverseMax.ServiceClass
     {
         public string last_updated { get; set; }
         public IEnumerable<CitizenWeb> citizen { get; set; }
+
+        public int slowdown { get; set; }
     }
 
     public class CitizenWeb

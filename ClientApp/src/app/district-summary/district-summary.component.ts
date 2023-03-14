@@ -7,7 +7,8 @@ import { MatSort } from '@angular/material/sort';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { AfterViewInit } from '@angular/core';
 import { NoteModalComponent } from '../note-modal/note-modal.component';
-import { TaxGraphComponent } from '../tax-graph/tax-graph.component';
+import { GraphTaxComponent } from '../graph-tax/graph-tax.component';
+import { GraphFundComponent } from '../graph-fund/graph-fund.component';
 import { TaxChangeComponent } from '../tax-change/tax-change.component';
 import { OwnerSummary, District } from './data-district-interface';
 import { MatExpansionPanel } from '@angular/material/expansion';
@@ -48,15 +49,15 @@ export class DistrictSummaryComponent implements AfterViewInit {
   @ViewChild("taxChange", { static: true }) taxChange: TaxChangeComponent;
   @ViewChild("taxChangePanel", { static: true }) taxChangePanel: MatExpansionPanel;
 
-  @ViewChild("graphConstruct", { static: true }) childGraphConstruct: TaxGraphComponent;
-  @ViewChild("graphProduce", { static: true }) childGraphProduce: TaxGraphComponent;
-  @ViewChild("graphFund", { static: true }) childGraphFund: TaxGraphComponent;
-  @ViewChild("graphDistribute", { static: true }) childGraphDistribute: TaxGraphComponent;
+  @ViewChild("graphConstruct", { static: true }) childGraphConstruct: GraphTaxComponent;
+  @ViewChild("graphProduce", { static: true }) childGraphProduce: GraphTaxComponent;
+  @ViewChild("graphFund", { static: true }) childGraphFund: GraphFundComponent;
+  @ViewChild("graphDistribute", { static: true }) childGraphDistribute: GraphFundComponent;
   @ViewChild("arrivalsWeek", { static: true } as any) arrivalsWeek: MatCheckbox;
   @ViewChild("arrivalsMonth", { static: true } as any) arrivalsMonth: MatCheckbox;
 
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
-  displayedColumnsOwners: string[] = ['owner_nickname', 'owned_plots', 'energy_count', 'industry_count', 'production_count', 'residential_count', 'office_count', 'poi_count', 'commercial_count', 'municipal_count'];
+  displayedColumnsOwners: string[] = ['owner_name', 'owned_plots', 'energy_count', 'industry_count', 'production_count', 'residential_count', 'office_count', 'poi_count', 'commercial_count', 'municipal_count'];
 
   constructor(public globals: Globals, private activedRoute: ActivatedRoute, private router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef) {
 
@@ -110,10 +111,7 @@ export class DistrictSummaryComponent implements AfterViewInit {
       this.isMobileView = true;
     }
 
-    this.districtImgURL = "https://play.mcp3d.com/assets/images/districts/"
-      + (globals.selectedWorld == WORLD.TRON ? "trx/" : globals.selectedWorld == WORLD.BNB ? "bnb/" : "" )      
-      + this.requestDistrictId + ".png";
-
+    this.districtImgURL = "https://play.mcp3d.com/assets/images/districts/" + globals.worldCode.toUpperCase() + "/"  + this.requestDistrictId + ".png";
 
   }
 
@@ -132,6 +130,9 @@ export class DistrictSummaryComponent implements AfterViewInit {
 
     this.adShow = false;
     this.requestDistrictId = district_id;
+
+
+    this.districtImgURL = "https://play.mcp3d.com/assets/images/districts/" + this.globals.worldCode.toUpperCase() + "/" + this.requestDistrictId + ".png";
 
     this.httpClient.get<District>(this.baseUrl + '/district', { params: params })
       .subscribe((result: District) => {                

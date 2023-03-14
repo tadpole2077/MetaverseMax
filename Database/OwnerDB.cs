@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using MetaverseMax.ServiceClass;
 using Microsoft.EntityFrameworkCore;
@@ -8,25 +9,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MetaverseMax.Database
 {
-    public class OwnerDB
-    {
-        private readonly MetaverseMaxDbContext _context;
-        
-        public OwnerDB(MetaverseMaxDbContext _parentContext)
-        {
-            _context = _parentContext;
+    public class OwnerDB : DatabaseBase
+    {        
+        public OwnerDB(MetaverseMaxDbContext _parentContext) : base(_parentContext)
+        {        
         }
 
         public Owner GetOwner(string ownerMatickey)
         {
-            Owner owner = new();
+            Owner owner = new(); 
+            
             List<OwnerName> ownerNameList = new();
             OwnerName ownerName;
             try
             {
                 ownerMatickey = ownerMatickey.ToLower();
                 owner = _context.owner.Where(o => o.owner_matic_key == ownerMatickey).FirstOrDefault();
-                ownerNameList = _context.ownerName.Where(o => o.owner_matic_key == ownerMatickey).ToList();
+                ownerNameList = _context.ownerName.Where(o => o.owner_matic_key == ownerMatickey).ToList();        
 
                 // CHECK - if owner does not exist (potentially old transaction such as an offer - owner sold all plots before start of metaverseMax first sync).
                 if (ownerNameList.Count() == 0 || owner == null)
@@ -44,7 +43,7 @@ namespace MetaverseMax.Database
                                                          .FirstOrDefault();
                     owner.owner_name = ownerName == null ? "" : ownerName.owner_name;
 
-                    // Get latest avatar icon used for this account that is not blank.  Not account may have an avatar but blank name.
+                    // Get latest avatar icon used for this account that is not blank.  Note account may have an avatar but blank name.
                     ownerName = ownerNameList.Where(o => o.avatar_id.HasValue && o.avatar_id != 0)
                                                          .OrderByDescending(o => o.created_date)
                                                          .FirstOrDefault();
@@ -60,46 +59,60 @@ namespace MetaverseMax.Database
             return owner;
         }
 
-        public RETURN_CODE GetOwners(WORLD_TYPE world, ref Dictionary<string, string> ownersList)
+        public RETURN_CODE GetOwners(ref Dictionary<string, OwnerAccount> ownerList)
         {
             RETURN_CODE returnCode = RETURN_CODE.ERROR;
             try
             {
-                // NOTE - owner_matic_key may have mulitple records, as a different wallet is used to access the account.
-                ownersList = _context.owner //.Where(x => x.player_key)
-                    .ToDictionary(o => o.owner_matic_key, o => o.public_key);
+                // NOTE - each Owner account (owner_matic_key) 1 or more OwnerName records (only one will be the latest version).
+                // Using string interpolation syntax to pull in parameters
+                List<OwnerEXT> ownerDBList = _context.ownerEXT.FromSqlInterpolated($"sp_owner_get_all").AsNoTracking().ToList();
+
+
+                ownerList = ownerDBList.ToDictionary(
+                        o => o.owner_matic_key,
+                        o => new OwnerAccount()
+                            {
+                                matic_key = o.owner_matic_key,
+                                public_key = o.public_key,
+                                name = o.owner_name,
+                                avatar_id = o.avatar_id ?? 0,
+                                pro_tools_enabled = (o.pro_access_expiry ?? DateTime.UtcNow) > DateTime.UtcNow ? true : false,
+                                pro_expiry_days = GetExpiryDays(o.pro_access_expiry, (o.pro_access_expiry ?? DateTime.UtcNow) > DateTime.UtcNow ? true : false)
+                            } 
+                        );
 
                 returnCode = RETURN_CODE.SUCCESS;
             }
             catch (Exception ex)
             {
                 DBLogger dBLogger = new(_context.worldTypeSelected);
-                dBLogger.logException(ex, String.Concat("OwnerDB::GetOwners() : Error all owners loading into Dictionary"));
+                dBLogger.logException(ex, String.Concat("OwnerDB::GetOwners() : Error loading all owners into Dictionary"));
                 returnCode = RETURN_CODE.ERROR;
             }
 
             return returnCode;
         }
-        public IEnumerable<OwnerName> GetOwnerName(WORLD_TYPE world, ref Dictionary<string, string> ownersList)
+
+        private int GetExpiryDays(DateTime? pro_access_expiry, bool proToolsEnabled)
         {
-            List<OwnerName> OwnerNameList = new();
+            int proExpiryDays = 0;
 
-            try
+            DateTime expiry = (pro_access_expiry ?? DateTime.UtcNow);
+            // Handler for expiry next year or current year.
+            if (proToolsEnabled && expiry.Year >= DateTime.UtcNow.Year)
             {
-                // NOTE - owner_matic_key may have mulitple records, as a different wallet is used to access the account.
-                //ownersList = _context.ownerName //.Where(x => x.player_key)
-                //    .ToDictionary(o => o.owner_matic_key, o => o.public_key);
-
-                // do not track changes to the entity data, used for read-only scenarios, can not use SaveChanges(). min overhead on retriving and use of entity                
-                //OwnerNameList = _context.buildingTypeIP.FromSqlInterpolated($"exec sp_building_type_IP_get { buildingType }, { buildingLevel }").AsNoTracking().ToList();
-            }
-            catch (Exception ex)
-            {
-                DBLogger dBLogger = new(_context.worldTypeSelected);
-                dBLogger.logException(ex, String.Concat("OwnerDB::GetOwnerName() : Error all owners loading into Dictionary"));
+                if (DateTime.UtcNow.Year < expiry.Year)
+                {
+                    proExpiryDays = (365 - DateTime.UtcNow.DayOfYear) + expiry.DayOfYear;
+                }
+                else
+                {
+                    proExpiryDays = (pro_access_expiry ?? DateTime.UtcNow).DayOfYear - DateTime.UtcNow.DayOfYear;
+                }
             }
 
-            return OwnerNameList.ToArray();
+            return proExpiryDays;
         }
 
         public Owner UpdateOwner(string maticKey, string publicKey){
@@ -108,7 +121,10 @@ namespace MetaverseMax.Database
             try
             {
                 owner = _context.owner.Where(o => o.owner_matic_key == maticKey).FirstOrDefault();
-                owner.public_key = publicKey;
+                if (owner.public_key == string.Empty)
+                {
+                    owner.public_key = publicKey;
+                }
                 owner.last_use = DateTime.Now;
                 owner.tool_active = true;
 

@@ -1,4 +1,5 @@
 import { ElementRef, Component, Inject, ViewChild, Output, EventEmitter, ChangeDetectorRef, AfterViewInit, QueryList, ViewChildren } from '@angular/core';
+import { interval, Observable, Subscription } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
@@ -7,6 +8,7 @@ import { DragDrop } from '@angular/cdk/drag-drop';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { CitizenBuildingTableComponent } from '../citizen-building-table/citizen-building-table.component';
 import { Globals, WORLD } from '../common/global-var';
+import { GraphDamageComponent } from '../graph-damage/graph-damage.component';
 
 interface Detail {
   run_datetime: string;
@@ -28,8 +30,8 @@ interface BuildingHistory {
   prediction: object;
   damage: number;
   damage_eff: number;
-  damage_partial: number;
   current_building_id: number;
+  slowdown: number;
 }
 
 @Component({
@@ -67,6 +69,8 @@ export class ProdHistoryComponent implements AfterViewInit {
   public showCalcDetail: boolean = false;
   public showCalcDetailBonus: boolean = false;
   public ipEfficiency: number = -1;
+  public notifySubscription: Subscription = null;
+  public forceClose: boolean = false;
 
   assetId: number;
   httpClient: HttpClient;
@@ -75,6 +79,9 @@ export class ProdHistoryComponent implements AfterViewInit {
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
   @ViewChild('progressIcon', { static: false }) progressIcon: ElementRef;
+  @ViewChild('progressFan', { static: false }) progressFanIcon: ElementRef;
+  @ViewChild('predictControl', { static: false }) predictControl: ElementRef;
+  //@ViewChild("graphDamage", { static: true }) graphDamage: GraphDamageComponent;
 
   @ViewChildren(CitizenBuildingTableComponent) citizenTables: QueryList<CitizenBuildingTableComponent>;
 
@@ -95,16 +102,38 @@ export class ProdHistoryComponent implements AfterViewInit {
     if (this.width < 768) {
       this.isMobileView = true;
       this.displayedColumns = ['building_product', 'efficiency', 'building_ip', 'run_datetime'];
-    }
-
+    }    
   }
 
   // Paginator wont render until loaded in call to ngAfterViewInit, as its a  @ViewChild decalare
   // AfterViewInit called after the View has been rendered, hook to this method via the implements class hook
   ngAfterViewInit() {
+
     //this.cdr.detectChanges();
     //this.dataSourceHistory = new MatTableDataSource<Detail>(HISTORY_ASSETS);
     //this.dataSourceHistory.paginator = this.paginator;
+  }
+
+  // Triggered on each contentcheck event.
+  ngAfterViewChecked() {
+    // Show/Hide the prediction link depending on Account Privilege
+    // if (this.predictControl) {
+    //  if (this.globals.ownerAccount.pro_tools_enabled) {
+    //    this.predictControl.nativeElement.classList.remove("hideLink");
+    //  }
+    //  else {
+    //    this.predictControl.nativeElement.classList.add("hideLink");
+    //  }
+    //}
+
+    //this.checkRefresh();
+  }
+
+  ngOnDestroy() {
+    //Prevent multi subscriptions relating to router change events
+    if (this.notifySubscription) {
+      this.notifySubscription.unsubscribe();
+    }
   }
 
   public get width() {
@@ -129,7 +158,9 @@ export class ProdHistoryComponent implements AfterViewInit {
     //params = params.append('ip_efficiency', ip_efficiency.toString());
     //params = params.append('ip_efficiency_bonus_bug', ip_efficiency_bonus_bug.toString());
     params = params.append('full_refresh', refresh ? "1" : "0");
-    
+    params = params.append('requester', this.globals.ownerAccount.matic_key);
+
+    //this.graphDamage.loadGraph(null);
 
     this.httpClient.get<BuildingHistory>(this.baseUrl + '/assethistory', { params: params })
       .subscribe((result: BuildingHistory) => {
@@ -138,8 +169,8 @@ export class ProdHistoryComponent implements AfterViewInit {
         //  this.progressIcon.nativeElement.classList.remove("rotate");
         //}
 
-        this.history = result;
-
+        this.history = result;        
+        
         if (this.history.detail != null) {
 
           if (this.history.current_building_id == 10) {
@@ -170,8 +201,8 @@ export class ProdHistoryComponent implements AfterViewInit {
             }
           };
 
-          this.sort.sort({ id: null, start: 'desc', disableClear: false }); //Clear any prior sort - reset sort arrows. best option to reset on each load.
-          //this.sort.sort({ id: 'run_datetime', start: 'desc', disableClear: true });
+          this.sort.sort({ id: null, start: 'desc', disableClear: false });         // Clear any prior sort - reset sort arrows. best option to reset on each load.
+          //this.sort.sort({ id: 'run_datetime', start: 'desc', disableClear: true });          
           
         }
         else {
@@ -180,11 +211,38 @@ export class ProdHistoryComponent implements AfterViewInit {
         //plotPos.rotateEle.classList.remove("rotate");
         //this.cdr.markForCheck();
         //this.cdr.detectChanges();
-        
+        setTimeout(() => this.checkRefresh());
 
       }, error => console.error(error));
 
     return;
+  }
+
+  checkRefresh() {
+
+    if (this.history && this.history.slowdown >0) {
+
+      this.progressFanIcon.nativeElement.classList.remove("hideLink");
+      this.progressFanIcon.nativeElement.closest("a").classList.add("refreshDisable");
+
+      //Showing fan, countdown controls when to remove cooldown period
+      if (this.notifySubscription == null) {
+
+        //this.notifySubscription = interval(this.history.slowdown).subscribe(x => {
+        this.notifySubscription = interval(this.history.slowdown * 1000).subscribe(x => {
+
+          if (this.progressFanIcon) {
+            this.progressFanIcon.nativeElement.classList.add("hideLink");
+            this.progressFanIcon.nativeElement.closest("a").classList.remove("refreshDisable");
+          }
+          this.history.slowdown = 0;
+
+          this.notifySubscription.unsubscribe();
+          this.notifySubscription = null;
+        });
+      }      
+    }
+
   }
 
   setHide() {    
@@ -194,7 +252,8 @@ export class ProdHistoryComponent implements AfterViewInit {
   }
 
   getCitizenData(historyItem: Detail, rowIndex: number) {
-    
+
+    this.forceClose = false;    // Reset if previously se to true - due to use of refresh with auto closes any opened cit child table
     const subTable = this.citizenTables.filter((element) => element.index === rowIndex)[0];
     subTable.search(this.assetId, historyItem.run_datetimeDT);
 
@@ -212,6 +271,7 @@ export class ProdHistoryComponent implements AfterViewInit {
   toggleDetail(event: Event) {
 
     this.showCalcDetail = !this.showCalcDetail;
+    this.checkRefresh();
     //console.log('value:', (event.target as HTMLAnchorElement).innerHTML);
     
     //(event.target as HTMLAnchorElement).innerHTML = this.showCalcDetail ? "Hide Calculation" : "Show Calculation";
@@ -226,7 +286,11 @@ export class ProdHistoryComponent implements AfterViewInit {
   }
 
   refresh() {
+    // Close any open citizen child-table
+    this.forceClose = true;
+    this.expandedHistory = null;
 
+    // Show progress and start refresh process
     this.progressIcon.nativeElement.classList.add("rotate");
     this.searchHistory(this.assetId, this.plot.x, this.plot.y, this.historyBuildingType, true);
 

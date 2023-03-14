@@ -22,6 +22,7 @@ namespace MetaverseMax.Database
         public DBLogger(MetaverseMaxDbContext _parentContext)
         {
             _context = _parentContext;
+            worldType = _parentContext.worldTypeSelected;
         }
         public DBLogger(WORLD_TYPE worldTypeSelected)
         {
@@ -36,6 +37,7 @@ namespace MetaverseMax.Database
             log = log.Substring(0, log.Length > 500 ? 500 : log.Length);
             primaryLogEntry = primaryLogEntry.Substring(0, primaryLogEntry.Length > 500 ? 500 : primaryLogEntry.Length);
 
+            //CHECK if current db context is an active db connection.
             if (_context == null || _context.IsDisposed())
             {
                 // Generate a new dbContext as a safety measure - insuring log is recorded.

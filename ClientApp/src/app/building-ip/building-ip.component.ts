@@ -5,8 +5,10 @@ import { MatSort, MatSortable } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { ProdHistoryComponent } from '../production-history/prod-history.component';
+import { BuildingFilterComponent } from '../building-filter/building-filter.component';
 import { BUILDING } from '../owner-data/owner-interface';
 import { Globals, WORLD } from '../common/global-var';
+import { Router } from '@angular/router';
 
 interface BuildingCollection {
   minIP: number;
@@ -19,31 +21,47 @@ interface BuildingCollection {
   buildings: BuildingDetail[];
   total_produced: number[];
   show_prediction: boolean;
+  active_buildings: ResourceActive[]
 }
+
 interface BuildingDetail {
-  pos: number;  
-  dis: number;
   id: number;
-  img: string;
+  bid: number;
+  dis: number;
   pos_x: number;
   pos_y: number;
-
+  pos: number;  
+      
   rank: number;
-  bon: number;
-  ip_b: number;
   ip_t: number;
-  name_id: number;
+  ip_b: number;
+  bon: number;
+   
+  nid: number;
   name_m: number;
   name: string;
     
   price: number;  
   pre: number;
   warn: string;
+  img: string;
+
   con: number;
   act: boolean;
   r_p: number;
+  poi: number;
+  tax: number;
 }
 
+interface ResourceActive {
+  name: string;
+  total: number;
+  active: number;
+  shutdown: number;
+  building_id: number;
+  building_img: string;
+  building_name: string;
+}
 
 
 @Component({
@@ -52,10 +70,16 @@ interface BuildingDetail {
   styleUrls: ['./building-ip.component.css']
 })
 export class BuildingIPComponent {
- 
-  public hidePaginator: boolean;
+
+  @Output() filterBuildingEvent = new EventEmitter<number>();
+  
   public buildingCollection: BuildingCollection = null;
+  public viewBuildings: BuildingDetail[] = null;
+
+  public hidePaginator: boolean;
   public historyShow: boolean = false;
+  public buildingFilterShow: boolean = false;
+
   public buildingType: number = 0;
   public selectedType: string = "Select Type";
   public selectedLevel: string = "Level 1";
@@ -74,6 +98,7 @@ export class BuildingIPComponent {
   @ViewChild('paginatorTop', { static: false }) paginatorTop: MatPaginator;
   @ViewChild('paginatorBottom', { static: false }) paginatorBottom: MatPaginator;
   @ViewChild(ProdHistoryComponent, { static: true }) prodHistory: ProdHistoryComponent;
+  @ViewChild(BuildingFilterComponent, { static: true }) buildingFilter: BuildingFilterComponent;
   @ViewChild('progressIcon', { static: false }) progressIcon: ElementRef;
   @ViewChild("activeChkbox", { static: true } as any) activeChkbox: MatCheckbox;
   @ViewChild("toRentChkbox", { static: true } as any) toRentChkbox: MatCheckbox;
@@ -85,7 +110,7 @@ export class BuildingIPComponent {
   isLoadingResults: boolean;
   resultsLength: any;
 
-  constructor(public globals: Globals, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
+  constructor(public globals: Globals, private router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
 
     this.httpClient = http;
     this.baseUrl = baseUrl + "api/" + globals.worldCode;
@@ -98,6 +123,13 @@ export class BuildingIPComponent {
 
   public search(type: number, level: number) {
 
+    // Redirect to home page if account does not have approval access right.
+    if (this.globals.ownerAccount.pro_tools_enabled == false) {
+      let navigateTo: string = '/' + this.globals.worldCode;
+      this.router.navigate([navigateTo], {});
+    }
+
+    this.buildingFilterShow = false;
     this.buildingType = type;
     this.buildingCollection = null;
 
@@ -133,6 +165,7 @@ export class BuildingIPComponent {
           this.loadBuildingData();                   
         }
         else {
+          this.buildingFilter.initFilterIcons();
           this.dataSource = new MatTableDataSource<BuildingDetail>(null);
         }
 
@@ -147,6 +180,7 @@ export class BuildingIPComponent {
 
   loadBuildingData(): void {
 
+    this.viewBuildings = null;
     this.dataSource = new MatTableDataSource<BuildingDetail>(this.buildingCollection.buildings);
 
     this.hidePaginator = this.buildingCollection.buildings.length == 0 || this.buildingCollection.buildings.length < 501 ? true : false;
@@ -161,6 +195,8 @@ export class BuildingIPComponent {
 
     this.dataSource.filter = this.activeTextFilter;
 
+    this.showBuildingFilter(this.buildingCollection.active_buildings);
+
     // Add custom sort
     //this.dataSource.sortingDataAccessor = (item: BuildingDetail, property) => {
     //  switch (property) {
@@ -168,6 +204,14 @@ export class BuildingIPComponent {
     //    default: return item[property];
     //  }
     //};
+  }
+
+  showBuildingFilter(activeBuildings: ResourceActive[] ) {
+
+    this.buildingFilter.initFilterIcons();
+    this.buildingFilter.loadIcons(activeBuildings);
+
+    this.buildingFilterShow = true;
   }
 
   ngAfterContentChecked(): void {
@@ -248,8 +292,11 @@ export class BuildingIPComponent {
 
   }
 
+
   public hideHistory(componentVisible: boolean) {
+
     this.historyShow = !componentVisible;
+
   }
 
   showHistory(asset_id: number, pos_x: number, pos_y: number, building_type: number, ip_efficiency: number) {
@@ -258,18 +305,62 @@ export class BuildingIPComponent {
     this.historyShow = true;
 
   }
-  
+
+  // Called from building-filter component
+  public filterBuilding(buildingIdList: number[]) {
+
+    var filterBuildingList: BuildingDetail[] = new Array;
+    this.activeChkbox.checked = false;
+    this.toRentChkbox.checked = false;
+    this.forSaleChkbox.checked = false;
+
+    if (buildingIdList.length == 0) {
+      this.dataSource = new MatTableDataSource<BuildingDetail>(this.buildingCollection.buildings);
+      this.dataSource.sort = this.sort;
+      this.dataSource.filter = this.activeTextFilter;
+      this.viewBuildings = null;
+    }
+    else {
+
+      for (var index = 0; index < this.buildingCollection.buildings.length; index++) {
+
+        for (var findex = 0; findex < buildingIdList.length; findex++) {
+
+          if (this.buildingCollection.buildings[index].bid == buildingIdList[findex]) {
+            filterBuildingList.push(this.buildingCollection.buildings[index]);
+          }
+        }
+
+      }
+
+      this.dataSource = new MatTableDataSource<BuildingDetail>(filterBuildingList);
+      this.dataSource.sort = this.sort;
+      this.dataSource.filter = this.activeTextFilter;
+
+      this.viewBuildings = filterBuildingList;
+    }
+
+  }
+
   filterActive(eventCheckbox: MatCheckboxChange) {
+
     var activeBuildings: BuildingDetail[] = new Array;
+
+    // Use current building view with any applied filters
+    if (this.viewBuildings == null) {
+      this.viewBuildings = this.buildingCollection.buildings;
+    }
 
     if (eventCheckbox.checked) {      
       this.toRentChkbox.checked = false;
       this.forSaleChkbox.checked = false;
 
-      for (var index = 0; index < this.buildingCollection.buildings.length; index++) {
-        if (this.buildingCollection.buildings[index].act) {
-          activeBuildings.push(this.buildingCollection.buildings[index]);
+      for (var index = 0; index < this.viewBuildings.length; index++) {
+
+        if (this.viewBuildings[index].act) {
+          activeBuildings.push(this.viewBuildings[index]);
         }
+
       }
 
       this.dataSource = new MatTableDataSource<BuildingDetail>(activeBuildings);
@@ -277,7 +368,10 @@ export class BuildingIPComponent {
       this.dataSource.filter = this.activeTextFilter;
     }
     else {
-      this.loadBuildingData();
+
+      this.dataSource = new MatTableDataSource<BuildingDetail>(this.viewBuildings);
+      this.dataSource.sort = this.sort;
+      this.dataSource.filter = this.activeTextFilter;
     }
 
     //this.dataSource.sort = this.sort;
@@ -287,13 +381,18 @@ export class BuildingIPComponent {
   filterToRent(eventCheckbox: MatCheckboxChange) {
     var toRentBuildings: BuildingDetail[] = new Array;
 
+    // Use current building view with any applied filters
+    if (this.viewBuildings == null) {
+      this.viewBuildings = this.buildingCollection.buildings;
+    }
+
     if (eventCheckbox.checked) {
       this.activeChkbox.checked = false;
       this.forSaleChkbox.checked = false;
       
-      for (var index = 0; index < this.buildingCollection.buildings.length; index++) {
-        if (this.buildingCollection.buildings[index].r_p > 0) {
-          toRentBuildings.push(this.buildingCollection.buildings[index]);
+      for (var index = 0; index < this.viewBuildings.length; index++) {
+        if (this.viewBuildings[index].r_p > 0) {
+          toRentBuildings.push(this.viewBuildings[index]);
         }
       }
 
@@ -302,7 +401,9 @@ export class BuildingIPComponent {
       this.dataSource.filter = this.activeTextFilter;
     }
     else {
-      this.loadBuildingData();
+      this.dataSource = new MatTableDataSource<BuildingDetail>(this.viewBuildings);
+      this.dataSource.sort = this.sort;
+      this.dataSource.filter = this.activeTextFilter;
     }
 
     //this.dataSource.sort = this.sort;
@@ -313,13 +414,18 @@ export class BuildingIPComponent {
   filterForSale(eventCheckbox: MatCheckboxChange) {
     var forSaleBuildings: BuildingDetail[] = new Array;
 
+    // Use current building view with any applied filters
+    if (this.viewBuildings == null) {
+      this.viewBuildings = this.buildingCollection.buildings;
+    }
+
     if (eventCheckbox.checked) {
       this.toRentChkbox.checked = false;
       this.activeChkbox.checked = false;
 
-      for (var index = 0; index < this.buildingCollection.buildings.length; index++) {
-        if (this.buildingCollection.buildings[index].price > 0) {
-          forSaleBuildings.push(this.buildingCollection.buildings[index]);
+      for (var index = 0; index < this.viewBuildings.length; index++) {
+        if (this.viewBuildings[index].price > 0) {
+          forSaleBuildings.push(this.viewBuildings[index]);
         }
       }
 
@@ -328,7 +434,9 @@ export class BuildingIPComponent {
       this.dataSource.filter = this.activeTextFilter;
     }
     else {
-      this.loadBuildingData();
+      this.dataSource = new MatTableDataSource<BuildingDetail>(this.viewBuildings);
+      this.dataSource.sort = this.sort;
+      this.dataSource.filter = this.activeTextFilter;
     }
 
     //this.dataSource.sort = this.sort;

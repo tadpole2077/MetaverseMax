@@ -29,9 +29,4 @@ namespace MetaverseMax.ServiceClass
         public IEnumerable<DistrictPlot> district_plots { get; set; }
         public IEnumerable<OwnerLand> owner_land { get; set; }
     }
-
-    public class DistrictPlot
-    {
-        public int[] district { get; set; }
-    }
 }

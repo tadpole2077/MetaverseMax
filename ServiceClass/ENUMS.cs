@@ -2,16 +2,31 @@
 
 namespace MetaverseMax.ServiceClass
 {    
-    public enum APPLICATION
+    public enum APPLICATION_ID
     {                
         WHITE_AIR_CON = 1,
         CCTV_WHITE = 2,
         RED_FIRE_ALARM = 3,
         ROUTER_BLACK = 4,
         WHITE_SAT = 5,
+        GREEN_SAT = 6,
         RED_SAT = 7,
         GREEN_AIR_CON = 8,
+        RED_AIR_CON = 9,
         CCTV_RED = 10           
+    }
+    public enum APPLICATION_BONUS
+    {
+        RED_FIRE_ALARM = 1,
+        ROUTER_BLACK = 2,
+        CCTV_WHITE = 3,
+        CCTV_RED = 4,
+        WHITE_AIR_CON = 5,
+        GREEN_AIR_CON = 6,
+        RED_AIR_CON = 7,
+        WHITE_SAT = 8,
+        GREEN_SAT = 9,
+        RED_SAT = 10                
     }
 
     public enum CITIZEN_HISTORY {
@@ -147,12 +162,25 @@ namespace MetaverseMax.ServiceClass
         ENERGY = 8,
         STEEL = 9,
         CONCRETE = 10,
-        FACTORY_PRODUCT = 99
+        PLASTIC = 11,
+        GLUE = 12,
+        MIXES = 13,
+        COMPOSITE = 14,
+        PAPER = 15,
+        FACTORY_PRODUCT = 99,
+        MEGA_PRODUCT_GLOBAL = 200,
+        MEGA_PRODUCT_LOCAL = 201,
+        INSURANCE_COVER_POLICE = 210,
+        INSURANCE_COVER_HOSPITAL = 211,
+        INSURANCE_COVER_FIRESTATION = 212,
+        CITIZEN_PRODUCTION_VILLA = 220,
+        CITIZEN_PRODUCTION_APT = 221,
+        CITIZEN_PRODUCTION_CONDO = 222,
     }
 
     public enum BUILDING_SUBTYPE  //MCP.building_id
     {
-        COMDOMINIUM = 1,
+        CONDOMINIUM = 1,
         APARTMENTS = 2,
         VILLA = 3,
         POLICE = 4,
@@ -171,7 +199,22 @@ namespace MetaverseMax.ServiceClass
         OFFICE_BLOCK = 16,
         GLASSWORKS = 17,
         BRICKWORKS = 18,
+        CHEMICAL_PLANT = 19,
+        PAPER_FACTORY = 20,
+        OFFICE_MONUMENT = 100,
+        OFFICE_LANDMARK = 101,
+        INDUSTRY_MONUMENT = 104,
+        INDUSTRY_LANDMARK = 105,
+        PRODUCTION_MONUMENT = 106,
+        PRODUCTION_LANDMARK = 107,
+        COMMERCIAL_MONUMENT = 108,
+        RESIDENTIAL_MONUMENT = 110,
+        RESIDENTIAL_LANDMARK = 111,
+        ENERGY_MONUMENT = 112,
+        ENERGY_LANDMARK = 113,
+        SUBWAY_STATION = 200
     }
+
 
     public enum ELECTRIC_RESOURCE
     {
@@ -412,6 +455,66 @@ namespace MetaverseMax.ServiceClass
         LEVEL_6 = 23,
         LEVEL_7 = 35
     }
+    public enum MIN_PLASTIC
+    {
+        LEVEL_1 = 1,
+        LEVEL_2 = 2,
+        LEVEL_3 = 3,
+        LEVEL_4 = 3,
+        LEVEL_5 = 3,
+        LEVEL_6 = 6,
+        LEVEL_7 = 9
+    }
+    public enum MAX_PLASTIC
+    {
+        LEVEL_1 = 8,
+        LEVEL_2 = 9,
+        LEVEL_3 = 10,
+        LEVEL_4 = 12,
+        LEVEL_5 = 14,
+        LEVEL_6 = 23,
+        LEVEL_7 = 35
+    }
+    public enum MIN_CHEMICAL
+    {
+        LEVEL_1 = 150,
+        LEVEL_2 = 168,
+        LEVEL_3 = 186,
+        LEVEL_4 = 0,
+        LEVEL_5 = 0,
+        LEVEL_6 = 0,
+        LEVEL_7 = 651
+    }
+    public enum MAX_CHEMICAL
+    {
+        LEVEL_1 = 900,
+        LEVEL_2 = 1006,
+        LEVEL_3 = 1118,
+        LEVEL_4 = 0,
+        LEVEL_5 = 0,
+        LEVEL_6 = 0,
+        LEVEL_7 = 3906
+    }
+    public enum MIN_PAPER
+    {
+        LEVEL_1 = 120,
+        LEVEL_2 = 0,
+        LEVEL_3 = 0,
+        LEVEL_4 = 0,
+        LEVEL_5 = 0,
+        LEVEL_6 = 348,
+        LEVEL_7 = 0
+    }
+    public enum MAX_PAPER
+    {
+        LEVEL_1 = 480,
+        LEVEL_2 = 0,
+        LEVEL_3 = 0,
+        LEVEL_4 = 0,
+        LEVEL_5 = 0,
+        LEVEL_6 = 1392,
+        LEVEL_7 = 0
+    }
 
     public enum WORLD_TYPE
     {   
@@ -421,16 +524,29 @@ namespace MetaverseMax.ServiceClass
         BNB = 3
     }
 
+    public class PRODUCE_IMG
+    {
+        public static readonly string PAPER = "/assets/images/resources/paper.png";
+        public static readonly string CONCRETE = "/assets/images/resources/concrete.png";
+        public static readonly string STEEL = "/assets/images/resources/steel.png";
+        public static readonly string PLASTIC = "/assets/images/resources/plastic.png";
+        public static readonly string MIXES = "/assets/images/resources/mixes.png";
+        public static readonly string GLUE = "/assets/images/resources/glue.png";
+        public static readonly string COMPOSITE = "/assets/images/resources/composite.png";
+    }
+
     public class TRON_WS
     {
         public static readonly string LAND_GET = "https://ws-tron.mcp3d.com/land/get";
         public static readonly string OWNER_LANDS = "https://ws-tron.mcp3d.com/user/assets/lands";
+        public static readonly string POI_GET = "https://ws-tron.mcp3d.com/poi/get";
         public static readonly string USER_GET = "https://ws-tron.mcp3d.com/user/get";
         public static readonly string SALES_OFFER = "https://ws-tron.mcp3d.com/sales/offers";
         public static readonly string SALES_INFO = "https://ws-tron.mcp3d.com/sales/info";
         public static readonly string ASSETS_PETS = "https://ws-tron.mcp3d.com/user/assets/pets";
         public static readonly string ASSETS_HISTORY = "https://ws-tron.mcp3d.com/user/assets/history";
         public static readonly string ASSETS_CITIZENS = "https://ws-tron.mcp3d.com/user/assets/citizens";
+        public static readonly string CITIZEN_GET = "https://ws-tron.mcp3d.com/citizen/get";
         public static readonly string REGIONS_LIST = "https://ws-tron.mcp3d.com/regions/list";
         public static readonly string PERKS_DISTRICT = "https://ws-tron.mcp3d.com/perks/districts";
         public static readonly string DISTRICT_INFO = "https://ws-tron.mcp3d.com/newspaper/district/info";
@@ -441,12 +557,14 @@ namespace MetaverseMax.ServiceClass
     {
         public static readonly string LAND_GET = "https://ws-bsc.mcp3d.com/land/get";
         public static readonly string OWNER_LANDS = "https://ws-bsc.mcp3d.com/user/assets/lands";
+        public static readonly string POI_GET = "https://ws-bsc.mcp3d.com/poi/get";
         public static readonly string USER_GET = "https://ws-bsc.mcp3d.com/user/get";
         public static readonly string SALES_OFFER = "https://ws-bsc.mcp3d.com/sales/offers";
         public static readonly string SALES_INFO = "https://ws-bsc.mcp3d.com/sales/info";
         public static readonly string ASSETS_PETS = "https://ws-bsc.mcp3d.com/user/assets/pets";
         public static readonly string ASSETS_HISTORY = "https://ws-bsc.mcp3d.com/user/assets/history";
         public static readonly string ASSETS_CITIZENS = "https://ws-bsc.mcp3d.com/user/assets/citizens";
+        public static readonly string CITIZEN_GET = "https://ws-bsc.mcp3d.com/citizen/get";
         public static readonly string REGIONS_LIST = "https://ws-bsc.mcp3d.com/regions/list";
         public static readonly string PERKS_DISTRICT = "https://ws-bsc.mcp3d.com/perks/districts";
         public static readonly string DISTRICT_INFO = "https://ws-bsc.mcp3d.com/newspaper/district/info";
@@ -456,14 +574,22 @@ namespace MetaverseMax.ServiceClass
     {
         public static readonly string LAND_GET = "https://ws.mcp3d.com/land/get";
         public static readonly string OWNER_LANDS = "https://ws.mcp3d.com/user/assets/lands";
+        public static readonly string POI_GET = "https://ws.mcp3d.com/poi/get";
         public static readonly string USER_GET = "https://ws.mcp3d.com/user/get";
         public static readonly string SALES_OFFER = "https://ws.mcp3d.com/sales/offers";
         public static readonly string SALES_INFO = "https://ws.mcp3d.com/sales/info";
         public static readonly string ASSETS_PETS = "https://ws.mcp3d.com/user/assets/pets";
         public static readonly string ASSETS_HISTORY = "https://ws.mcp3d.com/user/assets/history";
         public static readonly string ASSETS_CITIZENS = "https://ws.mcp3d.com/user/assets/citizens";
+        public static readonly string CITIZEN_GET = "https://ws.mcp3d.com/citizen/get";
         public static readonly string REGIONS_LIST = "https://ws.mcp3d.com/regions/list";
         public static readonly string PERKS_DISTRICT = "https://ws.mcp3d.com/perks/districts";
         public static readonly string DISTRICT_INFO = "https://ws.mcp3d.com/newspaper/district/info";
+    }
+
+    public enum UPDATE_TYPE
+    {
+        FULL = 1,
+        PARTIAL = 2        
     }
 }

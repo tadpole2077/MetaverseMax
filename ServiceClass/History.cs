@@ -7,6 +7,7 @@ namespace MetaverseMax.ServiceClass
 {
     public class HistoryProduction
     {
+        public int seq { get; set; }
         public string run_datetime { get; set; }
         public long run_datetimeDT { get; set; }
         public int building_lvl { get; set; }
@@ -37,13 +38,15 @@ namespace MetaverseMax.ServiceClass
     }
 
     public class BuildingHistory
-    {        
+    {   
+        public int slowdown { get; set; }
         public string owner_matic { get; set; }
         public string start_production { get; set; }
         public int run_count { get; set; }
         public int current_building_lvl { get; set; }
         public int current_building_product_id { get; set; }
         public int current_building_id { get; set; }
+        public int current_building_type { get; set; }
         public IEnumerable<ResourceTotal> totalProduced { get; set; }
         public IEnumerable<HistoryProduction> detail { get; set; }        
 
@@ -60,14 +63,17 @@ namespace MetaverseMax.ServiceClass
         public int damage { get; set; }
         public decimal damage_eff { get; set; }
         public decimal damage_eff_rounded { get; set; }
-        public decimal damage_partial { get; set; }
     }
 
     public class Prediction
     {
+        public int product_id { get; set; }
         public int ip { get; set; }
         public int influance { get; set; }
         public int influance_bonus { get; set; }
+
+        public int efficiency_p { get; set; }
+        public int efficiency_m { get; set; }
 
         public int cit_range_percent { get; set; }
         public decimal cit_efficiency { get; set; }
@@ -121,7 +127,6 @@ namespace MetaverseMax.ServiceClass
         public decimal total_decimal_100 { get; set; }
     }
 
-
     public class ResourceTotal
     {
         public int resourceId { get; set; }
@@ -130,6 +135,10 @@ namespace MetaverseMax.ServiceClass
         public string name { get; set; }
         public int buildingCount { get; set; }
         public int buildingActive { get; set; }
+        public string buildingImg { get; set; }
+        public int buildingId { get; set; }
+        public string buildingName { get; set; }
+        public int buildingSeq { get; set; }
 
     }
 }

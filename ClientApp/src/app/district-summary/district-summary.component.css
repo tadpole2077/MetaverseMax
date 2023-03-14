@@ -70,7 +70,7 @@
 .slideOutLeft {
   position:absolute;
   top:0;
-  margin-left: -80px;
+  margin-left: -100px;
   width: 180px;
   height: 110px;
   z-index: -1;
@@ -101,24 +101,30 @@
   display: block;
 }
 
-
-.searchDistrict {
+.searchTop{
+  display:none
+}
+.searchBottom {
   float: right;
-  margin-bottom: 8px;
-  margin-top: 10px;
+  width: 8.8rem;
+}
+.searchDistrict {
+  position: absolute;
+  margin-top: 1rem;
   z-index: 101;
-  position: relative;
 }
 
 #taxChangeAccordion .mat-expansion-panel-header {
   background: none
 }
+.accountAccordion .mat-expansion-panel {
+  z-index: 10;
+}
 
 
 /***District Section***/
-.districtHeader{
-  position:absolute;
-
+.districtHeader {
+  position: absolute;
 }
 .districtDetailsSection{
   padding-top:30px;
@@ -381,16 +387,16 @@ th.mat-sort-header-sorted {
 }
 
 /*** Table Flex columns ***/
-.mat-column-owner_nickname {
+.mat-column-owner_name {
   flex: 0 0 360px;
   min-width: 240px;
 }
-  .mat-column-owner_nickname a {
+  .mat-column-owner_name a {
     display:inline-block;
     padding-right: 0;
     padding-left: .6rem;
   }
-    .mat-column-owner_nickname a span {
+    .mat-column-owner_name a span {
       width:8rem;
       display:inline-block;
       white-space: nowrap;
@@ -398,13 +404,13 @@ th.mat-sort-header-sorted {
       text-overflow: ellipsis;     
     }
 
-      .mat-column-owner_nickname a span:hover {
+      .mat-column-owner_name a span:hover {
         white-space: unset;
         text-overflow: unset;
         transition: 1s;
       }
 
-  .mat-column-owner_nickname img {    
+  .mat-column-owner_name img {    
     display: inline-block;
     vertical-align:sub
   }
@@ -444,13 +450,13 @@ th.mat-column-owned_plots{
 .arrivalIcon, .arrivalIcon2 {
   color: #1b6ec2;
   font-size: 1.4rem;
-  margin-right: .5rem;
+  margin-right: .4rem;
   margin-left: -1.2rem;
   margin-top: -16px;
   vertical-align: text-top;
-  
 }
 .arrivalIconSml {
+  margin-right: .3rem;
   margin-left: 0;
   margin-top: -2px;
   font-size: .8rem;
@@ -607,20 +613,20 @@ a {
       padding-right: 0px
     }
 
-  .mat-column-owner_nickname{
+  .mat-column-owner_name{
       min-width: 10rem;
   }
-  .mat-column-owner_nickname a span {
+  .mat-column-owner_name a span {
     width: 4.3rem;
   }
-    .mat-column-owner_nickname a {
+    .mat-column-owner_name a {
       padding-left: 3px;
       padding-right: 5px;    
     }
-    .mat-column-owner_nickname span {
+    .mat-column-owner_name span {
       width: 4.3rem;
     }
-  .mat-column-owner_nickname img {
+  .mat-column-owner_name img {
     margin-right:0px;
     margin-left:-10px;
     height:46px
@@ -630,17 +636,17 @@ a {
 
 @media only screen and (max-width: 850px) {
 
-  .mat-column-owner_nickname {
+  .mat-column-owner_name {
     min-width: 8rem;
   }
 
-  td.mat-column-owner_nickname {    
+  td.mat-column-owner_name {    
     font-size: .8rem;
   }
-  .mat-column-owner_nickname a span {
+  .mat-column-owner_name a span {
     width: 4rem;
   }
-  .mat-column-owner_nickname a span.maticLink {
+  .mat-column-owner_name a span.maticLink {
     width: 3.5rem;
   }
 
@@ -654,9 +660,24 @@ a {
   }
 }
 
+
+
 @media only screen and (max-width: 415px) {
+
   h3 {
     font-size: 1.3rem;
+  }
+
+  .searchTop {
+    display: block;
+  }
+  .searchBottom {
+    display: none;
+  }
+  .searchDistrict {
+    position: absolute;
+    margin-top: 20px;
+    right: 10px;
   }
 
   .districtImgContainer {
@@ -699,11 +720,7 @@ a {
   .taxGraphDistrictProduce {
     width: 360px;
   }
-  .searchDistrict{
-    position:absolute;
-    top:60px;
-    right:10px;
-  }
+
   .fundGraph{
     margin-left:-20px;
     width:390px;   
@@ -719,15 +736,42 @@ a {
     font-size:.8rem;
   }
 
-  td.mat-column-owner_nickname{
-    padding-right:0
+
+  .mat-column-owner_name .arrivalIcon, .mat-column-owner_name .arrivalIcon2 {
+    position: absolute;
+    margin-top: 1.5rem;
+    margin-left: -2.1rem;
+    font-size: 1.3rem;
   }
-  .mat-column-owner_nickname a span {
-    width: 3.1rem;
+
+  .mat-column-owner_name {
+    min-width: 4rem;
   }
-  .mat-column-owner_nickname a span.maticLink {
-    width: 2.5rem;
-  }
+    td.mat-column-owner_name {
+      text-align: center;
+    }
+      td.mat-column-owner_name img {
+        margin-top: .4rem;
+      }
+      td.mat-column-owner_name .mysteryImg {
+        margin-left: -8px;
+        height: 38px;
+      }
+      td.mat-column-owner_name a {
+        display: block;
+        padding-right: 0;
+        text-align: left;
+        width: unset;
+        padding-top: .1rem;
+      }
+
+    .mat-column-owner_name a span {
+      width: 3.1rem;
+    }
+    .mat-column-owner_name a span.maticLink {
+      width: 3.1rem;
+    }
+
   div.mat-form-field-infix {
     width: 140px;
   }

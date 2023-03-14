@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { Observable } from 'rxjs/Rx';
@@ -19,12 +19,14 @@ export class HomeComponent {
   public worldCode: string;
 
 
-  constructor(public globals: Globals, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
+  constructor(private cdf: ChangeDetectorRef, public globals: Globals, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
     
     this.httpClient = http;
     this.worldCode = (globals.selectedWorld == WORLD.TRON ? "trx" : globals.selectedWorld == WORLD.BNB ? "bnb" : "eth")
     this.worldName = (globals.selectedWorld == WORLD.TRON ? "Tron" : globals.selectedWorld == WORLD.BNB ? "BSC" : "Ethereum");
     this.baseUrl = baseUrl + "api/" + this.worldCode;
+
+    globals.homeCDF = cdf;
   }
   
   copyMessage(val: string){

@@ -74,25 +74,22 @@ namespace MetaverseMax.ServiceClass
             return timeFormated;
         }
 
-        public DateTime? TimeFormatStandardDT(string sourceTime, DateTime? dtSourceTime)
+        public DateTime? TimeFormatStandardDT(string sourceTime, DateTime? dtSourceTimeUTC)
         {            
             DateTime? dateTimeUTC = null;
             DateTime? gmtDateTime = null;
 
             if (!string.IsNullOrEmpty(sourceTime))
             {
-                dateTimeUTC = DateTime.ParseExact(sourceTime,
-                    "MM/dd/yyyy HH:mm:ss",
-                    CultureInfo.InvariantCulture,
-                    DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+                dateTimeUTC = ConvertDateTimeUTC(sourceTime);
             }
-            else if (dtSourceTime == null)  // No Datetime passed, or string time - return null - assign null to db as safest option. 
+            else if (dtSourceTimeUTC == null)  // No Datetime passed, or string time - return null - assign null to db as safest option. 
             {
                 dateTimeUTC = null;
             }
             else
             {
-                dateTimeUTC = DateTime.SpecifyKind((DateTime)dtSourceTime, DateTimeKind.Utc);                    
+                dateTimeUTC = DateTime.SpecifyKind((DateTime)dtSourceTimeUTC, DateTimeKind.Utc);                    
             }
 
             // Convert from UTC to Local GMT, and format.
@@ -104,6 +101,21 @@ namespace MetaverseMax.ServiceClass
             }
 
             return gmtDateTime;
+        }
+
+        public DateTime? ConvertDateTimeUTC(string sourceTime)
+        {
+            DateTime? dateTimeUTC = null;
+
+            if (!string.IsNullOrEmpty(sourceTime))
+            {
+                dateTimeUTC = DateTime.ParseExact(sourceTime,
+                    "MM/dd/yyyy HH:mm:ss",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+            }           
+
+            return dateTimeUTC;
         }
 
 

@@ -1,11 +1,13 @@
 export var graphDataFundTest = {
-  xAxisLabel: 'Date',
-  yAxisLabel: 'Trx',
-  legendTitle: '',
+  x_axis_label: 'Date',
+  y_axis_label: 'Trx',
+  show_xaxis_label: true,
+  show_yaxis_label: true,
+  legend_title: 'Test',
   domain: ['#7AA3E5', '#A8385D', '#A27EA8'],
   view: [420, 200],
-  showLegend: true,
-  showYAxisLabel: false,
+  show_legend: true,
+  y_axis_postappend:"TEST",
   graphColumns: [
     {
       "name": "Fund",

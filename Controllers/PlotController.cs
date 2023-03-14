@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -79,7 +80,7 @@ namespace MetaverseMax.Controllers
 
             if (ModelState.IsValid)
             {
-                return Ok(Task.Run(() =>  buildingManage.BuildingIPbyTypeGet(parameters.type, parameters.level, false)).Result);
+                return Ok(Task.Run(() =>  buildingManage.BuildingIPbyTypeGet(parameters.type, parameters.level, false, 50, true)).Result);
             }
 
             return BadRequest("GetBuildingByType is invalid");       // 400 Error     
@@ -105,7 +106,7 @@ namespace MetaverseMax.Controllers
 
             if (ModelState.IsValid)
             {
-                return Ok(Task.Run(() => buildingManage.UpdateIPRankingByType(parameters.type, parameters.level)).Result);
+                return Ok(Task.Run(() => buildingManage.UpdateIPRankingByType(parameters.type, parameters.level, 100, true)).Result);
             }
 
             return BadRequest("UpdateIPRankingByType is invalid");       // 400 Error     
@@ -124,14 +125,44 @@ namespace MetaverseMax.Controllers
             return BadRequest("GetWorldNames is invalid");       // 400 Error     
         }
 
-        [HttpGet("UnitTest_ActivePlotByDistrictDataSync")]
-        public IActionResult UnitTest_ActivePlotByDistrictDataSync([FromQuery] QueryParametersDistrict parameters)
+
+        [HttpGet("GetPoiMCP")]
+        public IActionResult GetPoiMCP([FromQuery] QueryParametersTokenID parameters)
+        {
+            BuildingManage buildingManage = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(Task.Run(() => buildingManage.GetPoiMCP(new List<int> { parameters.token_id })).Result);
+            }
+
+            return BadRequest("GetPoiMCP is invalid");       // 400 Error     
+        }
+
+        [HttpGet("Get_SyncHistory")]
+        public IActionResult Get_SyncHistory()
+        {
+            _context.worldTypeSelected = common.IdentifyWorld(Request.Path);
+            SyncHistoryDB syncHistoryDB = new(_context);
+
+            if (ModelState.IsValid)
+            {
+                return Ok(Task.Run(() => _context.syncHistory.ToArray()).Result);
+            }
+
+            return BadRequest("UnitTest is invalid");       // 400 Error     
+        }
+
+
+
+        [HttpGet("UnitTest_GetSyncPlotList")]
+        public IActionResult UnitTest_GetSyncPlotList()
         {
             PlotManage plotManage = new(_context, common.IdentifyWorld(Request.Path));
 
             if (ModelState.IsValid)
             {
-                return Ok(Task.Run(() => plotManage.UnitTest_ActivePlotByDistrictDataSync(parameters.district_id)).Result);
+                return Ok(plotManage.UnitTest_GetSyncPlotList());
             }
 
             return BadRequest("UnitTest is invalid");       // 400 Error     
@@ -140,7 +171,7 @@ namespace MetaverseMax.Controllers
         [HttpGet("UnitTest_RoutePathTest")]
         public IActionResult UnitTest_RoutePathTest()
         {
-            // should would with full range of routes : https://localhost:44360/api/bnb/plot/UnitTest_RoutePathTest , https://localhost:44360/api/eth/plot/UnitTest_RoutePathTest
+            // should work with full range of routes : https://localhost:44360/api/bnb/plot/UnitTest_RoutePathTest , https://localhost:44360/api/eth/plot/UnitTest_RoutePathTest
             if (ModelState.IsValid)
             {
                 return Ok(Request.Path.ToString().ToLower().Contains("/api/bnb/"));
@@ -148,5 +179,20 @@ namespace MetaverseMax.Controllers
 
             return BadRequest("UnitTest_RoutePathTest is invalid");       // 400 Error   
         }
+
+        [HttpGet("UnitTest_POIActive")]
+        public IActionResult UnitTest_POIActive()
+        {
+            SyncWorld syncWorld = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(syncWorld.UnitTest_POIActive());
+            }
+
+            return BadRequest("UnitTest is invalid");       // 400 Error     
+        }
+
+        
     }
 }

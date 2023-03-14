@@ -1,5 +1,7 @@
-﻿using MetaverseMax.Database;
+﻿using Azure.Core;
+using MetaverseMax.Database;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -163,10 +165,11 @@ namespace MetaverseMax.ServiceClass
             return citizenWebList;
         }
 
-        public CitizenWebCollection GetCitizen(string ownerMatic)
+        public CitizenWebCollection GetCitizen(string ownerMatic, string requester)
         {
             OwnerCitizenExtDB ownerCitizenExtDB = new(_context);            
-            CitizenWebCollection citizenCollection = new();            
+            CitizenWebCollection citizenCollection = new();
+            OwnerManage ownerManage = new(_context, worldType);
 
             try
             {
@@ -174,6 +177,8 @@ namespace MetaverseMax.ServiceClass
                 citizenCollection.citizen = PopulateCitizenList(ownerCitizens).ToArray();
 
                 citizenCollection.last_updated = common.TimeFormatStandard(string.Empty, ownerCitizens.Max(x => x.refreshed_last));
+
+                citizenCollection.slowdown = ownerManage.GetSlowDown(requester);                
             }
             catch (Exception ex)
             {
@@ -241,7 +246,7 @@ namespace MetaverseMax.ServiceClass
 
                     trait_avg = Math.Round((cit.trait_agility + cit.trait_charisma + cit.trait_endurance + cit.trait_intelligence + cit.trait_luck + cit.trait_strength) / 6.0, 2),
 
-                    building_img = building.BuildingImg(cit.building_type_id ?? 0, cit.building_id ?? 0, cit.building_level ?? 0),
+                    building_img = building.GetBuildingImg(cit.building_type_id ?? 0, cit.building_id ?? 0, cit.building_level ?? 0, worldType),
                     building_desc = building.BuildingType(cit.building_type_id ?? 0, cit.building_id ?? 0),
                     district_id = cit.district_id ?? 0,
                     pos_x = cit.pos_x ?? 0,
@@ -266,7 +271,7 @@ namespace MetaverseMax.ServiceClass
         }
 
         // Get from MCP 3rd tier services
-        public async Task<RETURN_CODE> GetCitizenMCP(string ownerMatic)
+        public async Task<RETURN_CODE> GetOwnerCitizenCollectionMCP(string ownerMatic)
         {
             string content = string.Empty;            
                                   
@@ -310,11 +315,10 @@ namespace MetaverseMax.ServiceClass
                         // Expire any db cits not found within current owner cit collection.  Citizens sold/transfered are handled here - citizens that are reassigned to another building handled later.
                         Expire(ownerMatic, citizens);
                         
-
                         // Add 1+ records per citizen owned, if citizen already exists then skip creating a new one, just create the link record(s) if change (pet, owner, dates, land) found.
                         for (int index = 0; index < citizens.Count; index++)
                         {
-                            citizenChange = UpdateCitizen(citizens[index], ownerMatic);
+                            citizenChange = UpdateCitizen(citizens[index], ownerMatic, null);
                             if (citizenChange.updateFound == true)
                             {
                                 changeCount++;
@@ -332,7 +336,74 @@ namespace MetaverseMax.ServiceClass
                 catch (Exception ex)
                 {
                     DBLogger dBLogger = new(_context.worldTypeSelected);
-                    dBLogger.logException(ex, String.Concat("CitizenManage.GetCitizenMCP() : Error on WS calls for owner matic : ", ownerMatic));
+                    dBLogger.logException(ex, String.Concat("CitizenManage.GetOwnerCitizenCollectionMCP() : Error on WS calls for owner matic : ", ownerMatic));
+                }
+            }
+
+            if (retryCount > 1 && returnCode == RETURN_CODE.SUCCESS)
+            {
+                if (_context != null)
+                {
+                    _context.LogEvent(String.Concat("CitizenManage.GetOwnerCitizenCollectionMCP() : retry successful - no ", retryCount));
+                }
+            }
+
+            return returnCode;
+        }
+
+        // Get from MCP 3rd tier services
+        public async Task<RETURN_CODE> GetCitizenMCP(int tokenId, bool saveToDB, DateTime checkHistoryFrom)
+        {
+            string content = string.Empty;
+
+            RETURN_CODE returnCode = RETURN_CODE.ERROR;
+            int retryCount = 0;
+            CitizenChange citizenChange;
+            serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.CITIZEN_GET, WORLD_TYPE.BNB => BNB_WS.CITIZEN_GET, WORLD_TYPE.ETH => ETH_WS.CITIZEN_GET, _ => TRON_WS.CITIZEN_GET};
+
+            while (returnCode == RETURN_CODE.ERROR && retryCount < 3)
+            {
+                try
+                {
+                    retryCount++;
+
+                    // POST REST WS
+                    HttpResponseMessage response;
+                    using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
+                    {
+                        StringContent stringContent = new StringContent("{\"id\": \"" + tokenId.ToString() + "\"}", Encoding.UTF8, "application/json");
+
+                        response = await client.PostAsync(
+                            serviceUrl,
+                            stringContent);
+
+                        response.EnsureSuccessStatusCode(); // throws if not 200-299
+                        content = await response.Content.ReadAsStringAsync();
+
+                    }
+                    // End timer
+                    watch.Stop();
+                    servicePerfDB.AddServiceEntry(serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, tokenId.ToString());
+
+                    if (content.Length > 0)
+                    {
+                        JObject citizen = JObject.Parse(content);                                           
+
+                        // Add 1+ records per citizen owned, if citizen already exists then skip creating a new one, just create the link record(s) if change (pet, owner, dates, land) found.
+                        citizenChange = UpdateCitizen(citizen, citizen.Value<string>("address").ToLower() ?? "", checkHistoryFrom);
+                        
+                        if (saveToDB)
+                        {
+                            _context.SaveChanges();
+                        }
+
+                        returnCode = RETURN_CODE.SUCCESS;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    DBLogger dBLogger = new(_context.worldTypeSelected);
+                    dBLogger.logException(ex, String.Concat("CitizenManage.GetCitizenMCP() : Error on WS calls for owner matic : ", tokenId));
                 }
             }
 
@@ -442,7 +513,7 @@ namespace MetaverseMax.ServiceClass
             return compare;
         }
 
-        public CitizenChange UpdateCitizen(JToken citizenMCP, string ownerMatic)
+        public CitizenChange UpdateCitizen(JToken citizenMCP, string ownerMatic, DateTime? checkHistoryFrom)
         {
             OwnerCitizen ownerCitizenCurrent;
             int petId, petBonusId, petBonusLevel;
@@ -454,6 +525,8 @@ namespace MetaverseMax.ServiceClass
             List<CitizenAction> citizenAction = null;
             int storedOnSaleKey = 0;
             decimal storedSalePrice = 0;
+            DateTime? startingFrom;
+            bool skipPriceCheck = false;
 
             try
             {
@@ -501,10 +574,20 @@ namespace MetaverseMax.ServiceClass
                 citizen.trait_strength_pet_bonus = GetPetBonus(petId, petBonusId, petBonusLevel, PET_BONUS_TYPE.STRENGTH);
                 //citizen.trait_strength_pet_bonus = citizenMCP.Value<int?>("strength") ?? 0 - citizen.trait_strength;
 
-                citizen.on_sale = citizenMCP.Value<string>("on_sale") == "0" ? false : true;
-                citizen.on_sale_key = citizen.on_sale == false ? 0 : int.Parse(citizenMCP.Value<string>("on_sale").Substring(1));
-                citizen.current_price = Task.Run(() => CheckSalePrice(storedOnSaleKey, storedSalePrice, citizen.on_sale, citizen.token_id, citizen.on_sale_key)).Result;
+                // WS Citizen/Get does not provide on_sale or any price data, but is fast targeted WS.  WS 'user/assets/citizen' does provide on_sale data.
+                if (citizenMCP.Value<string>("on_sale") == null)
+                {
+                    skipPriceCheck = true;
+                    citizen.on_sale = false;            // default - skipped on any existing stored Cit
+                    citizen.current_price = 0;          // default - skipped on any existing stored Cit
 
+                }
+                else
+                {
+                    citizen.on_sale = citizenMCP.Value<string>("on_sale") == "0" ? false : true;
+                    citizen.on_sale_key = citizen.on_sale == false ? 0 : int.Parse(citizenMCP.Value<string>("on_sale").Substring(1));
+                    citizen.current_price = Task.Run(() => CheckSalePrice(storedOnSaleKey, storedSalePrice, citizen.on_sale, citizen.token_id, citizen.on_sale_key)).Result;
+                }
                 citizen.max_stamina = citizenMCP.Value<int?>("max_stamina") ?? 0;            
 
                 citizen.efficiency_industry = GetIndustryEfficiency(citizen);
@@ -516,7 +599,7 @@ namespace MetaverseMax.ServiceClass
                 citizen.efficiency_energy_electric = GetEnergyElectricEfficiency(citizen);
                 citizen.refresh_history = false;
 
-                citizenChange = citizenDB.AddorUpdate(citizen, storedCitizen, false);
+                citizenChange = citizenDB.AddorUpdate(citizen, storedCitizen, false, skipPriceCheck);
 
                 // Remove existing OwnerCitizen records and refresh if problem flag recorded on last attempt.
                 if (citizenChange.historyRefresh == true)
@@ -531,8 +614,8 @@ namespace MetaverseMax.ServiceClass
                 ownerCitizenCurrent.land_token_id = citizenMCP.Value<int?>("land_id") ?? 0;
                 ownerCitizenCurrent.pet_token_id = citizenMCP.Value<int?>("pet_id") ?? 0;
                 ownerCitizenCurrent.owner_matic_key = ownerMatic;
-                ownerCitizenCurrent.link_date = DateTime.Now.ToUniversalTime();      // DEFAULT date - IMPROVE - will limit cit assigned to production runs if set to current dt.
-                ownerCitizenCurrent.refreshed_last = DateTime.Now.ToUniversalTime();
+                ownerCitizenCurrent.link_date = DateTime.UtcNow;      // DEFAULT date - IMPROVE - will limit cit assigned to production runs if set to current dt.
+                ownerCitizenCurrent.refreshed_last = DateTime.UtcNow;
 
 
                 // Scenarios:
@@ -552,49 +635,63 @@ namespace MetaverseMax.ServiceClass
                 if (ownerCitizenExisting == null ||
                         ownerCitizenCurrent.land_token_id != ownerCitizenExisting.land_token_id ||
                         ownerCitizenCurrent.pet_token_id != ownerCitizenExisting.pet_token_id ||
-                        ownerCitizenCurrent.owner_matic_key != ownerCitizenExisting.owner_matic_key)
+                        ownerCitizenCurrent.owner_matic_key != ownerCitizenExisting.owner_matic_key ||
+                        checkHistoryFrom != null )
                 {
-                    // Get all Citizen action events since last refresh (sync), OR if no existing review Cit history from -40 days ago and populate.
-                    citizenAction = GetCitizenHistoryMCP(ownerCitizenCurrent.citizen_token_id, ownerCitizenExisting != null ? ownerCitizenExisting.refreshed_last : DateTime.Now.AddDays((int)CITIZEN_HISTORY.DAYS), ownerCitizenExisting == null ? true : false).Result;
-
-                    // A subset or none of the History action may need to be processed
-                    OwnerCitizen ownerCitizenActive = ProcessCitizenActions(citizenAction, citizen.token_id, ownerCitizenExisting, ownerMatic);         // With No SaveChanges()
-                    if (ownerCitizenActive != null && ownerCitizenActive.db_update_pending == true)
+                    // Find date to start Citizen.HistoryCheck From, can explicitly stated by passed datetime, or derived from existing stored record
+                    if (checkHistoryFrom != null)
+                    {                        
+                        startingFrom = ownerCitizenExisting == null || checkHistoryFrom < ownerCitizenExisting.refreshed_last ? checkHistoryFrom : ownerCitizenExisting.refreshed_last; // take the older date - possible nighly data sync down 
+                    }
+                    else
                     {
-                        citizenChange.updateFound = true;       // Record that DB changes are pending on local store.
+                        startingFrom = ownerCitizenExisting != null ? ownerCitizenExisting.refreshed_last : DateTime.Now.AddDays((int)CITIZEN_HISTORY.DAYS);
                     }
 
-                    // CORNER CASE - PET unpaired not recorded within Citizen History due to transfer before unpair.   POTENTIAL MISSING CASE - No Pet Transfer/Unpair action recorded in PET History
-                    if (ownerCitizenCurrent.pet_token_id == 0 && ownerCitizenActive != null && ownerCitizenActive.pet_token_id != 0)
+                    // Get all Citizen action events since last refresh (sync), OR if no existing review Cit history from -40 days ago and populate.
+                    citizenAction = GetCitizenHistoryMCP(
+                        ownerCitizenCurrent.citizen_token_id,
+                        startingFrom, 
+                        ownerCitizenExisting == null).Result;
+
+                    // At least 1x Action should be found for existing Citizen (found in local store) - causing change of stored data(pet, owner, building)
+                    if (citizenAction.Count > 0)
                     {
-                        // FIND when Pet was unpaired and record missing action.
-                        CitizenAction petAction = FindPetAction(ownerCitizenActive);
-                        if (petAction != null)
+                        OwnerCitizen ownerCitizenActive = ProcessCitizenActions(citizenAction, citizen.token_id, ownerCitizenExisting, ownerMatic);         // With No SaveChanges()
+                        if (ownerCitizenActive != null && ownerCitizenActive.db_update_pending == true)
                         {
-                            ownerCitizenActive = ProcessCitizenActions(new List<CitizenAction> { petAction }, citizen.token_id, ownerCitizenActive, ownerMatic);
-                            if (ownerCitizenActive.db_update_pending == true)
+                            citizenChange.updateFound = true;       // Record that DB changes are pending on local store.
+                        }
+
+                        // CORNER CASE - PET unpaired not recorded within Citizen History due to transfer before unpair.   POTENTIAL MISSING CASE - No Pet Transfer/Unpair action recorded in PET History
+                        if (ownerCitizenCurrent.pet_token_id == 0 && ownerCitizenActive != null && ownerCitizenActive.pet_token_id != 0)
+                        {
+                            // FIND when Pet was unpaired and record missing action.
+                            CitizenAction petAction = FindPetAction(ownerCitizenActive);
+                            if (petAction != null)
                             {
-                                citizenChange.updateFound = true;       // Record that DB changes are pending on local store.
+                                ownerCitizenActive = ProcessCitizenActions(new List<CitizenAction> { petAction }, citizen.token_id, ownerCitizenActive, ownerMatic);
+                                if (ownerCitizenActive.db_update_pending == true)
+                                {
+                                    citizenChange.updateFound = true;       // Record that DB changes are pending on local store.
+                                }
                             }
                         }
+
                     }
-
-                    if (ownerCitizenExisting != null)
-                    {
-                        ownerCitizenExisting.refreshed_last = DateTime.Now.ToUniversalTime();
-                    }                    
-
-                    // Defensive Coding - Check if no actions in history add a default OwnerCitizen, Check if last action does not match to currect active citizen land/pet/owner
+                    // Defensive Coding - Check if no actions in history add a default OwnerCitizen, Check if last action does not match the currect active-stored citizen land/pet/owner
                     // CORNER CASE: Dont add default record (new cit) if a prior history record found - can cause a dup record
-                    if (citizenAction.Count == 0)
+                    else if (citizenAction.Count == 0)
                     {
                         ownerCitizenDB.AddorUpdate(ownerCitizenCurrent, false);
                         citizenChange.updateFound = true;       // Record that DB changes are pending on local store.
-                    }
+                    }                    
+
                 }
                 else
                 {
-                    ownerCitizenExisting.refreshed_last = DateTime.Now.ToUniversalTime();
+                    // NO Action to process, but Citizen was checked so updated refresh datetime
+                    ownerCitizenExisting.refreshed_last = DateTime.UtcNow;
                 }
 
             }
@@ -735,21 +832,49 @@ namespace MetaverseMax.ServiceClass
         public OwnerCitizen ProcessCitizenActions(List<CitizenAction> citizenAction, int citizenTokenID, OwnerCitizen ownerCitizenExisting, string ownerMatic)
         {
             OwnerCitizen ownerCitizenAction;
-            EntityEntry<OwnerCitizen> ownerCitizenActionLast = ownerCitizenExisting != null ? _context.Entry(ownerCitizenExisting) : null;
+            //EntityEntry<OwnerCitizen> ownerCitizenActionLast = ownerCitizenExisting != null ? _context.Entry(ownerCitizenExisting) : null;
+            OwnerCitizen ownerCitizenActionDBPrior = null, ownerCitizenActionDBNext = null;
+            EntityEntry<OwnerCitizen> ownerCitizenActionLAST = null;
+            bool updatePending = false;
+
+            List<OwnerCitizen> storedActions = _context.ownerCitizen.Where(oc => oc.citizen_token_id == citizenTokenID)
+                .OrderByDescending(oc => oc.link_date)
+                .ToList();
+
 
             // Actions are ordered oldest to latest, process oldest first.
+            // Each action is handled fully - meaning checks against db-store and action list, slotting the action into the record - adjusting existing action record dates to fit it in.
             for (int actionCounter = 0; actionCounter < citizenAction.Count; actionCounter++)
             {
                 ownerCitizenAction = new();
 
                 ownerCitizenAction.citizen_token_id = citizenTokenID;
-                ownerCitizenAction.link_date = citizenAction[actionCounter].action_datetime ?? DateTime.Now.ToUniversalTime();
+                ownerCitizenAction.link_date = citizenAction[actionCounter].action_datetime ?? DateTime.UtcNow;
 
+
+                // Get next older action prior to current action being processed                
+                ownerCitizenActionDBPrior = storedActions.Where(oc => oc.link_date <= ownerCitizenAction.link_date)
+                    .OrderByDescending(oc => oc.link_date)
+                    .FirstOrDefault();
+
+                // Get next newer action prior to current action being processed                
+                ownerCitizenActionDBNext = storedActions.Where(oc => oc.link_date > ownerCitizenAction.link_date)
+                    .OrderBy(oc => oc.link_date)
+                    .FirstOrDefault();
+
+                // SKIP - This action was previously recorded, as having identical link_date  (which is not derived date like valid_to_date)
+                if (ownerCitizenActionDBPrior !=null && CompareDateTime(ownerCitizenActionDBPrior.link_date, ownerCitizenAction.link_date) == 0)
+                {
+                    continue;       
+                }
+
+
+                // Assign New Action Data
                 ownerCitizenAction.land_token_id = citizenAction[actionCounter].action_type switch
                 {
                     (int)ACTION_TYPE.REMOVE_CITIZEN => 0,
                     (int)ACTION_TYPE.ASSIGN_CITIZEN => citizenAction[actionCounter].land_token_id,
-                    _ => ownerCitizenActionLast != null ? ownerCitizenActionLast.Entity.land_token_id : 0
+                    _ => ownerCitizenActionDBPrior != null ? ownerCitizenActionDBPrior.land_token_id : 0
                 };
 
                 ownerCitizenAction.pet_token_id = citizenAction[actionCounter].action_type switch
@@ -757,42 +882,67 @@ namespace MetaverseMax.ServiceClass
                     (int)ACTION_TYPE.REMOVE_PET => 0,
                     (int)ACTION_TYPE.PET_NEW_OWNER => 0,
                     (int)ACTION_TYPE.ASSIGN_PET => citizenAction[actionCounter].pet_token_id,
-                    _ => ownerCitizenActionLast != null ? ownerCitizenActionLast.Entity.pet_token_id : 0
+                    _ => ownerCitizenActionDBPrior != null ? ownerCitizenActionDBPrior.pet_token_id : 0
                 };
                 
                 ownerCitizenAction.owner_matic_key = citizenAction[actionCounter].action_type switch
                 {
                     (int)ACTION_TYPE.NEW_OWNER => citizenAction[actionCounter].new_owner_key,
-                    _ => ownerCitizenActionLast != null ? ownerCitizenActionLast.Entity.owner_matic_key : ownerMatic
+                    _ => ownerCitizenActionDBPrior != null ? ownerCitizenActionDBPrior.owner_matic_key : ownerMatic
                 };
 
-                ownerCitizenAction.refreshed_last = DateTime.Now.ToUniversalTime();
+                ownerCitizenAction.refreshed_last = DateTime.UtcNow;
 
-                // CHECK - Only add if different then existing Record : if LAST recorded action record matches data in current history action, MCP sometimes logs dup events - such as when transfering cit.
-                if (ownerCitizenActionLast == null ||
-                    ownerCitizenAction.land_token_id != ownerCitizenActionLast.Entity.land_token_id ||
-                    ownerCitizenAction.pet_token_id != ownerCitizenActionLast.Entity.pet_token_id ||
-                    ownerCitizenAction.owner_matic_key != ownerCitizenActionLast.Entity.owner_matic_key)
+                // World transfer action cleanup - set pet and land to 0
+                if (ownerCitizenAction.owner_matic_key == "WORLD_TRANSFER")
                 {
-                    // Add new record - dont commit to db(PERF)
-                    ownerCitizenActionLast = ownerCitizenDB.AddByLinkDateTime(ownerCitizenAction, false);
-
-                    // Mark prior record as expired but retain for use in Production history eval. exact date time used when cit was reassigned.
-                    if (ownerCitizenExisting != null && ownerCitizenExisting.valid_to_date == null 
-                        && ownerCitizenExisting.link_date < ownerCitizenAction.link_date)
+                    ownerCitizenAction.pet_token_id = 0;
+                    ownerCitizenAction.land_token_id = 0;
+                }
+                    
+                // CHECK - Only add if different then existing Record :
+                //    if LAST recorded action record matches data in current history action, MCP sometimes logs dup events - such as when transfering cit.
+                if (ownerCitizenActionDBPrior == null ||
+                    ownerCitizenAction.land_token_id != ownerCitizenActionDBPrior.land_token_id ||
+                    ownerCitizenAction.pet_token_id != ownerCitizenActionDBPrior.pet_token_id ||
+                    ownerCitizenAction.owner_matic_key != ownerCitizenActionDBPrior.owner_matic_key)
+                {
+                    // Mark prior record has expired but retain for use in Production history eval. exact date time used when cit was reassigned.
+                    if (ownerCitizenActionDBPrior != null)
                     {
-                        ownerCitizenExisting.valid_to_date = ownerCitizenAction.link_date;
-                        ownerCitizenExisting.refreshed_last = DateTime.Now.ToUniversalTime();
+                        EntityEntry<OwnerCitizen> changePrior = _context.Entry(ownerCitizenActionDBPrior);
+                        changePrior.Entity.valid_to_date = ownerCitizenAction.link_date;
+                        changePrior.Entity.refreshed_last = DateTime.UtcNow;
+                    }
+                    if (ownerCitizenActionDBNext != null)
+                    {
+                        // Use next (known) oldest action to find valid_to_date on current action..
+                        // NOTE this date may change on next iteration - such as another newly identified action not in db, occuring before db recorded action.
+                        ownerCitizenAction.valid_to_date = ownerCitizenActionDBNext.link_date;
                     }
 
-                    // Assign last 'recorded' active OwnerCitizen record.
-                    ownerCitizenExisting = ownerCitizenActionLast.Entity;
-                    ownerCitizenExisting.db_update_pending = true;
+                    // Add new record - dont commit to db(PERF)
+                    // Ocassionally, an existing ownerCitizen will get though due to C# milisecond skip, AddByLinkDateTime will catch it and wont add a dup.
+                    ownerCitizenActionLAST = ownerCitizenDB.AddByLinkDateTime(ownerCitizenAction, false);
+
+                    // Add the new record to the storedActions list - for use in next iternation.
+                    if (ownerCitizenActionLAST != null)
+                    {
+                        storedActions.Add(ownerCitizenActionLAST.Entity);
+                    }
+
+                    updatePending = true;
                 }
             }
 
-            return ownerCitizenExisting;
+            if (ownerCitizenActionLAST != null)
+            {
+                ownerCitizenActionLAST.Entity.db_update_pending = updatePending;
+            }
+
+            return ownerCitizenActionLAST !=null ? ownerCitizenActionLAST.Entity : null;
         }
+        
 
         // Used to identify and backfill any action actions related to last Production run or new cits
         public async Task<List<CitizenAction>> GetCitizenHistoryMCP(int tokenId, DateTime? startingDateTime, bool newCitizen)
@@ -892,6 +1042,21 @@ namespace MetaverseMax.ServiceClass
                                 new_owner_key = historyData.Value<string>("to").ToLower()
                             });
                         }
+                        else if (historyType.StartsWith("airport/citizen/from"))
+                        {
+                            // cant use the 'to_address' due to MCP bug - it can incorrectly contain the seller's(from) matic key. Correct form/to addresses found in {data.xyz}
+                            JToken historyData = historyList[index].Value<JToken>("data");
+
+                            citizenAction.Add(new CitizenAction()
+                            {
+                                action_datetime = actionDateTime,
+                                action_type = (int)ACTION_TYPE.NEW_OWNER,
+                                owner_matic_key = historyData.Value<string>("from").ToLower(),
+                                new_owner_key = "WORLD_TRANSFER",
+                                pet_token_id = 0,
+                                land_token_id = 0
+                            });
+                        }
 
                     }
                 }
@@ -985,7 +1150,7 @@ namespace MetaverseMax.ServiceClass
             OwnerManage ownerManage = new(_context, worldType);
 
             // Iterate all distinct OwnerMatic keys found in local db - update pets on all owners
-            foreach (KeyValuePair<string, string> owner in ownerManage.GetOwners(true))
+            foreach (KeyValuePair<string, OwnerAccount> owner in ownerManage.GetOwners(true))
             {
                 await GetPetMCP(owner.Key);
             }

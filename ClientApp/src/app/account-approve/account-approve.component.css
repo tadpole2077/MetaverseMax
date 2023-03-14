@@ -5,6 +5,7 @@
   position: absolute;
   width: 100%;
   left: 0;
+  z-index: 11;
 }
 
 .promptLink {
@@ -12,4 +13,26 @@
   margin-bottom: 0.3rem;
   position: relative;
   line-height: 2rem;
+  cursor: pointer;
+  z-index: 12;
+}
+
+.barContainer{
+  margin-bottom: .8rem;
+}
+
+.tronLinkLogin{
+  display:none
+}
+
+@media (max-width: 415px) {
+
+  .accountContainer{
+    height: 3rem;
+  }
+  .promptLink {
+    font-size: .8rem;
+    line-height: 1.3rem;
+    padding-top: 0.2rem;
+  }
 }

@@ -38,7 +38,7 @@ namespace MetaverseMax.Controllers
 
             if (ModelState.IsValid)
             {
-                return Ok(Task.Run(() => buildingManage.GetHistory(parameters.token_id, 50, true, parameters.full_refresh == 1, string.Empty, USE_STORED_EFFICIENCY) ).Result);
+                return Ok(buildingManage.GetHistory(parameters.token_id, 50, true, parameters.full_refresh == 1, string.Empty, USE_STORED_EFFICIENCY, parameters.requester, false) );
 
             }
             return BadRequest("Get Asset History request is invalid");

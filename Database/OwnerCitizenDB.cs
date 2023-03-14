@@ -90,7 +90,7 @@ namespace MetaverseMax.Database
 
         public EntityEntry<OwnerCitizen> AddByLinkDateTime(OwnerCitizen ownerCitizen, bool saveFlag)
         {
-            EntityEntry<OwnerCitizen> ownerCitizenMatch = null;
+            EntityEntry<OwnerCitizen> ownerCitizenMatch = null, newOwnerCitizen = null;
             long tickDiff;
 
             try
@@ -115,7 +115,7 @@ namespace MetaverseMax.Database
                 // Find if record already exists, if not add it.
                 if (ownerCitizenMatch == null)
                 {
-                    ownerCitizenMatch = _context.ownerCitizen.Add(ownerCitizen);
+                    newOwnerCitizen = _context.ownerCitizen.Add(ownerCitizen);
 
                 }
                 
@@ -130,7 +130,7 @@ namespace MetaverseMax.Database
                 logException(ex, String.Concat("OwnerCitizenDB.AddByLinkDateTime() : Error adding record to db with citizen token_id : ", ownerCitizen.citizen_token_id));
             }
 
-            return ownerCitizenMatch;
+            return newOwnerCitizen;
         }
 
         // Add a new OwnerCitizen action if land,pet,owner change found, ownerCitizen is newer then last recorded (ownerCitizen.link_date = ownerCitizenExisting.valid_to_date).
@@ -152,6 +152,7 @@ namespace MetaverseMax.Database
                 {
                     // Mark prior record as expired but retain for use in Production history eval -  previously used -1 date, changed to using current datetime due to refresh feature.
                     ownerCitizenExisting.valid_to_date = ownerCitizen.link_date;
+                    ownerCitizenExisting.refreshed_last = DateTime.UtcNow;
 
                     // Add new record
                     _context.ownerCitizen.Add(ownerCitizen);
@@ -159,7 +160,8 @@ namespace MetaverseMax.Database
                 }
                 else
                 {
-                    ownerCitizenExisting.refreshed_last = DateTime.Now.ToUniversalTime();
+                    // No change with Existing-Active-Stored record, but update refresh date to reflect eval
+                    ownerCitizenExisting.refreshed_last = DateTime.UtcNow;
                 }
 
                 if (saveFlag)

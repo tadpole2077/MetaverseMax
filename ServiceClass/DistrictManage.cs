@@ -1,4 +1,5 @@
 ﻿using MetaverseMax.Database;
+using MetaverseMax.ServiceClass;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -52,12 +53,8 @@ namespace MetaverseMax.ServiceClass
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("GetDistrict() : Error District_id: ", district_id.ToString()));
-                    _context.LogEvent(log);
-                }
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("GetDistrict() : Error District_id: ", district_id.ToString()));
             }
 
             return districtWeb;
@@ -114,12 +111,8 @@ namespace MetaverseMax.ServiceClass
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("DistrictWebMap::GetDistrictsFromMCP() : Error "));
-                    _context.LogEvent(log);
-                }
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("DistrictWebMap::GetDistrictsFromMCP() : Error "));
             }
 
             return districtList;
@@ -182,12 +175,8 @@ namespace MetaverseMax.ServiceClass
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("GetDistrict() : Error District_id: ", district_id.ToString()));
-                    _context.LogEvent(log);
-                }
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("GetDistrict() : Error District_id: ", district_id.ToString()));
             }
 
             return district;
@@ -248,12 +237,8 @@ namespace MetaverseMax.ServiceClass
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("UpdateAllOpenedDistricts() : Error "));
-                    _context.LogEvent(log);
-                }
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("UpdateAllOpenedDistricts() : Error "));
             }
 
 
@@ -303,12 +288,23 @@ namespace MetaverseMax.ServiceClass
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("GetDistrict() : Error District_id: ", district_id.ToString()));
-                    _context.LogEvent(log);
-                }
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("DistrictManage.GetDistrict() : Error District_id: ", district_id.ToString()));
+            }
+
+            return returnCode;
+        }
+
+        public int ArchiveOwnerSummaryDistrict()
+        {
+            int returnCode = 0;
+            try {
+                districtDB.ArchiveOwnerSummaryDistrict();
+            }
+            catch (Exception ex)
+            {
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("DistrictManage.ArchiveOwnerSummaryDistrict(): Error occured during arhive call"));
             }
 
             return returnCode;

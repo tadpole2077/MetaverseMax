@@ -14,15 +14,21 @@ using MetaverseMax.Database;
 using Newtonsoft.Json.Linq;
 using SimpleBase;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography.X509Certificates;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using MetaverseMax.ServiceClass;
+using System.Reflection.Metadata;
+using Azure.Core;
+using System.Security.Cryptography;
 
 namespace MetaverseMax.ServiceClass
 {
 
     public class OwnerManage : ServiceBase
     {
-        private static Dictionary<string, string> ownersListTRON = new();
-        private static Dictionary<string, string> ownersListETH = new();
-        private static Dictionary<string, string> ownersListBNB = new();
+        private static Dictionary<string, OwnerAccount> ownersListTRON = new();
+        private static Dictionary<string, OwnerAccount> ownersListETH = new();
+        private static Dictionary<string, OwnerAccount> ownersListBNB = new();
 
         public OwnerData ownerData = new() { plot_count = -1 };
         private Common common = new();
@@ -31,11 +37,12 @@ namespace MetaverseMax.ServiceClass
         {
             worldType = worldTypeSelected;
             _parentContext.worldTypeSelected = worldType;
+
             GetOwners(false); // Check if static dictionary has been loaded
         }
 
         // Dictionary is a ref type - return the reference so that it can be populated, and avoid use of local dictionary as it will create another layer reference to a reference.
-        private ref Dictionary<string, string> GetOwnersListByWorldType()
+        private ref Dictionary<string, OwnerAccount> GetOwnersListByWorldType()
         {
             switch (worldType)
             {
@@ -49,77 +56,106 @@ namespace MetaverseMax.ServiceClass
             };
         }
 
-        public Dictionary<string, string> GetOwners(bool refresh)
+        public Dictionary<string, OwnerAccount> GetOwners(bool refresh)
         {
-            ref Dictionary<string, string> ownersList = ref GetOwnersListByWorldType();         // use the root dictionary to populate data.
+            ref Dictionary<string, OwnerAccount> ownersDict = ref GetOwnersListByWorldType();         // use the root dictionary to populate data.
 
             if (refresh)
             {
-                ownersList.Clear();
+                ownersDict.Clear();
             }
 
-            if (ownersList.Count == 0)
+            if (ownersDict.Count == 0)
             {
                 OwnerDB ownerDB = new OwnerDB(_context);
-                ownerDB.GetOwners(worldType, ref ownersList);       // Pass dictionary which is a reference type - called method will populate that list, set local ownerList to same ref.
+                ownerDB.GetOwners(ref ownersDict);          // Pass dictionary which is a reference type - called method will assign a new dictionary to this passed dict ref.
             }
 
-            return ownersList;
+            return ownersDict;
         }
 
-        public int SyncOwner()
+        public RETURN_CODE SyncOwner(List<OwnerChange> ownerChangeList)
         {
             OwnerDB ownerDB = new OwnerDB(_context);
-            return ownerDB.SyncOwner();
+            OwnerNameDB ownerNameDB = new OwnerNameDB(_context);
+
+            ownerDB.SyncOwner();
+            ownerChangeList.ForEach(x => ownerNameDB.UpdateOwnerName(x) );
+
+            return RETURN_CODE.SUCCESS;
         }
 
         // Finding match on maticKey as this is the key used by MCP for ownership of assets in-world and within local db's
         public OwnerAccount FindOwnerByMatic(string maticKey, string walletPublicKey)
         {
             OwnerAccount ownerAccount = new();
-            Owner owner = null;
             string dbWalletKey = string.Empty;
-            ref Dictionary<string, string> ownersList = ref GetOwnersListByWorldType();
+            ref Dictionary<string, OwnerAccount> ownersList = ref GetOwnersListByWorldType();
 
-            if (ownersList.TryGetValue(maticKey, out dbWalletKey))
+            if (ownersList.TryGetValue(maticKey, out ownerAccount))
             {
-                // Matic found, but no Tron key
-                if (dbWalletKey == string.Empty)
+                // Matic found, but no public wallet key
+                if (ownerAccount.public_key == string.Empty)
                 {
-                    dbWalletKey = walletPublicKey;
-                }
-
-                // Update db - apply the tron key or amend the record.
-                OwnerDB ownerDB = new OwnerDB(_context);
-                owner = ownerDB.UpdateOwner(maticKey, walletPublicKey);
-
-                ownersList[maticKey] = walletPublicKey;                
-
-                ownerAccount.matic_key = maticKey;
-                ownerAccount.public_key = walletPublicKey;
-
-                ownerAccount.pro_tools_enabled = (owner.pro_access_expiry ?? DateTime.UtcNow) > DateTime.UtcNow ? true : false;
-
-                DateTime expiry = (owner.pro_access_expiry ?? DateTime.UtcNow);
-                // Handler for expiry next year or current year.
-                if (ownerAccount.pro_tools_enabled && expiry.Year >= DateTime.UtcNow.Year)
-                {
-                    if (DateTime.UtcNow.Year < expiry.Year)
-                    {
-                        ownerAccount.pro_expiry_days = (365 - DateTime.UtcNow.DayOfYear) + expiry.DayOfYear;
-                    }
-                    else {
-                        ownerAccount.pro_expiry_days = (owner.pro_access_expiry ?? DateTime.UtcNow).DayOfYear - DateTime.UtcNow.DayOfYear;
-                    }
-                }
+                    ownerAccount.public_key = walletPublicKey;
+                }        
             }
             else
             {
+                ownerAccount = new();
                 ownerAccount.matic_key = "Not Found";
-                ownerAccount.checked_matic_key = maticKey;
+                ownerAccount.pro_tools_enabled = false;
+
             }
 
+            ownerAccount.checked_matic_key = maticKey;
+
             return ownerAccount;
+        }
+
+        public int GetSlowDown(string maticKey)
+        {
+            int slowDownSeconds = 0;
+            OwnerAccount ownerAccount;
+
+            if (maticKey == string.Empty)
+            {
+                slowDownSeconds = -1;
+            }
+            else
+            {
+                ownerAccount = FindOwnerByMatic(maticKey, string.Empty);
+                if (ownerAccount.pro_tools_enabled)
+                {
+                    slowDownSeconds = (int)((ownerAccount.slowdown_end ?? DateTime.UtcNow) - DateTime.UtcNow).TotalSeconds;
+                    slowDownSeconds = slowDownSeconds < 0 ? 0 : slowDownSeconds;
+                }
+            }
+
+            return slowDownSeconds;
+        }
+        public bool SetSlowDown(string maticKey)
+        {
+            bool slowDownSet = false;
+            OwnerAccount ownerAccount;
+
+            if (maticKey == string.Empty)
+            {
+                slowDownSet = false;
+            }
+            else
+            {
+                ownerAccount = FindOwnerByMatic(maticKey, string.Empty);
+
+                if (ownerAccount.pro_tools_enabled &&
+                    (ownerAccount.slowdown_end == null || ownerAccount.slowdown_end <= DateTime.UtcNow))
+                {
+                    ownerAccount.slowdown_end = DateTime.UtcNow.AddMinutes(2);
+                    slowDownSet = true;
+                }
+            }
+
+            return slowDownSet;
         }
 
         public IEnumerable<Offer> GetOfferLocal(bool active, string ownerMaticKey)
@@ -188,14 +224,17 @@ namespace MetaverseMax.ServiceClass
 
         // Get from MCP 3rd tier services
         // LEGACY SYSTEM : 2019 offers WS response a few offers contain no root>sale_data>buyer_matic_key && root>sale_data>value (Buyer offer).  Skip these offers
-        public async Task<RETURN_CODE> GetOwnerOffer(string maticKey)
+        public async Task<string> GetOwnerOfferMCP(string maticKey)
         {
             String content = string.Empty;
             OwnerOffer ownerOffer = new();
             OwnerOfferDB ownerOfferDB = new(_context);
             Building building = new();
             RETURN_CODE returnCode = RETURN_CODE.ERROR;
-            int retryCount = 0;            
+            string activitySummary = string.Empty;
+            int retryCount = 0;
+            int activeOfferCount = 0, soldOfferCount =0, cancelledOfferRemovedCount =0;
+            List<int> validOffers = new();
             serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.SALES_OFFER, WORLD_TYPE.BNB => BNB_WS.SALES_OFFER, WORLD_TYPE.ETH => ETH_WS.SALES_OFFER, _ => TRON_WS.SALES_OFFER};
 
             while (returnCode == RETURN_CODE.ERROR && retryCount < 3)
@@ -262,8 +301,9 @@ namespace MetaverseMax.ServiceClass
                                 if (!string.IsNullOrEmpty(ownerOffer.buyer_matic_key))
                                 {
                                     ownerOfferDB.AddorUpdate(ownerOffer);
-                                }
-
+                                    activeOfferCount++;
+                                    validOffers.Add(ownerOffer.offer_id);
+                                }                                
                             }
                             else if (offers[index].Value<bool>("is_active") == false && (offers[index].Value<int?>("is_cancelled") ?? 0) == 0)
                             {
@@ -279,7 +319,7 @@ namespace MetaverseMax.ServiceClass
 
                                 JObject sale_data = offers[index].Value<JObject>("sale_data");
                                 ownerOffer.buyer_matic_key = sale_data.Value<string>("buyer");
-                                ownerOffer.buyer_offer = building.GetPrice(sale_data, worldType, "value", false);       //Return price even if sale is not active
+                                ownerOffer.buyer_offer = building.GetPrice(sale_data, worldType, "value", true);       //Return price even if sale is not active - PARA_4 = true
 
                                 JObject data = offers[index].Value<JObject>("data");
                                 if (data != null && data.Count > 0)
@@ -299,11 +339,17 @@ namespace MetaverseMax.ServiceClass
                                 if (!string.IsNullOrEmpty(ownerOffer.buyer_matic_key))
                                 {
                                     ownerOfferDB.AddorUpdate(ownerOffer);
+                                    soldOfferCount++;
+                                    validOffers.Add(ownerOffer.offer_id);
                                 }
-                            }
+                            }                            
                         }
+
+                        cancelledOfferRemovedCount = ownerOfferDB.RemoveCancelledOffers(validOffers, maticKey);      // Remove any legacy active offers that were cancelled
                     }
 
+                    _context.SaveChanges();
+                    activitySummary = string.Concat("Active Offers Updated: ", activeOfferCount, "  Sold Offers Updated: ", soldOfferCount, "  Cancelled offers removed(previously active): " + cancelledOfferRemovedCount);
                     returnCode = RETURN_CODE.SUCCESS;
                 }
                 catch (Exception ex)
@@ -321,21 +367,17 @@ namespace MetaverseMax.ServiceClass
                 }
             }
 
-            return returnCode;            
+            return activitySummary;            
         }
 
-        public async Task<OwnerData> GetOwnerLands(string ownerMaticKey, bool checkLandTokensExist = true)
+        public async Task<JArray> GetOwnerLandsMCP(string ownerMaticKey)
         {
+            JArray lands = null;
+
             try
             {
                 string content = string.Empty;
-                List<Plot> localPlots = new();
-                Building building = new();
-                CitizenManage citizen = new(_context, worldType);
-
-                PlotDB plotDB = new(_context, worldType);
-                string landOwner;
-                serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.OWNER_LANDS, WORLD_TYPE.BNB => BNB_WS.OWNER_LANDS, WORLD_TYPE.ETH => ETH_WS.OWNER_LANDS, _ => TRON_WS.OWNER_LANDS};
+                serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.OWNER_LANDS, WORLD_TYPE.BNB => BNB_WS.OWNER_LANDS, WORLD_TYPE.ETH => ETH_WS.OWNER_LANDS, _ => TRON_WS.OWNER_LANDS };
 
                 HttpResponseMessage response;
                 using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
@@ -355,11 +397,31 @@ namespace MetaverseMax.ServiceClass
                 servicePerfDB.AddServiceEntry(serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, ownerMaticKey);
 
                 JObject jsonContent = JObject.Parse(content);
-                JArray lands = jsonContent["items"] as JArray;
-                if (lands != null && lands.Count > 0)
-                {
-                    localPlots = plotDB.PlotsGet_ByOwnerMatic(ownerMaticKey).ToList();
+                lands = jsonContent["items"] as JArray;
+            }
+            catch (Exception ex)
+            {
+                _context.LogEvent(String.Concat("OwnerMange.GetOwnerLands() : Error on WS calls for owner matic : ", ownerMaticKey));
+                _context.LogEvent(ex.Message);             
+            }
+            return lands;
+        }
 
+        public OwnerData GetOwnerLands(string ownerMaticKey, bool updatePlotflag, bool processFullUpdate)
+        {
+            try
+            {                
+                List<Plot> localPlots = new();
+                Building building = new();
+                CitizenManage citizen = new(_context, worldType);
+
+                PlotDB plotDB = new(_context, worldType);
+                string landOwner;
+
+                JArray lands = Task.Run(() => GetOwnerLandsMCP(ownerMaticKey)).Result;
+
+                if (lands != null && lands.Count > 0)
+                {                    
                     JToken land = lands.Children().First();
 
                     landOwner = land.Value<string>("owner") ?? "Not Found";
@@ -367,6 +429,13 @@ namespace MetaverseMax.ServiceClass
 
                     if (lands.Any())
                     {
+                        // CHECK owner buildings are recorded in local db - new plots recently purchased - token wont exist causing issues, such as  linking building to citizens
+                        if (updatePlotflag)
+                        {
+                            CheckTokenExist(lands, processFullUpdate);
+                        }
+                        localPlots = plotDB.PlotsGet_ByOwnerMatic(ownerMaticKey).ToList();      // Only get stored plots after token check & ranking update.
+
                         ownerData.owner_land = lands.Select(landInstance => {
                             var plot = localPlots.Where(x => x.token_id == (landInstance.Value<int?>("token_id") ?? 0)).FirstOrDefault();
 
@@ -380,7 +449,7 @@ namespace MetaverseMax.ServiceClass
                                 ip_bonus = (landInstance.Value<int?>("influence") ?? 0) * (landInstance.Value<int?>("influence_bonus") ?? 0) / 100,
                                 building_type = landInstance.Value<int?>("building_type_id") ?? 0,
                                 building_desc = building.BuildingType(landInstance.Value<int?>("building_type_id") ?? 0, landInstance.Value<int?>("building_id") ?? 0),
-                                building_img = building.BuildingImg(landInstance.Value<int?>("building_type_id") ?? 0, landInstance.Value<int?>("building_id") ?? 0, landInstance.Value<int?>("building_level") ?? 0),
+                                building_img = building.GetBuildingImg(landInstance.Value<int?>("building_type_id") ?? 0, landInstance.Value<int?>("building_id") ?? 0, landInstance.Value<int?>("building_level") ?? 0, worldType),
                                 last_actionUx = landInstance.Value<double?>("last_action") ?? 0,
                                 last_action = common.UnixTimeStampUTCToDateTime(landInstance.Value<double?>("last_action"), "Empty Plot"),
                                 token_id = landInstance.Value<int?>("token_id") ?? 0,
@@ -416,12 +485,7 @@ namespace MetaverseMax.ServiceClass
                         ownerData.stamina_alert_count = ownerData.owner_land.Where(
                             row => row.citizen_stamina_alert == true
                             ).Count();
-
-                        // CHECK owner buildings are recorded in local db - new plots recently purchased - token wont exist causing issues with linking to citizens
-                        if (checkLandTokensExist == true)
-                        {
-                            CheckLandTokensExist(lands);
-                        }
+                        
                     }
                 }
                 else
@@ -451,7 +515,7 @@ namespace MetaverseMax.ServiceClass
                 string log = ex.Message;
                 if (_context != null)
                 {
-                    _context.LogEvent(String.Concat("OwnerMange.GetOwnerLands() : Error on WS calls for owner matic : ", ownerMaticKey));
+                    _context.LogEvent(String.Concat("OwnerManage.GetOwnerLands() : Error on WS calls for owner matic : ", ownerMaticKey));
                     _context.LogEvent(log);
                 }
             }
@@ -459,29 +523,43 @@ namespace MetaverseMax.ServiceClass
             return ownerData;
         }
 
-        private int CheckLandTokensExist(JArray ownerLandList)
+        private int CheckTokenExist(JArray ownerLandList, Boolean processFullUpdate)
         {
+            int plotsUpdatedCount = 0, buildingTypeId;
+            PlotDB plotDB = new PlotDB(_context, worldType);
+            PlotManage plotManage = new PlotManage(_context, worldType);
+            List<PlotCord> plotFullUpdateList = new();
+            PlotCord currentPlotFullUpdate = null;
 
-            // This separate use of context likely is not required, possible helpful during data sync due to lost context over long running ops.
-            using (var _contextTemp = new MetaverseMaxDbContext(worldType))
+            for (int i = 0; i < ownerLandList.Count; i++)
             {
-                // CHECK land token exist - it may have been recently created and not in local db
-                PlotDB plotDB = new PlotDB(_contextTemp, worldType);
+                buildingTypeId = ownerLandList[i].Value<int?>("building_type_id") ?? 0;
 
-                for (int i = 0; i < ownerLandList.Count; i++)
+                // Dont update POI/Monument - as addtional evaluation needed on state chanage and ip impact on nearby plots. Nighly sync controls POI/Monument updates of plot.last_updated.
+                if (buildingTypeId != (int)BUILDING_TYPE.POI)
                 {
-                    if (ownerLandList[i] != null)
-                    {
-                        plotDB.UpdatePlotPartial(ownerLandList[i], false);
-                    }
-                }
+                    currentPlotFullUpdate = plotDB.UpdatePlotPartial(ownerLandList[i], false);
 
-                _contextTemp.SaveChanges();
+                    if (currentPlotFullUpdate != null) {
+                        plotFullUpdateList.Add(currentPlotFullUpdate);
+                    }
+                    plotsUpdatedCount++;
+                }                                                      
             }
 
-            return 0;
-        }
+            if (plotsUpdatedCount > 0)
+            {
+                _context.SaveChanges();
+            }
+            
+            if (processFullUpdate && plotFullUpdateList.Count > 0)
+            {
+                Task.Run(() => plotManage.FullUpdateBuildingAsync(plotFullUpdateList));
+            }
 
+            return plotsUpdatedCount;
+        }
+        
         private decimal CheckInfluenceRank(Plot plot) {
             return plot == null ? 0 : plot.current_influence_rank ?? 0;
         }
@@ -615,12 +693,8 @@ namespace MetaverseMax.ServiceClass
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("OwnerMange.GetFromMaticKey() : Error on WS calls for owner matic : ", ownerMaticKey));
-                    _context.LogEvent(log);
-                }
+                DBLogger dbLogger = new(_context, worldType);
+                dbLogger.logException(ex, String.Concat("OwnerMange.GetFromMaticKey() : Error on WS calls for owner matic : ", ownerMaticKey));   
             }
 
             return returnCode;
@@ -640,7 +714,7 @@ namespace MetaverseMax.ServiceClass
 
         public OwnerAccount MatchOwner(string publicKey)
         {
-            string maticKey = string.Empty;
+            string maticKeyFormated = string.Empty;
             OwnerAccount ownerAccount = new();
 
             if (worldType == WORLD_TYPE.TRON)
@@ -655,27 +729,43 @@ namespace MetaverseMax.ServiceClass
                 // Base58 Public Tron to Hex Conversion.
                 // Span<byte> is analogous to byte[] in usage but allows the library
                 // to avoid unnecessary memory copy operations unless needed.
-                // you can also use "Ripple" or "Flickr" as decoder flavors            
-                Span<byte> result = Base58.Bitcoin.Decode(publicKey);
-                Span<byte> resultParsed = result;
-                resultParsed = resultParsed.Slice(1, result.Length - 5);
-                ownerAccount.checked_matic_key = string.Concat("0x", Convert.ToHexString(resultParsed)).ToLower();
+                // you can also use "Ripple" or "Flickr" as decoder flavors
+                if (!publicKey.Contains("0x"))
+                {
+                    Span<byte> result = Base58.Bitcoin.Decode(publicKey);
+                    Span<byte> resultParsed = result;
+                    resultParsed = resultParsed.Slice(1, result.Length - 5);
+                    maticKeyFormated = string.Concat("0x", Convert.ToHexString(resultParsed)).ToLower();
+                }
             }
             else
             {
-                ownerAccount.checked_matic_key = publicKey;
+                maticKeyFormated = publicKey;
             }
 
+            ownerAccount = FindOwnerByMatic(maticKeyFormated, publicKey);
 
-            ownerAccount = FindOwnerByMatic(ownerAccount.checked_matic_key, publicKey);
+            // Update db - update ownerAccount with matching public wallet key if not already stored.  (used for TRON where matic and public differ)
+            OwnerDB ownerDB = new OwnerDB(_context);
+            ownerDB.UpdateOwner(maticKeyFormated, publicKey);            
 
             return ownerAccount;
         }
        
         public List<OwnerSummaryDistrict> GetOwnerSummaryDistrict(int districtId, int instanceNo)
         {
+            
             OwnerSummaryDistrictDB ownerSummaryDistrictDB = new(_context);
-            return ownerSummaryDistrictDB.GetOwnerSummeryDistrict(districtId, instanceNo);
+            List<OwnerSummaryDistrict> ownerSummaryDistrictList = ownerSummaryDistrictDB.GetOwnerSummeryDistrict(districtId, instanceNo);
+
+            // Using Stored World owner account, assign latest avatar_id and ownerName used by account.
+            ownerSummaryDistrictList.ForEach(o => {
+                OwnerAccount ownerAccount = FindOwnerByMatic(o.owner_matic, string.Empty);
+                o.owner_avatar_id = ownerAccount.avatar_id;
+                o.owner_name = ownerAccount.name;
+            });
+
+            return ownerSummaryDistrictList;
         }
     }
    

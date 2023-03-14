@@ -1,8 +1,12 @@
 
-<div [hidden]="!showFlag">
+<div [hidden]="!showFlag" class="barContainer">
   <div class="accountContainer">
   </div>
-  <div class="promptLink">
-    <span (click)="approveEthereumAccountLink()">Click here to Approve account link to enable MyAccount and Building-IP features</span>
+  <div class="promptLink container">
+
+    <span [hidden]="!showEthApproveFlag" (click)="clickAccountLink()">Click here to Approve account link to enable MyAccount and Ranking features</span>
+    <span [hidden]="!showTronLinkLoginFlag" (click)="clickAccountLink()">Log into your Tron link Wallet to enable MyAccount and Ranking features</span>
+    <span [hidden]="!showTronLinkNoPlotsFlag" (click)="clickAccountLink()">Your Tron link Wallet owns no Plots on Tron MegaWorld - MyAccount and Ranking features disabled</span>
+
   </div>
 </div>

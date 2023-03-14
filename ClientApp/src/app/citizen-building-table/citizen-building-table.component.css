@@ -207,7 +207,7 @@ td.mat-column-efficiency_industry, td.mat-column-efficiency_production, td.mat-c
   td.mat-column-name {
     min-width: 120px;
     vertical-align: middle;
-    padding-left: 8px;
+    padding-left: .8rem;
     padding-right: 0px;
   }
 
@@ -221,5 +221,10 @@ td.mat-column-efficiency_industry, td.mat-column-efficiency_production, td.mat-c
 
   tr.mat-row{
     height:44px
+  }
+
+  .mat-column-efficiency_production {
+    line-height: 1.2rem;
+    width: 6.6rem;
   }
 }

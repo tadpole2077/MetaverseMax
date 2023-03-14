@@ -1,8 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Inject, Output, ViewChild } from '@angular/core';
-import { PRIMARY_OUTLET, UrlSegment, UrlSegmentGroup, UrlTree, ActivatedRoute, NavigationEnd,RouterEvent, Router, Params } from '@angular/router';
-import { Subscription } from 'rxjs';
-import { Observable } from 'rxjs/Rx';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Inject, NgZone, Output, ViewChild } from '@angular/core';
+import { PRIMARY_OUTLET, UrlSegment, UrlSegmentGroup, UrlTree, ActivatedRoute, NavigationEnd, RouterEvent, Router, Params } from '@angular/router';
 import { OwnerAccount, Globals, WORLD } from '../common/global-var';
 import { NavMenuWorldComponent } from '../nav-menu-world/nav-menu-world.component';
 import { Location } from '@angular/common';
@@ -21,19 +19,19 @@ export class NavMenuComponent {
   private baseUrl: string;
   private rootBaseUrl: string;
   public worldName: string;
-
-  private subTron: Subscription;
-  private attempts: number = 0;
+  private that: any = this;
 
   isExpanded = false;
   @Output() selectWorldEvent = new EventEmitter<any>();
   @ViewChild(NavMenuWorldComponent, { static: true }) menuWorld: NavMenuWorldComponent;
   @ViewChild('menuOwner', { static: false }) menuOwner: ElementRef;
 
-  constructor(private cdf: ChangeDetectorRef, private location: Location, public globals: Globals, public activatedRoute: ActivatedRoute, private router: Router, http: HttpClient, @Inject('BASE_URL') rootBaseUrl: string) {
+
+  constructor(private zone: NgZone, private cdf: ChangeDetectorRef, private location: Location, public globals: Globals, public activatedRoute: ActivatedRoute, private router: Router, http: HttpClient, @Inject('BASE_URL') rootBaseUrl: string) {
 
     this.rootBaseUrl = rootBaseUrl;
     this.httpClient = http;
+    globals.menuCDF = cdf;
 
     //let x = activatedRoute.snapshot;
     this.checkWorldFromURL();
@@ -69,7 +67,7 @@ export class NavMenuComponent {
     }
 
     worldType = worldType == 0 ? WORLD.TRON : worldType;    // Default Tron if no world identified - using old URL with no world segment.    
-    worldType = WORLD.TRON;
+    //worldType = WORLD.TRON;  -- force world use of tron during dev mode
     this.selectWorld(worldType);
 
     return;
@@ -79,18 +77,17 @@ export class NavMenuComponent {
 
     var worldCode = (worldId == WORLD.TRON ? "trx" : worldId == WORLD.BNB ? "bnb" : "eth");
     this.baseUrl = this.rootBaseUrl + "api/" + worldCode;
-
-    const routeTree: UrlTree = this.router.parseUrl(this.location.path());
-    const routeSegmentGroup: UrlSegmentGroup = routeTree.root.children[PRIMARY_OUTLET];
     let segmentList: UrlSegment[];
+    const routeTree: UrlTree = this.router.parseUrl(this.location.path());
     let lastComponentName: string = "/";
     let hasWorldTypeChanged: boolean = false;
 
     hasWorldTypeChanged = this.globals.selectedWorld != worldId;
+    segmentList = this.globals.extractPathComponents(this.location.path());
 
     // Change page URL to match world type
-    if (routeSegmentGroup != undefined) {
-      segmentList = routeSegmentGroup.segments;
+    if (segmentList != null) {
+      
       lastComponentName = segmentList[segmentList.length - 1].path.toLowerCase();
 
       // CHECK if root home page - then ignore componentName as it may be either Empty or a World type - not an actual component name.
@@ -121,7 +118,7 @@ export class NavMenuComponent {
       case "bnb": {
         this.globals.selectedWorld = WORLD.BNB;
         this.globals.worldURLPath = "https://mcp3d.com/bsc/api/image/";
-        this.globals.firstCitizen = 1;
+        this.globals.firstCitizen = 24;
         this.globals.worldCode = "bnb";
         this.globals.worldName = "BSC";
         break;
@@ -151,53 +148,50 @@ export class NavMenuComponent {
   {    
     if (this.globals.selectedWorld == WORLD.TRON) {
 
-      this.globals.metamaskRequestApprove = false;
-
-      // Delay check on Tron Widget load and init, must be a better way of hooking into it.  Try to find Tron account 5 times - 1 per second, on find run WS or end.
-      this.subTron = Observable.interval(1000)
-        .subscribe(
-          (val) => {
-
-            this.attempts++;
-            
-            if (this.globals.selectedWorld == WORLD.TRON) {
-
-              const tronWeb = (window as any).tronWeb;
-              
-              if (tronWeb) {
-
-                this.globals.CheckUserAccountKey(tronWeb.defaultAddress.base58, this.httpClient, this.baseUrl, this.cdf);
-                this.subTron.unsubscribe();
-
-              }
-              else if (this.attempts >= 5) {
-
-                this.subTron.unsubscribe();
-
-              }
-            }
-
-          }
-        );
+      this.globals.requestApprove = false;
+      this.globals.getTronAccounts(this.httpClient, this.baseUrl);
+      
     }
     else if (this.globals.selectedWorld == WORLD.BNB || this.globals.selectedWorld == WORLD.ETH ) {
 
-      this.globals.getEthereumAccounts(this.httpClient, this.baseUrl, this.cdf);
+      this.globals.requestApprove = false;
+      this.globals.getEthereumAccounts(this.httpClient, this.baseUrl, false);      
 
-      // On wallet accuont change - recheck linked account
+    }
+
+    this.setEventListeners(this.globals.selectedWorld);
+  }
+
+  // Only set once to avoid dups, remove listeners when switching worlds.
+  setEventListeners(worldId: number) {
+
+    if (this.globals.selectedWorld == WORLD.TRON) {
+
+      window.removeEventListener("message", this.trxAccountsChanged);
+      window.addEventListener("message", this.trxAccountsChanged);
+
+
+      const ethereum = (window as any).ethereum;
+      if (ethereum) {
+        ethereum.removeListener("accountsChanged", this.ethAccountsChanged);     // ethereum obj using Node.js EventEmitter
+      }
+    }
+    else if (this.globals.selectedWorld == WORLD.ETH || this.globals.selectedWorld == WORLD.BNB )
+    {
+      window.removeEventListener("message", this.trxAccountsChanged);           // Remove Tron event listener
+
+      // On wallet account change - recheck linked account
       const ethereum = (window as any).ethereum;
       if (ethereum) {
 
         var that = this;
 
-        ethereum.on('accountsChanged', function (accounts) {
-          console.log(">>>Ethereum Account Changed<<<");
-          that.globals.getEthereumAccounts(that.httpClient, that.baseUrl, this.cdf) ;
-        });
+        // ethereum obj using Node.js EventEmitter tech
+        ethereum.removeListener("accountsChanged", this.ethAccountsChanged);     // ensure only one instance of Eth event handler - remove any existing, might occur during a world change
+        ethereum.on("accountsChanged", this.ethAccountsChanged);
       }
-
     }
-  }
+  }  
 
   collapse() {
     this.isExpanded = false;
@@ -206,4 +200,46 @@ export class NavMenuComponent {
   toggle() {
     this.isExpanded = !this.isExpanded;
   }
+
+  // to avoid a "Navigation triggered outside Angular zone" error, due to newly rendered links from wallet site link, need to run navigation within zone.run()
+  navMyPortfolio() {
+    this.zone.run(() => {
+      this.router.navigate(['/', this.globals.worldCode, 'owner-data'], { queryParams: { matic: 'myportfolio' }, });
+    });
+  }
+  navRanking() {
+    this.zone.run(() => {
+      this.router.navigate(['/', this.globals.worldCode, 'building-ip'], { });
+    });
+  }
+
+
+  // Using named function var with [ES6 Arrow Function] - allows use of [this] pointing to the original caller class, otherwise the eventEmitter class will be used.
+  private ethAccountsChanged = (accounts) => {
+    console.log("Ethereum Account Changed");
+
+    this.globals.initAccount();
+    this.globals.getEthereumAccounts(this.httpClient, this.baseUrl, true);
+   
+
+  };
+
+  // Using [ES6 Arrow Function], to support (a) using (component) this obj ref (b)support  window.removeEventListener()
+  private trxAccountsChanged = (e) => {
+    /*if (e.data.message && e.data.message.action == "setAccount") {
+      console.log("setAccount event", e.data.message);
+      console.log("current address:", e.data.message.data.address);
+
+      this.globals.checkTronAccountKey(this.httpClient, this.baseUrl, this.cdf);
+    }*/
+
+    if (e.data.message && e.data.message.action == "accountsChanged") {
+      console.log("Tron accountsChanged event", e.data.message);
+      console.log("Tron current address:", e.data.message.data.address);
+
+      this.globals.initAccount();
+      this.globals.checkTronAccountKey(this.httpClient, this.baseUrl, true);
+    }
+
+  };
 }

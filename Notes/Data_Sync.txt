@@ -43,7 +43,7 @@ Performance Enhancements (Nightly Sync):
 
 2) Only process OPENED DISTRICTS plots
 
-3) Check each District (regions/list WS) - Remove unclaimed plots from process List
+3) Check each District (regions/list WS) - Remove unclaimed plots from FULL process List (still need partial process due to sale/price_change)
 	- if claimed plot count has not changed since last run then skip check on all unclimed plots for this district
 	Outcome: 40 to 50% of all plots are unclaimed per district, many districts do not have day to day sales. Major perf improvement.
 	Enhancement Dec-2022
@@ -52,7 +52,48 @@ Performance Enhancements (Nightly Sync):
 	- Results in ~15% reduction in total plots to sync in Tron & Eth world (as of 1-2023)
 	- all related MEGA & HUGE plots are updated to match the master plot sync data (while retaining plot unique data such as abundance, resources, etc)
 
+5) (ENHANCEMENT 2023/01 - 02)
+   Use Partial update process for the following filtered Plots/buildings:
+   FILTER all buildings that have not been sold or transferred since last sync.
+   FILTER all buildings that have not had IP change due to impact of an active/deactivated POI or monument since last data sync.
+   FILTER all buildings that have not had a nearby building built that impacts its IP
+   FILTER all building that has same IP bonus as last sync.
 
+
+===========================================================================
+Nightly Sync - Major Upgrade 2023/01 : Performance Enh
+===========================================================================
+Using: [user/assets/lands] WS to update Plots && [Land/Get] to update owner account details(avator_id & owner_name)
+Issue 1) Owner Account change tracking - cant identify change from [User/Asset/Lands] WS, must use 
+	* [Owner Account] is linked to 1x Avatar, and 1x Avatar name [used by owner account]  
+		[Land/Get] always returns latest avator & name used by account.
+	* Enhancement:
+		* Retreive at least 1 plot (using WS Land/Get) per night / per account. to confirm/update current account name and avator 
+		* If name/avator has changed compared to saved then update all plots for that account with same avatar/name pair.
+		* [Future possible enhancement] Remove avator_id and nickname from plot - use table Owner and OwnerName to store/get single source of these properties.
+	* Tech Solution:
+		Within  plotManage.CheckEmptyPlot(), leave at least one plot for owner, if owner account contains only empty unbuild plots - leave 1 plot in process list.
+		Pass ownerChangeList to  plotManage.AddOrUpdatePlot()
+		Check List for owner, if not found ADD owner + name + avatar_id used for plot update
+
+
+Issue 2) Empty cliamed plot - needs to get updated.
+	* Using [fast] partial updates (user/assets/land) -  plot for sale and price needs to be checked nightly.
+
+
+Issue 3)
+	POI/Monument - need to identify if when state changes (active <> inactive), and Full process any nearby building on state change.
+	Needed: Nightly record POI/Monument active_until date, identify if this has changed since last sync, if a state change has occured since last sync.
+	key Logic (can narrow futher if additional perf improvement needed): 
+		Run full sync on all buildings in district if ANY district POI state change found.
+		Run full sync on all owner plots if ANY owned monument state change found.
+
+	How to identify if Plot was previously using active POI, and its now inactive without getting the full plot details.
+	Q) Am I able identify if any monument on an account has changed state since last sync?
+		Need to know what the prior sync monument actual state active/inactive at that specific time.
+		if it was recorded as active, then can eval current state (active/inactive), and id a change in state.
+		Key Logic: plot.last_updated < plot.poi_active_until then POI/Monument was active on last data sync instance
+		Condition: POI / Monument plot can only have plot.last_updated changed by nightly sync.
 
 ===========================================================================
 Nightly Sync - Setup/Install Instructions :

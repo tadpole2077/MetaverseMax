@@ -43,7 +43,7 @@ namespace MetaverseMax.Controllers
             {
                 if (Task.Run(() => ownerManage.GetFromLandCoord(parameters.plotX, parameters.plotY)).Result != -1) 
                 {
-                    Task.Run(() => ownerManage.GetOwnerLands(ownerManage.ownerData.owner_matic_key)).Wait();
+                    ownerManage.GetOwnerLands(ownerManage.ownerData.owner_matic_key, true, true);
                 }
                 
                 return Ok(ownerManage.ownerData);
@@ -61,7 +61,7 @@ namespace MetaverseMax.Controllers
             {
                 if (Task.Run(() => ownerManage.GetFromMaticKey(parameters.owner_matic_key)).Result != -1)
                 {
-                    Task.Run(() => ownerManage.GetOwnerLands(ownerManage.ownerData.owner_matic_key)).Wait();
+                    ownerManage.GetOwnerLands(ownerManage.ownerData.owner_matic_key, true, true);
                 }
 
                 return Ok(ownerManage.ownerData);
@@ -85,14 +85,14 @@ namespace MetaverseMax.Controllers
         }
 
 
-        [HttpGet("GetOffer")]
-        public IActionResult GetOffer([FromQuery] QueryParametersOwnerOffer parameters)
+        [HttpGet("GetOfferMCP")]
+        public IActionResult GetOfferMCP([FromQuery] QueryParametersOwnerOffer parameters)
         {
             OwnerManage ownerManage = new(_context, common.IdentifyWorld(Request.Path));
 
             if (ModelState.IsValid)
             {
-                return Ok(Task.Run(() => ownerManage.GetOwnerOffer(parameters.matic_key)).Result);                
+                return Ok(Task.Run(() => ownerManage.GetOwnerOfferMCP(parameters.matic_key)).Result);                
             }
 
             return BadRequest("Call is invalid");       // 400 Error   
@@ -103,17 +103,18 @@ namespace MetaverseMax.Controllers
         {
             CitizenManage citizenManage = new(_context, common.IdentifyWorld(Request.Path));
             OwnerCitizenDB ownerCitizenDB = new(_context, common.IdentifyWorld(Request.Path));
+            OwnerManage ownerManage = new(_context, common.IdentifyWorld(Request.Path));
 
             if (ModelState.IsValid)
             {
-                if (parameters.refresh)
-                {
-                    Task.Run(() => citizenManage.GetCitizenMCP(parameters.owner_matic_key)).Wait();
-                    ownerCitizenDB.UpdateCitizenCount();
+                if (parameters.refresh && ownerManage.SetSlowDown(parameters.requester))
+                {                    
+                    Task.Run(() => citizenManage.GetOwnerCitizenCollectionMCP(parameters.owner_matic_key)).Wait();
+                    ownerCitizenDB.UpdateCitizenCount();                    
                     _context.SaveWithRetry();           // GetCitizenMCP call may not save datetime refresh changes due to optimisation of Datasync features.
                 }
-
-                return Ok(citizenManage.GetCitizen(parameters.owner_matic_key));
+                
+                return Ok(citizenManage.GetCitizen(parameters.owner_matic_key, parameters.requester));
             }
 
             return BadRequest("Call is invalid");       // 400 Error   
@@ -127,7 +128,7 @@ namespace MetaverseMax.Controllers
 
             if (ModelState.IsValid)
             {
-                Task.Run(() => citizenManage.GetCitizenMCP(parameters.owner_matic_key)).Wait();
+                Task.Run(() => citizenManage.GetOwnerCitizenCollectionMCP(parameters.owner_matic_key)).Wait();
 
                 return Ok(ownerCitizenDB.UpdateCitizenCount());
             }
@@ -175,5 +176,22 @@ namespace MetaverseMax.Controllers
             return BadRequest("Call is invalid");       // 400 Error   
         }
 
+
+        [HttpGet("UnitTest_UpdateOwnerName")]
+        public IActionResult UnitTest_UpdateOwnerName()
+        {
+            OwnerNameDB ownerNameDB = new OwnerNameDB(_context);
+
+            if (ModelState.IsValid)
+            {
+                OwnerChange ownerChange = new() { owner_matic_key= "0xe4a746550e1ffb5f69775d3e413dbe1b5b734e36", owner_name="TEST", owner_avatar_id=0 };
+                int rowCount =  Task.Run(() => ownerNameDB.UpdateOwnerName(ownerChange)).Result;
+                _context.SaveChanges();
+
+                return Ok(string.Concat("Plots updated :", rowCount));
+            }
+
+            return BadRequest("UnitTest is invalid");       // 400 Error     
+        }
     }
 }

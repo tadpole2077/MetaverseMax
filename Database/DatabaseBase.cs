@@ -15,7 +15,8 @@ namespace MetaverseMax.Database
         // Protected base method, can only be accessed via code(methods) from same class or derived class. 
         protected DatabaseBase(MetaverseMaxDbContext _parentContext) : base(_parentContext)
         {
-            _context = _parentContext;            
+            _context = _parentContext;
+            worldType = _parentContext.worldTypeSelected;
         }
 
     }

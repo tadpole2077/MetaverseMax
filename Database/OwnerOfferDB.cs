@@ -6,12 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MetaverseMax.Database
 {
-    public class OwnerOfferDB
+    public class OwnerOfferDB : DatabaseBase
     {
-        private readonly MetaverseMaxDbContext _context;
-        public OwnerOfferDB(MetaverseMaxDbContext _parentContext)
+        public OwnerOfferDB(MetaverseMaxDbContext _parentContext) : base(_parentContext)
         {
-            _context = _parentContext;
+            worldType = _parentContext.worldTypeSelected;
         }
 
         public List<OwnerOffer> GetbyOwnerMatic(string ownerMaticKey)
@@ -25,8 +24,7 @@ namespace MetaverseMax.Database
             }
             catch (Exception ex)
             {
-                DBLogger dBLogger = new(_context.worldTypeSelected);
-                dBLogger.logException(ex, String.Concat("OwnerOfferDB.SetOffersInactive() : Error executing Raw query "));               
+                logException(ex, String.Concat("OwnerOfferDB.SetOffersInactive() : Error executing Raw query "));               
             }
 
             return ownerOfferList;
@@ -44,8 +42,7 @@ namespace MetaverseMax.Database
             }
             catch (Exception ex)
             {
-                DBLogger dBLogger = new(_context.worldTypeSelected);
-                dBLogger.logException(ex, String.Concat("OwnerOfferDB.SetOffersInactive() : Error executing Raw query "));
+                logException(ex, String.Concat("OwnerOfferDB.SetOffersInactive() : Error executing Raw query "));
             }
 
             return 0;
@@ -66,17 +63,31 @@ namespace MetaverseMax.Database
                     storedOffer.active = ownerOffer.active;
                     storedOffer.sold = ownerOffer.sold;
                     storedOffer.sold_date = ownerOffer.sold_date;
-                }
-                _context.SaveChanges();
-
+                    storedOffer.buyer_offer = ownerOffer.buyer_offer;           // Need to update due to ETH/BNB bug that dropped the price on earlier releases - can remove if needed after live data sync run
+                }                
             }
             catch (Exception ex)
             {
-                DBLogger dBLogger = new(_context.worldTypeSelected);
-                dBLogger.logException(ex, String.Concat("OwnerOfferDB.AddorUpdate() : Error adding offer record to db with offer_id : ", ownerOffer.offer_id.ToString()));
+                logException(ex, String.Concat("OwnerOfferDB.AddorUpdate() : Error adding offer record to db with offer_id : ", ownerOffer.offer_id.ToString()));
             }
 
             return 0;
+        }
+
+        public int RemoveCancelledOffers(List<int> validOffers, string owner_matic_key)
+        {
+            int deleteCount = 0;
+            try
+            {
+                deleteCount =_context.ownerOffer.Where(o => !validOffers.Contains(o.offer_id) && o.token_owner_matic_key == owner_matic_key)
+                    .ExecuteDelete();       // EF 7 feature           
+            }
+            catch (Exception ex)
+            {
+                logException(ex, String.Concat("OwnerOfferDB.RemoveCancelledOffers() : Error removing any cancelled record from db with owner_matic_key : ", owner_matic_key));
+            }
+
+            return deleteCount;
         }
     }
 }

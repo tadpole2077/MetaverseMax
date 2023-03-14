@@ -1,12 +1,11 @@
-
-
 <div class="histroyframe" cdkDrag style="display:inline-table;text-align:left;">
+
   <div class="title">
     <span>Production History</span>
     <div class="targetPlot">(X:{{ plot.x }} Y:{{ plot.y }})</div>
   </div>
   <a class="closeframe" (click)="setHide()"><i class="far fa-window-close fa-2x" role="button"></i></a>
-  
+
   <p class="loading" *ngIf="!history"><em>Searching...</em><i id="searchIcon" class="fas fa-sync-alt searchIcon rotate" style=""></i></p>
 
   <div class="historySummary" [hidden]="!history">
@@ -25,16 +24,16 @@
       </div>
     </div>
 
-    <div class="predict" *ngIf="history && history.prediction && ipEfficiency >-1">
+    <div [hidden]="globals.ownerAccount.pro_tools_enabled == false" class="predict" *ngIf="history && history.prediction && ipEfficiency >-1">
       <div>
         <span class="summaryLabel">Next Run Prediction:</span>
         <span *ngIf="history.prediction.total>0" class="predictionTotal"> {{ history.prediction.total }} </span>
         <span *ngIf="history.prediction.total>0" class="summaryLabel">( {{ history.prediction_product }} )</span>
         <span *ngIf="history.prediction.total==0" class="summaryWarning"><mat-icon class="summaryWarningIcon">info</mat-icon> {{ history.prediction.total_note }} </span>
       </div>
-      <div class="predictControl">
-        <a *ngIf="!showCalcDetail" role="button" (click)="toggleDetail($event)"><span>Show Calculation</span><mat-icon>arrow_drop_down_circle</mat-icon></a>
-        <a *ngIf="showCalcDetail" role="button" (click)="toggleDetail($event)"><span>Hide Calculation</span><mat-icon>arrow_drop_up</mat-icon></a>
+      <div #predictControl class="predictControl">
+        <a *ngIf="!showCalcDetail" role="button" (click)="toggleDetail($event)"><span class="glowCalcText">Show Calculation</span><mat-icon>arrow_drop_down_circle</mat-icon></a>
+        <a *ngIf="showCalcDetail" role="button" (click)="toggleDetail($event)"><span class="glowCalcText">Hide Calculation</span><mat-icon>arrow_drop_up</mat-icon></a>
       </div>
     </div>
 
@@ -86,14 +85,14 @@
             <span class="summarydata">
               <span matBadge="B" matBadgePosition="above before" matBadgeSize="small" matBadgeOverlap="false">
                 {{ history.prediction.ip_efficiency }}%
-               </span>
-               <span class="multi"> * </span>
-               {{ history.prediction.ip_range_percent}}%
-               <span class="multi">=</span>
-               <span class="predictTotal">{{ history.prediction.ip_efficiency_partial }}%</span>
               </span>
-              <span class="summarydata"></span>
-              <span class="summarydata">= {{ history.prediction.ip_produce_rounded }} {{ history.prediction_product }} : Max({{ history.prediction.ip_produce_max }})</span>
+              <span class="multi"> * </span>
+              {{ history.prediction.ip_range_percent}}%
+              <span class="multi">=</span>
+              <span class="predictTotal">{{ history.prediction.ip_efficiency_partial }}%</span>
+            </span>
+            <span class="summarydata"></span>
+            <span class="summarydata">= {{ history.prediction.ip_produce_rounded }} {{ history.prediction_product }} : Max({{ history.prediction.ip_produce_max }})</span>
           </div>
           <div *ngIf="history.prediction.resource_lvl">
             <span>Resource Level {{ history.prediction.resource_lvl}}:</span>
@@ -121,7 +120,12 @@
           </div>
           <div class="borderTop">
             <span>Formula :</span>
-            <span class="summarydata nowarp">Condition% * ( Citizen% + IP%<span *ngIf="history.prediction.resource_lvl"> + Resource%</span> )</span>
+            <span class="summarydata nowarp">
+              Condition% *
+              <span matBadge=" Rnd " matBadgePosition="above after" matBadgeSize="small" matBadgeOverlap="true">( Citizen% + IP%
+                <span *ngIf="history.prediction.resource_lvl"> + Resource%</span> )
+              </span>              
+            </span>
             <span class="summarydata"></span>
             <span class="summarydata"></span>
           </div>
@@ -130,7 +134,7 @@
             <span class="summarydata">
               {{ (10000 + (history.damage_eff_rounded * 100))/100 }}%
               <span class="multi"> * </span>
-              <span>{{ history.prediction.ip_and_cit_percent }}%</span>
+              <span> {{ history.prediction.ip_and_cit_percent_rounded }}% </span>
               <span class="multi"> = </span>
               <span>{{ history.prediction.ip_and_cit_percent_rounded_dmg }}%</span>
             </span>
@@ -148,15 +152,15 @@
             <span class="summarydata">({{ history.prediction.ip_and_cit_produce_dmg }})</span>
           </div>
           <!--
-      <div>
-        <span>Citizen & IP <span *ngIf="history.prediction.resource_lvl"> & Resource</span>:</span>
-        <span class="summarydata"><span class="gold">{{ history.prediction_range}}</span><span class="multi"> * </span><span>{{ history.prediction.ip_and_cit_percent_rounded }}({{ history.prediction.ip_and_cit_percent }})%<span class="multi"> =</span></span></span>
-        <span class="summarydata">{{ history.prediction.ip_and_cit_produce_rounded }}</span>
-        <span class="summarydata">({{ history.prediction.ip_and_cit_produce }})</span>
-      </div>
-    -->
+            <div>
+              <span>Citizen & IP <span *ngIf="history.prediction.resource_lvl"> & Resource</span>:</span>
+              <span class="summarydata"><span class="gold">{{ history.prediction_range}}</span><span class="multi"> * </span><span>{{ history.prediction.ip_and_cit_percent_rounded }}({{ history.prediction.ip_and_cit_percent }})%<span class="multi"> =</span></span></span>
+              <span class="summarydata">{{ history.prediction.ip_and_cit_produce_rounded }}</span>
+              <span class="summarydata">({{ history.prediction.ip_and_cit_produce }})</span>
+            </div>
+          -->
           <div>
-            <span>Standard Produce:</span>
+            <span>Standard Produce:</span>            
             <span class="summarydata"></span>
             <span class="summarydata bottomTopBorder">{{ history.prediction.subtotal_rounded}}</span>
             <span class="summarydata">({{ history.prediction.subtotal }})</span>
@@ -177,13 +181,16 @@
             <span>Total Produce (100% Condition):</span>
             <span class="summarydata"></span>
             <span class="summarydata">{{ history.prediction.total_100}}</span>
-            <span class="summarydata">({{ history.prediction.total_decimal_100}})</span>
+            <span class="summarydata">{{ history.prediction.total_decimal_100 == history.prediction_max ? "MAX PRODUCT" : '(' + history.prediction.total_decimal_100 + ')'}}</span>
           </div>
           <div style="margin-top:.6rem">
             <div style="font-weight:500">
               Changes since last production run:
-              <a class="lineAnim" role="button" (click)="refresh()">
-                <span>( Refresh <i #progressIcon class="fas fa-sync-alt progressIcon"></i> )</span>
+              <a class="lineAnim" role="button" (click)="refresh();">
+                <span>( Refresh </span>
+                <i #progressIcon class="fas fa-sync-alt progressIcon"></i>
+                <i #progressFan class="fas fa-solid fa-fan progressFan rotateFan hideLink"></i>
+                <span> )</span>
               </a>
             </div>
             <div *ngFor="let change of history.changes_last_run">
@@ -272,105 +279,107 @@
 
     </div>
 
-    <div class="table-container" [hidden]="!history">
+    <div class="table-container" [hidden]="!history">      
       <table mat-table [dataSource]="dataSourceHistory" matSort multiTemplateDataRows class="mat-elevation-z8" style="display:inline-table; width:100%">
         <!--table table-striped-->
         <ng-container matColumnDef="amount_produced">
           <th mat-header-cell *matHeaderCellDef mat-sort-header> Amount </th>
-          <td mat-cell *matCellDef="let history"> {{ history.amount_produced
-          }} </td>
-          </ng-container>
-          <ng-container matColumnDef="building_product">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Product </th>
-            <td mat-cell *matCellDef="let history">
-              <span [hidden]="isMobileView">{{ history.building_product }}</span>
-              <span [hidden]="!isMobileView">{{ history.building_product + '(' + history.amount_produced + ')' }}</span>
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="efficiency">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header title="Efficiency%"><span>Eff %</span></th>
-            <td mat-cell *matCellDef="let row">
-              <div>
-                <span>Eff(P): </span>
-                <span style="color:red" [hidden]="!(row.efficiency_p<50)">{{ row.efficiency_p }}</span>
-                <span style="color:darkorange" [hidden]="!(row.efficiency_p>=50 && row.efficiency_p<=80)">{{ row.efficiency_p }}</span>
-                <span style="color:green" [hidden]="!(row.efficiency_p>80)">{{ row.efficiency_p }}</span>%
-              </div>
-              <div>
-                <span>Eff(M): </span>
-                <span style="color:red" [hidden]="!(row.efficiency_m<50)">{{ row.efficiency_m }}</span>
-                <span style="color:darkorange" [hidden]="!(row.efficiency_m>=50 && row.efficiency_m<=80)">{{ row.efficiency_m }}</span>
-                <span style="color:green" [hidden]="!(row.efficiency_m>80)">{{ row.efficiency_m }}</span>%
-              </div>
-              <div>
-                <span>Eff(Cit): </span>
-                <span style="color:red" [hidden]="!(row.efficiency_c<50)">{{ row.efficiency_c }}</span>
-                <span style="color:darkorange" [hidden]="!(row.efficiency_c>=50 && row.efficiency_c<=80)">{{ row.efficiency_c }}</span>
-                <span style="color:green" [hidden]="!(row.efficiency_c>80)">{{ row.efficiency_c }}</span>%
-              </div>
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="efficiency_p">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header title="Production Efficiency - % of Max"> Eff(P) % </th>
-            <td mat-cell *matCellDef="let history">
-              <span style="color:red" [hidden]="!(history.efficiency_p<50)">{{ history.efficiency_p }}</span>
-              <span style="color:darkorange" [hidden]="!(history.efficiency_p>=50 && history.efficiency_p<=80)">{{ history.efficiency_p }}</span>
-              <span style="color:green" [hidden]="!(history.efficiency_p>80)">{{ history.efficiency_p }}</span>%
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="efficiency_m">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header title="Min/Max Efficiency %"> Eff(M) % </th>
-            <td mat-cell *matCellDef="let history">
-              <span style="color:red" [hidden]="!(history.efficiency_m<50)">{{ history.efficiency_m }}</span>
-              <span style="color:darkorange" [hidden]="!(history.efficiency_m>=50 && history.efficiency_m<=80)">{{ history.efficiency_m }}</span>
-              <span style="color:green" [hidden]="!(history.efficiency_m>80)">{{ history.efficiency_m }}</span>%
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="efficiency_c">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header title="Citizen Efficiency %"><span matBadge="A" matBadgePosition="above before" matBadgeSize="small">Eff(Cit) %</span></th>
-            <td mat-cell *matCellDef="let history">              
-              <span style="color:red" [hidden]="!(history.efficiency_c<50)">{{ history.efficiency_c }}</span>
-              <span style="color:darkorange" [hidden]="!(history.efficiency_c>=50 && history.efficiency_c<=80)">{{ history.efficiency_c }}</span>
-              <span style="color:green" [hidden]="!(history.efficiency_c>80)">{{ history.efficiency_c }}</span>%              
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="building_ip">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header title="Citizen Efficiency %"> IP </th>
-            <td mat-cell *matCellDef="let history">
-              <span>{{ history.building_ip }}</span>
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="run_datetime">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Date </th>
-            <td mat-cell *matCellDef="let history"> {{ history.run_datetime }}</td>
-          </ng-container>
+          <td mat-cell *matCellDef="let history">
+            {{ history.amount_produced }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="building_product">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Product </th>
+          <td mat-cell *matCellDef="let history">
+            <span [hidden]="isMobileView">{{ history.building_product }}</span>
+            <span [hidden]="!isMobileView">{{ history.building_product + '(' + history.amount_produced + ')' }}</span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="efficiency">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header title="Efficiency%"><span>Eff %</span></th>
+          <td mat-cell *matCellDef="let row">
+            <div>
+              <span>Eff(P): </span>
+              <span style="color:red" [hidden]="!(row.efficiency_p<50)">{{ row.efficiency_p }}</span>
+              <span style="color:darkorange" [hidden]="!(row.efficiency_p>=50 && row.efficiency_p<=80)">{{ row.efficiency_p }}</span>
+              <span style="color:green" [hidden]="!(row.efficiency_p>80)">{{ row.efficiency_p }}</span>%
+            </div>
+            <div>
+              <span>Eff(M): </span>
+              <span style="color:red" [hidden]="!(row.efficiency_m<50)">{{ row.efficiency_m }}</span>
+              <span style="color:darkorange" [hidden]="!(row.efficiency_m>=50 && row.efficiency_m<=80)">{{ row.efficiency_m }}</span>
+              <span style="color:green" [hidden]="!(row.efficiency_m>80)">{{ row.efficiency_m }}</span>%
+            </div>
+            <div>
+              <span>Eff(Cit): </span>
+              <span style="color:red" [hidden]="!(row.efficiency_c<50)">{{ row.efficiency_c }}</span>
+              <span style="color:darkorange" [hidden]="!(row.efficiency_c>=50 && row.efficiency_c<=80)">{{ row.efficiency_c }}</span>
+              <span style="color:green" [hidden]="!(row.efficiency_c>80)">{{ row.efficiency_c }}</span>%
+            </div>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="efficiency_p">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header title="Production Efficiency - % of Max"> Eff(P) % </th>
+          <td mat-cell *matCellDef="let history">
+            <span style="color:red" [hidden]="!(history.efficiency_p<50)">{{ history.efficiency_p }}</span>
+            <span style="color:darkorange" [hidden]="!(history.efficiency_p>=50 && history.efficiency_p<=80)">{{ history.efficiency_p }}</span>
+            <span style="color:green" [hidden]="!(history.efficiency_p>80)">{{ history.efficiency_p }}</span>%
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="efficiency_m">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header title="Min/Max Efficiency %"> Eff(M) % </th>
+          <td mat-cell *matCellDef="let history">
+            <span style="color:red" [hidden]="!(history.efficiency_m<50)">{{ history.efficiency_m }}</span>
+            <span style="color:darkorange" [hidden]="!(history.efficiency_m>=50 && history.efficiency_m<=80)">{{ history.efficiency_m }}</span>
+            <span style="color:green" [hidden]="!(history.efficiency_m>80)">{{ history.efficiency_m }}</span>%
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="efficiency_c">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header title="Citizen Efficiency %"><span matBadge="A" matBadgePosition="above before" matBadgeSize="small">Eff(Cit) %</span></th>
+          <td mat-cell *matCellDef="let history">
+            <span style="color:red" [hidden]="!(history.efficiency_c<50)">{{ history.efficiency_c }}</span>
+            <span style="color:darkorange" [hidden]="!(history.efficiency_c>=50 && history.efficiency_c<=80)">{{ history.efficiency_c }}</span>
+            <span style="color:green" [hidden]="!(history.efficiency_c>80)">{{ history.efficiency_c }}</span>%
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="building_ip">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header title="Citizen Efficiency %"> IP </th>
+          <td mat-cell *matCellDef="let history">
+            <span>{{ history.building_ip }}</span>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="run_datetime">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Date </th>
+          <td mat-cell *matCellDef="let history"> {{ history.run_datetime }}</td>
+        </ng-container>
 
-          <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
-          <ng-container matColumnDef="expandedDetail">
-            <td mat-cell *matCellDef="let history; let i = dataIndex" [attr.colspan]="displayedColumns.length">
-              <app-citizen-building-table class="citizenTable"
-                                          [@detailExpand]="history == expandedHistory ? 'expanded' : 'collapsed'"
-                                          [index]=i
-                                          [productType]="history.building_product_id"
-                                          [buildingType]="this.historyBuildingType"></app-citizen-building-table>
-            </td>
-          </ng-container>
+        <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+        <ng-container matColumnDef="expandedDetail">
+          <td mat-cell *matCellDef="let history; let i = dataIndex" [attr.colspan]="displayedColumns.length">            
+            <app-citizen-building-table class="citizenTable"
+                                        [@detailExpand]="forceClose == false && history == expandedHistory ? 'expanded' : 'collapsed'"
+                                        [index]=i
+                                        [productType]="history.building_product_id"
+                                        [buildingType]="this.historyBuildingType"></app-citizen-building-table>
+          </td>
+        </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let history; columns: displayedColumns; let i = dataIndex"
-              [class.cit-expanded-row]="expandedHistory === history"
-              (click)="expandedHistory = expandedHistory === history ? null : history; expandedHistory === history ? getCitizenData(history, i) : null ">
-            <!-- Apply class cit-expanded-row to parent row if expanded, checking var expandedHistory is populated on click -->
-          </tr>
+        <tr mat-row *matRowDef="let history; columns: displayedColumns; let i = dataIndex"
+            [class.predict-row]=" history.seq === 1 "
+            [class.cit-expanded-row]="expandedHistory === history"
+            (click)="expandedHistory = expandedHistory === history ? null : history; expandedHistory === history ? getCitizenData(history, i) : null ">
+          <!-- Apply class cit-expanded-row to parent row if expanded, checking var expandedHistory is populated on click -->
+        </tr>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detailRow"></tr>
 
-          <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detailRow"></tr>
-          </table>
-          <mat-paginator [hidden]="hidePaginator" [pageSize]="5" [hidePageSize] [showFirstLastButtons]
-                         (page)="paginationCloseAllExpanded($event)"
-                         class="paginatorContainer">
-          </mat-paginator>
+      </table>
+      <mat-paginator [hidden]="hidePaginator" [pageSize]="5" [hidePageSize] [showFirstLastButtons]
+                     (page)="paginationCloseAllExpanded($event)"
+                     class="paginatorContainer">
+      </mat-paginator>
+    </div>
 
-</div>
     <div class="helpTip">
       <mat-icon>help</mat-icon>
       <span>Click row to expand and show citizens</span>

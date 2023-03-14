@@ -23,7 +23,7 @@
             <a class="nav-link text-dark" [routerLink]="['/', globals.worldCode]">Home</a>
           </li>
           <li #officeFilter *ngIf="globals.ownerAccount.matic_key != 'Not Found'" class="nav-item" [routerLinkActive]="['link-active']">
-            <a class="nav-link text-dark" [routerLink]="['/', globals.worldCode, 'owner-data']" [queryParams]="{matic: globals.ownerAccount.matic_key}">My-Portfolio</a>
+            <a class="nav-link text-dark" (click)="navMyPortfolio()" >My-Portfolio</a>
           </li>
           <li class="nav-item" [routerLinkActive]="['link-active']">
             <a class="nav-link text-dark" [routerLink]="['/', globals.worldCode, 'owner-data']">Plot-Owner</a>
@@ -31,9 +31,9 @@
           <li class="nav-item" [routerLinkActive]="['link-active']">
             <a class="nav-link text-dark" [routerLink]="['/', globals.worldCode, 'district-list']">District</a>
           </li>
-          <li class="nav-item" [routerLinkActive]="['link-active']" *ngIf="globals.ownerAccount.pro_tools_enabled == true">
-            <a class="nav-link text-dark" [routerLink]="['/', globals.worldCode, 'building-ip']">
-              <span>Building-IP</span>
+          <li class="nav-item" [routerLinkActive]="['link-active']" *ngIf="globals.ownerAccount.pro_tools_enabled == true" style="">
+            <a class="nav-link text-dark" (click)="navRanking()">
+              <span>Ranking</span>
               <span class="dayExpiry">{{ globals.ownerAccount.pro_expiry_days }} days</span>
             </a>
           </li>
@@ -42,4 +42,8 @@
       </div>
     </div>
   </nav>
+
+  <app-account-approve></app-account-approve>
+
 </header>
+

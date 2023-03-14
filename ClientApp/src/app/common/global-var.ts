@@ -1,7 +1,14 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { Observable } from 'rxjs/Rx';
+import { Subscription } from 'rxjs';
 import { AccountApproveComponent } from '../account-approve/account-approve.component';
-import detectEthereumProvider from '@metamask/detect-provider';
+import { OwnerDataComponent } from '../owner-data/owner-data.component';
+import DetectEthereumProvider from '@metamask/detect-provider';
+import TronWebProvider from 'tronweb';
+import { Router, UrlSegmentGroup, PRIMARY_OUTLET, UrlSegment, UrlTree, ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
+
 
 interface OwnerAccount {  
   matic_key: string;
@@ -11,6 +18,11 @@ interface OwnerAccount {
   checked: boolean;
   pro_tools_enabled: boolean;
 }
+interface RequestAccountsResponse {
+  code: Number, // 200：ok，4000：In-queue， 4001：user rejected
+  message: String
+}
+
 
 const WORLD = {
   UNKNOWN: 0,
@@ -18,6 +30,12 @@ const WORLD = {
   BNB: 2,
   ETH: 3
 }
+
+const APPROVAL_TYPE = {
+  NONE: 0,
+  NO_WALLET_ENABLED: 1,
+  ACCOUNT_WITH_NO_PLOTS: 2
+} 
 
 @Injectable()
 export class Globals {
@@ -30,14 +48,18 @@ export class Globals {
   public firstCitizen: number = 0;   // Default Tron
   public worldName: string = "Tron";
   public approveSwitchComponent: AccountApproveComponent;
+  public homeCDF: ChangeDetectorRef = null;
+  public menuCDF: ChangeDetectorRef = null;
+  public ownerCDF: ChangeDetectorRef = null;
+  public ownerComponent: OwnerDataComponent = null;
 
 
   // Flag triggers an update on any module that uses the Account Approval component
-  public _metamaskRequestApprove: boolean = false;
-  set metamaskRequestApprove(value) {    
+  public _requestApprove: boolean = false;
+  set requestApprove(value) {    
 
-    let changed = this._metamaskRequestApprove != value;
-    this._metamaskRequestApprove = value;
+    let changed = this._requestApprove != value;
+    this._requestApprove = value;
 
     // Trigger any Approve component to update
     if (changed && this.approveSwitchComponent) {
@@ -48,13 +70,16 @@ export class Globals {
         this.approveSwitchComponent.hide();
       }
     }
-    console.log("RequestApprove:", this._metamaskRequestApprove);
+    console.log("RequestApprove:", this._requestApprove);
   }
-  get metamaskRequestApprove() {
-    return this._metamaskRequestApprove;
+  get requestApprove() {
+    return this._requestApprove;
   }
 
-  constructor() {
+  public approvalType: number = APPROVAL_TYPE.NONE;  
+
+
+  constructor(public router: Router, private location: Location, private route: ActivatedRoute) {
     
     this.initAccount();
     
@@ -69,11 +94,11 @@ export class Globals {
       name: "",
       checked: false,
       pro_tools_enabled: false
-    };
+    };  
 
   }
 
-  CheckUserAccountKey(OwnerPublicKey: string, httpClient: HttpClient, baseUrl: string, requesterComponent: ChangeDetectorRef) {
+  CheckUserAccountKey(OwnerPublicKey: string, httpClient: HttpClient, baseUrl: string, checkMyPortfolio: boolean) {
 
     let params = new HttpParams();
     params = params.append('owner_public_key', OwnerPublicKey);
@@ -83,7 +108,21 @@ export class Globals {
 
         this.ownerAccount = result;
         this.ownerAccount.checked = true;
-        requesterComponent.detectChanges();
+        
+        if (this.ownerAccount.matic_key == "Not Found") {
+          this.requestApprove = true;
+          this.approvalType = APPROVAL_TYPE.ACCOUNT_WITH_NO_PLOTS;          
+        }
+        else {
+          this.requestApprove = false;
+          this.approvalType = APPROVAL_TYPE.NONE;
+        }        
+
+        this.requestApproveRefresh();
+
+        if (checkMyPortfolio) {
+          this.checkMyPortfolio();
+        }
 
       }, error => console.error(error));
 
@@ -91,9 +130,77 @@ export class Globals {
     return;
   }
 
-  async getEthereumAccounts(httpClient: HttpClient, baseUrl: string, requesterCDF: ChangeDetectorRef) {
 
-    const provider = await detectEthereumProvider();
+  async getTronAccounts(httpClient: HttpClient, baseUrl: string) {
+
+    let attempts: number = 0;
+    let subTron: Subscription;
+
+    const tronWebProvider = await TronWebProvider;
+    let requestAccountsResponse: RequestAccountsResponse;
+
+
+    // Delay check on Tron Widget load and init, must be a better way of hooking into it.  Try to find Tron account 5 times - 1 per 500ms, on find run WS or end.
+    subTron = Observable.interval(500)
+      .subscribe(
+        async (val) => {
+
+          attempts++;
+          const tronWebProvider = await TronWebProvider;
+          const tronWeb = (window as any).tronWeb;
+
+          if (attempts >= 5) {
+
+            subTron.unsubscribe();
+
+          }
+          else if (tronWeb) {
+
+            subTron.unsubscribe();
+
+            let x = tronWeb.isConnected();
+            //x.then(() => { console.log("connection response : " + x) });
+            //let x2 = tronWeb.isTronLink;      // true/false - will also Force an dApp approve connection.
+
+            this.checkTronAccountKey(httpClient, baseUrl, false);
+
+
+            //requestAccountsResponse = await tronWebProvider.request({ method: 'tron_requestAccounts' });
+            //requestAccountsResponse = await tronWeb.request({ method: 'tron_requestAccounts' });
+            //if (requestAccountsResponse) {
+            //    console.log("requestAccountsResponse : " + requestAccountsResponse);}
+            //}
+          }
+        }
+      );
+  }
+
+  checkTronAccountKey(httpClient: HttpClient, baseUrl: string, checkMyPortfolio: boolean) {
+
+    const tronWeb = (window as any).tronWeb;
+    let ownerPublicKey: any = tronWeb.defaultAddress;
+
+    if (ownerPublicKey != null && ownerPublicKey.base58 != false) {
+
+      this.CheckUserAccountKey(ownerPublicKey.base58, httpClient, baseUrl, checkMyPortfolio);
+     
+    }
+    else {
+      
+      this.requestApprove = true;
+      this.approvalType = APPROVAL_TYPE.NO_WALLET_ENABLED;
+      this.requestApproveRefresh();
+      if (checkMyPortfolio) {
+        this.checkMyPortfolio();
+      }
+    }
+    
+  }
+
+  // Triggered by (a) Change World Type (b) On initial load of page or redirect load
+  async getEthereumAccounts(httpClient: HttpClient, baseUrl: string, checkMyPortfolio: boolean) {
+
+    const provider = await DetectEthereumProvider();
     const ethereum = (window as any).ethereum;
 
     if (provider && provider.isMetaMask) {
@@ -107,28 +214,39 @@ export class Globals {
       const accounts = await ethereum.request({ method: 'eth_accounts' });
 
       if (accounts && accounts.length) {
+
         console.log(">>>Ethereum Account linked<<<");
         console.log("Key = ", ethereum.selectedAddress);
-        //this.ethPublicKey = ethereum.selectedAddress;
-        this.metamaskRequestApprove = false;
+        this.requestApprove = false;        
 
-        this.CheckUserAccountKey(ethereum.selectedAddress, httpClient, baseUrl, requesterCDF);
+        this.CheckUserAccountKey(ethereum.selectedAddress, httpClient, baseUrl, checkMyPortfolio);
       }
       else {
         console.log(">>>No Ethereum Account linked<<<");
         console.log("ChainId = ", chainId);
-        this.metamaskRequestApprove = true;
-      }
 
+        this.requestApprove = true;
+        this.requestApproveRefresh();
+
+        if (checkMyPortfolio) {
+          this.checkMyPortfolio();
+        }
+      }      
     }
 
     return;
   }
 
+  async approveTronAccountLink(httpClient: HttpClient, baseUrl: string) {
 
-  async approveEthereumAccountLink(httpClient: HttpClient, baseUrl: string, requesterCDF: ChangeDetectorRef) {
+    const tronWeb = (window as any).tronWeb;
+    let ownerPublicKey: any = tronWeb.defaultAddress;
 
-    const provider = await detectEthereumProvider();
+  }
+
+  async approveEthereumAccountLink(httpClient: HttpClient, baseUrl: string) {
+
+    const provider = await DetectEthereumProvider();
     const ethereum = (window as any).ethereum;
 
     const accountsApproved = await ethereum.request({ method: 'eth_requestAccounts' });
@@ -141,19 +259,66 @@ export class Globals {
       console.log("Key = ", ethereum.selectedAddress);
 
       this.ownerAccount.public_key = ethereum.selectedAddress;
-      this.metamaskRequestApprove = false;
+      this.requestApprove = false;      
     }
     else {
       console.log(">>>No Ethereum Account linked<<<");
       console.log("ChainId = ", chainId);
-      this.metamaskRequestApprove = true;
+      this.requestApprove = true;
     }
 
     return account;
+  }
+
+  requestApproveRefresh() {
+    if (this.approveSwitchComponent) {
+      this.approveSwitchComponent.update();
+    }
+
+    if (this.menuCDF) {
+      this.menuCDF.detectChanges();
+    }
+    if (this.homeCDF) {
+      this.homeCDF.detectChanges();   // show/hide buttons based on account settings.
+    }
+
+  }
+
+  checkMyPortfolio() {
+
+    // CHECK if owner-data?matic=myportfolio, then reload portfolio as account just linked
+    let segmentList: UrlSegment[] = this.extractPathComponents(this.location.path());
+    if (segmentList) {
+
+      let lastComponentName: string = segmentList[segmentList.length - 1].path.toLowerCase();
+      let requestOwnerMatic = this.route.snapshot.queryParams["matic"];
+      if (lastComponentName == "owner-data" && requestOwnerMatic == "myportfolio") {
+        
+        if (this.ownerComponent) {
+          this.ownerComponent.triggerSearchByMatic(true);
+        }
+      }
+    }
+  }
+
+  // typically para extractPathComponents(this.location.path())
+  extractPathComponents(path: string) {
+
+    const routeTree: UrlTree = this.router.parseUrl(path);
+    const routeSegmentGroup: UrlSegmentGroup = routeTree.root.children[PRIMARY_OUTLET];
+    let segmentList: UrlSegment[] = null;
+    let lastComponentName: string = "/";
+
+    if (routeSegmentGroup != undefined) {
+      segmentList = routeSegmentGroup.segments;
+    }
+
+    return segmentList;
   }
 }
 
 export {
   OwnerAccount,
-  WORLD
+  WORLD,
+  APPROVAL_TYPE
 }

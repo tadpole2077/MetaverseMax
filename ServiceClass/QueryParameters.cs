@@ -35,6 +35,7 @@ namespace MetaverseMax.ServiceClass
         public string owner_matic_key { get; set; }
 
     }
+
     public class QueryParametersOwnerDataMaticRefresh
     {
         // Using BingRequired attribute and not Required as it forces a specific use of a parameter name
@@ -43,6 +44,9 @@ namespace MetaverseMax.ServiceClass
 
         [BindRequired]
         public bool refresh { get; set; }
+
+        [BindRequired]
+        public string requester { get; set; }
 
     }
 
@@ -56,8 +60,8 @@ namespace MetaverseMax.ServiceClass
 
     public class QueryParametersOwnerOffer
     {
-        [BindRequired]
-        public bool active { get; set; }
+        //[BindRequired]
+        //public bool active { get; set; }
 
         [BindRequired]
         public string matic_key { get; set; }
@@ -177,8 +181,10 @@ namespace MetaverseMax.ServiceClass
         public int token_id { get; set; }
 
         [BindRequired]
-        public int full_refresh { get; set; }            
+        public int full_refresh { get; set; }
 
+        [BindRequired]
+        public string requester { get; set; }
     }
 
     public class QueryParametersCitizenHistory

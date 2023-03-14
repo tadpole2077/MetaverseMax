@@ -47,7 +47,7 @@ namespace MetaverseMax.Database
         [Column("on_sale")]
         public bool on_sale { get; set; }
 
-        [Column("for_rent")]
+        [Column("for_rent", TypeName = "decimal(16, 4)")]
         public decimal for_rent { get; set; }
 
         [Column("rented")]
@@ -137,5 +137,8 @@ namespace MetaverseMax.Database
 
         [NotMapped]
         public bool active_building { get; set; }
+
+        [Column("citizen_count")]
+        public int citizen_count { get; set; }
     }
 }

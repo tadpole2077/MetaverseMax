@@ -16,7 +16,7 @@ interface GraphColumn {
   series: GraphSeries[]
 }
 interface GraphSeries {
-  name: string;
+  name: string | number;
   value: number;
 }
 

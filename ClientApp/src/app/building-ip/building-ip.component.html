@@ -21,10 +21,10 @@
   <img src="{{ globals.worldURLPath }}citizen/{{ globals.firstCitizen }}" class="defaultAvatorImg" height="160" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </div>
 
-<h3 id="tableLabel">Building IP League</h3>
+<h3 class="featureHeader">Building Ranking League</h3>
 
-<h6>View ranked listing of buildings based on IP (Influence Points)</h6>
-<p style="margin-top:1rem">Select a building type and level to start search</p>
+<h6 class="featureDesc">View ranked listing of buildings based on IP (Influence Points)</h6>
+<p  class="featureInstruct">Select a building type and level to start search</p>
 <p class="loading" *ngIf="buildingType>0 && !buildingCollection"><em>Searching...</em><i id="searchIcon" class="fas fa-sync-alt searchIcon rotate" style=""></i></p>
 
 <app-prod-history [hidden]="!this.historyShow" (hideHistoryEvent)="hideHistory($event)"></app-prod-history>
@@ -35,7 +35,7 @@
     <mat-expansion-panel-header>
       <mat-panel-title>
         <mat-icon>info</mat-icon>
-        <span style="margin-left:.2rem">Building Level IP Details</span>
+        <span>Building Level IP Details</span>
       </mat-panel-title>
       <mat-panel-description>
       </mat-panel-description>
@@ -67,7 +67,7 @@
     <mat-expansion-panel-header>
       <mat-panel-title>
         <mat-icon>build</mat-icon>
-        <span style="margin-left:.2rem">Active Buildings</span>
+        <span>Active Buildings</span>
       </mat-panel-title>
       <mat-panel-description>
       </mat-panel-description>
@@ -121,27 +121,6 @@
           </div>
         </div>
       </div>
-      <!--
-      <div *ngIf="buildingCollection.building_lvl>5">
-        <div class="overProd"><span>App Bonus Bug - Over Production</span></div>
-        <div>
-          <div class="resourceCol">
-            <div><span>Weekly</span></div>
-            <div class="resourceTotal" *ngFor="let resource of buildingCollection.total_produced_excess">
-              <span>{{resource.name}}</span>
-              <span>{{resource.totalFormat}}</span>
-            </div>
-          </div>
-          <div class="resourceCol">
-            <div><span>Monthly</span></div>
-            <div class="resourceTotal" *ngFor="let resource of buildingCollection.total_produced_month_excess">
-              <span>{{resource.name}}</span>
-              <span>{{resource.totalFormat}}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      -->
     </div>
   </mat-expansion-panel>
 
@@ -149,7 +128,7 @@
     <mat-expansion-panel-header>
       <mat-panel-title>
         <mat-icon>history</mat-icon>
-        <span style="margin-left:.2rem">Produce Prediction Eval</span>
+        <span>Produce Prediction Eval</span>
       </mat-panel-title>
       <mat-panel-description>
       </mat-panel-description>
@@ -190,6 +169,7 @@
 
 </mat-accordion>
 
+<app-building-filter [hidden]="!this.buildingFilterShow" (filterBuildingEvent)="filterBuilding($event)"></app-building-filter>
 
 <div class="table-container" [hidden]="!buildingCollection || !buildingCollection.buildings || !buildingCollection.buildings.length">
 
@@ -210,7 +190,7 @@
     </mat-form-field>
   </div>
   <div class="filterControls">
-    <div class="activeFilter" fxLayout fxLayoutAlign="center center" [hidden]="buildingType!=5 && buildingType!=3 && buildingType!=7">
+    <div class="activeFilter" fxLayout fxLayoutAlign="center center" [hidden]="buildingType!=5 && buildingType!=3 && buildingType!=7 && buildingType!=6">
       <div>
         <mat-checkbox #activeChkbox
                       fxFlex="30%"
@@ -261,9 +241,10 @@
     <ng-container matColumnDef="rank">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>
         <span matBadge="B" matBadgePosition="above before" matBadgeSize="small" class="long-text">IP Efficiency %</span>
+        <span matBadge="B" matBadgePosition="above before" matBadgeSize="small" class="short-text">IP Eff%</span>
       </th>
       <td mat-cell *matCellDef="let row" [style.height]="row.warn != '' ? '5.1rem' :'0'">
-        <span>{{row.rank}}%</span>
+        <span class="rankEff">{{row.rank}}%</span>
 
         <a class="magnifyHistoryPositioner" *ngIf="buildingType==5 || buildingType==3 || buildingType==7" role="button" (click)="showHistory(row.id, row.pos_x, row.pos_y, buildingType, row.rank)">
           <img src="./assets/MagnifyHistory.png" class="magnifyHistoryIcon" height="30" />
@@ -278,7 +259,7 @@
 
     <ng-container matColumnDef="ip_t">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>
-        <span class="long-text">Total IP</span>
+        <span class="long-text">Total IP</span><span class="short-text">Total IP</span>
       </th>
       <td mat-cell *matCellDef="let row">
         <span>{{ row.ip_t}}</span>
@@ -287,7 +268,7 @@
 
     <ng-container matColumnDef="ip_b">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>
-        <span class="long-text">Base influence</span>
+        <span class="long-text">Base influence</span><span class="short-text">Base IP</span>
       </th>
       <td mat-cell *matCellDef="let row">
         <span>{{ row.ip_b }}</span>
@@ -296,7 +277,7 @@
 
     <ng-container matColumnDef="bon">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>
-        <span class="long-text">IP Bonus</span>
+        <span class="long-text">IP Bonus</span><span class="short-text">Bonus</span>
       </th>
       <td mat-cell *matCellDef="let row">
         <span>{{ row.bon }}</span>%
@@ -307,8 +288,8 @@
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Owner </th>
       <td mat-cell *matCellDef="let row">
 
-        <img *ngIf="row.name_id >0" src="{{ globals.worldURLPath }}citizen/{{ row.name_id }}" class="ownerImgCol" height="60" crossorigin="anonymous" referrerpolicy="no-referrer" />
-        <img *ngIf="row.name_id ==0" src="./images/MysteryOwner.png" class="ownerImgCol" height="50" style="margin-top:0" />
+        <img *ngIf="row.nid >0" src="{{ globals.worldURLPath }}citizen/{{ row.nid }}" class="ownerImgCol" height="60" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <img *ngIf="row.nid ==0" src="./images/MysteryOwner.png" class="ownerImgCol" height="50" style="margin-top:0" />
 
         <a class="nav-link lineAnim" [routerLink]="['/', globals.worldCode, 'owner-data']" [queryParams]="{matic: row.name_m}" title="{{ row.name }}">
           <span *ngIf="row.name !=''">{{ row.name }}</span>
@@ -320,7 +301,7 @@
     <ng-container matColumnDef="con">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>
         <span matBadge="C" matBadgePosition="above before" matBadgeSize="small" class="long-text">Damage Points</span>
-        <span class="short-text"></span>
+        <span class="short-text">Dmg #</span>
       </th>
       <td mat-cell *matCellDef="let row">
         <span *ngIf="row.con ==100" style="color:green">{{ 100 - row.con }}</span>
@@ -331,7 +312,7 @@
 
     <ng-container matColumnDef="pre">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>
-        <span class="long-text">Predict Eval</span><span class="short-text"></span>
+        <span class="long-text">Predict Eval</span><span class="short-text">Eval</span>
       </th>
       <td mat-cell *matCellDef="let row">
         <div>
@@ -344,7 +325,7 @@
 
     <ng-container matColumnDef="dis">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>
-        <span class="long-text">District #</span><span class="short-text"></span>
+        <span class="long-text">District #</span><span class="short-text">District#</span>
       </th>
       <td mat-cell *matCellDef="let row">
         <a class="lineAnim" [routerLink]="['/', globals.worldCode, 'district-summary']" [queryParams]="{district_id: row.dis}" title="Open District page">{{ row.dis}}</a>

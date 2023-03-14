@@ -113,11 +113,12 @@ namespace MetaverseMax.Controllers
         }
 
         [HttpGet("UpdateAllOpenedDistricts")]
-        public IActionResult UpdateAllOpenedDistricts(QueryParametersSecurity parametersSecurity)
+        public IActionResult UpdateAllOpenedDistricts([FromQuery]QueryParametersSecurity parametersSecurity)
         {
             DistrictManage districtManage = new(_context, common.IdentifyWorld(Request.Path));
             if (ModelState.IsValid)
             {
+                districtManage.ArchiveOwnerSummaryDistrict();
                 return Ok(Task.Run(() => districtManage.UpdateAllDistricts(parametersSecurity.secure_token)).Result);
             }
             return BadRequest("District update action is invalid");

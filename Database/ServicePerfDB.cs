@@ -44,7 +44,16 @@ namespace MetaverseMax.Database
                 if (counter > 50)
                 {
                     _context.SaveChanges();
-                    counter = 0;
+
+                    if (worldType == WORLD_TYPE.ETH) {
+                        counterETH = 0;
+                    }
+                    else if (worldType == WORLD_TYPE.BNB){
+                        counterBNB = 0;
+                    } 
+                    else if (worldType == WORLD_TYPE.TRON) {
+                        counterTRX = 0;
+                    }
                 }
 
                 returnCode = RETURN_CODE.SUCCESS;

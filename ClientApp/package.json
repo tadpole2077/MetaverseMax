@@ -38,6 +38,7 @@
     "rxjs": "^6.6.3",
     "rxjs-compat": "^6.6.7",
     "sass-loader": "10.1.1",
+    "tronweb": "^5.0.0",
     "zone.js": "0.10.3"
   },
   "devDependencies": {

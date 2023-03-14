@@ -1,0 +1,80 @@
+﻿
+Nightly Sync:
+=================
+WS: https://ws-tron.mcp3d.com/user/assets/citizens
+Applies to: All accounts with at least 1 plot
+Process Tree:
+	CitizenManage.GetCitizenMCP()
+	>> CitizenManage.Expire()					NoteA
+	>>>> CitizenManage.CitizenUpdateEvents()	NoteB
+	>> CitizenManage.UpdateCitizen()			NoteC
+	>>>> CitizenManage.CheckSalePrice()			https://ws-tron.mcp3d.com/sales/info
+
+NoteA:
+	Iterate though all saved Citizen for each owner account
+	Find any citizens no longer owned by account
+	Each cit no longer owned >> Call CitizenUpdateEvents().  
+	NOTE that not all citizens will have history evaluated, only if no longer owned.
+
+NoteB - History Actions:
+	Usage: 
+		Nightly Sync, Ranking Refresh(Manual trigger)
+	Trigger: 
+		Land/Owner/Pet Changed [compared to db store]
+	Logic: 
+		Gets all Citizen history actions since citizen [OwnerCitizen.Refreshed_last] datetime.
+	
+
+NoteC:
+	If citizen for sale, and db stored SaleKey differs from MCP latest, call CheckSalePrice() >> get latest sale price
+	Update all Citizen details and in local db store. (breed, price, name, stamina )
+	Update link record - if pet/land/owner changed (OwnerCitizen) 
+
+
+Special Cases:
+	Refresh_history:  bool field on citizen table
+	Logic:
+		When refresh flag set to true, last 40 days of citizen histry actions processed - update local db store.
+	Values:
+		true = if WS exception fault occurs in GetCitizenHistoryMCP()
+		false = default on new cit
+	Uses:
+		OwnerCitizenDB.DeleteHistory()  to remove last 40 days of citizen actions from ownerCitizen table
+
+
+===========================================
+Ranking Feature - Manual Refresh
+===========================================
+	Main Call: BuildingManage.FullRecheckCitizens()
+	Scope: 
+		Specific 1x Building
+	Logic:
+		Citizen Filter:
+			(a) each citizen currently assigned to Building (gets latest cit assigned to building via MCP WS call)
+			(b) process for any citizens removed from building since last sync.
+	
+		Process 
+			each citizen >> CitizenManage.GetCitizenMCP()
+		
+		Event Log:
+			Any citizens removed/swapped log : "x Citizen removed/swapped since last run"
+
+
+=========================================
+KEY METHODS
+=========================================
+BuildingManage.CheckBuildingCitizenHistory()
+	Called By:
+
+	Logic:
+		Iterate though passed list of Citizens,  process 
+			(a) all citizens with no valid_to_date (meaning current active), 
+			(b) valid_to_date >= Run eventDate 
+			(c)link_date < Run eventDate
+		
+		Per filtered Citizen > CAll CitizenManage.CitizenUpdateEvents()
+			(a) CAll CitizenManage.GetCitizenHistoryMCP() - processing all history actions from passed Run.eventDate -1 days
+
+		Return count of Citizen Actions identified and processed 
+		Log Event: "x Citizen history action records evaluated for account:"
+

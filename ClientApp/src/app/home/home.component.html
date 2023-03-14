@@ -1,7 +1,6 @@
 <div class="homeContent">
   <h2>MetaverseMax!</h2>
   <p>Get the Max value from your Metaverse:</p>
-  <img src="./assets/circle-cropped.png" class="logoImg" height="100" />
   <div>
     <div class="discordButton">
       <a class="widgetLogo-6zH6Nv" href="https://discord.gg/CYmCtBjs9v" target="_blank"></a>
@@ -9,9 +8,10 @@
 
     <a style="display:none" href="https://twitter.com/MetaverseMax?ref_src=twsrc%5Etfw" target="_blank" class="twitter-follow-button" data-size="large" data-show-count="false">Follow @MetaverseMax</a>
   </div>
+  <img src="./assets/circle-cropped.png" class="logoImg" height="100" />
 
   <div class="actionPanel" style="--card-margin-bottom: var(--spacing-3xl); ">
-    <a [hidden]="globals.ownerAccount.matic_key == 'Not Found'" [routerLink]="['/', worldCode, 'owner-data']" [queryParams]="{matic: globals.ownerAccount.matic_key}" class="action">
+    <a [hidden]="globals.ownerAccount.matic_key == 'Not Found'" [routerLink]="['/', worldCode, 'owner-data']" [queryParams]="{matic: 'myportfolio'}" class="action">
       <i class="fas fa-city"></i>
       <span>My Portfolio</span>
       <!--<i class="fa-solid fa-house-building" style=""></i>-->
@@ -28,29 +28,135 @@
       <span>District Report</span>
     </a>
 
-    <a class="action" style="display:none" [routerLink]="['/', worldCode, 'building-ip']">
+    <a [hidden]="globals.ownerAccount.pro_tools_enabled == false" class="action" style="" [routerLink]="['/', worldCode, 'building-ip']">
       <i class="fas fa-building"></i>
-      <span>Building IP</span>
+      <span>Ranking</span>
     </a>
   </div>
 
   <div id="introBlock">
     <ul class="introList">
-      <li>Beta Version 0.14 (2022_04_27) : Features may become unstable at any time due to active development</li>
-      <li>Initial features tools are for MEGA WORLD. Specifically Tron World during early Beta</li>
-      <li>If you love our tools, encourage us to keep on developing them for MCP World. A donation of Energy, Water, any materials or Trx keeps the dev production run going and fueled on coffee!</li>
-      <li>Donate to our either our In-Game or Tron Trx account (click to copy): <button class="btn btn-primary" (click)="copyMessage('TWpDTFNtM7qQr9vKNJBxhsed7TTwZsyCPu')" title="click to copy">TWpDTFNtM7qQr9vKNJBxhsed7TTwZsyCPu</button></li>
+      <li>Version 1.1.2 (2023_03_10)</li>
+      <li>Our tools currently support 3x "MEGA WORLD" metaverse environments: <a target="_blank" href="https://play.mcp3d.com/ethereum">Eth</a> / <a target="_blank" href="https://play.mcp3d.com/bsc">BSC</a> / <a target="_blank" href="https://play.mcp3d.com/tron">Tron</a>.</li>
+      <li>Notice will be given within our discord channel before any scheduled outage-deployment occurance. Please report any bugs within our discord channel</li>
+      <li>
+        Creator tips: Throw a coin to your witcher (click2copy)
+        <span class="tipWallet">
+          @eth/@bnb :
+          <button class="btn btn-primary" (click)="copyMessage('0xb197dC47fCbE7D7734B60fA87FD3b0BA0ACaf441')" title="click to copy">0xb197dC47fCbE7D7734B60fA87FD3b0BA0ACaf441</button>
+        </span>
+        <span class="tipWallet">
+          @tron :
+          <button class="btn btn-primary" (click)="copyMessage('TWpDTFNtM7qQr9vKNJBxhsed7TTwZsyCPu')" title="click to copy">TWpDTFNtM7qQr9vKNJBxhsed7TTwZsyCPu</button>
+        </span>
+      </li>
       <li>Please report any bugs, issues and suggestions at our new discord channel @ <a target="_blank" href="https://discord.gg/CYmCtBjs9v">Discord Metaverse</a></li>
     </ul>
   </div>
 
   <mat-accordion class="example-headers-align" multi>
 
+    <mat-expansion-panel expanded="false" style="">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>new_releases</mat-icon>
+          <span style="margin-left:.2rem">Release Notes (Latest)</span>
+        </mat-panel-title>
+        <mat-panel-description>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      <ng-template matExpansionPanelContent>
+        <div class="infoSection">
+          <div class="infoBlockImg blockRight">
+            <img src="./assets/world_selection.png" class="promoImg" height="160" />
+            <img src="./assets/wallet_connect.png" class="promoImg" height="200" />
+          </div>
+          <div class="infoBlock blockLeft">
+            <h3>Access</h3>
+            Select MegaWorld type via single click of top menu.
+            <ul style="margin-top:.6rem">
+              <li>Instant switch between world views.</li>
+              <li>To enable MyPortfolio and "ProTools" feature, site connent permission is required to view-confirm your Public Key.</li>
+              <li>A reduced set of feature can be used with no site wallet connection.</li>
+              <li>MetaverseMax features issue no transaction signage on your wallet</li>
+              <li>Tron and Metamask wallet types are currently supported</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="infoSection">
+          <div class="infoBlockImg blockLeft">
+            <img src="./assets/building_ranking.png" class="promoImg" height="300" />
+          </div>
+          <div class="infoBlock blockRight">
+            <h3>Ranking</h3>
+            Building Ranking - ProTools Feature.
+            <ul style="margin-top:.6rem">
+              <li>View every building IP ranking per building type and level</li>
+              <li>Extensive set of Filters : For sale / Active production/ Rent / Owner / Building type etc</li>
+              <li>Combined pricing data and district tax to help identify the best available deals</li>
+              <li>Access to production history and next run prediction - via analysis icon per building</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="infoSection">
+          <div class="infoBlockImg blockRight">
+            <img src="./assets/ranking_summary.png" class="promoImg" height="180" />
+          </div>
+          <div class="infoBlock blockLeft">
+            <h3>Ranking Summary</h3>
+            Building Ranking - ProTools Feature.
+            <ul style="margin-top:.6rem">
+              <li>View summary of active vs inactive buildings</li>
+              <li>View max production of currently active buildings</li>
+              <li>Identify production gaps and optimal type of building to build</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="infoSection">
+          <div class="infoBlockImg blockLeft">
+            <img src="./assets/prediction_calc.png" class="promoImg" height="380" />
+          </div>
+          <div class="infoBlock blockRight">
+            <h3>Prediction - Next Run</h3>
+            Prediction calculation Feature.
+            <ul style="margin-top:.6rem">
+              <li>View step by step calculation of Current Run Prediction</li>
+              <li>Apply changes [change citizens, pets] and run refresh to update prediction calculation</li>
+              <li>Identify change needed to reach next 'step' in production output</li>
+              <li>Check impact of current damage, evaluate repair cost vs output gain</li>
+              <li>Feature identifies all changes since last run - including temp use of Pets, IP, ranking, citizen, building changes</li>
+              <li>Click show/Hide Calculation to view breakdown, click table row to view citizens and pets used in each run</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="infoSection">
+          <div class="infoBlockImg blockRight">
+            <img src="./assets/ranking_mobile_combo.png" class="promoImg" height="380" />
+          </div>
+          <div class="infoBlock blockLeft">
+            <h3>Responsive Design</h3>
+            Mobile support added for new features.
+            <ul style="margin-top:.6rem">
+              <li>Filter and buttons realigned for optimal touch click</li>
+              <li>Table data reduced and compacted</li>
+              <li>Popups aligned to full screen width and height</li>
+            </ul>
+          </div>
+        </div>
+        
+      </ng-template>
+    </mat-expansion-panel>
+
+
     <mat-expansion-panel expanded="false">
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>new_releases</mat-icon>
-          <span style="margin-left:.2rem">Release Notes</span>
+          <span style="margin-left:.2rem">Release Notes (Historic)</span>
         </mat-panel-title>
         <mat-panel-description>
         </mat-panel-description>
@@ -270,7 +376,7 @@
         </div>
 
       </ng-template>
-      
+
       <!--<ng-container *ngTemplateOutlet="matExpansionPanelContent"></ng-container>-->
 
     </mat-expansion-panel>
@@ -336,7 +442,7 @@
       <div>
         <a class="partnerLink" href="https://mcphq.io/" target="_blank"><img src="./assets/MCPHQ_LOGO.png" height="40" /></a>
 
-        <a class="partnerLink library" href="https://wiki.mcp.tips/" target="_blank">
+        <a class="partnerLink library" href="https://mcp.tips/" target="_blank">
           <mat-icon>local_library</mat-icon>
           <span>Wiki</span>
         </a>

@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -30,7 +29,7 @@ namespace MetaverseMax.Database
         }
 
         // ADD new Citizen record if none found, or UPDATE if key attributes changed (traits, name, onsale, price) - due to assignment or removal of PET
-        public CitizenChange AddorUpdate(Citizen citizen, Citizen storedCitizen, bool saveFlag)
+        public CitizenChange AddorUpdate(Citizen citizen, Citizen storedCitizen, bool saveFlag, bool skipPriceCheck)
         {
             CitizenChange citizenChange = new (){ historyRefresh = false, updateFound = false };
             try
@@ -44,8 +43,8 @@ namespace MetaverseMax.Database
                 // Find if record already exists, if not add it.
                 if (storedCitizen == null)
                 {
-                    citizen.last_update = DateTime.Now.ToUniversalTime();
-                    citizen.create_date = DateTime.Now.ToUniversalTime();
+                    citizen.last_update = DateTime.UtcNow;
+                    citizen.create_date = DateTime.UtcNow;
 
                     _context.citizen.Add(citizen);
                     citizenChange.updateFound = true;
@@ -57,8 +56,12 @@ namespace MetaverseMax.Database
                 }
                 else if (storedCitizen.breeding != citizen.breeding ||
                     storedCitizen.name != citizen.name ||
-                    storedCitizen.on_sale != citizen.on_sale ||
-                    storedCitizen.on_sale_key != citizen.on_sale_key ||
+                    (
+                        skipPriceCheck == false && (
+                            storedCitizen.on_sale != citizen.on_sale ||
+                            storedCitizen.on_sale_key != citizen.on_sale_key
+                        )
+                    ) ||
                     storedCitizen.current_price != citizen.current_price ||
                     storedCitizen.trait_agility != citizen.trait_agility ||
                     storedCitizen.trait_strength != citizen.trait_strength ||
@@ -78,9 +81,13 @@ namespace MetaverseMax.Database
 
                     storedCitizen.breeding = citizen.breeding;
                     storedCitizen.name = citizen.name;
+
                     storedCitizen.current_price = citizen.current_price;
-                    storedCitizen.on_sale = citizen.on_sale;
-                    storedCitizen.on_sale_key = citizen.on_sale_key;
+                    if (skipPriceCheck == false)
+                    {
+                        storedCitizen.on_sale = citizen.on_sale;
+                        storedCitizen.on_sale_key = citizen.on_sale_key;
+                    }
 
                     storedCitizen.trait_agility = citizen.trait_agility;
                     storedCitizen.trait_strength = citizen.trait_strength;
@@ -97,7 +104,7 @@ namespace MetaverseMax.Database
                     storedCitizen.efficiency_office = citizen.efficiency_office;
                     storedCitizen.efficiency_municipal = citizen.efficiency_municipal;
 
-                    storedCitizen.last_update = DateTime.Now.ToUniversalTime();
+                    storedCitizen.last_update = DateTime.UtcNow;
                     storedCitizen.refresh_history = citizen.refresh_history;
 
                     citizenChange.updateFound = true;
@@ -124,7 +131,7 @@ namespace MetaverseMax.Database
                 _context.SaveChanges();   // Citizen record may not be saved to db yet
 
                 Citizen storedCitizen = GetCitizen(tokenId);
-                storedCitizen.last_update = DateTime.Now.ToUniversalTime();
+                storedCitizen.last_update = DateTime.UtcNow;
                 storedCitizen.refresh_history = refreshHistory;
 
                 if (saveFlag)

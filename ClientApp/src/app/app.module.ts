@@ -12,9 +12,10 @@ import { NavMenuWorldComponent } from './nav-menu-world/nav-menu-world.component
 import { HomeComponent } from './home/home.component';
 import { SearchPlotComponent } from './search-plot/search-plot.component';
 import { SearchDistrictComponent } from './search-district/search-district.component';
-import { TaxGraphComponent } from './tax-graph/tax-graph.component';
+import { GraphTaxComponent } from './graph-tax/graph-tax.component';
+import { GraphDamageComponent } from './graph-damage/graph-damage.component';
+import { GraphFundComponent } from './graph-fund/graph-fund.component';
 import { TaxChangeComponent } from './tax-change/tax-change.component';
-import { FundGraphComponent } from './fund-graph/fund-graph.component';
 import { NoteModalComponent } from './note-modal/note-modal.component';
 import { PetModalComponent } from './pet-modal/pet-modal.component';
 import { CitizenModalComponent } from './citizen-modal/citizen-modal.component';
@@ -26,6 +27,7 @@ import { DistrictListComponent } from './district-list/district-list.component';
 import { DistrictSummaryComponent } from './district-summary/district-summary.component';
 import { DistrictNotificationComponent } from './district-notification/district-notification.component';
 import { BuildingIPComponent } from './building-ip/building-ip.component';
+import { BuildingFilterComponent } from './building-filter/building-filter.component';
 
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
@@ -57,9 +59,10 @@ import { Globals } from './common/global-var';
     HomeComponent,
     SearchPlotComponent,
     SearchDistrictComponent,
-    TaxGraphComponent,
     TaxChangeComponent,
-    FundGraphComponent,
+    GraphTaxComponent,
+    GraphFundComponent,
+    GraphDamageComponent,
     OwnerDataComponent,
     NoteModalComponent,
     PetModalComponent,
@@ -71,6 +74,7 @@ import { Globals } from './common/global-var';
     DistrictSummaryComponent,
     DistrictNotificationComponent,
     BuildingIPComponent,
+    BuildingFilterComponent,
     NumberDirective  
   ],
   imports: [

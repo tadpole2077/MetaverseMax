@@ -5,7 +5,7 @@ interface OwnerSummary {
   summary_id: number,
   district_id: number;
   owner_matic: string;
-  owner_nickname: string;
+  owner_name: string;
   owner_avatar_id: number;
   owned_plots: number;
   energy_count: number;

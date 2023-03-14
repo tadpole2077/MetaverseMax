@@ -8,12 +8,12 @@ import { GraphData } from '../common/graph-interface';
 
 
 @Component({
-  selector: 'app-tax-graph',
-  templateUrl: './tax-graph.component.html',
-  styleUrls: ['./tax-graph.component.css'],
+  selector: 'app-graph-tax',
+  templateUrl: './graph-tax.component.html',
+  styleUrls: ['./graph-tax.component.css'],
   encapsulation: ViewEncapsulation.None
 })
-export class TaxGraphComponent {
+export class GraphTaxComponent {
 
   @Input() graph_type: string;
 

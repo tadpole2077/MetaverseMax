@@ -1,20 +1,21 @@
 import { Component, NgModule, ViewEncapsulation, Input, ElementRef, ViewChild } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
-//import { graphDataFundTest } from './data-fund-test';
+import { curveMonotoneX } from 'd3-shape';   //https://github.com/d3/d3-shape#curves
 import { GraphData } from '../common/graph-interface';
+import { graphDataTest } from './data-damage-test';
 
 
 @Component({
-  selector: 'app-fund-graph',
-  templateUrl: './fund-graph.component.html',
-  styleUrls: ['./fund-graph.component.css'],
+  selector: 'app-graph-damage',
+  templateUrl: './graph-damage.component.html',
+  styleUrls: ['./graph-damage.component.css'],
   encapsulation: ViewEncapsulation.None           // removes encapsulation alias from autobuild styles allowing easier access
 })
-export class FundGraphComponent {
+export class GraphDamageComponent {
 
   // ViewChild used for these elements to provide for rapid element attribute changes without need for scanning DOM and readability.
-  @ViewChild('GraphFund', { static: false }) graphFund: ElementRef;
+  @ViewChild('GraphDamage', { static: false }) graphDamage: ElementRef;
 
   @Input() graph_type: string;
 
@@ -43,6 +44,7 @@ export class FundGraphComponent {
   showDataLabel = true;
   timeline: false;
   yAxisTickFormatting: any = this.setYaxisLabel;
+  curve: any = curveMonotoneX; // curveBasis;
 
   //public yAxisTickFormattingFn = this.setPrecentLabel.bind(this);
 
@@ -50,13 +52,25 @@ export class FundGraphComponent {
     domain: []
   };
 
-  constructor( private elem: ElementRef) {
+  constructor(private elem: ElementRef) {
     //this.view = [ 500, 200 ]; // default sizing helps on page initial render.
     //this.loadGraph();
   }
 
+  ngAfterViewChecked() {
+    const el = document.querySelectorAll('g.line-series path')[2];
+    if (el) {
+      el.setAttribute('stroke-width', '10');
+      el.setAttribute('stroke-linecap', 'round');
+    }
+  }
+
   // Databound Inputs passed by Parent comp are only accessible from OnInit stage.
   public loadGraph(graphData: GraphData) {
+
+    if (graphData == null) {
+      graphData = graphDataTest;
+    }
 
     this.graphDataStored = graphData;
     this.xAxisLabel = graphData.x_axis_label;
@@ -73,13 +87,14 @@ export class FundGraphComponent {
     this.multi = graphData.graphColumns;
 
     Object.assign(this, this.multi);
-    
-    this.graphFund.nativeElement.classList.add("showTrans");
+
+    this.graphDamage.nativeElement.classList.add("showTrans");
+
   }
 
   setYaxisLabel(val) {
 
-    let graphPostAppend:string = " MEGA";
+    let graphPostAppend: string = "%";
 
     if (this.graphDataStored) {
       graphPostAppend = this.graphDataStored.y_axis_postappend;
@@ -99,5 +114,5 @@ export class FundGraphComponent {
   onDeactivate(data): void {
     //console.log('Deactivate', JSON.parse(JSON.stringify(data)));
   }
- 
+
 }

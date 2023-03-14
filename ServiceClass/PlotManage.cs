@@ -1,5 +1,7 @@
-﻿using MetaverseMax.Database;
+﻿using Azure;
+using MetaverseMax.Database;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
@@ -70,17 +72,24 @@ namespace MetaverseMax.ServiceClass
         public Plot AddOrUpdatePlot(int plotId, int posX, int posY, bool saveEvent)
         {                        
             Plot plotMatched = null;
-            PlotDB plotDB = new(_context);
-            CitizenManage citizen = new(_context, worldType);
-            Building building = new();
+            PlotDB plotDB = new(_context);        
             JObject jsonContent;
+            List<int> citizenList = new();
+            JArray citizenArray;
 
             try
             {
                 jsonContent = Task.Run(() => GetPlotMCP(posX, posY)).Result;
 
                 // If plotId is passed, then posX and posY not needed. Indicates plot already exists based on table key
-                plotMatched = plotDB.AddOrUpdatePlot(jsonContent, posX, posY, plotId, saveEvent);
+                if (jsonContent != null)
+                {
+                    plotMatched = plotDB.AddOrUpdatePlot(jsonContent, posX, posY, plotId, saveEvent);
+
+                    // Find Citizen token_ids currently assigned to plot - used by features such as ranking.
+                    citizenArray = jsonContent.Value<JArray>("citizens") ?? new();
+                    plotMatched.citizen = citizenArray.Select(c => (c.Value<int?>("id") ?? 0)).ToList();
+                }
 
                 // Special Cases : update related building plots
                 //  Huge updated to MEGA - the other huge will also get processed and its paired plot should also get updated.
@@ -103,6 +112,7 @@ namespace MetaverseMax.ServiceClass
 
             return plotMatched;
         }
+
         public async Task<JObject> GetPlotMCP(int posX, int posY)
         {
             string content = string.Empty;
@@ -143,11 +153,8 @@ namespace MetaverseMax.ServiceClass
                 }
                 catch (Exception ex)
                 {
-                    if (_context != null)
-                    {
-                        _context.LogEvent(String.Concat("PlotManage::GetPlotMCP() : Error Adding/update Plot X:", posX, " Y:", posY));
-                        _context.LogEvent(ex.Message);
-                    }
+                    DBLogger dBLogger = new(_context.worldTypeSelected);
+                    dBLogger.logException(ex, String.Concat("PlotManage::GetPlotMCP() : Error Adding/update Plot X:", posX, " Y:", posY));
                 }
             }
 
@@ -163,25 +170,31 @@ namespace MetaverseMax.ServiceClass
         }
 
         // Get only one plot for Mega or Huge building - only need to process 1 on nightly sync (NOTE might be an issue if MEGA/HUGE building is destroyed)
-        public List<Plot> RemoveMegaHugePlot(List<Plot> plotList)
+        public int RemoveMegaHugePlot(List<Plot> plotList)
         {
+            int megaHugeplotsRemoved = plotList.Count;
             List<Plot> filteredPlotsMegaHuge = plotList.Where(x => x.building_level == 7 || x.building_level == 6).ToList();
+            List<int> tokenIdList = filteredPlotsMegaHuge.GroupBy(x => x.token_id).Select(grp => grp.Key).ToList();
 
-            List<Plot> filteredPlots1to5 = plotList.Where(x => x.building_level < 6).ToList();
+            //List<Plot> filteredPlots1to5 = plotList.Where(x => x.building_level < 6).ToList();
+            plotList.RemoveAll(x => x.building_level == 7 || x.building_level == 6);
 
-            List<int> tokenIdList = filteredPlotsMegaHuge.GroupBy(x => x.token_id).Select(grp => grp.Key).ToList();            
-            for(int counter=0; counter < tokenIdList.Count; counter++){
-                filteredPlots1to5.Add(filteredPlotsMegaHuge.Where(x => x.token_id == tokenIdList[counter]).First() );
+
+            for (int counter=0; counter < tokenIdList.Count; counter++){
+                plotList.Add(filteredPlotsMegaHuge.Where(x => x.token_id == tokenIdList[counter]).First() );
             }
 
-            return filteredPlots1to5;
+            megaHugeplotsRemoved -= plotList.Count;
+
+            return megaHugeplotsRemoved;
         }
 
-        // Remove Plots from passed list where district claimed plots has not changed since last nightly sync run
-        public List<Plot> RemoveDistrictPlots(List<DistrictName> districtListMCPBasic, List<Plot> plotList)
+        // Remove [District Unclaimed Plots] from passed plot list where district claimed plots total is unchanged since last nightly sync run
+        public int RemoveDistrictPlots(List<DistrictName> districtListMCPBasic, List<Plot> plotList)
         {
             DistrictManage districtManage = new(_context, worldType);
             DistrictDB districtDB = new(_context);
+            int unclaimedPlotRemovedCount = 0;
 
             List<District> districtOpened =  districtDB.DistrictGetAll_Latest().ToList();
 
@@ -196,92 +209,174 @@ namespace MetaverseMax.ServiceClass
                         if (plotList[i].district_id == district.district_id && plotList[i].unclaimed_plot == true)
                         {
                             plotList.Remove(plotList[i]);
+                            unclaimedPlotRemovedCount++;
                         }
                     }
                 }
             }
             
-            return plotList;
+            return unclaimedPlotRemovedCount;
         }
 
-        public List<Plot> CheckEmptyPlot(int waitPeriodMS, int districtId)
+        // Remove all empty owned plots && built plots with unchanged IP
+        // NOTE: Difference between count (plots removed) VS count (plots updated) is due to (a) [plots updated] is buildings and Empty plot count with 1 or more plots per building and (b) plot removed is count of individual plots
+        public int RemoveAccountPlot(int waitPeriodMS, List<OwnerChange> ownerChangeList, List<DistrictName> districtListMCPBasic, List<Plot> plotList)
         {
+            int totalPlotsRemoved = 0;
             OwnerManage ownerManage = new(_context, worldType);
-            LAND_TYPE landType = worldType switch { WORLD_TYPE.TRON => LAND_TYPE.TRON_BUILDABLE_LAND, WORLD_TYPE.BNB => LAND_TYPE.BNB_BUILDABLE_LAND, WORLD_TYPE.ETH => LAND_TYPE.TRON_BUILDABLE_LAND, _ => LAND_TYPE.TRON_BUILDABLE_LAND };
+            OwnerChange ownerChange = null;
+            DistrictName districtName = null;
+            List<Plot> buildingPlotList = null; 
+            bool ownerMonumentStateChanged = false, districtPOIStateChanged = false;
+            PlotDB plotDB = new PlotDB(_context, worldType);            
+            int buildingTypeId = 0, districtId = 0, tokenId = 0, storedInfluenceBonus = 0, influenceBonus =0, storedInfluence = 0, influence =0;
+            int buildingUpdatedCount = 0, emptyPlotsUpdatedCount = 0;
+            int storedApp123bonus = 0, storedApp4 = 0, storedApp5 = 0, storedInfluenceInfo = 0;
 
-            // From local DB, get list of owners with more then 1 Empty Plot.
-            List<Plot> plotList;
-            List<string> emptyPlotAccount;
-            
-            // NOTE - testing by district only will show less matches for accounts with 2 or more empty plots VS eval with no district filter - due to count of 2 or more empty plot across all districts.
-            if (districtId > 0) {
-                plotList = _context.plot.Where(r => r.land_type == (int)landType && r.district_id == districtId).ToList();
+            // Need to process min of 1 plot per account, only filter accounts with 2 or more plots.
+            List<string> accountWithMin2Plot = plotList.Where(r => r.owner_matic is not null)
+                .GroupBy(c => c.owner_matic)
+                .Where(grp => grp.Count() > 1)
+                .Select(grp => grp.Key.ToLower())
+                .ToList();
 
-                emptyPlotAccount = plotList.Where(r => r.building_id == 0 && r.owner_matic is not null && r.district_id == districtId )
-                    .GroupBy(c => c.owner_matic)
-                    .Where(grp => grp.Count() > 2)
-                    .Select(grp => grp.Key).ToList();
-            }
-            else
-            {
-                plotList = _context.plot.Where(r => r.land_type == (int)landType).ToList();
-
-                emptyPlotAccount = plotList.Where(r => r.building_id == 0 && r.owner_matic is not null)
-                    .GroupBy(c => c.owner_matic)
-                    .Where(grp => grp.Count() > 2)
-                    .Select(grp => grp.Key).ToList();
-            }
 
             // Get owner lands, check if MCP plot is empty then remove from plot sync list (if also empty in local db)
-            for (int i = 0; i < emptyPlotAccount.Count; i++)
+            for (int i = 0; i < accountWithMin2Plot.Count; i++)
             {
-                // NOTE owner>lands service returns 1x plot per building - so will be skip plots for Huge and Mega - use token_id to match buildings.
-                //      This Call will also update the local db with partial plot data updates - its not the full sync. if plot was recently minted/transfer/sold then owner details will be updated.
-                ownerManage.GetOwnerLands(emptyPlotAccount[i], false).Wait();
+                ownerChange = ownerChangeList.Where(x => x.owner_matic_key == accountWithMin2Plot[i]).FirstOrDefault();
+                ownerMonumentStateChanged = ownerChange == null ? false : ownerChange.monument_activated || ownerChange.monument_deactivated;  // if either flag enabled, return true - [state has changed].
 
+                // NOTE owner>lands service returns 1x plot per building - so will skip some plots used in Huge and Mega - using token_id to match buildings.                
+                JArray lands = Task.Run(() => ownerManage.GetOwnerLandsMCP( accountWithMin2Plot[i]) ).Result;
                 WaitPeriodAction(waitPeriodMS).Wait();
 
-                // CHECK if all owner lands have been sold/transfered since last sync then leave those plots for full sync process
-                if (ownerManage.ownerData.owner_land != null)
+                // Update local db with partial plot data updates. [Use Full plot update plotManage.AddOrUpdatePlot() if IP has changed]
+                // CHECK land token exist - it may have been recently created and not in local db
+                if (lands == null)
                 {
-                    foreach (OwnerLand ownerLand in ownerManage.ownerData.owner_land)
+                    continue;       // All lands sold/transfered since last sync - run full sync process on these plots - dont filter.
+                }
+                else
+                {
+                    // CHECK if ALL owner lands have been sold/transfered since last sync, or only 1 land remains, then run full process sync on that plot/building. Needed for account avatar and name check
+                    if (lands.Count <= 1)
                     {
-                        // Check if empty - no build on MCP
-                        if (ownerLand.building_type == 0)
+                        continue;
+                    }
+
+                    // Skip first account plot (start at 1 not 0) - full sync first account plot will retrive latest avatar and name used by account.
+                    for (int landIndex = 1; landIndex < lands.Count; landIndex++)
+                    {                        
+
+                        buildingTypeId = lands[landIndex].Value<int?>("building_type_id") ?? 0;                        
+                        tokenId = lands[landIndex].Value<int?>("token_id") ?? 0;
+
+                        buildingPlotList = _context.plot.Where(x => x.token_id == tokenId).ToList();
+                        if (buildingPlotList.Count == 0 || buildingPlotList[0].owner_matic.ToLower() != accountWithMin2Plot[i])
                         {
-                            // Defensive code : removal of 1 or more plots matching token_id - useful for huge/mega/poi/etc
-                            // Only remove the Empty plot if local db shows its owned by this account - meaning plot may have been minted/transfer/sold since last sync - needs to be processed
-                            plotList.RemoveAll(x => x.token_id == ownerLand.token_id && x.owner_matic == emptyPlotAccount[i]);
+                            continue;   // if newly minted plot with new token OR plot sold/transfer, then get/process full plot - not partial.
+                        }
+
+                        influenceBonus = lands[landIndex].Value<int?>("influence_bonus") ?? 0;                        
+                        influence = lands[landIndex].Value<int?>("influence") ?? 0;
+                        storedInfluenceBonus = buildingPlotList[0].influence_bonus ?? 0;
+                        storedInfluence = buildingPlotList[0].influence ?? 0;
+                        storedInfluenceInfo = buildingPlotList[0].influence_info ?? 0;
+                        storedApp123bonus = buildingPlotList[0].app_123_bonus ?? 0;
+                        storedApp4 = buildingPlotList[0].app_4_bonus ?? 0;
+                        storedApp5 = buildingPlotList[0].app_5_bonus ?? 0;
+
+                        districtId = lands[landIndex].Value<int?>("region_id") ?? 0;                        
+                        districtName = districtListMCPBasic.Where(x => x.district_id == districtId).FirstOrDefault();
+                        districtPOIStateChanged = districtName == null? false : districtName.poi_activated || districtName.poi_deactivated;
+
+                        // NOTE: Empty plot needs to be updated on each nighly sync - as empty plot can be set For_sale or sale price changed.
+                        // NOTE_2: Newly build POI and monuments wont trigger a state change until next sync, unless account manually viewed and plots updated before sync
+                        // NOTE_3: The influence attributes check is needed as building may be destroyed reverting back to empty plot, plot influance fields will need full sync to all reflect current 0 value.
+                        if ((buildingTypeId == (int)BUILDING_TYPE.EMPTY_LAND || buildingTypeId == (int)BUILDING_TYPE.POI) 
+                            && influence == 0 && influenceBonus == 0 && storedInfluenceInfo == 0)
+                        {
+                            plotDB.UpdatePlotPartial(lands[landIndex], false);
+                            emptyPlotsUpdatedCount++;
+
+                            totalPlotsRemoved += plotList.RemoveAll(x =>
+                               x.owner_matic == accountWithMin2Plot[i] &&
+                               x.token_id == tokenId);
+                        }
+                        // CHECK: if no Plot IP change (due to POI or Monument state change)
+                        //  AND no IP bonus change - or anomoly found with stored_app_bonus components vs influenceBonus,
+                        //  AND no change in IP due to nearby building (as influence_info would need to be recalculated)
+                        //  THEN partial update can proceed. (no full update required)
+                        else if (ownerMonumentStateChanged == false && districtPOIStateChanged == false 
+                            && storedInfluenceBonus == influenceBonus 
+                            && influence == storedInfluence
+                            && influenceBonus == (storedApp123bonus + storedApp4 + storedApp5)) 
+                        {
+                            plotDB.UpdatePlotPartial(lands[landIndex], false);
+                            buildingUpdatedCount++;
+
+                            // Newly purchased will be handled correctly in UpdatePlotPartial triggering a full plot process. Any sold plots wont get filtered.
+                            totalPlotsRemoved += plotList.RemoveAll(x =>
+                               x.owner_matic == accountWithMin2Plot[i] &&
+                               x.token_id == tokenId);
                         }
                     }
-                }
+                }         
+
             }
 
-            return plotList;
+            _context.LogEvent(String.Concat("PlotManage:RemoveEmptyPlot() :  Empty Plots updated : ", emptyPlotsUpdatedCount, ",  Buildings updated : ", buildingUpdatedCount));
+
+            return totalPlotsRemoved;
         }
 
-        public async Task<string> UnitTest_ActivePlotByDistrictDataSync(int districtId)
+        // Lazy update of plots using Full plot update 
+        // Used to improve accuracy of ranking feature, where user load portfolio - identifing plot.influence change >> needs full update for Ranking
+        public async Task<int> FullUpdateBuildingAsync(List<PlotCord> tokenIdList)
         {
+            // Generate a new dbContext as a safety measure - insuring log is recorded.  Service trigged has already ended.
+            using (var _contexJob = new MetaverseMaxDbContext(worldType))
+            {
+                PlotManage plotManage = new PlotManage(_contexJob, worldType);
+
+                foreach (PlotCord plotCord in tokenIdList)
+                {
+                    plotManage.AddOrUpdatePlot(plotCord.plotId, plotCord.posX, plotCord.posY, false);
+                    await Task.Delay(1000);
+                }
+
+                _contexJob.SaveChanges();
+            }
+            return 0;
+        }
+
+        public string[] UnitTest_GetSyncPlotList()
+        {
+            LAND_TYPE landType = worldType switch { WORLD_TYPE.TRON => LAND_TYPE.TRON_BUILDABLE_LAND, WORLD_TYPE.BNB => LAND_TYPE.BNB_BUILDABLE_LAND, WORLD_TYPE.ETH => LAND_TYPE.TRON_BUILDABLE_LAND, _ => LAND_TYPE.TRON_BUILDABLE_LAND };
             int jobInterval = 50;
             DistrictManage districtManage = new(_context, worldType);
-            int emptyPlotFilterCount = 0;
-            int districtPlotCount = 0;
-            List<Plot> plotList;
+            int plotCount, emptyPlotFilterCount = 0, unclaimedPlotRemovedCount = 0;
 
-            districtPlotCount =_context.plot.Where(r => r.land_type == 1 && r.district_id == districtId).ToList().Count;
+            List<OwnerChange> ownerChangeList = new();
+            List<DistrictName> districtListMCPBasic = new();
+            List<Plot> plotList = _context.plot.Where(r => r.land_type == (int)landType).ToList();
+            plotCount = plotList.Count;
 
-            plotList = CheckEmptyPlot(jobInterval, districtId);              // removes all empty plots from process list where plot owner unchanged and still plot empty
-            emptyPlotFilterCount = plotList.Count;
+            emptyPlotFilterCount = RemoveAccountPlot(jobInterval, ownerChangeList, districtListMCPBasic, plotList);     // removes all account plots from process list matching criteria.
 
-            List<DistrictName> districtBasic = await districtManage.GetDistrictBasicFromMCP(true);
+            List<DistrictName> districtBasic = Task.Run(() => districtManage.GetDistrictBasicFromMCP(true)).Result;
 
-            plotList = RemoveDistrictPlots(districtBasic, plotList);    // remove all unclaimed plots from districts that have not changed since last sync
+            unclaimedPlotRemovedCount = RemoveDistrictPlots(districtBasic, plotList);                                   // remove all unclaimed plots from districts that have not changed since last sync
 
             _context.SaveChanges();
 
-            return string.Concat("District plot count: ", districtPlotCount,
-                "  Plot count after removal of district owners with Empty Plots:  ", emptyPlotFilterCount,
-                "  Plot count after removal of all District Empty Plots if district claimed plot count unchanged:", plotList.Count);
+            return new string[] {
+                string.Concat("Total Plots: ", plotCount),
+                string.Concat("Owner Empty Plots filtered: ", emptyPlotFilterCount),
+                string.Concat("District unclaimed Plots filtered: ", unclaimedPlotRemovedCount),
+                string.Concat("Plot count(to process): ", plotList.Count)
+                };
         }
 
         public WorldNameCollection GetWorldNames()
@@ -344,7 +439,8 @@ namespace MetaverseMax.ServiceClass
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("PlotManage::GetPlotsMCP() : Error occured"));
             }
 
             return pollingPlot;

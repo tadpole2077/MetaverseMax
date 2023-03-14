@@ -1,0 +1,12 @@
+
+
+<div class="typeFilter">
+  <div *ngFor="let buildingIcon of buildingIconArray">
+    <a role="button" (click)="filterTable($event, 0, buildingIcon.building_id)">
+      <span matBadge="{{ buildingIcon.total }}" matBadgePosition="above after">
+        <img src="https://play.mcp3d.com/assets/images/buildings/{{ buildingIcon.building_img }}" />
+      </span>
+      <span class="name">{{ buildingIcon.building_name }} <i class="fas fa-sync-alt progressIcon"></i></span>      
+    </a>
+  </div>
+</div>

@@ -16,6 +16,9 @@ namespace MetaverseMax.Database
         [Column("plot_id")]
         public int plot_id { get; set; }
 
+        [Column("update_type")]
+        public int? update_type { get; set; }
+
         [Column("cell_id")]
         public int cell_id { get; set; }
 
@@ -126,7 +129,7 @@ namespace MetaverseMax.Database
         public int? app_5_bonus { get; set; }
 
         [Column("app_123_bonus")]
-        public int app_123_bonus { get; set; }
+        public int? app_123_bonus { get; set; }
 
         [Column("production_poi_bonus", TypeName = "decimal(6, 2)")]
         public decimal production_poi_bonus { get; set; }
@@ -141,5 +144,22 @@ namespace MetaverseMax.Database
         // Only populated for Industry,  for Production, Energy the type of product produced is extracted from building type, meaning only one product possible.
         [Column("action_id")]
         public int action_id { get; set; }
+
+        [Column("poi_active_until")]
+        public DateTime? poi_active_until { get; set; }
+
+        [Column("citizen_count")]
+        public int? citizen_count { get; set; }
+
+        [NotMapped]        
+        public List<int> citizen { get; set; }
+
+    }
+
+    public class PlotCord
+    {
+        public int plotId { get; set; }
+        public int posX { get; set; }
+        public int posY { get; set; }
     }
 }

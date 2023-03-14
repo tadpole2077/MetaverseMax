@@ -32,40 +32,6 @@
   position: relative;
 }
 
-.slideOutLeft {
-  float: right;
-  margin-right: -70px;
-  width: 180px;
-  height: 110px;
-  z-index: 1;
-  border: 1px;
-  border-color: gray;
-  border-style: solid;
-  box-shadow: 0 5px 10px rgb(0 0 0 / 12%);
-  border-radius: 5px;
-  background-color: white;
-  position: relative;
-  font-size: .9em;
-  opacity: 0;
-  visibility: hidden;
-  -webkit-transition: opacity 600ms, visibility 600ms;
-  transition: opacity 600ms, visibility 600ms;
-  padding-left: 2px;
-}
-
-  .slideOutLeft span {
-    display: block;   
-  }
-  .slideOutLeft p span:nth-child(2) {
-    font-weight: bold;
-  }
-
-.defaultAvatorImg:hover + .slideOutLeft {
-  visibility: visible;
-  opacity: 1;
-  display: block;
-}
-
 .searchDistrict {
   float: right;
   margin-top: .6rem;
@@ -104,36 +70,6 @@
   margin-top: -10px;
   z-index: 10;
   position: relative;
-}
-.slideOutLeft {
-  float: right;
-  margin-right: -70px;
-  width: 180px;
-  height: 110px;
-  z-index: 1;
-  border: 1px;
-  border-color: gray;
-  border-style: solid;
-  box-shadow: 0 5px 10px rgb(0 0 0 / 12%);
-  border-radius: 5px;
-  background-color: white;
-  position: relative;
-  font-size: .9em;
-  opacity: 0;
-  visibility: hidden;
-  -webkit-transition: opacity 600ms, visibility 600ms;
-  transition: opacity 600ms, visibility 600ms;
-  padding-left:2px;
-}
-.slideOutLeft span {
-  display:block;
-  font-weight: bold;
-}
-
-.districtImg:hover + .slideOutLeft {
-  visibility: visible;
-  opacity: 1;
-  display: block;
 }
 
 
@@ -267,29 +203,31 @@ td.boldfield {
   font-weight: bold;
 }
 
-.ownerImgCol{
-  display:inline-block;
-  margin-top: -12px;
+.mat-column-owner_name {
+  min-width: 10rem;
 }
-
-.maticLinkCol {
-  display: inline-block;
-  overflow: hidden;
-  white-space: nowrap;
-  width: 60%;
-  text-overflow: ellipsis;
-  padding-right: 0;
-  vertical-align: middle;
-  padding-left: 6px;
-}
-  .maticLinkCol span {
+  td .mat-column-owner_name {
+    padding-right: .4rem; 
+  }
+  td.mat-column-owner_name a {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 60%;
+    text-overflow: ellipsis;
+    padding-right: 0;
+    vertical-align: middle;
+    padding-left: 6px;
+  }
+  td.mat-column-owner_name a span {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
     width: 100%;
   }
 
-td.mat-column-district_name, td.mat-column-owner_name {
+
+td.mat-column-district_name {
   padding-right: .4rem
 }
 td.mat-column-district_name div:first-child{
@@ -319,9 +257,19 @@ td.mat-column-district_name div:first-child{
     max-width: 64px;
   }
 
-.mat-column-district_name span {
+td.mat-column-district_name span {
   margin-right: .4rem;
 }
+td.mat-column-owner_name img{
+  display: inline-block;
+  margin-top: -12px;
+}
+td.mat-column-owner_name .mysteryImg {
+  height: 50px;
+  margin-top: 0;
+  margin-left: -5px
+}
+
 
 .tableWrapline {
   display: inline-block;
@@ -340,11 +288,10 @@ th.mat-sort-header-sorted {
 
 
 /*** Table Flex columns ***/
-.mat-column-owner_nickname {
-  flex: 0 0 360px;
-  min-width:240px;
+.mat-column-owner_name {
+  flex: 0 0 360px;  
 }
-  .mat-column-owner_nickname a {
+  .mat-column-owner_name a {
     padding-right: .4rem
   }
 
@@ -375,11 +322,9 @@ td.mat-column-district_id a{
 .taxColCell {
   width: 5%
 }
-.mat-column-owner_name{
-  width:19%
-}
-.mat-column-district_name{
-  width:11%
+.mat-column-district_name {
+  width: 11%;
+  min-width: 7rem;
 }
 .mat-column-district_id{
   width: 9%
@@ -425,6 +370,11 @@ a {
 
 /*** MOBILE ***/
 @media only screen and (max-width: 1320px) {
+
+  .mat-row {
+    height: 5rem;
+  }
+
   .magnifyHistoryIcon {
     height: 20px;
   }
@@ -439,16 +389,13 @@ a {
     padding-bottom:10px;
   }
 
-  .maticLinkCol{
-    padding-right:4px;
+  td.mat-column-owner_name a {
+    padding-right: 4px;
   }
 
-  .mat-row{
-    height:5rem;
-  }
 
-  .ownerImgCol{      
-    height:50px;
+  td.mat-column-owner_name img {
+    height: 50px;
     margin-top: -4px;
   }
 
@@ -466,7 +413,7 @@ a {
 /*** When resolution <= 1200px, hide full text and show short text ***/
 @media (max-width: 1200px) {
 
-  .maticLinkCol span {
+  td.mat-column-owner_name a span {
     width: 4rem;
   }
 
@@ -485,14 +432,10 @@ a {
 
 @media (max-width: 1090px) {
 
-  td.mat-column-district_name, td.mat-column-owner_name {
-    padding-right: .2rem
-  }
-
   td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type, th.mat-header-cell:last-of-type{
     padding-right:0px
   }
-  .maticLinkCol span {
+  td.mat-column-owner_name a span {
     width: 3rem;
   }
 
@@ -505,17 +448,14 @@ a {
     font-weight: 500;
   }
 
-  .mat-column-owner_nickname{
-      min-width:135px
+  .mat-column-owner_name{
+    min-width:8rem
   }
-  .mat-column-owner_nickname a {
+  td.mat-column-owner_name a {
     padding-left: 3px;
     padding-right: 5px;    
   }
-  .mat-column-owner_nickname span {
-    font-size: .8em;    
-  }
-    .mat-column-owner_nickname img {
+    td.mat-column-owner_name img {
       margin-right:0px;
       margin-left:-10px;
       height:40px
@@ -524,15 +464,15 @@ a {
   .mat-column-district_id a{
     margin-left: -10px;
   }
+
 }
 
 @media (max-width: 850px) {
 
-  .maticLinkCol span {
-    width: 2rem;
-  }
 }
+
 @media (max-width: 415px) {
+
   h6 {
     font-size: .8rem;
   }
@@ -545,6 +485,45 @@ a {
   .table-container{
     margin-left: -20px
   }
+
+  .mat-column-district_name {
+    min-width: 4rem;
+  }
+    td.mat-column-district_name div:first-child span{
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      display: inline-block;
+      width: 4rem;
+      margin-right: 0;
+    }
+    .mat-column-district_name .perkCell{
+      font-size: .7rem;
+    }
+
+  .mat-column-owner_name {
+    min-width: 4rem;
+  }
+  td.mat-column-owner_name {
+    padding-right: .4rem;
+    text-align: center;    
+  }
+    td.mat-column-owner_name img{
+        margin-top:.4rem;
+    }
+    td.mat-column-owner_name .mysteryImg {
+      margin-left: -8px;
+      height: 38px;
+    }
+    td.mat-column-owner_name a {
+      display: block;
+      padding-right: 0;
+      text-align: left;
+      width: unset;
+      padding-top: .1rem;
+    }
+
+
 }
 
 
