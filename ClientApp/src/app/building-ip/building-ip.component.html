@@ -190,7 +190,7 @@
     </mat-form-field>
   </div>
   <div class="filterControls">
-    <div class="activeFilter" fxLayout fxLayoutAlign="center center" [hidden]="buildingType!=5 && buildingType!=3 && buildingType!=7 && buildingType!=6">
+    <div class="activeFilter" fxLayout fxLayoutAlign="center center" [hidden]="buildingType!=5 && buildingType!=3 && buildingType!=7">
       <div>
         <mat-checkbox #activeChkbox
                       fxFlex="30%"
@@ -246,7 +246,7 @@
       <td mat-cell *matCellDef="let row" [style.height]="row.warn != '' ? '5.1rem' :'0'">
         <span class="rankEff">{{row.rank}}%</span>
 
-        <a class="magnifyHistoryPositioner" *ngIf="buildingType==5 || buildingType==3 || buildingType==7" role="button" (click)="showHistory(row.id, row.pos_x, row.pos_y, buildingType, row.rank)">
+        <a class="magnifyHistoryPositioner" *ngIf="buildingType==5 || buildingType==3 || buildingType==7 || buildingType==6" role="button" (click)="showHistory(row.id, row.pos_x, row.pos_y, buildingType, row.rank)">
           <img src="./assets/MagnifyHistory.png" class="magnifyHistoryIcon" height="30" />
         </a>
 
@@ -259,10 +259,13 @@
 
     <ng-container matColumnDef="ip_t">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>
-        <span class="long-text">Total IP</span><span class="short-text">Total IP</span>
+        <span class="long-text">Total IP</span><span class="short-text">Total IP</span>        
       </th>
       <td mat-cell *matCellDef="let row">
         <span>{{ row.ip_t}}</span>
+        <a class="magnifyHistoryPositioner officeMagify" *ngIf="buildingType==6" role="button" (click)="showHistory(row.id, row.pos_x, row.pos_y, buildingType, row.rank)">
+          <img src="./assets/MagnifyHistory.png" class="magnifyHistoryIcon" height="30" />
+        </a>
       </td>
     </ng-container>
 

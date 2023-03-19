@@ -1,12 +1,6 @@
 ﻿using MetaverseMax.Database;
-using MetaverseMax.ServiceClass;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -68,7 +62,7 @@ namespace MetaverseMax.ServiceClass
             try
             {
                 // POST REST WS
-                serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.REGIONS_LIST, WORLD_TYPE.BNB => BNB_WS.REGIONS_LIST, WORLD_TYPE.ETH => ETH_WS.REGIONS_LIST, _ => TRON_WS.REGIONS_LIST};
+                serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.REGIONS_LIST, WORLD_TYPE.BNB => BNB_WS.REGIONS_LIST, WORLD_TYPE.ETH => ETH_WS.REGIONS_LIST, _ => TRON_WS.REGIONS_LIST };
 
                 HttpResponseMessage response;
                 using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
@@ -86,7 +80,7 @@ namespace MetaverseMax.ServiceClass
 
                 districtList = new();
                 if (content.Length == 0)
-                {                    
+                {
                     districtList.Add(new DistrictName { district_id = 0, district_name = "Loading Issue" });
                 }
                 else
@@ -128,7 +122,7 @@ namespace MetaverseMax.ServiceClass
             try
             {
                 // POST REST WS
-                serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.REGIONS_LIST, WORLD_TYPE.BNB => BNB_WS.REGIONS_LIST, WORLD_TYPE.ETH => ETH_WS.REGIONS_LIST, _ => TRON_WS.REGIONS_LIST};
+                serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.REGIONS_LIST, WORLD_TYPE.BNB => BNB_WS.REGIONS_LIST, WORLD_TYPE.ETH => ETH_WS.REGIONS_LIST, _ => TRON_WS.REGIONS_LIST };
                 HttpResponseMessage response;
                 using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
                 {
@@ -298,7 +292,8 @@ namespace MetaverseMax.ServiceClass
         public int ArchiveOwnerSummaryDistrict()
         {
             int returnCode = 0;
-            try {
+            try
+            {
                 districtDB.ArchiveOwnerSummaryDistrict();
             }
             catch (Exception ex)

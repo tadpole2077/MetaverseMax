@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.Database
 {
@@ -24,7 +21,7 @@ namespace MetaverseMax.Database
         [Column("pet_bonus_level")]
         public int? pet_bonus_level { get; set; }
 
-        
+
         [Column("district_id")]
         public int? district_id { get; set; }
 
@@ -61,7 +58,7 @@ namespace MetaverseMax.Database
         public short? sex { get; set; }
 
         [Column("breeding")]
-        public int breeding { get; set; }       
+        public int breeding { get; set; }
 
         [Column("on_sale")]
         public bool on_sale { get; set; }
@@ -73,7 +70,7 @@ namespace MetaverseMax.Database
         public string matic_key { get; set; }
 
         [Column("max_stamina")]
-        public int max_stamina { get; set; }        
+        public int max_stamina { get; set; }
 
         [Column("create_date")]
         public DateTime create_date { get; set; }
@@ -85,7 +82,7 @@ namespace MetaverseMax.Database
         public DateTime link_date { get; set; }
 
         [Column("refreshed_last")]
-        public DateTime? refreshed_last { get; set; }        
+        public DateTime? refreshed_last { get; set; }
 
     }
 }

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MetaverseMax.ServiceClass;
-using Microsoft.EntityFrameworkCore;
+﻿using MetaverseMax.ServiceClass;
+using System;
 
 namespace MetaverseMax.Database
 {
@@ -48,7 +44,7 @@ namespace MetaverseMax.Database
                     {
                         _contextEvent.eventLog.Add(new EventLog() { detail = ("DBLogger::logException() : WARNING - DB Context lost & Recreated"), recorded_time = DateTime.UtcNow });
                     }
-                    
+
                     _contextEvent.eventLog.Add(new EventLog() { detail = primaryLogEntry, recorded_time = DateTime.UtcNow });
                     _contextEvent.eventLog.Add(new EventLog() { detail = log, recorded_time = DateTime.UtcNow });
 

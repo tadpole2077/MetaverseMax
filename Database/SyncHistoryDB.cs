@@ -1,8 +1,5 @@
 ﻿using MetaverseMax.ServiceClass;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.Database
 {
@@ -20,13 +17,13 @@ namespace MetaverseMax.Database
             try
             {
                 _context.syncHistory.Add(new SyncHistory()
-                    {
-                        type = string.Concat((WORLD_TYPE)worldType switch { WORLD_TYPE.ETH => "Eth", WORLD_TYPE.BNB => "BNB", _ or WORLD_TYPE.TRON => "Tron"}, " sync job"),
-                        sync_start = startTime,
-                        sync_end = endTime,
-                        sync_duration = (endTime - startTime).ToString(@"hh\:mm\:ss")
+                {
+                    type = string.Concat((WORLD_TYPE)worldType switch { WORLD_TYPE.ETH => "Eth", WORLD_TYPE.BNB => "BNB", _ or WORLD_TYPE.TRON => "Tron" }, " sync job"),
+                    sync_start = startTime,
+                    sync_end = endTime,
+                    sync_duration = (endTime - startTime).ToString(@"hh\:mm\:ss")
                 }
-                );                
+                );
 
                 _context.SaveChanges();
                 response = RETURN_CODE.SUCCESS;

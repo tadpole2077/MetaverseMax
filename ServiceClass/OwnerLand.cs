@@ -1,5 +1,3 @@
-using System;
-
 namespace MetaverseMax.ServiceClass
 {
     public class OwnerLand

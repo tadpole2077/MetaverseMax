@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.Database
 {
@@ -17,10 +16,10 @@ namespace MetaverseMax.Database
             List<Pet> petList = new();
 
             try
-            {                
+            {
                 petList = _context.pet.Where(r => r.token_owner_matic_key == maticKey)
                                       .OrderByDescending(r => r.bonus_level)
-                                      .ToList();                
+                                      .ToList();
             }
             catch (Exception ex)
             {
@@ -57,7 +56,7 @@ namespace MetaverseMax.Database
                 //  Check if any Pets on this account transferred/sold
                 var newPetTokens = petList.Select(x => x.token_id).ToArray();
                 List<Pet> soldPets = petEntitiesLegacy.Where(x => !newPetTokens.Contains(x.token_id)).ToList();
-                for (int index =0; index < soldPets.Count(); index++)
+                for (int index = 0; index < soldPets.Count(); index++)
                 {
                     soldPets[index].last_update = DateTime.Now;
                     soldPets[index].token_owner_matic_key = string.Empty;

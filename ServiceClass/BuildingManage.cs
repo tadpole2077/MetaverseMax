@@ -1,21 +1,8 @@
 ﻿using MetaverseMax.Database;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using MathNet.Numerics;
-using System.Text;
-using System.Net;
-using System.IO;
-using Newtonsoft.Json.Linq;
-using System.Threading.Tasks;
-using System.Net.Http;
-using System.Reflection.Metadata;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using System.Diagnostics.Metrics;
-using System.Diagnostics;
-using System.Security.Cryptography;
 using Microsoft.IdentityModel.Tokens;
-using System.ComponentModel;
+using Newtonsoft.Json.Linq;
+using System.Text;
+
 
 namespace MetaverseMax.ServiceClass
 {
@@ -90,7 +77,7 @@ namespace MetaverseMax.ServiceClass
                 DistrictPerkDB districtPerkDB = new(_context);
                 DistrictDB districtDB = new(_context);
 
-                buildingCollection.show_prediction = Startup.showPrediction;
+                buildingCollection.show_prediction = Common.showPrediction;
 
                 List<District> districtList = districtList = districtDB.DistrictGetAll_Latest().ToList();
                 List<DistrictPerk> districtPerkList = districtPerkDB.PerkGetAll_ByPerkType((int)DISTRICT_PERKS.EXTRA_SLOT_APPLIANCE_ALL_BUILDINGS);
@@ -129,10 +116,10 @@ namespace MetaverseMax.ServiceClass
                 List<ResourceTotal> resourceTotal = new();
 
                 for (int i = 0; i < buildingList.Count; i++)
-                {                    
+                {
 
                     buildingList[i].building_img = building.GetBuildingImg(buildingType, buildingList[i].building_id, buildingLevel, worldType)
-                        .Replace(buildingCollection.img_url,"");
+                        .Replace(buildingCollection.img_url, "");
 
                     buildingList[i].influence_info = buildingList[i].influence_info < 0 ? 0 : buildingList[i].influence_info;
                     if (buildingList[i].influence_info != buildingList[i].influence)
@@ -148,14 +135,17 @@ namespace MetaverseMax.ServiceClass
                     DistrictPerk districtPerk = districtPerkList.Where(x => x.district_id == buildingList[i].district_id).FirstOrDefault();
                     if (districtPerk != null)
                     {
-                        if (districtPerk.perk_level == 1) {
+                        if (districtPerk.perk_level == 1)
+                        {
                             correctAppBonus = buildingList[i].app_123_bonus + buildingList[i].app_4_bonus;
                         }
-                        else {
+                        else
+                        {
                             correctAppBonus = buildingList[i].app_123_bonus + buildingList[i].app_4_bonus + buildingList[i].app_5_bonus;
                         }
 
-                        if (correctAppBonus != buildingList[i].influence_bonus) {
+                        if (correctAppBonus != buildingList[i].influence_bonus)
+                        {
                             buildingList[i].ip_warning = string.Concat("Application bug : using app bonus ", buildingList[i].influence_bonus, "% versus correct value of ", correctAppBonus, "%,", districtPerk.perk_level == 1 ? " ONLY" : "", " Perk Extra Slot ", districtPerk.perk_level, " is active");
                         }
 
@@ -174,7 +164,7 @@ namespace MetaverseMax.ServiceClass
                         buildingList[i].ip_efficiency = (decimal)Math.Round(GetIPEfficiency(buildingList[i].total_ip, buildingCollection.rangeIP, buildingCollection.minIP) * 100, 2);
                     }
 
-                    buildingList[i].produce_tax = AssignTaxMatch(districtList.Where(x => x.district_id == buildingList[i].district_id).FirstOrDefault(), buildingType);                        
+                    buildingList[i].produce_tax = AssignTaxMatch(districtList.Where(x => x.district_id == buildingList[i].district_id).FirstOrDefault(), buildingType);
 
                     // Check if Building able to execute a run collection - then eval building history. Pass IP efficiency. 
                     if (evalHistory && (buildingType == (int)BUILDING_TYPE.INDUSTRIAL || buildingType == (int)BUILDING_TYPE.PRODUCTION || buildingType == (int)BUILDING_TYPE.ENERGY)
@@ -182,11 +172,12 @@ namespace MetaverseMax.ServiceClass
                     {
                         // Save each building's evaluated IP efficiency, latest run and predicted produce.
                         buildingHistory = GetHistory(buildingList[i].token_id, waitPeriodMS, false, false, buildingList[i].owner_matic, buildingList[i].ip_efficiency, string.Empty, skipNoActiveCitizen);
-                        
+
                         saveCounter++;
                         buildingCanCollectCount++;
 
-                        if (buildingHistory == null) {
+                        if (buildingHistory == null)
+                        {
                             buildingNoCitizenCount++;
                         }
                         else
@@ -258,13 +249,13 @@ namespace MetaverseMax.ServiceClass
 
                 if (buildingCanCollectCount > 0)
                 {
-                    _context.LogEvent(String.Concat("Building type: "+ GetBuildingTypeDesc(buildingType) + " Lvl: " + buildingLevel + " - Total : ", buildingList.Count, " with History Processed : ", buildingCanCollectCount - buildingNoCitizenCount));
+                    _context.LogEvent(String.Concat("Building type: " + GetBuildingTypeDesc(buildingType) + " Lvl: " + buildingLevel + " - Total : ", buildingList.Count, " with History Processed : ", buildingCanCollectCount - buildingNoCitizenCount));
                 }
 
                 buildingCollection.buildings = ConvertBuildingWeb(buildingList);
             }
             catch (Exception ex)
-            {                
+            {
                 DBLogger dbLogger = new(_context, worldType);
                 dbLogger.logException(ex, String.Concat("BuildingManage.BuildingTypeGet() : Error on retrival of List matching buildingType: ", buildingType, "and level ", buildingLevel));
             }
@@ -276,7 +267,7 @@ namespace MetaverseMax.ServiceClass
         {
             List<BuildingIPWeb> buildingIPWeb = new();
 
-            foreach(BuildingTypeIP building in buildingList)
+            foreach (BuildingTypeIP building in buildingList)
             {
                 buildingIPWeb.Add(new()
                 {
@@ -340,7 +331,7 @@ namespace MetaverseMax.ServiceClass
 
                     buildingCollection.predict.miss_below = buildingCollection.predict.miss - buildingCollection.predict.miss_above;
                     buildingCollection.predict.miss_below_percent = (decimal)Math.Round((decimal)buildingCollection.predict.miss_below / buildingCollection.predict.miss, 4, MidpointRounding.AwayFromZero) * 100;
-                }                
+                }
 
                 for (int i = 0; i < buildingPredictList.Count; i++)
                 {
@@ -362,7 +353,7 @@ namespace MetaverseMax.ServiceClass
         {
             BuildingHistory buildingHistory = new();
             try
-            {                                           
+            {
                 int actionCount = 0;
                 int storedIp = 0;
                 List<HistoryProduction> historyProductionList = new();
@@ -370,15 +361,15 @@ namespace MetaverseMax.ServiceClass
                 OwnerCitizenExtDB ownerCitizenExtDB = new(_context);
                 List<OwnerCitizenExt> ownerCitizenExt = null;
                 PlotManage plotManage = new PlotManage(_context, worldType);
-                PlotDB plotDB = new PlotDB(_context, worldType);                
+                PlotDB plotDB = new PlotDB(_context, worldType);
                 List<Plot> buildingPlots = null;
                 Plot targetPlot = null, mcpPlot = null;
-                DateTime? targetPlotLastUpdated = null, lastRunTime = null;                
+                DateTime? targetPlotLastUpdated = null, lastRunTime = null;
                 IEnumerable<string> storeChangesLastRunMsg;
                 OwnerManage ownerManage = new(_context, worldType);
                 OwnerAccount requestOwner = null;
                 Boolean refreshAllowed = false;
-                
+
 
                 if (requester.IsNullOrEmpty())
                 {
@@ -387,27 +378,30 @@ namespace MetaverseMax.ServiceClass
                 else
                 {
                     requestOwner = ownerManage.FindOwnerByMatic(requester, string.Empty);
-                    
+
                     if (fullRefreshRequest == true && ownerManage.SetSlowDown(requester))
                     {
-                        refreshAllowed = true;                        
+                        refreshAllowed = true;
                     }
 
                     buildingHistory.slowdown = ownerManage.GetSlowDown(requester);
                 }
-                
+
                 buildingPlots = plotDB.GetPlotbyToken(token_id);
                 if (buildingPlots.Count == 0)
                 {
                     throw new Exception(string.Concat("No building found matching token : ", token_id));
                 }
+                else
+                {
+                    targetPlot = buildingPlots[0];
+                }
 
                 if (ipEfficiency == USE_STORED_EFFICIENCY)
                 {
-                    targetPlot = buildingPlots[0];
                     targetPlotLastUpdated = buildingPlots[0].last_updated;          // Used to prevent spaming of this feature - only allow refresh every x mins per building
                     ipEfficiency = targetPlot.current_influence_rank ?? 0;
-                    ownerMatic = targetPlot.owner_matic;                    
+                    ownerMatic = targetPlot.owner_matic;
 
                     // User initiated Refresh due to stale data - damage, ip, citizens, poi bonus, apps
                     if (refreshAllowed == true && targetPlotLastUpdated < DateTime.UtcNow.AddMinutes(-2))
@@ -417,12 +411,13 @@ namespace MetaverseMax.ServiceClass
 
                         // Update first plot - all related building plots update as well.
                         mcpPlot = plotManage.AddOrUpdatePlot(buildingPlots[0].plot_id, buildingPlots[0].pos_x, buildingPlots[0].pos_y, false);
-                            
+
                         _context.SaveChanges();
 
                         buildingPlots = plotDB.GetPlotbyToken(token_id);        // Refresh to get possibly updated IP / IP Bonus due to app change / POI change reactivated etc
-                            
-                        if (storedIp != GetInfluenceTotal(buildingPlots[0].influence_info ?? 0, buildingPlots[0].influence_bonus ?? 0)){
+
+                        if (storedIp != GetInfluenceTotal(buildingPlots[0].influence_info ?? 0, buildingPlots[0].influence_bonus ?? 0))
+                        {
                             buildingHistory.changes_last_run = AddChangeMessage("REFRESH PAGE - IP change and Ranking Change Identified, all buildings need to be reevaluated", buildingHistory.changes_last_run);
                         }
                     }
@@ -441,6 +436,13 @@ namespace MetaverseMax.ServiceClass
                         forceDBSave);
 
                     buildingHistory = null;
+                }
+                else if (targetPlot.building_type_id == (int)BUILDING_TYPE.OFFICE)
+                {
+                    // Get dates since citizens assigned and building_type = office
+                    historyProductionList = GetOfficeHistory(targetPlot, ownerCitizenExt);
+                    buildingHistory.detail = historyProductionList.OrderByDescending(x => x.run_datetimeDT).ToArray();
+
                 }
                 else
                 {
@@ -583,10 +585,63 @@ namespace MetaverseMax.ServiceClass
             catch (Exception ex)
             {
                 DBLogger dbLogger = new(_context, worldType);
-                dbLogger.logException(ex, String.Concat("BuildingManage.GetHistory() : Error occur with asset id : ", token_id));          
+                dbLogger.logException(ex, String.Concat("BuildingManage.GetHistory() : Error occur with asset id : ", token_id));
             }
 
             return buildingHistory;
+        }
+
+        public List<HistoryProduction> GetOfficeHistory(Plot targetPlot, List<OwnerCitizenExt> ownerCitizenList)
+        {
+            List<HistoryProduction> historyProductionList = new();
+            DateTime? startDate = ownerCitizenList.Count > 0 ? ownerCitizenList.Min(x => x.create_date) : null;
+            DateTime? evalDay = null;
+            PlotDB plotDB = new PlotDB(_context, worldType);
+            List<PlotIP> plotIPList = plotDB.GetIP_Historic(targetPlot.token_id);
+            PlotIP plotIPData;
+
+            //Add today
+            HistoryProduction currentDay = new();
+            currentDay.building_lvl = targetPlot.building_level;
+            currentDay.building_ip = GetInfluenceTotal(targetPlot.influence ?? 0, targetPlot.influence_bonus ?? 0);           // Replace with infuence_info when MCP fix influance issue
+            currentDay.efficiency_c_60 = CalculateEfficiency_Citizen(
+                    ownerCitizenList,
+                    DateTime.UtcNow,
+                    targetPlot.building_level,
+                    targetPlot.building_type_id,
+                    BUILDING_PRODUCT.MEGA_PRODUCT_GLOBAL,
+                    null);
+            currentDay.efficiency_c = Math.Round(currentDay.efficiency_c_60 / .6m, 1, MidpointRounding.AwayFromZero);
+            currentDay.run_datetime = common.DateStandard(DateTime.Now);
+            currentDay.run_datetimeDT = DateTime.Now.Ticks;
+
+            historyProductionList.Add(currentDay);
+
+            evalDay = startDate;
+            while (evalDay != null && evalDay < DateTime.UtcNow)
+            {
+                plotIPData = plotIPList.Where(x => x.last_updated <= (DateTime)evalDay).OrderByDescending(x => x.last_updated).FirstOrDefault();
+
+                currentDay = new();
+                currentDay.building_lvl = plotIPData.building_level;
+                currentDay.building_ip = GetInfluenceTotal(targetPlot.influence ?? 0, targetPlot.influence_bonus ?? 0);           // Replace with infuence_info when MCP fix influance issue
+                currentDay.efficiency_c_60 = CalculateEfficiency_Citizen(
+                        ownerCitizenList,
+                        DateTime.UtcNow,
+                        targetPlot.building_level,
+                        targetPlot.building_type_id,
+                        BUILDING_PRODUCT.MEGA_PRODUCT_GLOBAL,
+                        null);
+                currentDay.efficiency_c = Math.Round(currentDay.efficiency_c_60 / .6m, 1, MidpointRounding.AwayFromZero);
+                currentDay.run_datetime = common.DateStandard(evalDay);
+                currentDay.run_datetimeDT = DateTime.Now.Ticks;
+
+                historyProductionList.Add(currentDay);
+
+                evalDay = (evalDay.Value.AddDays(1));
+            }
+
+            return historyProductionList;
         }
 
         public async Task<JArray> GetBuildingHistoryMCP(int tokenId)
@@ -596,7 +651,8 @@ namespace MetaverseMax.ServiceClass
             string content = string.Empty;
             serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.ASSETS_HISTORY, WORLD_TYPE.BNB => BNB_WS.ASSETS_HISTORY, WORLD_TYPE.ETH => ETH_WS.ASSETS_HISTORY, _ => TRON_WS.ASSETS_HISTORY };
 
-            try { 
+            try
+            {
                 using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
                 {
                     StringContent stringContent = new StringContent("{\"token_id\": " + tokenId + ",\"token_type\": 1}", Encoding.UTF8, "application/json");
@@ -618,7 +674,7 @@ namespace MetaverseMax.ServiceClass
             catch (Exception ex)
             {
                 DBLogger dbLogger = new(_context, worldType);
-                dbLogger.logException(ex, String.Concat("BuildingManage.GetPlotHistoryMCP() : Error on WS calls for asset id : ", tokenId));          
+                dbLogger.logException(ex, String.Concat("BuildingManage.GetPlotHistoryMCP() : Error on WS calls for asset id : ", tokenId));
             }
 
             return plotHistory;
@@ -628,16 +684,15 @@ namespace MetaverseMax.ServiceClass
         {
             bool resourceFlag = false, applianceFlag = false;
             DateTime? eventTimeUTC, lastRunTime = null;
-            ResourceTotal currentResource = null; 
+            ResourceTotal currentResource = null;
             List<PlotIP> plotIPList = new();
             List<HistoryProduction> historyProductionList = new();
             PlotDB plotDB = new PlotDB(_context, worldType);
             int sequenceNum = 2;  // first row is reserved for prediction with seq = 1, used for styling of prediction row.
 
-
             if (historyRunList != null && historyRunList.Count > 0)
             {
-                plotIPList = plotDB.GetIP_Historic(tokenId);                
+                plotIPList = plotDB.GetIP_Historic(tokenId);
 
                 for (int index = 0; index < historyRunList.Count; index++)
                 {
@@ -694,7 +749,7 @@ namespace MetaverseMax.ServiceClass
                                 historyProductionDetails.building_type = historyLand.Value<int?>("building_type_id") ?? 0;
                                 historyProductionDetails.building_lvl = historyLand.Value<int?>("building_level") ?? 0;
 
-                                historyProductionDetails = PopulateProductionDetails( historyProductionDetails, ownerCitizenExt);
+                                historyProductionDetails = PopulateProductionDetails(historyProductionDetails, ownerCitizenExt);
 
                                 var matchedIP = plotIPList.Where(x => x.last_updated <= (DateTime)eventTimeUTC).OrderByDescending(x => x.last_updated).FirstOrDefault();
                                 historyProductionDetails.building_ip = matchedIP == null ? 0 : matchedIP.total_ip < 0 ? 0 : matchedIP.total_ip;     // Check if IP is negative (energy) then set to 0
@@ -704,7 +759,7 @@ namespace MetaverseMax.ServiceClass
                                 //historyProductionDetails.is_perk_activated = matchedIP == null ? false : matchedIP.is_perk_activated ?? false;
 
                                 historyProductionDetails.seq = sequenceNum++;
-                            }           
+                            }
                         }
 
                         historyProductionList.Add(historyProductionDetails);
@@ -737,7 +792,7 @@ namespace MetaverseMax.ServiceClass
             {
                 checkHistoryStartingFrom = new DateTime(historyProduction.run_datetimeDT).AddDays(-1);
             }
-            
+
 
             // A: Refresh all Citizens currently assigned to building.  Only Get and eval Cit history if current Citizen[Land, Pet, Owner] differs from stored data
             //    NOTE : May not be any Citizens currently assigned, issue with missing citizens from prior run.
@@ -751,22 +806,22 @@ namespace MetaverseMax.ServiceClass
             removedCitizenList = storedActiveCitizens.Where(x => !buildingActiveAssignedCitMCP.Contains(x.token_id)).ToList();
             if (removedCitizenList.Count > 0)
             {
-                buildingHistory.changes_last_run = AddChangeMessage( string.Concat(removedCitizenList.Count, "x Citizen removed/swapped since last run"), buildingHistory.changes_last_run);
+                buildingHistory.changes_last_run = AddChangeMessage(string.Concat(removedCitizenList.Count, "x Citizen removed/swapped since last run"), buildingHistory.changes_last_run);
                 removedCitizenList.ForEach(cit =>
                 {
                     // Update Cit, Only Get and eval Cit history if current Citizen[Land, Pet, Owner] differs from stored data
-                    citizenManage.GetCitizenMCP(cit.token_id, false, new DateTime(historyProduction.run_datetimeDT).AddDays(-1) ).Wait();
+                    citizenManage.GetCitizenMCP(cit.token_id, false, new DateTime(historyProduction.run_datetimeDT).AddDays(-1)).Wait();
                     removedCitizenTokenID.Add(cit.token_id);
                 });
             }
 
             // C: Check last run Citizen Set, may differ completely from current set. When using speedUp, multiple citizen sets may be swapped out within 24 hr period
             //    Only process citizens not already processed within step A and B above.
-            if(historyProduction != null)
+            if (historyProduction != null)
             {
                 DateTime lastRunTime = new DateTime(historyProduction.run_datetimeDT).AddDays(-1);      // Run a wider sweep of Citizen checks in case of drops due to SpeedUp or DataSync fault. 
                 List<OwnerCitizenExt> filterCitizens = ownerCitizenExt.Where(x => (x.valid_to_date >= lastRunTime || x.valid_to_date is null)).ToList();
-                
+
                 filterCitizens.RemoveAll(x => buildingActiveAssignedCitMCP.Contains(x.token_id));
                 filterCitizens.RemoveAll(x => removedCitizenTokenID.Contains(x.token_id));
 
@@ -803,7 +858,7 @@ namespace MetaverseMax.ServiceClass
         //  1) GetHistory()  Ln449 >> Refresh last production run with updated citizens(condition: check_citizens = true)
         //  2) EvalProductionHistory()  Ln642 >>  Each historic production run is evaluated
         //  3) FullRecheckCitizens() Ln719 >> After Full citizen refresh, reevaluate passed target production run(either last collection, or not evaluated due to first run)
-        public HistoryProduction PopulateProductionDetails(HistoryProduction historyProductionDetails,List<OwnerCitizenExt> ownerCitizenExt)
+        public HistoryProduction PopulateProductionDetails(HistoryProduction historyProductionDetails, List<OwnerCitizenExt> ownerCitizenExt)
         {
             DateTime? eventTime = null;
             PetUsage petUsageCompare = null;    // Used to find Pet usage differenc between 2 event dates, using null means do not compare to a prior event date - only use current pets in Cit cals
@@ -821,7 +876,7 @@ namespace MetaverseMax.ServiceClass
                 eventTime,
                 historyProductionDetails.building_lvl,
                 historyProductionDetails.building_type,
-                historyProductionDetails.building_product_id,
+                (BUILDING_PRODUCT)historyProductionDetails.building_product_id,
                 petUsageCompare);
 
             historyProductionDetails.pet_usage = citizenManage.GetPetUsage(eventTime, ownerCitizenExt);
@@ -852,7 +907,8 @@ namespace MetaverseMax.ServiceClass
 
             buildingHistory.damage = 100 - (targetPlot.condition ?? 0);
             buildingHistory.damage_eff = GetDamageCoeff(buildingHistory.damage);
-            buildingHistory.damage_eff_rounded = Math.Round(buildingHistory.damage_eff - 100, 2, MidpointRounding.AwayFromZero);
+            buildingHistory.damage_eff_2Place = Math.Round(100 - buildingHistory.damage_eff, 2, MidpointRounding.AwayFromZero);
+            buildingHistory.condition_rounded = Math.Round(buildingHistory.damage_eff, 0, MidpointRounding.AwayFromZero);
 
             buildingHistory.current_building_id = targetPlot.building_id;
             buildingHistory.current_building_type = targetPlot.building_type_id;
@@ -985,7 +1041,7 @@ namespace MetaverseMax.ServiceClass
         {
             Prediction prediction = new();
             Plot targetPlot = targetPlotList[0];
-            int evalIPbonus = targetPlot.influence_bonus ?? 0; 
+            int evalIPbonus = targetPlot.influence_bonus ?? 0;
             int buildingType = targetPlot.building_type_id;
 
             prediction.product_id = GetBuildingProduce(buildingType, targetPlot.building_id, targetPlot.action_id, worldType);
@@ -995,11 +1051,11 @@ namespace MetaverseMax.ServiceClass
             // USE influence_info as this is more accurate using calculation of all building influance, rather then the building.influence with may be stale showing prior influance when POI/Mon is deactivated
             // CHECK if influance_info is neg IP, then set to min of 0
             prediction.ip = targetPlot.influence_info > 0 ? (int)Math.Round((decimal)targetPlot.influence_info * (decimal)(1 + (evalIPbonus / 100.0)), 0, MidpointRounding.AwayFromZero) : 0;
-            
+
             //prediction.is_perk_activated = targetPlot.is_perk_activated ?? false; // NOTE THIS ATTRIBUTE IS NOT WORKING (not filled by MCP) - CAN REMOVE LATER
 
             // Get Cit efficiency using currently assigned cits (may differ from last run) before produce calc                            
-            prediction.cit_efficiency_partial = CalculateEfficiency_Citizen(ownerCitizenExt, DateTime.Now, targetPlot.building_level, buildingType, prediction.product_id, lastProduction == null ? null : lastProduction.pet_usage);
+            prediction.cit_efficiency_partial = CalculateEfficiency_Citizen(ownerCitizenExt, DateTime.Now, targetPlot.building_level, buildingType, (BUILDING_PRODUCT)prediction.product_id, lastProduction == null ? null : lastProduction.pet_usage);
             prediction.cit_range_percent = prediction.product_id == (int)BUILDING_PRODUCT.ENERGY ? 45 : 60;
             prediction.cit_efficiency = Math.Round(
                         prediction.cit_efficiency_partial
@@ -1053,15 +1109,13 @@ namespace MetaverseMax.ServiceClass
             prediction.ip_produce_max = (prediction.ip_range_percent / 100.0m) * buildingHistory.prediction_range;
 
             // GOLDEN Rule: COMBINE IP and Cit % , then round to 0 places, then multiple against effective range.
-            prediction.ip_and_cit_percent = prediction.ip_efficiency_partial + prediction.cit_efficiency_partial + prediction.resource_partial;
             prediction.ip_and_cit_percent_100 = prediction.ip_efficiency_partial + prediction.cit_efficiency_partial + prediction.resource_partial;
             prediction.ip_and_cit_percent_rounded = Math.Round(prediction.ip_and_cit_percent_100, 0, MidpointRounding.AwayFromZero);
-            //prediction.ip_and_cit_produce = (prediction.ip_and_cit_percent_rounded / 100.0m) * buildingHistory.prediction_range;
-            //prediction.ip_and_cit_produce_rounded = (int)Math.Round(prediction.ip_and_cit_produce, 2, MidpointRounding.AwayFromZero);
 
-            prediction.ip_and_cit_percent_dmg = Math.Round(prediction.ip_and_cit_percent_100 * (buildingHistory.damage_eff / 100m), 2, MidpointRounding.AwayFromZero);
-            prediction.ip_and_cit_percent_rounded_dmg = (int)Math.Round(prediction.ip_and_cit_percent_dmg, 0, MidpointRounding.AwayFromZero);
-            prediction.ip_and_cit_produce_dmg = (prediction.ip_and_cit_percent_rounded_dmg / 100.0m) * buildingHistory.prediction_range;
+            prediction.ip_and_cit_percent_dmg = Math.Round(prediction.ip_and_cit_percent_rounded * (buildingHistory.condition_rounded / 100m), 2, MidpointRounding.AwayFromZero);
+            prediction.ip_and_cit_percent_dmg_rounded = (int)Math.Round(prediction.ip_and_cit_percent_dmg, 0, MidpointRounding.AwayFromZero);
+
+            prediction.ip_and_cit_produce_dmg = (prediction.ip_and_cit_percent_dmg_rounded / 100.0m) * buildingHistory.prediction_range;
             prediction.ip_and_cit_produce_dmg_rounded = (int)Math.Round(prediction.ip_and_cit_produce_dmg, 0, MidpointRounding.AwayFromZero);
 
             prediction.subtotal = buildingHistory.prediction_base_min + prediction.ip_and_cit_produce_dmg_rounded;
@@ -1091,13 +1145,13 @@ namespace MetaverseMax.ServiceClass
                     0, MidpointRounding.AwayFromZero);
 
             prediction.total_decimal_100 = Math.Round(prediction.total_decimal_100, 2, MidpointRounding.AwayFromZero);   // For UI only
-            
+
 
 
             // Corner Cases (a)cant be higher then max - bonus may place higher calc (b)no cits assigned
             prediction.total = prediction.total > buildingHistory.prediction_max ? buildingHistory.prediction_max : prediction.total;
 
-            
+
             prediction.efficiency_p = CalculateEfficiency_Production(buildingType, targetPlot.building_level, prediction.total, prediction.product_id);
             prediction.efficiency_m = CalculateEfficiency_MinMax(buildingType, targetPlot.building_level, prediction.total, prediction.product_id);
 
@@ -1149,12 +1203,12 @@ namespace MetaverseMax.ServiceClass
                 if (resourceTotal.Count > 0)
                 {
                     currentResource = (ResourceTotal)resourceTotal.Where(row => row.resourceId == produce).FirstOrDefault();
-                }      
+                }
                 if (currentResource == null)
                 {
                     currentResource = new();
                     currentResource.resourceId = produce;
-                    currentResource.name = produce == (int)BUILDING_PRODUCT.FACTORY_PRODUCT ? "Factory" : GetResourceName(produce);                        
+                    currentResource.name = produce == (int)BUILDING_PRODUCT.FACTORY_PRODUCT ? "Factory" : GetResourceName(produce);
                     currentResource.buildingId = building.building_id;
                     currentResource.buildingImg = building.building_img;
                     currentResource.buildingName = GetBuildingNameShort(building.building_id, worldType);
@@ -1164,8 +1218,8 @@ namespace MetaverseMax.ServiceClass
 
                 // ACTIVE BUILDING (Last 7 days produced) - Add building last run produce details - including if active or shutdown
                 if (building.last_run_produce_id == produce &&
-                    building.last_run_produce != null && 
-                    building.last_run_produce > 0 && 
+                    building.last_run_produce != null &&
+                    building.last_run_produce > 0 &&
                     building.last_run_produce_date >= DateTime.Now.AddDays(-9))
                 {
                     currentResource.total += (long)building.last_run_produce;
@@ -1204,7 +1258,7 @@ namespace MetaverseMax.ServiceClass
                 6 => citizenCount >= 11,
                 7 => citizenCount >= 14,
                 _ => true
-            };            
+            };
         }
 
         private bool CheckProduct(int buildingType, int produceId, int buildingId)
@@ -1239,7 +1293,7 @@ namespace MetaverseMax.ServiceClass
                 return true;
             }
             else if (buildingType == (int)BUILDING_TYPE.OFFICE &&
-                (produceId == (int)BUILDING_PRODUCT.MEGA_PRODUCT_GLOBAL || produceId == (int)BUILDING_PRODUCT.MEGA_PRODUCT_LOCAL ))
+                (produceId == (int)BUILDING_PRODUCT.MEGA_PRODUCT_GLOBAL || produceId == (int)BUILDING_PRODUCT.MEGA_PRODUCT_LOCAL))
             {
                 return true;
             }
@@ -1337,13 +1391,13 @@ namespace MetaverseMax.ServiceClass
                 {
                     (int)BUILDING_SUBTYPE.BRICKWORKS => (int)BUILDING_PRODUCT.BRICK,
                     (int)BUILDING_SUBTYPE.GLASSWORKS => (int)BUILDING_PRODUCT.GLASS,
-                    (int)BUILDING_SUBTYPE.CONCRETE_PLANT => worldType switch 
-                        {
-                            WORLD_TYPE.TRON => (int)BUILDING_PRODUCT.CONCRETE,
-                            WORLD_TYPE.ETH => (int)BUILDING_PRODUCT.STEEL,
-                            WORLD_TYPE.BNB => (int)BUILDING_PRODUCT.PLASTIC,
-                            _ => (int)BUILDING_PRODUCT.CONCRETE
-                        },
+                    (int)BUILDING_SUBTYPE.CONCRETE_PLANT => worldType switch
+                    {
+                        WORLD_TYPE.TRON => (int)BUILDING_PRODUCT.CONCRETE,
+                        WORLD_TYPE.ETH => (int)BUILDING_PRODUCT.STEEL,
+                        WORLD_TYPE.BNB => (int)BUILDING_PRODUCT.PLASTIC,
+                        _ => (int)BUILDING_PRODUCT.CONCRETE
+                    },
                     (int)BUILDING_SUBTYPE.PAPER_FACTORY => (int)BUILDING_PRODUCT.PAPER,
                     (int)BUILDING_SUBTYPE.CHEMICAL_PLANT => worldType switch
                     {
@@ -1371,7 +1425,7 @@ namespace MetaverseMax.ServiceClass
                 formatedTotal.Add(new ResourceTotal()
                 {
                     name = resourceTotal[count].name,
-                    totalFormat = String.Format("{0:n0}", resourceTotal[count].total * multiplier * (7m / (8m - buildingLevel) ))
+                    totalFormat = String.Format("{0:n0}", resourceTotal[count].total * multiplier * (7m / (8m - buildingLevel)))
                 });
             }
 
@@ -1411,8 +1465,8 @@ namespace MetaverseMax.ServiceClass
 
         private IEnumerable<string> AddChangeMessage(string message, IEnumerable<string> msgCollection)
         {
-            msgCollection = msgCollection == null ? new string[] { message } : msgCollection.Append(message);                
-            
+            msgCollection = msgCollection == null ? new string[] { message } : msgCollection.Append(message);
+
             return msgCollection;
         }
 
@@ -1437,7 +1491,7 @@ namespace MetaverseMax.ServiceClass
                     {
                         // using tokenIdList.Select() allows for the string manipulation per item within the source tokenId list, matching the WS parameter JSON spec
                         StringContent stringContent = new StringContent("{\"token_ids\": [" +
-                            string.Join(",", tokenIdList.Select(x => "\"" + x.ToString() +"\"") )
+                            string.Join(",", tokenIdList.Select(x => "\"" + x.ToString() + "\""))
                             + "]}"
                             , Encoding.UTF8, "application/json");
 
@@ -1509,7 +1563,7 @@ namespace MetaverseMax.ServiceClass
                 case (int)BUILDING_TYPE.PRODUCTION:
                     produceTax = district.production_tax ?? 0;
                     break;
-              
+
                 default:
                     produceTax = 0;
                     break;
@@ -1522,7 +1576,7 @@ namespace MetaverseMax.ServiceClass
         // Calculation evaluated on sum all citizens triats, not line by line per cit, impacts rounding.
         // Only one rounding rule applied - rounded to 2 places as final rule - after all other calcs - rounding on efficiency % (not produce here).
         // Calucate efficiency % as partial related to building type (eg 60% or 45%) and not 100% as shown in Citizen modules for easy eval - to get x/100% convert the partial.
-        private decimal CalculateEfficiency_Citizen(List<OwnerCitizenExt> citizens, DateTime? eventDate, int? buildingLevel, int buildingType, int buildingProduct, PetUsage petUsageCompare)
+        private decimal CalculateEfficiency_Citizen(List<OwnerCitizenExt> citizens, DateTime? eventDate, int? buildingLevel, int buildingType, BUILDING_PRODUCT buildingProduct, PetUsage petUsageCompare)
         {
             decimal efficiency = 0;
             PetUsage petUsageOnEventDate = citizenManage.GetPetUsage(eventDate, citizens);
@@ -1544,16 +1598,16 @@ namespace MetaverseMax.ServiceClass
             {
                 petUsageDifference = petUsageOnEventDate;
             }
-            
-                // Identify any Pet usage difference between last run and current cits assigned to building.
-                // Note that if a Pet is already assigned to a cit, then the cit traits will reflect it - dont double the Pet bonus.
-                //petUsageDifference.agility = petUsageCompare != null && petUsageCompare.agility > petUsageOnEventDate.agility ? petUsageCompare.agility - petUsageOnEventDate.agility : petUsageOnEventDate.agility;
-                //petUsageDifference.charisma = petUsageCompare != null && petUsageCompare.charisma > petUsageOnEventDate.charisma ? petUsageCompare.charisma - petUsageOnEventDate.charisma : petUsageOnEventDate.charisma;
-                //petUsageDifference.endurance = petUsageCompare != null && petUsageCompare.endurance > petUsageOnEventDate.endurance ? petUsageCompare.endurance - petUsageOnEventDate.endurance : petUsageOnEventDate.endurance;
-                //petUsageDifference.intelligence = petUsageCompare != null && petUsageCompare.intelligence > petUsageOnEventDate.intelligence ? petUsageCompare.intelligence - petUsageOnEventDate.intelligence : petUsageOnEventDate.intelligence;
-                //petUsageDifference.luck = petUsageCompare != null && petUsageCompare.luck > petUsageOnEventDate.luck ? petUsageCompare.luck - petUsageOnEventDate.luck : petUsageOnEventDate.luck;
-                //petUsageDifference.strength = petUsageCompare != null && petUsageCompare.strength > petUsageOnEventDate.strength ? petUsageCompare.strength - petUsageOnEventDate.strength : petUsageOnEventDate.strength;                
-            
+
+            // Identify any Pet usage difference between last run and current cits assigned to building.
+            // Note that if a Pet is already assigned to a cit, then the cit traits will reflect it - dont double the Pet bonus.
+            //petUsageDifference.agility = petUsageCompare != null && petUsageCompare.agility > petUsageOnEventDate.agility ? petUsageCompare.agility - petUsageOnEventDate.agility : petUsageOnEventDate.agility;
+            //petUsageDifference.charisma = petUsageCompare != null && petUsageCompare.charisma > petUsageOnEventDate.charisma ? petUsageCompare.charisma - petUsageOnEventDate.charisma : petUsageOnEventDate.charisma;
+            //petUsageDifference.endurance = petUsageCompare != null && petUsageCompare.endurance > petUsageOnEventDate.endurance ? petUsageCompare.endurance - petUsageOnEventDate.endurance : petUsageOnEventDate.endurance;
+            //petUsageDifference.intelligence = petUsageCompare != null && petUsageCompare.intelligence > petUsageOnEventDate.intelligence ? petUsageCompare.intelligence - petUsageOnEventDate.intelligence : petUsageOnEventDate.intelligence;
+            //petUsageDifference.luck = petUsageCompare != null && petUsageCompare.luck > petUsageOnEventDate.luck ? petUsageCompare.luck - petUsageOnEventDate.luck : petUsageOnEventDate.luck;
+            //petUsageDifference.strength = petUsageCompare != null && petUsageCompare.strength > petUsageOnEventDate.strength ? petUsageCompare.strength - petUsageOnEventDate.strength : petUsageOnEventDate.strength;                
+
 
             // Citizens used by run will be assigned min of 24hrs before run occured = link_date < eventDate
             List<OwnerCitizenExt> filterCitizens = citizens.Where(x => (x.valid_to_date >= eventDate || x.valid_to_date is null) && x.link_date < eventDate).ToList();
@@ -1577,7 +1631,8 @@ namespace MetaverseMax.ServiceClass
                 efficiency = filterCitizens.Count == 0 ? 0 : (decimal)Math.Round(
                     (filterCitizens.Sum(x => x.trait_strength) + petUsageDifference.strength) * .3 / citizenMax +
                     (filterCitizens.Sum(x => x.trait_endurance) + petUsageDifference.endurance) * .2 / citizenMax +
-                    (filterCitizens.Sum(x => x.trait_agility + x.trait_charisma + x.trait_intelligence + x.trait_luck) + petUsageDifference.agility + petUsageDifference.charisma + petUsageDifference.intelligence) / 4.0 * .1 / citizenMax
+                    (filterCitizens.Sum(x => x.trait_agility + x.trait_charisma + x.trait_intelligence + x.trait_luck)
+                        + petUsageDifference.agility + petUsageDifference.charisma + petUsageDifference.intelligence + petUsageDifference.luck) / 4.0 * .1 / citizenMax
                     , 3) * 10;
             }
             else if (buildingType == (int)BUILDING_TYPE.PRODUCTION)
@@ -1585,32 +1640,45 @@ namespace MetaverseMax.ServiceClass
                 efficiency = filterCitizens.Count == 0 ? 0 : (decimal)Math.Round(
                     (filterCitizens.Sum(x => x.trait_agility) + petUsageDifference.agility) * .3 / citizenMax +
                     (filterCitizens.Sum(x => x.trait_strength) + petUsageDifference.strength) * .2 / citizenMax +
-                    (filterCitizens.Sum(x => x.trait_endurance + x.trait_charisma + x.trait_intelligence + x.trait_luck) + petUsageDifference.endurance + petUsageDifference.charisma + petUsageDifference.intelligence) / 4.0 * .1 / citizenMax
+                    (filterCitizens.Sum(x => x.trait_endurance + x.trait_charisma + x.trait_intelligence + x.trait_luck)
+                        + petUsageDifference.endurance + petUsageDifference.charisma + petUsageDifference.intelligence + +petUsageDifference.luck) / 4.0 * .1 / citizenMax
                     , 3) * 10;
             }
             else if (buildingType == (int)BUILDING_TYPE.ENERGY)
             {
-                if (buildingProduct == (int)BUILDING_PRODUCT.WATER)
+                if (buildingProduct == BUILDING_PRODUCT.WATER)
                 {
                     efficiency = filterCitizens.Count == 0 ? 0 : (decimal)Math.Round(
                     (filterCitizens.Sum(x => x.trait_endurance) + petUsageDifference.endurance) * .3 / citizenMax +
                     (filterCitizens.Sum(x => x.trait_agility) + petUsageDifference.agility) * .2 / citizenMax +
-                    (filterCitizens.Sum(x => x.trait_strength + x.trait_charisma + x.trait_intelligence + x.trait_luck) + petUsageDifference.strength + petUsageDifference.charisma + petUsageDifference.intelligence) / 4.0 * .1 / citizenMax
+                    (filterCitizens.Sum(x => x.trait_strength + x.trait_charisma + x.trait_intelligence + x.trait_luck)
+                        + petUsageDifference.strength + petUsageDifference.charisma + petUsageDifference.intelligence + petUsageDifference.luck) / 4.0 * .1 / citizenMax
                     , 3) * 10;
                 }
-                else if (buildingProduct == (int)BUILDING_PRODUCT.ENERGY)
+                else if (buildingProduct == BUILDING_PRODUCT.ENERGY)
                 {
                     efficiency = filterCitizens.Count == 0 ? 0 : (decimal)Math.Round(
                     (filterCitizens.Sum(x => x.trait_endurance) + petUsageDifference.endurance) * .25 / citizenMax +
                     (filterCitizens.Sum(x => x.trait_agility) + petUsageDifference.agility) * .15 / citizenMax +
-                    (filterCitizens.Sum(x => x.trait_strength + x.trait_charisma + x.trait_intelligence + x.trait_luck) + petUsageDifference.strength + petUsageDifference.charisma + petUsageDifference.intelligence) / 4.0 * .05 / citizenMax
+                    (filterCitizens.Sum(x => x.trait_strength + x.trait_charisma + x.trait_intelligence + x.trait_luck)
+                        + petUsageDifference.strength + petUsageDifference.charisma + petUsageDifference.intelligence + petUsageDifference.luck) / 4.0 * .05 / citizenMax
                     , 3) * 10;
                 }
+            }
+            else if (buildingType == (int)BUILDING_TYPE.OFFICE)
+            {
+                efficiency = filterCitizens.Count == 0 ? 0 : (decimal)Math.Round(
+                    (filterCitizens.Sum(x => x.trait_intelligence) + petUsageDifference.intelligence) * .3 / citizenMax +
+                    (filterCitizens.Sum(x => x.trait_charisma) + petUsageDifference.charisma) * .2 / citizenMax +
+                    (filterCitizens.Sum(x => x.trait_endurance + x.trait_agility + x.trait_strength + x.trait_luck)
+                        + petUsageDifference.endurance + petUsageDifference.agility + petUsageDifference.strength + petUsageDifference.luck) / 4.0 * .1 / citizenMax
+                    , 3) * 10;
             }
             return efficiency;
         }
 
-        private bool CheckPetUsage(PetUsage petUsage) {
+        private bool CheckPetUsage(PetUsage petUsage)
+        {
 
             return petUsage.agility > 0 ||
                 petUsage.strength > 0 ||
@@ -2348,14 +2416,14 @@ namespace MetaverseMax.ServiceClass
         {
             return buildingProduct switch
             {
-                (int) APPLICATION_ID.RED_SAT => "Red Sat",    // Red Sat (7) = 10% bonus
-                (int) APPLICATION_ID.WHITE_SAT => "White Sat",     // White Sat
-                (int) APPLICATION_ID.GREEN_AIR_CON => "Green Air Con",     // Green Air con
-                (int) APPLICATION_ID.WHITE_AIR_CON => "White Air Con",     // White Air con
-                (int) APPLICATION_ID.CCTV_RED => "CCTV Red",     // CCTV RED 
-                (int) APPLICATION_ID.CCTV_WHITE => "CCTV White",     // CCTV White                            
-                (int) APPLICATION_ID.ROUTER_BLACK => "Router Black",     // Router Black 
-                (int) APPLICATION_ID.RED_FIRE_ALARM => "Red Fire Alarm",     // Red Fire Alarm
+                (int)APPLICATION_ID.RED_SAT => "Red Sat",    // Red Sat (7) = 10% bonus
+                (int)APPLICATION_ID.WHITE_SAT => "White Sat",     // White Sat
+                (int)APPLICATION_ID.GREEN_AIR_CON => "Green Air Con",     // Green Air con
+                (int)APPLICATION_ID.WHITE_AIR_CON => "White Air Con",     // White Air con
+                (int)APPLICATION_ID.CCTV_RED => "CCTV Red",     // CCTV RED 
+                (int)APPLICATION_ID.CCTV_WHITE => "CCTV White",     // CCTV White                            
+                (int)APPLICATION_ID.ROUTER_BLACK => "Router Black",     // Router Black 
+                (int)APPLICATION_ID.RED_FIRE_ALARM => "Red Fire Alarm",     // Red Fire Alarm
                 _ => "Product"
             };
         }
@@ -2370,7 +2438,7 @@ namespace MetaverseMax.ServiceClass
                 (int)BUILDING_PRODUCT.METAL => "Metal",
                 (int)BUILDING_PRODUCT.BRICK => "Brick",
                 (int)BUILDING_PRODUCT.GLASS => "Glass",
-                (int)BUILDING_PRODUCT.CONCRETE => "Concrete",                
+                (int)BUILDING_PRODUCT.CONCRETE => "Concrete",
                 (int)BUILDING_PRODUCT.STEEL => "Steel",
                 (int)BUILDING_PRODUCT.PLASTIC => "Plastic",
                 (int)BUILDING_PRODUCT.WATER => "Water",
@@ -2399,12 +2467,12 @@ namespace MetaverseMax.ServiceClass
                 (int)BUILDING_SUBTYPE.PAPER_FACTORY => "Paper",
                 (int)BUILDING_SUBTYPE.FACTORY => "Factory",
                 (int)BUILDING_SUBTYPE.CONCRETE_PLANT => worldType switch
-                    {
-                        WORLD_TYPE.TRON => "Concrete",
-                        WORLD_TYPE.ETH => "Steel",
-                        WORLD_TYPE.BNB => "Plastic",
-                        _=> "Concrete",
-                    },
+                {
+                    WORLD_TYPE.TRON => "Concrete",
+                    WORLD_TYPE.ETH => "Steel",
+                    WORLD_TYPE.BNB => "Plastic",
+                    _ => "Concrete",
+                },
                 (int)BUILDING_SUBTYPE.VILLA => "Villa",
                 (int)BUILDING_SUBTYPE.CONDOMINIUM => "Condo",
                 (int)BUILDING_SUBTYPE.APARTMENTS => "Apart",
@@ -2433,7 +2501,7 @@ namespace MetaverseMax.ServiceClass
                 {
                     WORLD_TYPE.TRON => 5,
                     WORLD_TYPE.ETH => 5,
-                    WORLD_TYPE.BNB =>5,
+                    WORLD_TYPE.BNB => 5,
                     _ => 5,
                 },
                 (int)BUILDING_SUBTYPE.VILLA => 1,
@@ -2461,7 +2529,7 @@ namespace MetaverseMax.ServiceClass
                 7 => (int)ELECTRIC_RESOURCE.LEVEL_7,
                 8 => (int)ELECTRIC_RESOURCE.LEVEL_8,
                 9 => (int)ELECTRIC_RESOURCE.LEVEL_9,
-                10 => (int)ELECTRIC_RESOURCE.LEVEL_10,                
+                10 => (int)ELECTRIC_RESOURCE.LEVEL_10,
                 _ => 0
             };
         }
@@ -2495,10 +2563,10 @@ namespace MetaverseMax.ServiceClass
                (buildingLevel == 4 && lastRunProduceDate < DateTime.Now.AddDays(-4)) ||
                (buildingLevel == 5 && lastRunProduceDate < DateTime.Now.AddDays(-3)) ||
                (buildingLevel == 6 && lastRunProduceDate < DateTime.Now.AddDays(-2)) ||
-               (buildingLevel == 7 && lastRunProduceDate < DateTime.Now.AddDays(-1)) )
+               (buildingLevel == 7 && lastRunProduceDate < DateTime.Now.AddDays(-1)))
             {
                 result = true;
-            }           
+            }
 
             return result;
         }
@@ -2520,7 +2588,7 @@ namespace MetaverseMax.ServiceClass
             if (efficiency > 1)
             {
                 _context.LogEvent(String.Concat("BuildingMange::GetIPEfficiency() Unexpected Efficiency >1 : ", efficiency.ToString(), " totalIP: ", totalIP.ToString(), " minIP: ", minIP.ToString()));
-                
+
             }
 
             return efficiency;
@@ -2530,12 +2598,12 @@ namespace MetaverseMax.ServiceClass
         // https://www.statisticshowto.com/probability-and-statistics/standard-deviation/
         private double StandardDeviationGet(List<int> elements)
         {
-            
+
             // A) Get (Sum)Squared / count
             var A = Math.Pow(elements.Sum(), 2) / elements.Count;
 
             var B = 0.0;
-            for (int index=0; index<elements.Count; index++)
+            for (int index = 0; index < elements.Count; index++)
             {
                 B += Math.Pow(elements[index], 2);
 
@@ -2562,7 +2630,7 @@ namespace MetaverseMax.ServiceClass
         public decimal CheckInfluenceRankChange(int newInfluence, int storedInfluence, int influenceBonus, decimal storedRanking, int buildingLevel, int buildingType)
         {
             decimal newRanking = storedRanking;
-            int maxRankingIp = 0, minRankingIp = 0, rangeIP =0, targetBuildingTotalIp =0;
+            int maxRankingIp = 0, minRankingIp = 0, rangeIP = 0, targetBuildingTotalIp = 0;
             List<Plot> buildingPlotList = null;
 
             // Change detected, evalute ranking.
@@ -2575,7 +2643,8 @@ namespace MetaverseMax.ServiceClass
                 {
                     newRanking = 100;
                 }
-                else {
+                else
+                {
                     targetBuildingTotalIp = GetInfluenceTotal(newInfluence, influenceBonus);
 
                     maxRankingIp = (int)Math.Round((double)buildingPlotList.Max(x => x.influence * (1 + (x.influence_bonus / 100.0))), 0, MidpointRounding.AwayFromZero);
@@ -2587,9 +2656,9 @@ namespace MetaverseMax.ServiceClass
                             ), 0, MidpointRounding.AwayFromZero);
                     minRankingIp = minRankingIp > targetBuildingTotalIp ? targetBuildingTotalIp : minRankingIp;
 
-                    rangeIP = maxRankingIp - minRankingIp;                    
+                    rangeIP = maxRankingIp - minRankingIp;
 
-                    newRanking = (decimal)Math.Round( GetIPEfficiency(targetBuildingTotalIp, rangeIP, minRankingIp) * 100, 2);
+                    newRanking = (decimal)Math.Round(GetIPEfficiency(targetBuildingTotalIp, rangeIP, minRankingIp) * 100, 2);
                 }
             }
 

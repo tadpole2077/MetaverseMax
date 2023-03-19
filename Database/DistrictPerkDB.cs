@@ -1,9 +1,7 @@
-﻿using MetaverseMax.ServiceClass;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.Database
 {
@@ -11,7 +9,7 @@ namespace MetaverseMax.Database
     {
         public DistrictPerkDB(MetaverseMaxDbContext _parentContext) : base(_parentContext)
         {
-        }        
+        }
 
         public IEnumerable<DistrictPerk> PerkGetAll(int districtId, int updateInstance)
         {
@@ -48,12 +46,12 @@ namespace MetaverseMax.Database
 
 
         public int Save(List<DistrictPerk> districtPerkList)
-        {            
+        {
             try
             {
-                for(int index = 0; index < districtPerkList.Count; index++)
-                {                    
-                    _context.districtPerk.Add(districtPerkList[index]);                 
+                for (int index = 0; index < districtPerkList.Count; index++)
+                {
+                    _context.districtPerk.Add(districtPerkList[index]);
                 }
                 _context.SaveChanges();
             }

@@ -1,8 +1,7 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 
 namespace MetaverseMax.Database
 {
@@ -21,7 +20,7 @@ namespace MetaverseMax.Database
             {
                 //exec sproc - refresh tax change records matching district table
                 _context.Database.SetCommandTimeout(300);
-                int result = _context.Database.ExecuteSqlRaw("EXEC dbo.sp_update_tax_change_history");    
+                int result = _context.Database.ExecuteSqlRaw("EXEC dbo.sp_update_tax_change_history");
 
             }
             catch (Exception ex)

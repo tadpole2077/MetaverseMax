@@ -1,13 +1,7 @@
 ﻿using MetaverseMax.Database;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json.Linq;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -115,6 +109,7 @@ namespace MetaverseMax.ServiceClass
             DateTime? currentActiveUntil, localStoredActiveUntil, lastUpdated;
             int districtChangeCount = 0;
             bool poiLastSync_WasActive = false;
+            bool activated = false, deactivated = false;
 
             try
             {
@@ -122,7 +117,7 @@ namespace MetaverseMax.ServiceClass
                 poiList = customContext.plot.Where(r => r.land_type == (int)landType && r.building_type_id == (int)BUILDING_TYPE.POI).ToList();
 
                 // Get token list of all poi buildings from poi plot list
-                poiListToken = poiList.Select( r=>r.token_id ).DistinctBy( r=>((uint)r)).ToList();
+                poiListToken = poiList.Select(r => r.token_id).DistinctBy(r => ((uint)r)).ToList();
 
                 if (poiListToken.Count > 0)
                 {
@@ -132,7 +127,7 @@ namespace MetaverseMax.ServiceClass
                     for (int counter = 0; counter < poiArray.Count; counter++)
                     {
                         poiData = poiArray[counter];
-                        currentActiveUntil = common.ConvertDateTimeUTC(poiData.Value<string>("active_until"));
+                        currentActiveUntil = common.ConvertDateTimeUTC(poiData.Value<string>("active_until"));          // active_until will reset to null when inactive
 
                         poiBuildingPlot = poiList.Where(x => x.token_id == (poiData.Value<int?>("token_id") ?? 0)).ToList();
 
@@ -165,12 +160,28 @@ namespace MetaverseMax.ServiceClass
                                 (int)BUILDING_SUBTYPE.OFFICE_LANDMARK}.Contains(poiBuildingPlot[0].building_id))
                             {
                                 targetDistrict = districtListMCPBasic.Where(x => x.district_id == poiBuildingPlot[0].district_id).FirstOrDefault();
+                                activated = !poiLastSync_WasActive && currentActiveUntil > DateTime.UtcNow;
+                                deactivated = poiLastSync_WasActive && (currentActiveUntil <= DateTime.UtcNow || currentActiveUntil == null);
 
-                                if (targetDistrict != null && targetDistrict.poi_activated == false)
+                                // Set district POI change, maintain 
+                                if (targetDistrict != null)
                                 {
-                                    targetDistrict.poi_activated = (!poiLastSync_WasActive && currentActiveUntil > DateTime.UtcNow);
-                                    targetDistrict.poi_deactivated = (poiLastSync_WasActive && currentActiveUntil <= DateTime.UtcNow);
-                                    districtChangeCount++;
+                                    if (targetDistrict.poi_activated == false)
+                                    {
+                                        targetDistrict.poi_activated = activated;
+                                        if (targetDistrict.poi_activated == true)
+                                        {
+                                            districtChangeCount++;
+                                        }
+                                    }
+                                    if (targetDistrict.poi_deactivated == false)
+                                    {
+                                        targetDistrict.poi_deactivated = deactivated;
+                                        if (targetDistrict.poi_deactivated == true)
+                                        {
+                                            districtChangeCount++;
+                                        }
+                                    }
                                 }
                             }
                             else
@@ -178,27 +189,39 @@ namespace MetaverseMax.ServiceClass
 
                                 // Tag Account change - if any account owned monument state changed, then record it. TO_DO IMPROVE to per district.
                                 targetOwnerChange = ownerChange.Where(x => x.owner_matic_key == poiBuildingPlot[0].owner_matic).FirstOrDefault();
-                                if (targetOwnerChange == null)
-                                {
-                                    ownerChange.Add(new OwnerChange()
-                                    {
-                                        owner_matic_key = poiBuildingPlot[0].owner_matic,
-                                        monument_activated = (!poiLastSync_WasActive && currentActiveUntil > DateTime.UtcNow),
-                                        monument_deactivated = (poiLastSync_WasActive && currentActiveUntil <= DateTime.UtcNow)
-                                    });
-                                }
-                                else
-                                {
-                                    targetOwnerChange.monument_activated = targetOwnerChange.monument_activated == false ?
-                                        !poiLastSync_WasActive && currentActiveUntil > DateTime.UtcNow : true;
+                                activated = !poiLastSync_WasActive && currentActiveUntil > DateTime.UtcNow;
+                                deactivated = poiLastSync_WasActive && (currentActiveUntil <= DateTime.UtcNow || currentActiveUntil == null);
 
-                                    targetOwnerChange.monument_deactivated = targetOwnerChange.monument_deactivated == false ?
-                                        poiLastSync_WasActive && currentActiveUntil <= DateTime.UtcNow : true;
+                                //if (poiBuildingPlot[0].owner_matic == "0xe4a746550e1ffb5f69775d3e413dbe1b5b734e36")
+                                //{
+                                //    var test = "stop";
+                                //}
+
+                                if ((activated || deactivated))
+                                {
+
+                                    if (targetOwnerChange == null)
+                                    {
+                                        ownerChange.Add(new OwnerChange()
+                                        {
+                                            owner_matic_key = poiBuildingPlot[0].owner_matic,
+                                            monument_activated = activated,
+                                            monument_deactivated = deactivated
+                                        });
+                                    }
+                                    else
+                                    {
+                                        targetOwnerChange.monument_activated = targetOwnerChange.monument_activated == false ?
+                                            activated : false;
+
+                                        targetOwnerChange.monument_deactivated = targetOwnerChange.monument_deactivated == false ?
+                                           deactivated : false;
+                                    }
                                 }
                             }
                         }
                     }
-
+                    _context.LogEvent(String.Concat("POI Change :  a) District with 1+ Landmark change : ", districtChangeCount, " b) Owners with 1+ Monument change: ", ownerChange.Count));
                     customContext.SaveWithRetry();
                 }
             }
@@ -227,7 +250,7 @@ namespace MetaverseMax.ServiceClass
             OwnerCitizenDB ownerCitizenDB;
             PlotManage plotManage;
             Plot plotUpdated;
-            int ownerCount = 0, districtChangeCount = 0, accountPlotRemovedCount=0, unclaimedPlotRemovedCount = 0, megaHugeplotsRemoved =0;
+            int ownerCount = 0, districtChangeCount = 0, accountPlotRemovedCount = 0, unclaimedPlotRemovedCount = 0, megaHugeplotsRemoved = 0;
             string dbConnectionString = String.Empty;
 
             List<DistrictName> districtListMCPBasic = null;     // Init with null - to catch any service error and 3x retry pattern
@@ -257,7 +280,8 @@ namespace MetaverseMax.ServiceClass
 
                 // Update All Districts from MCP, as a new district may have opened.  Attempt 3 times, before failing - as no districts mean no plot updates
                 retryCount = 0;
-                while (districtListMCPBasic == null && retryCount < 3) {
+                while (districtListMCPBasic == null && retryCount < 3)
+                {
 
                     districtListMCPBasic = await districtManage.GetDistrictBasicFromMCP(true);
                     retryCount++;
@@ -314,7 +338,7 @@ namespace MetaverseMax.ServiceClass
                     plotManage = new(_context, worldType);
                     districtPerkDB = new(_context);
                     districtManage = new(_context, worldType);
-                    districtFundManage = new(_context, worldType);                    
+                    districtFundManage = new(_context, worldType);
 
                     // Extract list of plots for current target district
                     districtId = districtListMCPBasic[index].district_id;
@@ -373,7 +397,8 @@ namespace MetaverseMax.ServiceClass
                     {
                         if (districtPerkListMCP[perkIndex].district_id == districtId)
                         {
-                            districtPerkList.Add(new DistrictPerk() {
+                            districtPerkList.Add(new DistrictPerk()
+                            {
                                 district_id = districtId,
                                 perk_id = districtPerkListMCP[perkIndex].perk_id,
                                 perk_level = districtPerkListMCP[perkIndex].perk_level,
@@ -483,7 +508,7 @@ namespace MetaverseMax.ServiceClass
 
             return RETURN_CODE.SUCCESS;
         }
-   
+
         public string UnitTest_POIActive()
         {
             DistrictManage districtManage = new(_context, worldType);

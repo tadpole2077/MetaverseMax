@@ -1,9 +1,7 @@
-﻿using System.Runtime.Serialization;
-
-namespace MetaverseMax.ServiceClass
-{    
+﻿namespace MetaverseMax.ServiceClass
+{
     public enum APPLICATION_ID
-    {                
+    {
         WHITE_AIR_CON = 1,
         CCTV_WHITE = 2,
         RED_FIRE_ALARM = 3,
@@ -13,7 +11,7 @@ namespace MetaverseMax.ServiceClass
         RED_SAT = 7,
         GREEN_AIR_CON = 8,
         RED_AIR_CON = 9,
-        CCTV_RED = 10           
+        CCTV_RED = 10
     }
     public enum APPLICATION_BONUS
     {
@@ -26,10 +24,11 @@ namespace MetaverseMax.ServiceClass
         RED_AIR_CON = 7,
         WHITE_SAT = 8,
         GREEN_SAT = 9,
-        RED_SAT = 10                
+        RED_SAT = 10
     }
 
-    public enum CITIZEN_HISTORY {
+    public enum CITIZEN_HISTORY
+    {
         DAYS = -40,
         CORRECTION_SECONDS = 45
     }
@@ -80,7 +79,7 @@ namespace MetaverseMax.ServiceClass
         LUCK = 2,
         AGILITY = 3,
         STRENGTH = 4,
-        ENDURANCE= 5,
+        ENDURANCE = 5,
         INTEL = 6
     }
 
@@ -127,7 +126,7 @@ namespace MetaverseMax.ServiceClass
     public enum BUILDING_TYPE
     {
         EMPTY_LAND = 0,
-        RESIDENTIAL = 1,        
+        RESIDENTIAL = 1,
         ENERGY = 3,
         COMMERCIAL = 4,
         INDUSTRIAL = 5,
@@ -517,8 +516,8 @@ namespace MetaverseMax.ServiceClass
     }
 
     public enum WORLD_TYPE
-    {   
-        UNKNOWN =0,
+    {
+        UNKNOWN = 0,
         TRON = 1,
         ETH = 2,
         BNB = 3
@@ -590,6 +589,6 @@ namespace MetaverseMax.ServiceClass
     public enum UPDATE_TYPE
     {
         FULL = 1,
-        PARTIAL = 2        
+        PARTIAL = 2
     }
 }

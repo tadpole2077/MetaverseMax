@@ -519,7 +519,10 @@ td.mat-column-pos span:nth-child(2){
   /*float: right;
   margin-right: 3rem;*/
 }
-
+.officeMagify {
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
 .magnifyHistoryIcon {
   margin-top: -12px;
   position: absolute;
@@ -784,12 +787,12 @@ td.mat-column-pos span:nth-child(2){
     font-size: .6rem;
     width: 44px;
     margin-left: -36px;
-    margin-top: -12px;
+    margin-top: -13px;
   }
     .toRent:before, .salepos:before {
-      width: 42px;
-      height: 28px;
-      margin-top: -12px;
+      width: 46px;
+      height: 30px;
+      margin-top: -14px;
     }
 
   .rented {
@@ -838,6 +841,10 @@ td.mat-column-pos span:nth-child(2){
     margin-left: -1.4rem;
     margin-top: -1rem;
   }
+  .officeMagify {
+    margin-top: 0;
+    margin-left: -3rem;
+  }
 
   .mat-column-ip_t{
     padding-left: .6rem;
@@ -850,5 +857,6 @@ td.mat-column-pos span:nth-child(2){
   th > div > div{
     margin-left: 0;
   }
-  
+
+
 }

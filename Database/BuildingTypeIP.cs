@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -23,7 +20,7 @@ namespace MetaverseMax.Database
         [Column("ip_efficiency")]
         public decimal ip_efficiency { get; set; }
 
-        
+
         //[NotMapped]
         //[Column("ip_efficiency_bonus_bug")]
         //public decimal ip_efficiency_bonus_bug { get; set; }        

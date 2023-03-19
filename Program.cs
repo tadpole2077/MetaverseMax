@@ -1,13 +1,37 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using MetaverseMax.Database;
+using MetaverseMax.ServiceClass;
 
-namespace MetaverseMax
+var builder = WebApplication.CreateBuilder(args);
+ConfigurationManager configuration = builder.Configuration;
+
+// Add services to the container.
+builder.Services.AddControllersWithViews();
+builder.Services.AddDbContext<MetaverseMaxDbContext>();         // inject dbContext into service controller - allow context to initiate when first used
+
+//builder.Services.AddDbContext<MyDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("ConnStr")));
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
+{
+}
+Common.AssignSetting(app.Environment.IsDevelopment());
+
+app.UseStaticFiles();
+app.UseRouting();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "api/{controller}/{id?}");
+    //pattern: "{controller}/{action=Index}/{id?}");
+
+app.MapFallbackToFile("index.html");
+
+app.Run();
+
+
+/*namespace MetaverseMax
 {
     public class Program
     {
@@ -23,4 +47,4 @@ namespace MetaverseMax
                     webBuilder.UseStartup<Startup>();
                 });
     }
-}
+}*/

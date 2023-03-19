@@ -2,13 +2,6 @@
 using MetaverseMax.ServiceClass;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MetaverseMax.Controllers
@@ -31,20 +24,20 @@ namespace MetaverseMax.Controllers
             _context = context;
         }
 
-        [HttpGet]        
+        [HttpGet]
         public IActionResult Get([FromQuery] QueryParametersTokenID_IPEfficiency parameters)
         {
             BuildingManage buildingManage = new(_context, common.IdentifyWorld(Request.Path));
 
             if (ModelState.IsValid)
             {
-                return Ok(buildingManage.GetHistory(parameters.token_id, 50, true, parameters.full_refresh == 1, string.Empty, USE_STORED_EFFICIENCY, parameters.requester, false) );
+                return Ok(buildingManage.GetHistory(parameters.token_id, 50, true, parameters.full_refresh == 1, string.Empty, USE_STORED_EFFICIENCY, parameters.requester, false));
 
             }
             return BadRequest("Get Asset History request is invalid");
         }
 
-        
+
         [HttpGet("GetCitizenHistory")]
         public IActionResult GetCitizenHistory([FromQuery] QueryParametersCitizenHistory parameters)
         {
@@ -72,7 +65,8 @@ namespace MetaverseMax.Controllers
             return BadRequest("Unable to Wait");       // 400 Error   
         }
 
-        private async Task WaitPeriodAction() {
+        private async Task WaitPeriodAction()
+        {
             await Task.Delay(10000); //.Wait(); //1000 = 1sec
             return;
         }

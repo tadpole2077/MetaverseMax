@@ -1,12 +1,5 @@
-using MetaverseMax.Controllers;
 using MetaverseMax.Database;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace MetaverseMax
 {
@@ -55,7 +48,7 @@ namespace MetaverseMax
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {            
+        {
             isDevelopment = env.IsDevelopment();
 
             if (env.IsDevelopment())
@@ -97,7 +90,7 @@ namespace MetaverseMax
 
                 if (env.IsDevelopment())
                 {
-                    spa.UseAngularCliServer(npmScript: "start");
+                    //spa.UseAngularCliServer(npmScript: "start");
                 }
             });
 

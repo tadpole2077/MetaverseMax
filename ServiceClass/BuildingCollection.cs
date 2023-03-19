@@ -1,8 +1,4 @@
-﻿using MetaverseMax.Database;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -32,7 +28,7 @@ namespace MetaverseMax.ServiceClass
         public IEnumerable<ResourceActiveWeb> active_buildings { get; set; }
         public IEnumerable<BuildingIPWeb> buildings { get; set; }
         public IEnumerable<ResourceTotal> total_produced { get; set; }
-        public IEnumerable<ResourceTotal> total_produced_month { get; set; }        
+        public IEnumerable<ResourceTotal> total_produced_month { get; set; }
     }
 
     public class ResourceActiveWeb
@@ -46,7 +42,8 @@ namespace MetaverseMax.ServiceClass
         public string building_name { get; set; }
     }
 
-    public class PredictOutcome{
+    public class PredictOutcome
+    {
         public int correct { get; set; }
         public decimal correct_percent { get; set; }
         public int miss { get; set; }
@@ -72,7 +69,7 @@ namespace MetaverseMax.ServiceClass
         public int ip_t { get; set; }
 
         public int ip_b { get; set; }
-        
+
         public int bon { get; set; }
 
         public string name { get; set; }
@@ -88,7 +85,7 @@ namespace MetaverseMax.ServiceClass
 
         public int pre { get; set; }
 
-        public int dis { get; set; }       
+        public int dis { get; set; }
 
         public string warn { get; set; }
 

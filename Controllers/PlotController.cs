@@ -1,19 +1,13 @@
 ﻿using MetaverseMax.Database;
 using MetaverseMax.ServiceClass;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MetaverseMax.Controllers
-{   
+{
 
     [ApiController]
     [Route("api/[controller]")]
@@ -26,7 +20,7 @@ namespace MetaverseMax.Controllers
         private readonly MetaverseMaxDbContext _context;
         private Common common = new();
 
-        public PlotController(MetaverseMaxDbContext context, ILogger<PlotController> logger)        
+        public PlotController(MetaverseMaxDbContext context, ILogger<PlotController> logger)
         {
             _logger = logger;
             _context = context;
@@ -54,7 +48,7 @@ namespace MetaverseMax.Controllers
 
             if (ModelState.IsValid)
             {
-                return Ok(syncWorld.SyncActiveDistrictPlot( parameters.secure_token, parameters.interval) );
+                return Ok(syncWorld.SyncActiveDistrictPlot(parameters.secure_token, parameters.interval));
             }
 
             return BadRequest("Sync Failed");       // 400 Error     
@@ -80,7 +74,7 @@ namespace MetaverseMax.Controllers
 
             if (ModelState.IsValid)
             {
-                return Ok(Task.Run(() =>  buildingManage.BuildingIPbyTypeGet(parameters.type, parameters.level, false, 50, true)).Result);
+                return Ok(Task.Run(() => buildingManage.BuildingIPbyTypeGet(parameters.type, parameters.level, false, 50, true)).Result);
             }
 
             return BadRequest("GetBuildingByType is invalid");       // 400 Error     
@@ -193,6 +187,6 @@ namespace MetaverseMax.Controllers
             return BadRequest("UnitTest is invalid");       // 400 Error     
         }
 
-        
+
     }
 }

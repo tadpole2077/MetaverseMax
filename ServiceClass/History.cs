@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
+﻿
 namespace MetaverseMax.ServiceClass
 {
     public class HistoryProduction
@@ -38,7 +34,7 @@ namespace MetaverseMax.ServiceClass
     }
 
     public class BuildingHistory
-    {   
+    {
         public int slowdown { get; set; }
         public string owner_matic { get; set; }
         public string start_production { get; set; }
@@ -48,7 +44,7 @@ namespace MetaverseMax.ServiceClass
         public int current_building_id { get; set; }
         public int current_building_type { get; set; }
         public IEnumerable<ResourceTotal> totalProduced { get; set; }
-        public IEnumerable<HistoryProduction> detail { get; set; }        
+        public IEnumerable<HistoryProduction> detail { get; set; }
 
         public string prediction_product { get; set; }
         public int prediction_base_min { get; set; }
@@ -62,7 +58,8 @@ namespace MetaverseMax.ServiceClass
         public bool check_citizens { get; set; }
         public int damage { get; set; }
         public decimal damage_eff { get; set; }
-        public decimal damage_eff_rounded { get; set; }
+        public decimal damage_eff_2Place { get; set; }
+        public decimal condition_rounded { get; set; }
     }
 
     public class Prediction
@@ -84,22 +81,21 @@ namespace MetaverseMax.ServiceClass
         public decimal cit_produce_max { get; set; }
 
         public bool is_perk_activated { get; set; }
-        public decimal ip_efficiency { get; set; }        
+        public decimal ip_efficiency { get; set; }
         public decimal ip_efficiency_partial { get; set; }
-        public int ip_range_percent { get; set; }        
+        public int ip_range_percent { get; set; }
         public int ip_efficiency_rounded { get; set; }
         public decimal ip_produce { get; set; }
         public decimal ip_produce_rounded { get; set; }
         public decimal ip_produce_max { get; set; }
 
-        public decimal ip_and_cit_percent { get; set; }
         public decimal ip_and_cit_percent_100 { get; set; }
         public decimal ip_and_cit_percent_rounded { get; set; }
         public decimal ip_and_cit_produce { get; set; }
         public decimal ip_and_cit_produce_rounded { get; set; }
 
         public decimal ip_and_cit_percent_dmg { get; set; }
-        public int ip_and_cit_percent_rounded_dmg { get; set; }
+        public int ip_and_cit_percent_dmg_rounded { get; set; }
         public decimal ip_and_cit_produce_dmg { get; set; }
         public decimal ip_and_cit_produce_dmg_rounded { get; set; }
 

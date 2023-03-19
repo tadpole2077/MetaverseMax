@@ -34,7 +34,7 @@ namespace MetaverseMax.Database
                            .Distinct()
                            .OrderBy(r => ((uint)r))
                            .ToList();
-            
+
             return districtList.ToArray();
         }
 
@@ -101,7 +101,7 @@ namespace MetaverseMax.Database
                 // AsNoTracking() will not track changes to the entity data, used for read-only scenarios, can not use SaveChanges(). likely results in min overhead on retriving and use of entity
 
                 var x = districtList.Count;
-                
+
                 // Call sproc to get list of latest districts with matching UpdateInstance keys needed to pull the correct set of owner summary records.
                 //districtList = _context.district.FromSqlInterpolated<District>($"EXEC sp_get_all_district_latest")
                 //    .ToList();
@@ -116,7 +116,7 @@ namespace MetaverseMax.Database
         }
 
         public int UpdateDistrictByToken(JToken districtToken)
-        {            
+        {
             District district = new();
             Common common = new();
             int returnCode = 0;
@@ -166,7 +166,7 @@ namespace MetaverseMax.Database
             return returnCode;
         }
 
-        public int DistrictUpdate( District district )
+        public int DistrictUpdate(District district)
         {
             int result, instance = 0;
             try
@@ -193,7 +193,7 @@ namespace MetaverseMax.Database
                 //Update summary totals for district
                 updateInstance.Direction = System.Data.ParameterDirection.Input;    // reusing parameter but now using as input - not output.
                 result = _context.Database.ExecuteSqlRaw("EXEC dbo.sp_district_update_by_instance @district_id, @update_instance", new[] { districtParameter, updateInstance });
-               
+
 
             }
             catch (Exception ex)

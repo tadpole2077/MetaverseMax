@@ -1,8 +1,5 @@
 ﻿using MetaverseMax.ServiceClass;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.Database
 {
@@ -23,7 +20,7 @@ namespace MetaverseMax.Database
             int counter = 0;
             try
             {
-                if (Startup.logServiceInfo == false)
+                if (Common.logServiceInfo == false)
                 {
                     return RETURN_CODE.SUCCESS;
                 }
@@ -45,13 +42,16 @@ namespace MetaverseMax.Database
                 {
                     _context.SaveChanges();
 
-                    if (worldType == WORLD_TYPE.ETH) {
+                    if (worldType == WORLD_TYPE.ETH)
+                    {
                         counterETH = 0;
                     }
-                    else if (worldType == WORLD_TYPE.BNB){
+                    else if (worldType == WORLD_TYPE.BNB)
+                    {
                         counterBNB = 0;
-                    } 
-                    else if (worldType == WORLD_TYPE.TRON) {
+                    }
+                    else if (worldType == WORLD_TYPE.TRON)
+                    {
                         counterTRX = 0;
                     }
                 }

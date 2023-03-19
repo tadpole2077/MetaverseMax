@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
+﻿
 namespace MetaverseMax.ServiceClass
 {
     public class CitizenAction
@@ -15,7 +11,7 @@ namespace MetaverseMax.ServiceClass
         public string owner_matic_key { get; set; }
         public string new_owner_key { get; set; }
     }
-    
+
     public class CitizenWebCollection
     {
         public string last_updated { get; set; }

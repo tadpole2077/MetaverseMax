@@ -253,6 +253,17 @@ tr.mat-row:not(.detailRow) {
   cursor: pointer;
 }
 
+.officeTable td.mat-column-run_datetime{
+  width: 10rem;
+}
+.officeTable td.mat-column-building_ip {
+  width: 5rem;
+}
+.officeTable td.mat-column-efficiency_c{
+  padding-left: 2rem;
+}
+
+
 .citizenTable {
   overflow: hidden;
   display: flex;
@@ -467,11 +478,27 @@ tr.mat-row:not(.detailRow) {
   border-top: white 3px solid;
   padding-top: 4px;
 }
-
+.formula > span{
+  padding-top: .2rem
+}
+.formula .mat-badge-content {
+  font-size: .5rem
+}
+.shortTxt {
+  display: none;
+}
+.longTxt {
+  display: inline-block;
+}
 
 
 @media only screen and (max-width: 415px) {
-
+  .shortTxt {
+    display: inline-block;
+  }
+  .longTxt {
+    display: none;
+  }
   .histroyframe {
     left: 0;
     bottom: unset;
@@ -511,7 +538,6 @@ tr.mat-row:not(.detailRow) {
   .predictionDetailCalc div > span:nth-child(4) {    
     width: 5rem;
     line-height: .6rem;
-    margin-top: .6rem;
   }
   .nowarp {
     width: unset;
@@ -554,4 +580,11 @@ tr.mat-row:not(.detailRow) {
   .table-container{
     margin-left: -10px;
   }
+
+  .formula{
+    max-width: 10rem;
+  }
+    .formula > span {
+      padding-top: .3rem
+    }
 }

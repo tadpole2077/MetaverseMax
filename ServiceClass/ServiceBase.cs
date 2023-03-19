@@ -1,19 +1,14 @@
 ﻿using MetaverseMax.Database;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.ServiceClass
 {
     public class ServiceBase
     {
         protected readonly MetaverseMaxDbContext _context;
-        
+
         public WORLD_TYPE worldType { get; set; }
         public ServicePerfDB servicePerfDB { get; set; }
         public string serviceUrl { get; set; }
@@ -47,10 +42,10 @@ namespace MetaverseMax.ServiceClass
             {
                 var s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-                string connectionString = Startup.serverIP;
-                if (Startup.serverIP != "")
+                string connectionString = Common.serverIP;
+                if (Common.serverIP != "")
                 {
-                    s.Bind(new IPEndPoint(IPAddress.Parse(Startup.serverIP), 0));
+                    s.Bind(new IPEndPoint(IPAddress.Parse(Common.serverIP), 0));
                 }
                 else
                 {
@@ -65,7 +60,7 @@ namespace MetaverseMax.ServiceClass
             };
 
             return socketsHandler;
-        } 
+        }
 
     }
 }

@@ -1,15 +1,7 @@
 ﻿using MetaverseMax.Database;
 using MetaverseMax.ServiceClass;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MetaverseMax.Controllers
@@ -50,10 +42,10 @@ namespace MetaverseMax.Controllers
             DistrictFundManage districtFundManage = new(_context, common.IdentifyWorld(Request.Path));
             if (ModelState.IsValid)
             {
-                return Ok(Task.Run(() => districtFundManage.UpdateFundAll(parameters)).Result );
+                return Ok(Task.Run(() => districtFundManage.UpdateFundAll(parameters)).Result);
             }
             return BadRequest("All District Fund update request is invalid");
-        }        
+        }
 
         [HttpGet("UpdateTaxHistoryChange")]
         public IActionResult UpdateTaxHistoryChange()

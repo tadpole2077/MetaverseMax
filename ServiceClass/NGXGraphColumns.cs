@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
+﻿
 namespace MetaverseMax.ServiceClass
 {
     public class NGXGraphColumns
     {
         public string name { get; set; }    // "name": "Energy",
-        public IEnumerable<NGXChartSeries> series { get; set;}
+        public IEnumerable<NGXChartSeries> series { get; set; }
 
     }
 

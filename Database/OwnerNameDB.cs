@@ -20,7 +20,7 @@ namespace MetaverseMax.Database
             {
                 // The below Add ownerName (from plot) is now completed in sp_owner_sync, can be removed after future eval 2023-02.
                 OwnerName lastOwnerName = _context.ownerName.Where(o => o.owner_matic_key == ownerChange.owner_matic_key)
-                    .OrderByDescending(x=>x.created_date)
+                    .OrderByDescending(x => x.created_date)
                     .FirstOrDefault();
 
                 // Add new record if (a) new account (b) new avatar used for account (c) new name assigned

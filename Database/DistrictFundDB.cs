@@ -1,10 +1,7 @@
-﻿using MetaverseMax.ServiceClass;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.Database
 {
@@ -49,15 +46,15 @@ namespace MetaverseMax.Database
         public bool UpdateDistrictFundByToken(JToken districtToken, int districtId)
         {
             DistrictFund districtFund = new();
-            
+
             try
             {
                 districtFund.district_id = districtId;
-                districtFund.update = DateTime.Parse( districtToken.Value<string>("date") );
+                districtFund.update = DateTime.Parse(districtToken.Value<string>("date"));
 
                 districtFund.balance = districtToken.Value<decimal>("balance");
                 districtFund.distribution = districtToken.Value<decimal>("distribution_part");
-                
+
                 _context.districtFund.Add(districtFund);
 
             }
@@ -81,8 +78,9 @@ namespace MetaverseMax.Database
 
             try
             {
-                if (_context.districtFund.Where(r => r.district_id == districtId && r.update == DateTime.Parse(districtToken.Value<string>("date"))).ToList().Count == 0) { 
-                
+                if (_context.districtFund.Where(r => r.district_id == districtId && r.update == DateTime.Parse(districtToken.Value<string>("date"))).ToList().Count == 0)
+                {
+
                     districtFund.district_id = districtId;
                     districtFund.update = DateTime.Parse(districtToken.Value<string>("date"));
 

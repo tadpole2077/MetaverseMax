@@ -1,21 +1,12 @@
-﻿using Azure;
-using MetaverseMax.Database;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+﻿using MetaverseMax.Database;
 using Newtonsoft.Json.Linq;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.ServiceClass
 {
     public class PlotManage : ServiceBase
-    {        
+    {
         public PlotManage(MetaverseMaxDbContext _parentContext, WORLD_TYPE worldTypeSelected) : base(_parentContext, worldTypeSelected)
         {
             worldType = worldTypeSelected;
@@ -70,9 +61,9 @@ namespace MetaverseMax.ServiceClass
 
 
         public Plot AddOrUpdatePlot(int plotId, int posX, int posY, bool saveEvent)
-        {                        
+        {
             Plot plotMatched = null;
-            PlotDB plotDB = new(_context);        
+            PlotDB plotDB = new(_context);
             JObject jsonContent;
             List<int> citizenList = new();
             JArray citizenArray;
@@ -126,7 +117,7 @@ namespace MetaverseMax.ServiceClass
                 {
                     retryCount++;
                     serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.LAND_GET, WORLD_TYPE.BNB => BNB_WS.LAND_GET, WORLD_TYPE.ETH => ETH_WS.LAND_GET, _ => TRON_WS.LAND_GET };
-                    
+
                     // POST REST WS
                     HttpResponseMessage response;
                     using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
@@ -180,8 +171,9 @@ namespace MetaverseMax.ServiceClass
             plotList.RemoveAll(x => x.building_level == 7 || x.building_level == 6);
 
 
-            for (int counter=0; counter < tokenIdList.Count; counter++){
-                plotList.Add(filteredPlotsMegaHuge.Where(x => x.token_id == tokenIdList[counter]).First() );
+            for (int counter = 0; counter < tokenIdList.Count; counter++)
+            {
+                plotList.Add(filteredPlotsMegaHuge.Where(x => x.token_id == tokenIdList[counter]).First());
             }
 
             megaHugeplotsRemoved -= plotList.Count;
@@ -196,14 +188,14 @@ namespace MetaverseMax.ServiceClass
             DistrictDB districtDB = new(_context);
             int unclaimedPlotRemovedCount = 0;
 
-            List<District> districtOpened =  districtDB.DistrictGetAll_Latest().ToList();
+            List<District> districtOpened = districtDB.DistrictGetAll_Latest().ToList();
 
             foreach (District district in districtOpened)
             {
                 if (districtListMCPBasic.Where(r => r.district_id == district.district_id && r.claimed_cnt == district.plots_claimed).Any())
                 {
                     // As Plot List is reducing must start from end to avoid missing plot comparision checks (as count is reducing)
-                    for (int i = plotList.Count-1; i >= 0; i--)
+                    for (int i = plotList.Count - 1; i >= 0; i--)
                     {
                         // Remove plots from process list, if matching district and plot is unclaimed
                         if (plotList[i].district_id == district.district_id && plotList[i].unclaimed_plot == true)
@@ -214,7 +206,7 @@ namespace MetaverseMax.ServiceClass
                     }
                 }
             }
-            
+
             return unclaimedPlotRemovedCount;
         }
 
@@ -226,10 +218,10 @@ namespace MetaverseMax.ServiceClass
             OwnerManage ownerManage = new(_context, worldType);
             OwnerChange ownerChange = null;
             DistrictName districtName = null;
-            List<Plot> buildingPlotList = null; 
+            List<Plot> buildingPlotList = null;
             bool ownerMonumentStateChanged = false, districtPOIStateChanged = false;
-            PlotDB plotDB = new PlotDB(_context, worldType);            
-            int buildingTypeId = 0, districtId = 0, tokenId = 0, storedInfluenceBonus = 0, influenceBonus =0, storedInfluence = 0, influence =0;
+            PlotDB plotDB = new PlotDB(_context, worldType);
+            int buildingTypeId = 0, districtId = 0, tokenId = 0, storedInfluenceBonus = 0, influenceBonus = 0, storedInfluence = 0, influence = 0;
             int buildingUpdatedCount = 0, emptyPlotsUpdatedCount = 0;
             int storedApp123bonus = 0, storedApp4 = 0, storedApp5 = 0, storedInfluenceInfo = 0;
 
@@ -248,7 +240,7 @@ namespace MetaverseMax.ServiceClass
                 ownerMonumentStateChanged = ownerChange == null ? false : ownerChange.monument_activated || ownerChange.monument_deactivated;  // if either flag enabled, return true - [state has changed].
 
                 // NOTE owner>lands service returns 1x plot per building - so will skip some plots used in Huge and Mega - using token_id to match buildings.                
-                JArray lands = Task.Run(() => ownerManage.GetOwnerLandsMCP( accountWithMin2Plot[i]) ).Result;
+                JArray lands = Task.Run(() => ownerManage.GetOwnerLandsMCP(accountWithMin2Plot[i])).Result;
                 WaitPeriodAction(waitPeriodMS).Wait();
 
                 // Update local db with partial plot data updates. [Use Full plot update plotManage.AddOrUpdatePlot() if IP has changed]
@@ -267,9 +259,9 @@ namespace MetaverseMax.ServiceClass
 
                     // Skip first account plot (start at 1 not 0) - full sync first account plot will retrive latest avatar and name used by account.
                     for (int landIndex = 1; landIndex < lands.Count; landIndex++)
-                    {                        
+                    {
 
-                        buildingTypeId = lands[landIndex].Value<int?>("building_type_id") ?? 0;                        
+                        buildingTypeId = lands[landIndex].Value<int?>("building_type_id") ?? 0;
                         tokenId = lands[landIndex].Value<int?>("token_id") ?? 0;
 
                         buildingPlotList = _context.plot.Where(x => x.token_id == tokenId).ToList();
@@ -278,7 +270,7 @@ namespace MetaverseMax.ServiceClass
                             continue;   // if newly minted plot with new token OR plot sold/transfer, then get/process full plot - not partial.
                         }
 
-                        influenceBonus = lands[landIndex].Value<int?>("influence_bonus") ?? 0;                        
+                        influenceBonus = lands[landIndex].Value<int?>("influence_bonus") ?? 0;
                         influence = lands[landIndex].Value<int?>("influence") ?? 0;
                         storedInfluenceBonus = buildingPlotList[0].influence_bonus ?? 0;
                         storedInfluence = buildingPlotList[0].influence ?? 0;
@@ -287,14 +279,14 @@ namespace MetaverseMax.ServiceClass
                         storedApp4 = buildingPlotList[0].app_4_bonus ?? 0;
                         storedApp5 = buildingPlotList[0].app_5_bonus ?? 0;
 
-                        districtId = lands[landIndex].Value<int?>("region_id") ?? 0;                        
+                        districtId = lands[landIndex].Value<int?>("region_id") ?? 0;
                         districtName = districtListMCPBasic.Where(x => x.district_id == districtId).FirstOrDefault();
-                        districtPOIStateChanged = districtName == null? false : districtName.poi_activated || districtName.poi_deactivated;
+                        districtPOIStateChanged = districtName == null ? false : districtName.poi_activated || districtName.poi_deactivated;
 
                         // NOTE: Empty plot needs to be updated on each nighly sync - as empty plot can be set For_sale or sale price changed.
                         // NOTE_2: Newly build POI and monuments wont trigger a state change until next sync, unless account manually viewed and plots updated before sync
                         // NOTE_3: The influence attributes check is needed as building may be destroyed reverting back to empty plot, plot influance fields will need full sync to all reflect current 0 value.
-                        if ((buildingTypeId == (int)BUILDING_TYPE.EMPTY_LAND || buildingTypeId == (int)BUILDING_TYPE.POI) 
+                        if ((buildingTypeId == (int)BUILDING_TYPE.EMPTY_LAND || buildingTypeId == (int)BUILDING_TYPE.POI)
                             && influence == 0 && influenceBonus == 0 && storedInfluenceInfo == 0)
                         {
                             plotDB.UpdatePlotPartial(lands[landIndex], false);
@@ -308,10 +300,10 @@ namespace MetaverseMax.ServiceClass
                         //  AND no IP bonus change - or anomoly found with stored_app_bonus components vs influenceBonus,
                         //  AND no change in IP due to nearby building (as influence_info would need to be recalculated)
                         //  THEN partial update can proceed. (no full update required)
-                        else if (ownerMonumentStateChanged == false && districtPOIStateChanged == false 
-                            && storedInfluenceBonus == influenceBonus 
+                        else if (ownerMonumentStateChanged == false && districtPOIStateChanged == false
+                            && storedInfluenceBonus == influenceBonus
                             && influence == storedInfluence
-                            && influenceBonus == (storedApp123bonus + storedApp4 + storedApp5)) 
+                            && influenceBonus == (storedApp123bonus + storedApp4 + storedApp5))
                         {
                             plotDB.UpdatePlotPartial(lands[landIndex], false);
                             buildingUpdatedCount++;
@@ -322,7 +314,7 @@ namespace MetaverseMax.ServiceClass
                                x.token_id == tokenId);
                         }
                     }
-                }         
+                }
 
             }
 
@@ -383,7 +375,7 @@ namespace MetaverseMax.ServiceClass
         {
             WorldNameCollection worldNameCollection = new();
             List<WorldName> worldNames = new();
-            
+
             worldNames.Add(new WorldName() { id = 1, name = "Tron" });
             worldNames.Add(new WorldName() { id = 2, name = "BNB" });
             worldNames.Add(new WorldName() { id = 3, name = "ETH" });
@@ -445,5 +437,5 @@ namespace MetaverseMax.ServiceClass
 
             return pollingPlot;
         }
-    }       
+    }
 }

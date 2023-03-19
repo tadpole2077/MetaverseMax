@@ -1,9 +1,7 @@
 ﻿using MetaverseMax.ServiceClass;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 
 namespace MetaverseMax.Database
@@ -61,7 +59,8 @@ namespace MetaverseMax.Database
                 citizens = _context.OwnerCitizenExt.FromSqlInterpolated($"sp_building_citizen_get {landTokenId}").AsNoTracking().ToList();
 
                 // Assign any pet bonus parts to Cit attributes.
-                for(int counter =0; counter < citizens.Count; counter++){
+                for (int counter = 0; counter < citizens.Count; counter++)
+                {
                     if (citizens[counter].pet_token_id > 0)
                     {
                         citizens[counter].trait_strength_pet_bonus = citizens[counter].pet_bonus_id == (int)PET_BONUS_TYPE.STRENGTH ? CheckMaxTrait(citizens[counter].pet_bonus_level, citizens[counter].trait_strength) : 0;

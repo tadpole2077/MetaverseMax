@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MetaverseMax.Database;
+﻿using MetaverseMax.Database;
 using MetaverseMax.ServiceClass;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
 
 namespace MetaverseMax.Controllers
@@ -29,7 +24,7 @@ namespace MetaverseMax.Controllers
         }
 
         [HttpGet]
-        public IActionResult Get([FromQuery] QueryParametersDistrictOwner parameters )
+        public IActionResult Get([FromQuery] QueryParametersDistrictOwner parameters)
         {
             OwnerManage ownerManage = new(_context, common.IdentifyWorld(Request.Path));
 

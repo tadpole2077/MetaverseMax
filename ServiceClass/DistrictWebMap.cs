@@ -1,13 +1,4 @@
 ﻿using MetaverseMax.Database;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -33,7 +24,7 @@ namespace MetaverseMax.ServiceClass
             try
             {
                 taxChangeList = districtTaxChangeDB.GetTaxChange(districtId);
-                foreach(DistrictTaxChange taxChange in taxChangeList)
+                foreach (DistrictTaxChange taxChange in taxChangeList)
                 {
                     taxChangeWebList.Add(new TaxChangeWeb()
                     {
@@ -53,7 +44,7 @@ namespace MetaverseMax.ServiceClass
                 string log = ex.Message;
                 if (_context != null)
                 {
-                    _context.LogEvent(String.Concat("DistrictWebMap::GetTaxChange() : Error for district ", districtId ));
+                    _context.LogEvent(String.Concat("DistrictWebMap::GetTaxChange() : Error for district ", districtId));
                     _context.LogEvent(log);
                 }
             }
@@ -84,7 +75,7 @@ namespace MetaverseMax.ServiceClass
 
         public DistrictWeb MapData_DistrictWeb(District district, District districtHistory_1Mth, bool perksDetail, bool includeTaxHistory)
         {
-            DistrictWeb districtWeb, districtWebHistory = new();                    
+            DistrictWeb districtWeb, districtWebHistory = new();
             DistrictContent districtContent = new();
             TaxGraph districtTaxGraph;
             DistrictFundManage districtFundManage;
@@ -116,7 +107,8 @@ namespace MetaverseMax.ServiceClass
                 districtWeb.produceTax = districtTaxGraph.Produce();
 
                 // Find amount of days from start of MEGA conversion.
-                if (DateTime.Today.Year == 2022) {
+                if (DateTime.Today.Year == 2022)
+                {
                     historyDayCount = DateTime.Today.DayOfYear - new DateTime(2022, 9, 8).DayOfYear;
                 }
                 else
@@ -143,8 +135,8 @@ namespace MetaverseMax.ServiceClass
         private DistrictWeb MapData_DistrictWebAttributes(District district)
         {
             DistrictWeb districtWeb = new();
-            CitizenManage citizen = new(_context, worldType);            
-            
+            CitizenManage citizen = new(_context, worldType);
+
             districtWeb.update_instance = district.update_instance;
             districtWeb.last_update = district.last_update;
             districtWeb.last_updateFormated = common.TimeFormatStandard("", district.last_update);
@@ -182,8 +174,8 @@ namespace MetaverseMax.ServiceClass
             districtWeb.citizen_tax = district.citizen_tax ?? 0;
 
             return districtWeb;
-        }       
-       
+        }
+
 
         // Get all districts from local db : used by district_list component
         public IEnumerable<DistrictWeb> GetDistrictAll(bool isOpened, bool includeTaxHistory)

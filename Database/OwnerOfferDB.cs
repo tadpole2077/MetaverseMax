@@ -1,8 +1,7 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 
 namespace MetaverseMax.Database
 {
@@ -14,7 +13,7 @@ namespace MetaverseMax.Database
         }
 
         public List<OwnerOffer> GetbyOwnerMatic(string ownerMaticKey)
-        {         
+        {
             List<OwnerOffer> ownerOfferList = new();
 
             try
@@ -24,7 +23,7 @@ namespace MetaverseMax.Database
             }
             catch (Exception ex)
             {
-                logException(ex, String.Concat("OwnerOfferDB.SetOffersInactive() : Error executing Raw query "));               
+                logException(ex, String.Concat("OwnerOfferDB.SetOffersInactive() : Error executing Raw query "));
             }
 
             return ownerOfferList;
@@ -50,13 +49,13 @@ namespace MetaverseMax.Database
 
         public int AddorUpdate(OwnerOffer ownerOffer)
         {
-            try 
+            try
             {
                 OwnerOffer storedOffer = _context.ownerOffer.Where(r => r.offer_id == ownerOffer.offer_id).FirstOrDefault();
 
                 if (storedOffer == null)
                 {
-                    _context.ownerOffer.Add(ownerOffer);                    
+                    _context.ownerOffer.Add(ownerOffer);
                 }
                 else
                 {
@@ -64,7 +63,7 @@ namespace MetaverseMax.Database
                     storedOffer.sold = ownerOffer.sold;
                     storedOffer.sold_date = ownerOffer.sold_date;
                     storedOffer.buyer_offer = ownerOffer.buyer_offer;           // Need to update due to ETH/BNB bug that dropped the price on earlier releases - can remove if needed after live data sync run
-                }                
+                }
             }
             catch (Exception ex)
             {
@@ -79,7 +78,7 @@ namespace MetaverseMax.Database
             int deleteCount = 0;
             try
             {
-                deleteCount =_context.ownerOffer.Where(o => !validOffers.Contains(o.offer_id) && o.token_owner_matic_key == owner_matic_key)
+                deleteCount = _context.ownerOffer.Where(o => !validOffers.Contains(o.offer_id) && o.token_owner_matic_key == owner_matic_key)
                     .ExecuteDelete();       // EF 7 feature           
             }
             catch (Exception ex)

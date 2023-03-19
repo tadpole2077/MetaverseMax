@@ -1,7 +1,8 @@
 <div class="histroyframe" cdkDrag style="display:inline-table;text-align:left;">
 
   <div class="title">
-    <span>Production History</span>
+    <span *ngIf="historyBuildingType!=6">Production History</span>
+    <span *ngIf="historyBuildingType==6">Office History</span>
     <div class="targetPlot">(X:{{ plot.x }} Y:{{ plot.y }})</div>
   </div>
   <a class="closeframe" (click)="setHide()"><i class="far fa-window-close fa-2x" role="button"></i></a>
@@ -10,7 +11,7 @@
 
   <div class="historySummary" [hidden]="!history">
 
-    <div class="summaryBlock" *ngIf="history">
+    <div class="summaryBlock" *ngIf="history && historyBuildingType!=6">
       <span class="summaryLabel">Total Produced:</span>
       <span class="summarydata produceRow">
         <span class="totalEle" *ngFor="let resource of history.totalProduced">
@@ -24,7 +25,7 @@
       </div>
     </div>
 
-    <div [hidden]="globals.ownerAccount.pro_tools_enabled == false" class="predict" *ngIf="history && history.prediction && ipEfficiency >-1">
+    <div [hidden]="globals.ownerAccount.pro_tools_enabled == false || historyBuildingType==6" class="predict" *ngIf="history && history.prediction && ipEfficiency >-1">
       <div>
         <span class="summaryLabel">Next Run Prediction:</span>
         <span *ngIf="history.prediction.total>0" class="predictionTotal"> {{ history.prediction.total }} </span>
@@ -111,20 +112,24 @@
           <div>
             <span>Damage:</span>
             <span class="summarydata">
-              <span matBadge="C" matBadgePosition="above before" matBadgeSize="small" matBadgeOverlap="false">{{ history.damage }} Dmg</span>
+              <span matBadge="C" matBadgePosition="above before" matBadgeSize="small" matBadgeOverlap="false">{{ history.damage }} Dmg Points</span>
               <span class="multi"> = </span>
-              {{ history.damage_eff_rounded }}%
+              {{ history.damage_eff_2Place }}%
             </span>
             <span class="summarydata"></span>
             <span class="summarydata"></span>
           </div>
           <div class="borderTop">
             <span>Formula :</span>
-            <span class="summarydata nowarp">
-              Condition% *
-              <span matBadge=" Rnd " matBadgePosition="above after" matBadgeSize="small" matBadgeOverlap="true">( Citizen% + IP%
-                <span *ngIf="history.prediction.resource_lvl"> + Resource%</span> )
-              </span>              
+            <span class="summarydata nowarp formula">
+              <!--<span matBadge=" {{isMobileView?'R':'Rnd'}} " matBadgePosition="above before" matBadgeSize="small" matBadgeOverlap="true">( </span> -->
+              <span matBadge=" {{isMobileView?'R':'Rnd'}} " matBadgePosition="above after" matBadgeSize="small" matBadgeOverlap="true">( Condition% )</span> *
+              <span matBadge=" {{isMobileView?'R':'Rnd'}} " matBadgePosition="above after" matBadgeSize="small" matBadgeOverlap="true">
+                ( Citizen% + IP%
+                <span *ngIf="history.prediction.resource_lvl"> + Resource%</span>
+                <span> )</span>
+              </span>
+              <!--<span> )</span>-->
             </span>
             <span class="summarydata"></span>
             <span class="summarydata"></span>
@@ -132,11 +137,11 @@
           <div>
             <span></span>
             <span class="summarydata">
-              {{ (10000 + (history.damage_eff_rounded * 100))/100 }}%
+              {{ history.condition_rounded }}%
               <span class="multi"> * </span>
               <span> {{ history.prediction.ip_and_cit_percent_rounded }}% </span>
               <span class="multi"> = </span>
-              <span>{{ history.prediction.ip_and_cit_percent_rounded_dmg }}%</span>
+              <span>{{ history.prediction.ip_and_cit_percent_dmg_rounded }}%</span>
             </span>
             <span class="summarydata"></span>
             <span class="summarydata">({{ history.prediction.ip_and_cit_percent_dmg }}%)</span>
@@ -144,7 +149,7 @@
           <div>
             <span></span>
             <span class="summarydata">
-              {{ history.prediction.ip_and_cit_percent_rounded_dmg }}%
+              {{ history.prediction.ip_and_cit_percent_dmg_rounded }}%
               <span class="multi"> * </span>
               <span class="gold">{{ history.prediction_range}}</span>
             </span>
@@ -199,87 +204,10 @@
           </div>
         </div>
 
-      </div>
-      <!--
-      <div *ngIf="history.prediction_bonus_bug" class="predictionDetailCalc separate">
-        <div class="predictControlBonus">
-          <a *ngIf="!showCalcDetailBonus" role="button" (click)="toggleDetailBonus($event)"><span>Show Bonus Bug Calculation</span><mat-icon>arrow_drop_down_circle</mat-icon></a>
-          <a *ngIf="showCalcDetailBonus" role="button" (click)="toggleDetailBonus($event)"><span>Hide Bonus Bug Calculation</span><mat-icon>arrow_drop_up</mat-icon></a>
-        </div>
-        <div class="predictionDetail noMargin" [@predictionDetailBonusExpand]="showCalcDetailBonus ? 'expanded' : 'collapsed'">
-          <div>
-            <span>Base(Min):</span>
-            <span></span>
-            <span class="summarydata">{{ history.prediction_base_min }}</span>
-          </div>
-          <div>
-            <span>Citizen:</span>
-            <span class="summarydata">{{ history.prediction_bonus_bug.cit_efficiency }}% <span class="multi">*</span> {{ history.prediction_bonus_bug.cit_range_percent}}% <span class="multi">=</span><span class="predictTotal">{{ history.prediction_bonus_bug.cit_efficiency_partial }}%</span></span>
-            <span class="summarydata"></span>
-            <span class="summarydata">({{ history.prediction_bonus_bug.cit_produce }})</span>
-          </div>
-          <div>
-            <span>IP:</span>
-            <span class="summarydata">{{ history.prediction_bonus_bug.ip_efficiency }}% <span class="multi">*</span> {{ history.prediction_bonus_bug.ip_range_percent}}% <span class="multi">=</span><span class="predictTotal">{{ history.prediction_bonus_bug.ip_efficiency_partial }}%</span></span>
-            <span class="summarydata"></span>
-            <span class="summarydata">({{ history.prediction_bonus_bug.ip_produce_rounded }})</span>
-          </div>
-          <div *ngIf="history.prediction.resource_lvl">
-            <span>Resource Level {{ history.prediction_bonus_bug.resource_lvl}}:</span>
-            <span class="summarydata">
-              {{ history.prediction_bonus_bug.resource_lvl_percent }}%
-              <span class="multi"> * </span>
-              {{ history.prediction_bonus_bug.resource_range_percent}}%
-              <span class="multi">=</span>
-              <span class="predictTotal">{{ history.prediction_bonus_bug.resource_partial }}%</span>
-            </span>
-            <span class="summarydata"></span>
-            <span class="summarydata">
-              ({{ history.prediction_bonus_bug.resource_lvl_produce_rounded }})
-            </span>
-          </div>
-          <div>
-            <span>Citizen & IP <span *ngIf="history.prediction.resource_lvl"> & Resource</span>:</span>
-            <span class="summarydata"><span class="gold">{{ history.prediction_range}}</span><span class="multi"> * </span><span>{{ history.prediction_bonus_bug.ip_and_cit_percent_rounded }}({{ history.prediction_bonus_bug.ip_and_cit_percent }})%<span class="multi"> =</span></span></span>
-            <span class="summarydata">{{ history.prediction_bonus_bug.ip_and_cit_produce_rounded }}</span>
-            <span class="summarydata">({{ history.prediction_bonus_bug.ip_and_cit_produce }})</span>
-          </div>
-
-          <div>
-            <span>Standard Produce:</span>
-            <span></span>
-            <span class="summarydata bottomTopBorder">{{ history.prediction_bonus_bug.subtotal_rounded}}</span>
-            <span class="summarydata">({{ history.prediction_bonus_bug.subtotal }})</span>
-          </div>
-          <div>
-            <span>POI Bonus:</span>
-            <span class="summarydata">{{ history.prediction_bonus_bug.subtotal_rounded }}<span class="multi"> * </span><span>{{ history.prediction_bonus_bug.poi_bonus }}%<span class="multi"> =</span></span></span>
-            <span class="summarydata">{{ history.prediction_bonus_bug.poi_bonus_produce_rounded }}</span>
-            <span class="summarydata">({{ history.prediction_bonus_bug.poi_bonus_produce }})</span>
-          </div>
-          <div>
-            <span>Total Produce:</span>
-            <span class="summarydata"></span>
-            <span class="summarydata">{{ history.prediction_bonus_bug.total}}</span>
-            <span class="summarydata">({{ history.prediction_bonus_bug.total_decimal}}) {{ history.prediction_product }}</span>
-          </div>
-          <div style="margin-top:.6rem">
-            <div style="font-weight:500">IP Eval with App Bonus Bug:</div>
-            <span class="summarydata">{{ history.prediction_bonus_bug.influance}}<span class="multi"> + </span></span>
-            <span class="summarydata">
-              <span class="gold" *ngIf="history.current_building_lvl==6">2x </span>
-              <span class="gold" *ngIf="history.current_building_lvl==7">4x </span>
-              {{ history.prediction_bonus_bug.influance_bonus}}%
-            </span>
-            <span class="summarydata"><span class="multi">=</span> {{ history.prediction_bonus_bug.ip}} IP</span>
-          </div>
-        </div>
-      </div>
-      -->
-
+      </div>      
     </div>
 
-    <div class="table-container" [hidden]="!history">      
+    <div class="table-container" [hidden]="!history" [ngClass]="{'officeTable': historyBuildingType==6}" >      
       <table mat-table [dataSource]="dataSourceHistory" matSort multiTemplateDataRows class="mat-elevation-z8" style="display:inline-table; width:100%">
         <!--table table-striped-->
         <ng-container matColumnDef="amount_produced">
@@ -335,7 +263,10 @@
           </td>
         </ng-container>
         <ng-container matColumnDef="efficiency_c">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header title="Citizen Efficiency %"><span matBadge="A" matBadgePosition="above before" matBadgeSize="small">Eff(Cit) %</span></th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header title="Citizen Efficiency %">
+            <span [hidden]="historyBuildingType==6" matBadge="A" matBadgePosition="above before" matBadgeSize="small">Eff(Cit) %</span>
+            <span [hidden]="historyBuildingType!=6">Citizen Efficiency %</span>
+          </th>
           <td mat-cell *matCellDef="let history">
             <span style="color:red" [hidden]="!(history.efficiency_c<50)">{{ history.efficiency_c }}</span>
             <span style="color:darkorange" [hidden]="!(history.efficiency_c>=50 && history.efficiency_c<=80)">{{ history.efficiency_c }}</span>
@@ -384,14 +315,15 @@
       <mat-icon>help</mat-icon>
       <span>Click row to expand and show citizens</span>
     </div>
-    <div class="helpTip">
+    <div class="helpTip" *ngIf="historyBuildingType!=6">
       <mat-icon>info</mat-icon>
       <span>Eff(P)% : Efficiency % using 0 to Max production range</span>
     </div>
-    <div class="helpTipNoIcon" style="margin-top:-.3rem">
+    <div class="helpTipNoIcon" style="margin-top:-.3rem" *ngIf="historyBuildingType!=6">
       <span>Eff(M)% : Efficiency % using Min to Max production range</span>
     </div>
-    <div class="helpTipNoIcon">
+    <div [ngClass]="{'helpTipNoIcon': historyBuildingType!=6, 'helpTip': historyBuildingType==6}">
+      <mat-icon *ngIf="historyBuildingType==6">info</mat-icon>
       <span>Eff(Cit)% : Citizen trait Efficiency % for all citizens</span>
     </div>
   </div>

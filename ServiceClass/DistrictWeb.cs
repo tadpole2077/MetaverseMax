@@ -1,8 +1,4 @@
 ﻿using MetaverseMax.Database;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -10,7 +6,7 @@ namespace MetaverseMax.ServiceClass
     {
         public int update_instance { get; set; }
         public string last_updateFormated { get; set; }
-        public DateTime last_update{ get; set; }        
+        public DateTime last_update { get; set; }
         public int district_id { get; set; }
         public string district_name { get; set; }
         public string owner_name { get; set; }
@@ -29,14 +25,14 @@ namespace MetaverseMax.ServiceClass
         public int commercial_count { get; set; }
         public int municipal_count { get; set; }
         public int poi_count { get; set; }
-        
+
         public int energy_tax { get; set; }
         public int production_tax { get; set; }
         public int commercial_tax { get; set; }
         public int citizen_tax { get; set; }
 
         public int construction_energy_tax { get; set; }
-        public int construction_industry_production_tax { get; set; }        
+        public int construction_industry_production_tax { get; set; }
         public int construction_commercial_tax { get; set; }
         public int construction_municipal_tax { get; set; }
         public int construction_residential_tax { get; set; }

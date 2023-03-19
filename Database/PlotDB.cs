@@ -1,18 +1,9 @@
 ﻿using MetaverseMax.ServiceClass;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http.Json;
-using System.Security.AccessControl;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.Database
 {
@@ -20,11 +11,11 @@ namespace MetaverseMax.Database
     {
         public PlotDB(MetaverseMaxDbContext _parentContext) : base(_parentContext)
         {
-            worldType = _parentContext.worldTypeSelected;          
+            worldType = _parentContext.worldTypeSelected;
         }
 
         public PlotDB(MetaverseMaxDbContext _parentContext, WORLD_TYPE worldTypeSelected) : base(_parentContext)
-        {         
+        {
             worldType = worldTypeSelected;
             _parentContext.worldTypeSelected = worldTypeSelected;
         }
@@ -34,7 +25,7 @@ namespace MetaverseMax.Database
         public List<Plot> GetPlotbyToken(int tokenId)
         {
             List<Plot> plotList = null;
-            try 
+            try
             {
                 plotList = _context.plot.Where(x => x.token_id == tokenId).ToList();
 
@@ -55,7 +46,7 @@ namespace MetaverseMax.Database
         public Plot GetPlotbyPosXPosY(int posX, int posY)
         {
             Plot plot = null;
-            try 
+            try
             {
                 plot = _context.plot.Where(x => x.pos_x == posX && x.pos_y == posY).FirstOrDefault();
             }
@@ -121,11 +112,11 @@ namespace MetaverseMax.Database
             {
                 plotIPList = _context.plotIP.FromSqlInterpolated($"EXEC dbo.sp_plot_IP_get {tokenId}").AsNoTracking().ToList();
 
-                for(int index=0; index < plotIPList.Count; index++)
+                for (int index = 0; index < plotIPList.Count; index++)
                 {
                     plotIPList[index].total_ip = (int)Math.Round(
-                        (decimal)(plotIPList[index].influence_info ?? 0) * (1 + ((plotIPList[index].influence_bonus ?? 0) / 100m)), 
-                        0, 
+                        (decimal)(plotIPList[index].influence_info ?? 0) * (1 + ((plotIPList[index].influence_bonus ?? 0) / 100m)),
+                        0,
                         MidpointRounding.AwayFromZero);
 
                     //(decimal)(1 + (((plotIPList[index].app_123_bonus ?? 0) +
@@ -223,7 +214,7 @@ namespace MetaverseMax.Database
 
             return returnCode;
         }
-    
+
         public Plot AddOrUpdatePlot(JObject jsonContent, int posX, int posY, int plotId, bool saveEvent)
         {
             Plot plotMatched = null, returnPlot = null;
@@ -251,12 +242,12 @@ namespace MetaverseMax.Database
                             district_id = jsonContent.Value<int?>("region_id") ?? 0,
                             land_type = jsonContent.Value<int?>("land_type") ?? 0,
 
-                            last_updated = DateTime.UtcNow,                                
+                            last_updated = DateTime.UtcNow,
                             unclaimed_plot = string.IsNullOrEmpty(jsonContent.Value<string>("owner")),
 
-                            #nullable enable
+#nullable enable
                             owner_nickname = jsonContent.Value<string?>("owner_nickname") ?? "",
-                            #nullable disable
+#nullable disable
                             owner_matic = jsonContent.Value<string>("owner"),
                             owner_avatar_id = jsonContent.Value<int>("owner_avatar_id"),
 
@@ -298,10 +289,10 @@ namespace MetaverseMax.Database
                     }
                     else
                     {
-                        _context.LogEvent(String.Concat("PlotDB:AddOrUpdatePlot() : Existing plot was found for X:", posX, " Y:", posY,". This maybe unexpected! Call was to create new plot at these XY coord. Existing Plot will be updated"));
+                        _context.LogEvent(String.Concat("PlotDB:AddOrUpdatePlot() : Existing plot was found for X:", posX, " Y:", posY, ". This maybe unexpected! Call was to create new plot at these XY coord. Existing Plot will be updated"));
                     }
                 }
-                    
+
                 if (plotId != 0 || plotMatched != null)
                 {
                     plotMatched = plotMatched == null ? _context.plot.Find(plotId) : plotMatched;
@@ -310,9 +301,9 @@ namespace MetaverseMax.Database
                     plotMatched.last_updated = DateTime.UtcNow;
 
                     plotMatched.unclaimed_plot = string.IsNullOrEmpty(jsonContent.Value<string>("owner"));
-                    #nullable enable
+#nullable enable
                     plotMatched.owner_nickname = jsonContent.Value<string?>("owner_nickname") ?? "";
-                    #nullable disable
+#nullable disable
                     plotMatched.owner_matic = jsonContent.Value<string>("owner");
                     plotMatched.owner_avatar_id = jsonContent.Value<int>("owner_avatar_id");
                     plotMatched.resources = jsonContent.Value<int?>("resources") ?? 0;
@@ -323,7 +314,7 @@ namespace MetaverseMax.Database
 
                     plotMatched.on_sale = jsonContent.Value<bool?>("on_sale") ?? false;
                     plotMatched.current_price = plotMatched.on_sale ? building.GetSalePrice(jsonContent.Value<JToken>("sale_data"), worldType) : 0;
-                        
+
                     plotMatched.for_rent = (jsonContent.Value<int?>("for_rent") ?? 0) > 0 ? building.GetRentPrice(jsonContent.Value<JToken>("rent_info"), worldType) : 0;
                     plotMatched.rented = jsonContent.Value<string>("renter") != null;
                     plotMatched.abundance = jsonContent.Value<int?>("abundance") ?? 0;
@@ -331,12 +322,12 @@ namespace MetaverseMax.Database
                     plotMatched.condition = jsonContent.Value<int?>("condition") ?? 0;
 
                     plotMatched.influence_info = GetInfluenceInfoTotal(jsonContent.Value<JToken>("influence_info"), jsonContent.Value<Boolean?>("influence_poi_bonus") ?? false, posX, posY, jsonContent.Value<int?>("building_type_id") ?? 0);
-                    
+
                     newInfluence = jsonContent.Value<int?>("influence") ?? 0;
                     plotMatched.influence_bonus = jsonContent.Value<int?>("influence_bonus") ?? 0;
                     plotMatched.current_influence_rank = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, plotMatched.building_level, plotMatched.building_type_id);
                     plotMatched.influence = newInfluence;                                   // Placed after ranking check, as both old and new influence needed for check
-                                        
+
                     plotMatched.influence_poi_bonus = jsonContent.Value<Boolean?>("influence_poi_bonus") ?? false;
                     plotMatched.production_poi_bonus = jsonContent.Value<decimal?>("production_poi_bonus") ?? 0.0m;
                     plotMatched.is_perk_activated = jsonContent.Value<Boolean?>("is_perk_activated") ?? false;
@@ -352,7 +343,7 @@ namespace MetaverseMax.Database
 
                     returnPlot = plotMatched;
                 }
-                
+
 
                 if (saveEvent)
                 {
@@ -390,14 +381,14 @@ namespace MetaverseMax.Database
             CitizenManage citizen = new(_context, worldType);
             BuildingManage buildingManage = new(_context, worldType);
             Building building = new();
-            int tokenId = 0, buildingLevel =0;
-            int newInfluence = 0; 
+            int tokenId = 0, buildingLevel = 0;
+            int newInfluence = 0;
             decimal newRanking = -1;
             PlotCord plotFullUpdate = null;
 
             try
             {
-                                                   
+
                 tokenId = ownerLand.Value<int?>("token_id") ?? 0;
                 buildingPlotList = _context.plot.Where(x => x.token_id == tokenId).ToList();
 
@@ -418,8 +409,8 @@ namespace MetaverseMax.Database
                         // Newly claimed/transfer/sold plot in last 24 hrs - get(WS land/get) full plot details and update db.
                         // NOTE: This call will also update all related plots in building (MEGA / HUGE)
                         plotMatched = plotManage.AddOrUpdatePlot(plotMatched.plot_id, ownerLand.Value<int?>("x") ?? 0, ownerLand.Value<int?>("y") ?? 0, true);
-                        logInfo(String.Concat("Plot sold/transfer - Get full plot details and store - due to change of owner_matic, avatar, name.  Plot tokenID - ", tokenId));    
-                        
+                        logInfo(String.Concat("Plot sold/transfer - Get full plot details and store - due to change of owner_matic, avatar, name.  Plot tokenID - ", tokenId));
+
                     }
                     else if (buildingPlotList.Count == 1 && buildingLevel < (int)BUILDING_SIZE.HUGE)
                     {
@@ -450,11 +441,11 @@ namespace MetaverseMax.Database
                                 plotId = plotMatched.plot_id,
                                 posX = ownerLand.Value<int?>("x") ?? 0,
                                 posY = ownerLand.Value<int?>("y") ?? 0
-                            };                            
+                            };
                         }
                         plotMatched.current_influence_rank = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, buildingLevel, plotMatched.building_type_id);
                         plotMatched.influence = newInfluence;                                                   // Placed after ranking check, as both old and new influence needed for check                    
-                        
+
                         //plotMatched.influence_bonus = ownerLand.Value<int?>("influence_bonus") ?? 0;          // Missing assign bonus per app slot
 
                         plotMatched.citizen_count = ownerLand.Value<JArray>("citizens") == null ? 0 : ownerLand.Value<JArray>("citizens").Count;
@@ -493,8 +484,9 @@ namespace MetaverseMax.Database
                             plotMatched.for_rent = plotMatched.rented == false ? building.GetRentPrice(ownerLand.Value<JToken>("rent_info"), worldType) : 0;
                             //plotMatched.abundance = ownerLand.Value<int?>("abundance") ?? 0;                  // dont update abundance for related building plots - each plot can have own abundance
                             plotMatched.condition = ownerLand.Value<int?>("condition") ?? 0;
-                                                      
-                            if (newRanking == -1) {
+
+                            if (newRanking == -1)
+                            {
                                 newRanking = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, buildingLevel, plotMatched.building_type_id);
                             }
                             plotMatched.current_influence_rank = newRanking;                                    // Reuse ranking if already identified on prior related plot
@@ -506,7 +498,7 @@ namespace MetaverseMax.Database
                             plotMatched.low_stamina_alert = citizen.CheckCitizenStamina(ownerLand.Value<JArray>("citizens"), plotMatched.building_type_id);
                         }
                     }
-                }                
+                }
 
                 if (saveEvent)
                 {
@@ -523,15 +515,16 @@ namespace MetaverseMax.Database
 
         private int GetApplicationBonus(int appNumber, JArray extraAppliances, int pos_x, int pos_y)
         {
-            int appBonus = 0, appType=0;
+            int appBonus = 0, appType = 0;
             try
             {
                 if (extraAppliances != null)
                 {
-                   
+
                     for (int count = 0; count < extraAppliances.Count; count++)
                     {
-                        if (appNumber==4 && count == 0) {
+                        if (appNumber == 4 && count == 0)
+                        {
                             appType = extraAppliances[count][1].Value<int?>() ?? 0;
                             break;
                         }
@@ -539,11 +532,12 @@ namespace MetaverseMax.Database
                         {
                             appType = extraAppliances[count][1].Value<int?>() ?? 0;
                             break;
-                        }                       
+                        }
                     }
 
-                    if (appType > 0) {
-                        appBonus = (int)FindApplicationBonusValue((APPLICATION_ID)appType);                        
+                    if (appType > 0)
+                    {
+                        appBonus = (int)FindApplicationBonusValue((APPLICATION_ID)appType);
                     }
                 }
             }
@@ -570,7 +564,7 @@ namespace MetaverseMax.Database
                         int appType = values[appCount] ?? 0;
 
                         if (appType > 0)
-                        {                            
+                        {
                             appBonusTotal += (int)FindApplicationBonusValue((APPLICATION_ID)appType);
                         }
                     }
@@ -589,7 +583,7 @@ namespace MetaverseMax.Database
             APPLICATION_BONUS appBonus;
             appBonus = appType switch
             {
-                APPLICATION_ID.RED_SAT => APPLICATION_BONUS.RED_SAT,                
+                APPLICATION_ID.RED_SAT => APPLICATION_BONUS.RED_SAT,
                 APPLICATION_ID.GREEN_SAT => APPLICATION_BONUS.GREEN_SAT,
                 APPLICATION_ID.WHITE_SAT => APPLICATION_BONUS.WHITE_SAT,
                 APPLICATION_ID.GREEN_AIR_CON => APPLICATION_BONUS.GREEN_AIR_CON,
@@ -619,7 +613,7 @@ namespace MetaverseMax.Database
                     JArray effects = influenceInfo.Value<JArray>("effects");
                     if (effects != null)
                     {
-                        for (int count =0; count < effects.Count; count++)
+                        for (int count = 0; count < effects.Count; count++)
                         {
                             effectValue = effects[count].Value<int?>("value") ?? 0;
                             effectBuildingType = effects[count].Value<int?>("typeId") ?? 0;
@@ -630,7 +624,7 @@ namespace MetaverseMax.Database
                                 continue;
                             }
 
-                            influenceTotal += effectValue;                            
+                            influenceTotal += effectValue;
                         }
                     }
                 }

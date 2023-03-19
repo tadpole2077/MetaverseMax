@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.Database
 {
@@ -19,7 +16,7 @@ namespace MetaverseMax.Database
         [Column("app_123_bonus")]
         public int? app_123_bonus { get; set; }
 
-		[Column("app_4_bonus")]
+        [Column("app_4_bonus")]
         public int? app_4_bonus { get; set; }
 
         [Column("app_5_bonus")]
@@ -37,6 +34,13 @@ namespace MetaverseMax.Database
 
         [Column("is_perk_activated")]
         public bool? is_perk_activated { get; set; }
+
+        [Column("building_id")]
+        public int building_id { get; set; }
+
+        [Column("building_level")]
+        public int building_level { get; set; }
+
 
     }
 }

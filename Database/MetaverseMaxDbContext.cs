@@ -1,11 +1,8 @@
 ﻿using MetaverseMax.ServiceClass;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System;
 using System.IO;
 using System.Reflection;
 
@@ -51,10 +48,10 @@ namespace MetaverseMax.Database
         public MetaverseMaxDbContext(WORLD_TYPE worldType) : base()
         {
             worldTypeSelected = worldType;
-        }        
+        }
         public MetaverseMaxDbContext(DbContextOptions<MetaverseMaxDbContext> options) : base(options)
         {
-            init();            
+            init();
         }
         public MetaverseMaxDbContext(string dbConnectionString) : base(new DbContextOptionsBuilder<MetaverseMaxDbContext>().UseSqlServer(dbConnectionString).Options)
         {
@@ -66,12 +63,12 @@ namespace MetaverseMax.Database
             if (string.IsNullOrEmpty(dbConnectionStringTron))
             {
                 string appSettingFileName = "appsettings.json";
-                                
-                if (Startup.isDevelopment)
+
+                if (Common.isDevelopment)
                 {
                     appSettingFileName = "appsettings.Development.json";
                 }
-                
+
 
                 // Get Configuration Settings 
                 IConfigurationRoot configuration = new ConfigurationBuilder()
@@ -127,11 +124,11 @@ namespace MetaverseMax.Database
         }
 
         public int LogEvent(string logDetail)
-        {            
+        {
             try
-            {                
+            {
                 logDetail = logDetail.Substring(0, logDetail.Length > 500 ? 500 : logDetail.Length);        // db field max length
-                
+
                 eventLog.Add(new EventLog()
                 {
                     detail = logDetail,
@@ -154,13 +151,13 @@ namespace MetaverseMax.Database
 
             // Event log should used a separate context in case problem thrown with a prior call to SaveChanges
             try
-            {                
+            {
                 result = Database.ExecuteSqlInterpolated($"UPDATE ActionTime set [last_update] = getDate() where [action_type] = {actionType.ToString("G")}");
             }
             catch (Exception ex)
             {
                 string log = ex.Message;
-                LogEvent(String.Concat("MetaverseMaxDbContext.UpdateAction() : Error updating action datetime for ", actionType.ToString("G")));              
+                LogEvent(String.Concat("MetaverseMaxDbContext.UpdateAction() : Error updating action datetime for ", actionType.ToString("G")));
             }
 
             return 0;
@@ -216,7 +213,7 @@ namespace MetaverseMax.Database
 
             // Tag Entity's with no key.
             //modelBuilder.Entity<Owner>().HasNoKey();
-            modelBuilder.Entity<PlotIP>().HasNoKey();            
+            modelBuilder.Entity<PlotIP>().HasNoKey();
 
             base.OnModelCreating(modelBuilder);
         }
@@ -224,7 +221,7 @@ namespace MetaverseMax.Database
         // Using Type: 5.0.16.0  EntityFrameworkCore.DbContext (confirm if working with any core library upgrades)
         public bool IsDisposed()
         {
-            bool result = true;            
+            bool result = true;
             var typeDbContext = typeof(DbContext);
             var isDisposedTypeField = typeDbContext.GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -232,7 +229,7 @@ namespace MetaverseMax.Database
             {
                 result = (bool)isDisposedTypeField.GetValue(this);
             }
-            
+
             return result;
         }
     }

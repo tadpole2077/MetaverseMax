@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.Database
 {
@@ -21,7 +17,7 @@ namespace MetaverseMax.Database
         [NotMapped]
         [Column("owner_name")]
         public string owner_name { get; set; }
-        
+
         [NotMapped]
         [Column("owner_avatar_id")]
         public int owner_avatar_id { get; set; }

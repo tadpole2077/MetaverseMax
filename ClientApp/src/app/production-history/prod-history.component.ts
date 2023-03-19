@@ -87,7 +87,13 @@ export class ProdHistoryComponent implements AfterViewInit {
 
 
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
-  displayedColumns: string[] = ['amount_produced', 'building_product', 'efficiency_p', 'efficiency_m', 'efficiency_c', 'building_ip', 'run_datetime'];
+  displayedColumns: string[];
+  columnsStandard: string[] = ['amount_produced', 'building_product', 'efficiency_p', 'efficiency_m', 'efficiency_c', 'building_ip', 'run_datetime'];
+  columnsStandardMobile: string[] = ['building_product', 'efficiency', 'building_ip', 'run_datetime'];
+  columnsOffice: string[] = ['run_datetime', 'building_ip', 'efficiency_c'];
+  columnsFactoryMobile: string[] =['building_product', 'efficiency_c', 'building_ip', 'run_datetime'];
+  columnsFactory: string[] =['amount_produced', 'building_product', 'efficiency_c', 'building_ip', 'run_datetime'];
+  
 
   constructor(public globals: Globals, public _elementRef: ElementRef, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {//, cdr: ChangeDetectorRef) {
 
@@ -101,7 +107,7 @@ export class ProdHistoryComponent implements AfterViewInit {
     // Mobile View - remove secondary columns
     if (this.width < 768) {
       this.isMobileView = true;
-      this.displayedColumns = ['building_product', 'efficiency', 'building_ip', 'run_datetime'];
+      this.displayedColumns = this.columnsStandardMobile;
     }    
   }
 
@@ -152,7 +158,7 @@ export class ProdHistoryComponent implements AfterViewInit {
 
     this.assetId = asset_id;
     this.historyBuildingType = building_type;
-    this.ipEfficiency = 0;    
+    this.ipEfficiency = 0;
 
     params = params.append('token_id', asset_id.toString());
     //params = params.append('ip_efficiency', ip_efficiency.toString());
@@ -173,14 +179,19 @@ export class ProdHistoryComponent implements AfterViewInit {
         
         if (this.history.detail != null) {
 
-          if (this.history.current_building_id == 10) {
-            this.displayedColumns = this.isMobileView == true ? ['building_product', 'efficiency_c', 'building_ip', 'run_datetime'] : ['amount_produced', 'building_product', 'efficiency_c', 'building_ip', 'run_datetime'];
+          //OFFICE
+          if (building_type == 6) {
+            this.displayedColumns = this.columnsOffice;
+          }
+          //FACTORY
+          else if (this.history.current_building_id == 10) {
+            this.displayedColumns = this.isMobileView == true ? this.columnsFactoryMobile : this.columnsFactory;
           }
           else if (this.isMobileView){
-            this.displayedColumns = ['building_product', 'efficiency', 'building_ip', 'run_datetime'];
+            this.displayedColumns = this.columnsStandardMobile;
           }
           else{
-            this.displayedColumns = ['amount_produced', 'building_product', 'efficiency_p', 'efficiency_m', 'efficiency_c', 'building_ip', 'run_datetime']
+            this.displayedColumns = this.columnsStandard
           }
 
           this.dataSourceHistory = new MatTableDataSource<Detail>(this.history.detail);

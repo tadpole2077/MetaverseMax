@@ -1,8 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace MetaverseMax.Database
 {
@@ -31,13 +27,13 @@ namespace MetaverseMax.Database
         // ADD new Citizen record if none found, or UPDATE if key attributes changed (traits, name, onsale, price) - due to assignment or removal of PET
         public CitizenChange AddorUpdate(Citizen citizen, Citizen storedCitizen, bool saveFlag, bool skipPriceCheck)
         {
-            CitizenChange citizenChange = new (){ historyRefresh = false, updateFound = false };
+            CitizenChange citizenChange = new() { historyRefresh = false, updateFound = false };
             try
             {
                 // Extract flag used to indicate if a complete refresh of citizen history actions (over prior 40 days) is required - due to prior WS REST fault
                 if (storedCitizen != null)
                 {
-                    citizenChange.historyRefresh = storedCitizen.refresh_history;                    
+                    citizenChange.historyRefresh = storedCitizen.refresh_history;
                 }
 
                 // Find if record already exists, if not add it.

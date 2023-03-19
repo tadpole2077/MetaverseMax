@@ -1,16 +1,7 @@
-﻿using Azure.Core;
-using MetaverseMax.Database;
+﻿using MetaverseMax.Database;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -38,11 +29,11 @@ namespace MetaverseMax.ServiceClass
             else
             {
                 ownerID = worldType switch
-                    {
-                        WORLD_TYPE.ETH => "https://mcp3d.com/api/image/citizen/",
-                        WORLD_TYPE.BNB => "https://mcp3d.com/bnb/api/image/citizen/",
-                        WORLD_TYPE.TRON or _ => "https://mcp3d.com/tron/api/image/citizen/"
-                    }
+                {
+                    WORLD_TYPE.ETH => "https://mcp3d.com/api/image/citizen/",
+                    WORLD_TYPE.BNB => "https://mcp3d.com/bnb/api/image/citizen/",
+                    WORLD_TYPE.TRON or _ => "https://mcp3d.com/tron/api/image/citizen/"
+                }
                      + ownerID;
             }
 
@@ -113,27 +104,29 @@ namespace MetaverseMax.ServiceClass
         public string GetCitizenUrl(JArray citizens)
         {
             string citizenUrl = string.Empty;
-            if (citizens != null && citizens.Count >0)
+            if (citizens != null && citizens.Count > 0)
             {
                 //*** Find minimum stamina of all cits (in building), then find image of first one (possible that more then 1 with same min stamina value)
                 int minStamina = GetLowStamina(citizens);
                 JToken minStaminaCitizen = citizens.Where(row => (row.Value<int?>("stamina") ?? 0) == minStamina).First();
-                
-                
+
+
                 citizenUrl = string.Concat(
-                    worldType switch {
+                    worldType switch
+                    {
                         WORLD_TYPE.ETH => "https://mcp3d.com/api/image/citizen/",
                         WORLD_TYPE.BNB => "https://mcp3d.com/bnb/api/image/citizen/",
-                        WORLD_TYPE.TRON or _ => "https://mcp3d.com/tron/api/image/citizen/" }
+                        WORLD_TYPE.TRON or _ => "https://mcp3d.com/tron/api/image/citizen/"
+                    }
                     ,
-                    minStaminaCitizen.Value<int?>("id") ?? 0 );
+                    minStaminaCitizen.Value<int?>("id") ?? 0);
             }
             return citizenUrl;
         }
 
         public int GetLowStamina(JArray citizens)
         {
-            int minStamina =0;
+            int minStamina = 0;
             if (citizens != null && citizens.Count > 0)
             {
                 //*** Find minimum stamina of all cits (in building)
@@ -167,7 +160,7 @@ namespace MetaverseMax.ServiceClass
 
         public CitizenWebCollection GetCitizen(string ownerMatic, string requester)
         {
-            OwnerCitizenExtDB ownerCitizenExtDB = new(_context);            
+            OwnerCitizenExtDB ownerCitizenExtDB = new(_context);
             CitizenWebCollection citizenCollection = new();
             OwnerManage ownerManage = new(_context, worldType);
 
@@ -178,7 +171,7 @@ namespace MetaverseMax.ServiceClass
 
                 citizenCollection.last_updated = common.TimeFormatStandard(string.Empty, ownerCitizens.Max(x => x.refreshed_last));
 
-                citizenCollection.slowdown = ownerManage.GetSlowDown(requester);                
+                citizenCollection.slowdown = ownerManage.GetSlowDown(requester);
             }
             catch (Exception ex)
             {
@@ -257,13 +250,13 @@ namespace MetaverseMax.ServiceClass
                     pet_token_id = cit.pet_token_id,
 
                     // Need to find efficiency % as it was at the time of this production run. The stored efficiency rates are using latest state/current assigned pet.
-                    efficiency_production = Math.Round( GetProductionEfficiency(cit), 2, MidpointRounding.AwayFromZero),
-                    efficiency_commercial = Math.Round( GetCommercialEfficiency(cit), 2, MidpointRounding.AwayFromZero),
-                    efficiency_energy_water = Math.Round( GetEnergyWaterEfficiency(cit), 2, MidpointRounding.AwayFromZero),
-                    efficiency_energy_electric = Math.Round( GetEnergyElectricEfficiency(cit), 2, MidpointRounding.AwayFromZero),
-                    efficiency_industry = Math.Round( GetIndustryEfficiency(cit), 2, MidpointRounding.AwayFromZero),
-                    efficiency_municipal = Math.Round( GetMunicipalEfficiency(cit), 2, MidpointRounding.AwayFromZero),
-                    efficiency_office = Math.Round( GetOfficeEfficiency(cit), 2, MidpointRounding.AwayFromZero)
+                    efficiency_production = Math.Round(GetProductionEfficiency(cit), 2, MidpointRounding.AwayFromZero),
+                    efficiency_commercial = Math.Round(GetCommercialEfficiency(cit), 2, MidpointRounding.AwayFromZero),
+                    efficiency_energy_water = Math.Round(GetEnergyWaterEfficiency(cit), 2, MidpointRounding.AwayFromZero),
+                    efficiency_energy_electric = Math.Round(GetEnergyElectricEfficiency(cit), 2, MidpointRounding.AwayFromZero),
+                    efficiency_industry = Math.Round(GetIndustryEfficiency(cit), 2, MidpointRounding.AwayFromZero),
+                    efficiency_municipal = Math.Round(GetMunicipalEfficiency(cit), 2, MidpointRounding.AwayFromZero),
+                    efficiency_office = Math.Round(GetOfficeEfficiency(cit), 2, MidpointRounding.AwayFromZero)
                 });
             }
 
@@ -273,8 +266,8 @@ namespace MetaverseMax.ServiceClass
         // Get from MCP 3rd tier services
         public async Task<RETURN_CODE> GetOwnerCitizenCollectionMCP(string ownerMatic)
         {
-            string content = string.Empty;            
-                                  
+            string content = string.Empty;
+
             RETURN_CODE returnCode = RETURN_CODE.ERROR;
             int retryCount = 0, changeCount = 0;
             CitizenChange citizenChange;
@@ -314,7 +307,7 @@ namespace MetaverseMax.ServiceClass
 
                         // Expire any db cits not found within current owner cit collection.  Citizens sold/transfered are handled here - citizens that are reassigned to another building handled later.
                         Expire(ownerMatic, citizens);
-                        
+
                         // Add 1+ records per citizen owned, if citizen already exists then skip creating a new one, just create the link record(s) if change (pet, owner, dates, land) found.
                         for (int index = 0; index < citizens.Count; index++)
                         {
@@ -359,7 +352,7 @@ namespace MetaverseMax.ServiceClass
             RETURN_CODE returnCode = RETURN_CODE.ERROR;
             int retryCount = 0;
             CitizenChange citizenChange;
-            serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.CITIZEN_GET, WORLD_TYPE.BNB => BNB_WS.CITIZEN_GET, WORLD_TYPE.ETH => ETH_WS.CITIZEN_GET, _ => TRON_WS.CITIZEN_GET};
+            serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.CITIZEN_GET, WORLD_TYPE.BNB => BNB_WS.CITIZEN_GET, WORLD_TYPE.ETH => ETH_WS.CITIZEN_GET, _ => TRON_WS.CITIZEN_GET };
 
             while (returnCode == RETURN_CODE.ERROR && retryCount < 3)
             {
@@ -387,11 +380,11 @@ namespace MetaverseMax.ServiceClass
 
                     if (content.Length > 0)
                     {
-                        JObject citizen = JObject.Parse(content);                                           
+                        JObject citizen = JObject.Parse(content);
 
                         // Add 1+ records per citizen owned, if citizen already exists then skip creating a new one, just create the link record(s) if change (pet, owner, dates, land) found.
                         citizenChange = UpdateCitizen(citizen, citizen.Value<string>("address").ToLower() ?? "", checkHistoryFrom);
-                        
+
                         if (saveToDB)
                         {
                             _context.SaveChanges();
@@ -420,7 +413,7 @@ namespace MetaverseMax.ServiceClass
 
         // Expire existing OwnerCitizen links where citizen is not found within passed array (newly retrieved from MCP WS)
         public int Expire(string ownerMatic, JArray citizens)
-        {            
+        {
             bool match = false;
             List<OwnerCitizen> dbCitizenList = ownerCitizenDB.GetOwnerCitizenByOwnerMatic(ownerMatic, null);
             int count = 0;
@@ -475,7 +468,7 @@ namespace MetaverseMax.ServiceClass
             // Get all Actions  from 24hrs before the target production run to NOW (eventDate) - some of these actions may already be in db so check to avoid dups.
             List<CitizenAction> citizenAction = GetCitizenHistoryMCP(citizenTokenId, eventDate.AddDays(-1), false).Result;
 
-            if (citizenAction.Count > 0) 
+            if (citizenAction.Count > 0)
             {
                 // Change existing OwnerCitizen link record, to support insertion of new actions(link records),  depending on new actions - may require a new end link record.
                 // This existing record is typically split into 2 parts,  one positioned before, and 2nd (new one) after the inserted new actions.
@@ -588,7 +581,7 @@ namespace MetaverseMax.ServiceClass
                     citizen.on_sale_key = citizen.on_sale == false ? 0 : int.Parse(citizenMCP.Value<string>("on_sale").Substring(1));
                     citizen.current_price = Task.Run(() => CheckSalePrice(storedOnSaleKey, storedSalePrice, citizen.on_sale, citizen.token_id, citizen.on_sale_key)).Result;
                 }
-                citizen.max_stamina = citizenMCP.Value<int?>("max_stamina") ?? 0;            
+                citizen.max_stamina = citizenMCP.Value<int?>("max_stamina") ?? 0;
 
                 citizen.efficiency_industry = GetIndustryEfficiency(citizen);
                 citizen.efficiency_production = GetProductionEfficiency(citizen);
@@ -636,11 +629,11 @@ namespace MetaverseMax.ServiceClass
                         ownerCitizenCurrent.land_token_id != ownerCitizenExisting.land_token_id ||
                         ownerCitizenCurrent.pet_token_id != ownerCitizenExisting.pet_token_id ||
                         ownerCitizenCurrent.owner_matic_key != ownerCitizenExisting.owner_matic_key ||
-                        checkHistoryFrom != null )
+                        checkHistoryFrom != null)
                 {
                     // Find date to start Citizen.HistoryCheck From, can explicitly stated by passed datetime, or derived from existing stored record
                     if (checkHistoryFrom != null)
-                    {                        
+                    {
                         startingFrom = ownerCitizenExisting == null || checkHistoryFrom < ownerCitizenExisting.refreshed_last ? checkHistoryFrom : ownerCitizenExisting.refreshed_last; // take the older date - possible nighly data sync down 
                     }
                     else
@@ -651,7 +644,7 @@ namespace MetaverseMax.ServiceClass
                     // Get all Citizen action events since last refresh (sync), OR if no existing review Cit history from -40 days ago and populate.
                     citizenAction = GetCitizenHistoryMCP(
                         ownerCitizenCurrent.citizen_token_id,
-                        startingFrom, 
+                        startingFrom,
                         ownerCitizenExisting == null).Result;
 
                     // At least 1x Action should be found for existing Citizen (found in local store) - causing change of stored data(pet, owner, building)
@@ -685,7 +678,7 @@ namespace MetaverseMax.ServiceClass
                     {
                         ownerCitizenDB.AddorUpdate(ownerCitizenCurrent, false);
                         citizenChange.updateFound = true;       // Record that DB changes are pending on local store.
-                    }                    
+                    }
 
                 }
                 else
@@ -715,11 +708,11 @@ namespace MetaverseMax.ServiceClass
                 }
 
                 List<CitizenAction> petActions = petActionsList[ownerCitizenActive.pet_token_id];
-                matchingAction = petActions.Where(x => 
-                    x.owner_matic_key == ownerCitizenActive.owner_matic_key && 
+                matchingAction = petActions.Where(x =>
+                    x.owner_matic_key == ownerCitizenActive.owner_matic_key &&
                     x.action_type == (int)ACTION_TYPE.PET_NEW_OWNER &&
                     x.action_datetime > ownerCitizenActive.link_date)
-                    .OrderBy(x=> x.action_datetime).FirstOrDefault();
+                    .OrderBy(x => x.action_datetime).FirstOrDefault();
 
             }
             catch (Exception ex)
@@ -764,7 +757,7 @@ namespace MetaverseMax.ServiceClass
                     for (int index = 0; index < historyList.Count; index++)
                     {
                         //Check any citizen change action has occured since check
-                        DateTime actionDateTime = DateTime.SpecifyKind(historyList[index].Value<DateTime>("event_time"), DateTimeKind.Utc);                        
+                        DateTime actionDateTime = DateTime.SpecifyKind(historyList[index].Value<DateTime>("event_time"), DateTimeKind.Utc);
 
                         // Only Record actions from the 3 weeks - should be sufficient to cover most missing transfers
                         if (actionDateTime < DateTime.Now.AddDays(-21))
@@ -828,7 +821,7 @@ namespace MetaverseMax.ServiceClass
 
             return citizenAction;
         }
-        
+
         public OwnerCitizen ProcessCitizenActions(List<CitizenAction> citizenAction, int citizenTokenID, OwnerCitizen ownerCitizenExisting, string ownerMatic)
         {
             OwnerCitizen ownerCitizenAction;
@@ -863,9 +856,9 @@ namespace MetaverseMax.ServiceClass
                     .FirstOrDefault();
 
                 // SKIP - This action was previously recorded, as having identical link_date  (which is not derived date like valid_to_date)
-                if (ownerCitizenActionDBPrior !=null && CompareDateTime(ownerCitizenActionDBPrior.link_date, ownerCitizenAction.link_date) == 0)
+                if (ownerCitizenActionDBPrior != null && CompareDateTime(ownerCitizenActionDBPrior.link_date, ownerCitizenAction.link_date) == 0)
                 {
-                    continue;       
+                    continue;
                 }
 
 
@@ -884,7 +877,7 @@ namespace MetaverseMax.ServiceClass
                     (int)ACTION_TYPE.ASSIGN_PET => citizenAction[actionCounter].pet_token_id,
                     _ => ownerCitizenActionDBPrior != null ? ownerCitizenActionDBPrior.pet_token_id : 0
                 };
-                
+
                 ownerCitizenAction.owner_matic_key = citizenAction[actionCounter].action_type switch
                 {
                     (int)ACTION_TYPE.NEW_OWNER => citizenAction[actionCounter].new_owner_key,
@@ -899,7 +892,7 @@ namespace MetaverseMax.ServiceClass
                     ownerCitizenAction.pet_token_id = 0;
                     ownerCitizenAction.land_token_id = 0;
                 }
-                    
+
                 // CHECK - Only add if different then existing Record :
                 //    if LAST recorded action record matches data in current history action, MCP sometimes logs dup events - such as when transfering cit.
                 if (ownerCitizenActionDBPrior == null ||
@@ -940,9 +933,9 @@ namespace MetaverseMax.ServiceClass
                 ownerCitizenActionLAST.Entity.db_update_pending = updatePending;
             }
 
-            return ownerCitizenActionLAST !=null ? ownerCitizenActionLAST.Entity : null;
+            return ownerCitizenActionLAST != null ? ownerCitizenActionLAST.Entity : null;
         }
-        
+
 
         // Used to identify and backfill any action actions related to last Production run or new cits
         public async Task<List<CitizenAction>> GetCitizenHistoryMCP(int tokenId, DateTime? startingDateTime, bool newCitizen)
@@ -970,7 +963,7 @@ namespace MetaverseMax.ServiceClass
                 }
                 // End timer
                 watch.Stop();
-                servicePerfDB.AddServiceEntry("Citizen - "+serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, tokenId.ToString());
+                servicePerfDB.AddServiceEntry("Citizen - " + serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, tokenId.ToString());
 
                 if (content.Length > 0)
                 {
@@ -980,7 +973,7 @@ namespace MetaverseMax.ServiceClass
                     {
                         //Check any citizen change action has occured since check
                         DateTime actionDateTime = DateTime.SpecifyKind(historyList[index].Value<DateTime>("event_time"), DateTimeKind.Utc);
-                        
+
                         //IF action occured before CheckTime then break out of loop, dont get next action, dont record this action. 
                         if (startingDateTime != null && startingDateTime > actionDateTime && newCitizen == false)
                         {
@@ -999,7 +992,7 @@ namespace MetaverseMax.ServiceClass
                                 action_datetime = actionDateTime,
                                 action_type = (int)ACTION_TYPE.ASSIGN_CITIZEN,
                                 land_token_id = historyList[index].Value<int?>("token_id") ?? 0
-                            });                            
+                            });
                         }
                         else if (historyType.StartsWith("management/remove_citizen"))
                         {
@@ -1079,9 +1072,10 @@ namespace MetaverseMax.ServiceClass
         {
             int petTraitBonus = 0;
 
-            if (petTokenId > 0 && petBonusId == (int)matchingType) {
+            if (petTokenId > 0 && petBonusId == (int)matchingType)
+            {
                 petTraitBonus = petBonusLevel ?? 0;
-            }                
+            }
 
             return petTraitBonus;
         }
@@ -1172,7 +1166,7 @@ namespace MetaverseMax.ServiceClass
                 try
                 {
                     retryCount++;
-                    serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.ASSETS_PETS, WORLD_TYPE.BNB => BNB_WS.ASSETS_PETS, WORLD_TYPE.ETH => ETH_WS.ASSETS_PETS, _ => TRON_WS.ASSETS_PETS};
+                    serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.ASSETS_PETS, WORLD_TYPE.BNB => BNB_WS.ASSETS_PETS, WORLD_TYPE.ETH => ETH_WS.ASSETS_PETS, _ => TRON_WS.ASSETS_PETS };
 
                     // POST from Land/Get REST WS
                     HttpResponseMessage response;
@@ -1197,7 +1191,7 @@ namespace MetaverseMax.ServiceClass
                         JArray pets = JArray.Parse(content);
 
                         for (int index = 0; index < pets.Count; index++)
-                        {   
+                        {
                             // Found dups within MCP response (9 dups found on 13/02/2022_Tron reported to MCP) - filtering out dups
                             if (!petList.Exists(x => x.token_id == (pets[index].Value<int?>("pet_id") ?? 0)))
                             {
@@ -1240,9 +1234,9 @@ namespace MetaverseMax.ServiceClass
         public PetUsage GetPetUsage(DateTime? runDate, List<OwnerCitizenExt> citizens)
         {
             // Find citizen set used within run date period, then find all Pets in use during that run.  Note using -30 sec on source date due to Issue with unbinding pets before run complete
-            List<OwnerCitizenExt> filterCitizens = citizens.Where(x => (x.valid_to_date >= runDate || x.valid_to_date is null) 
+            List<OwnerCitizenExt> filterCitizens = citizens.Where(x => (x.valid_to_date >= runDate || x.valid_to_date is null)
                 && x.link_date < ((DateTime)runDate).AddSeconds((int)CITIZEN_HISTORY.CORRECTION_SECONDS)).ToList();
-            
+
             PetUsage petUsage = new();
 
             for (int count = 0; count < filterCitizens.Count; count++)
@@ -1268,7 +1262,7 @@ namespace MetaverseMax.ServiceClass
             decimal salePriceLarge = 0;
 
             try
-            {   
+            {
                 // CHECK if MCP version is onSale, then check if stored matches (a) on sale (b) price  -  the OnSaleKey is a reference identifier number that indicates if item is on sale but does not reflect the current price.
                 if (onSale == true)
                 {
@@ -1278,7 +1272,7 @@ namespace MetaverseMax.ServiceClass
                     }
                     else
                     {
-                        serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.SALES_INFO, WORLD_TYPE.BNB => BNB_WS.SALES_INFO, WORLD_TYPE.ETH => ETH_WS.SALES_INFO, _ => TRON_WS.SALES_INFO};
+                        serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.SALES_INFO, WORLD_TYPE.BNB => BNB_WS.SALES_INFO, WORLD_TYPE.ETH => ETH_WS.SALES_INFO, _ => TRON_WS.SALES_INFO };
 
                         // POST REST WS
                         HttpResponseMessage response;
@@ -1293,7 +1287,7 @@ namespace MetaverseMax.ServiceClass
                             response.EnsureSuccessStatusCode(); // throws if not 200-299
                             content = await response.Content.ReadAsStringAsync();
                         }
-                        
+
                         watch.Stop();
                         servicePerfDB.AddServiceEntry(serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, tokenId.ToString());
 
@@ -1461,7 +1455,7 @@ namespace MetaverseMax.ServiceClass
             int trait_luck = citizen.trait_luck + citizen.trait_luck_pet_bonus > 10 ? 10 : citizen.trait_luck + citizen.trait_luck_pet_bonus;
 
             double efficiency = (double)(
-                ((trait_endurance / 9.0 )* 5.0)
+                ((trait_endurance / 9.0) * 5.0)
                 + (trait_agility / 3.0)
                 + ((trait_intelligence + trait_charisma + trait_luck + trait_strength) / 36.0)
                 );

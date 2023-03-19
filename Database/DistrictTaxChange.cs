@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.Database
 {
@@ -12,7 +9,7 @@ namespace MetaverseMax.Database
     public class DistrictTaxChange
     {
         [Key]
-        [Column("change_key")] 
+        [Column("change_key")]
         public int change_key { get; set; }
 
         [Column("change_date")]

@@ -1,13 +1,9 @@
 ﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.ServiceClass
 {
     public class Building
-     {
+    {
         // Price format differs per World token type
         //    TRON :  6 places - need to divide by 1 million to get value in Tron.
         //    BNB  :  18 places - need to divide by 1,000,000,000,000,000,000 to get integer value in BNB
@@ -64,9 +60,9 @@ namespace MetaverseMax.ServiceClass
             int[] districts = ownerLands.GroupBy(row => row.district_id)
                                         .Select(row => row.FirstOrDefault())
                                         .OrderBy(row => row.district_id)
-                                        .Select(row => row.district_id)                                        
+                                        .Select(row => row.district_id)
                                         .ToArray();
-            
+
             DistrictPlot[] districtPlots = new DistrictPlot[districts.Length];
             int count = 0;
 
@@ -82,7 +78,7 @@ namespace MetaverseMax.ServiceClass
             }
 
             //districtPlots = districtPlots.OrderByDescending(row => row.district[1]).ToArray();
-   
+
             return districtPlots;
         }
 
@@ -150,7 +146,7 @@ namespace MetaverseMax.ServiceClass
                             7 => "https://play.mcp3d.com/assets/images/buildings/Energy_ThermalPower_Mega-1.png",
                             _ => "https://play.mcp3d.com/assets/images/buildings/Energy_ThermalPower_LVL1-1.png"
                         },
-                    };                                                          
+                    };
                     break;
 
                 case (int)BUILDING_TYPE.COMMERCIAL:
@@ -177,7 +173,7 @@ namespace MetaverseMax.ServiceClass
                             7 => "https://play.mcp3d.com/assets/images/buildings/Blockmart_V2_Mega-1.png",
                             _ => "https://play.mcp3d.com/assets/images/buildings/Blockmart_V2_LVL1-1.png"
                         },
-                    };                    
+                    };
                     break;
 
                 case (int)BUILDING_TYPE.INDUSTRIAL:
@@ -204,7 +200,7 @@ namespace MetaverseMax.ServiceClass
                             7 => "https://play.mcp3d.com/assets/images/buildings/MetalSmelterFactory_V2_Mega-1.png",
                             _ => "https://play.mcp3d.com/assets/images/buildings/MetalSmelterFactory_V2_LVL1-1.png"
                         },
-                    };                  
+                    };
                     break;
 
                 case (int)BUILDING_TYPE.OFFICE:
@@ -233,7 +229,7 @@ namespace MetaverseMax.ServiceClass
                         },
                     };
                     break;
-                    
+
                 case (int)BUILDING_TYPE.PRODUCTION:
                     buildingImg = buildingID switch
                     {
@@ -281,7 +277,7 @@ namespace MetaverseMax.ServiceClass
                                 7 => "https://play.mcp3d.com/assets/images/buildings/ConcreteMill_Mega-1.png",
                                 _ => "https://play.mcp3d.com/assets/images/buildings/ConcreteMill_LVL1-1.png"
                             },
-                        },                      
+                        },
                         (int)BUILDING_SUBTYPE.FACTORY => buildingLvl switch
                         {
                             <= 5 => "https://play.mcp3d.com/assets/images/buildings/Factory_V2_LVL" + Convert.ToString(buildingLvl) + "-1.png",
@@ -310,7 +306,7 @@ namespace MetaverseMax.ServiceClass
                             7 => "https://play.mcp3d.com/assets/images/buildings/BrickFactory_V2_Mega-1.png",
                             _ => "https://play.mcp3d.com/assets/images/buildings/BrickFactory_V2_LVL1-1.png"
                         },
-                    };               
+                    };
                     break;
 
                 case (int)BUILDING_TYPE.MUNICIPAL:
@@ -347,7 +343,7 @@ namespace MetaverseMax.ServiceClass
                     };
                     break;
 
-                case (int)BUILDING_TYPE.POI:                    
+                case (int)BUILDING_TYPE.POI:
                     buildingImg = buildingID switch
                     {
                         (int)BUILDING_SUBTYPE.OFFICE_MONUMENT => "./images/OfficeMonument.PNG",
@@ -359,7 +355,7 @@ namespace MetaverseMax.ServiceClass
                         _ => "./images/POI.png",
                     };
                     break;
-                    
+
                 default:
                     buildingImg = "2";
                     break;
@@ -368,7 +364,7 @@ namespace MetaverseMax.ServiceClass
             // Plot example: X125 Y164
 
 
-            return buildingImg.Length <10 ? string.Concat("https://mcp3d.com/api/image/land/", buildingImg) : buildingImg;
+            return buildingImg.Length < 10 ? string.Concat("https://mcp3d.com/api/image/land/", buildingImg) : buildingImg;
         }
 
 
@@ -394,7 +390,7 @@ namespace MetaverseMax.ServiceClass
                     107 => "Production Landmark",
                     108 => "Commercial Monument",
                     109 => "Commercial Landmark",
-                    110 => "Residential Monument",               
+                    110 => "Residential Monument",
                     111 => "Residential Landmark",
                     112 => "Energy Monument",
                     113 => "Energy Landmark",

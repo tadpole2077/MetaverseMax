@@ -1,0 +1,9 @@
+﻿
+WHEN: 19/03/2023
+Links:
+https://update.angular.io/?l=2&v=9.1-10.0
+
+Actions:   
+	Angular upgrade 9.1.x to 10.0.x,  + Materials + medium complexity
+	entryComponents [NgModules] can be removed.  
+		Only found in @swimlane/ngx-charts 14.0.0 <<< will need to be upgraded

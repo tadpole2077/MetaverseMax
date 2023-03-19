@@ -105,8 +105,9 @@ export class BuildingIPComponent {
   @ViewChild("forSaleChkbox", { static: true } as any) forSaleChkbox: MatCheckbox;
 
   displayedColumns: string[] = ['pos', 'rank', 'ip_t', 'ip_b', 'bon', 'name', 'con', 'dis', 'pos_x', 'id'];
+  displayedColumnsStandard: string[] = ['pos', 'rank', 'ip_t', 'ip_b', 'bon', 'name', 'con', 'dis', 'pos_x', 'id'];
   displayedColumnsPredict: string[] = ['pos', 'rank', 'ip_t', 'ip_b', 'bon', 'name', 'con', 'pre', 'dis', 'pos_x', 'id']
-  displayedColumnsOffice: string[] = ['pos', 'ip_t', 'ip_b', 'bon', 'name', 'con', 'pre', 'dis', 'pos_x', 'id'];
+  displayedColumnsOffice: string[] = ['pos', 'ip_t', 'ip_b', 'bon', 'name', 'con', 'dis', 'pos_x', 'id'];
   isLoadingResults: boolean;
   resultsLength: any;
 
@@ -159,6 +160,9 @@ export class BuildingIPComponent {
 
         if (type == BUILDING.OFFICE) {
           this.displayedColumns = this.displayedColumnsOffice;
+        }
+        else {
+          this.displayedColumns = this.displayedColumnsStandard;
         }
 
         if (this.buildingCollection.buildings !=null && this.buildingCollection.buildings.length > 0) {

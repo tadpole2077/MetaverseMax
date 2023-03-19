@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Data.SqlTypes;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.Database
 {
@@ -32,11 +29,11 @@ namespace MetaverseMax.Database
         public int pos_y { get; set; }
 
         [Column("last_updated")]
-        public DateTime? last_updated {get; set;}
+        public DateTime? last_updated { get; set; }
 
         [Column("notes")]
         public string notes { get; set; }
-        
+
         [Column("unclaimed_plot")]
         public bool unclaimed_plot { get; set; }
 
@@ -48,22 +45,22 @@ namespace MetaverseMax.Database
 
         [Column("owner_avatar_id")]
         public int owner_avatar_id { get; set; }
-        
+
         [Column("land_type")]
         public int land_type { get; set; }
 
         [Column("resources")]
         public int resources { get; set; }
-        
+
         [Column("building_id")]
         public int building_id { get; set; }
-        
+
         [Column("building_level")]
         public int building_level { get; set; }
-        
+
         [Column("building_type_id")]
         public int building_type_id { get; set; }
-        
+
         [Column("token_id")]
         public int token_id { get; set; }
 
@@ -75,13 +72,13 @@ namespace MetaverseMax.Database
 
         [Column("rented")]
         public bool rented { get; set; }
-        
+
         [Column("current_price", TypeName = "decimal(16, 4)")]
         public decimal current_price { get; set; }
 
         [Column("abundance")]
         public int? abundance { get; set; }
-        
+
         [Column("building_abundance")]
         public int? building_abundance { get; set; }
 
@@ -106,10 +103,10 @@ namespace MetaverseMax.Database
         public int last_run_produce_id { get; set; }
 
         [Column("last_run_produce_predict")]
-        public bool last_run_produce_predict { get; set; }        
+        public bool last_run_produce_predict { get; set; }
 
         [Column("predict_produce")]
-        public int? predict_produce { get; set; }    
+        public int? predict_produce { get; set; }
 
         [Column("influence")]
         public int? influence { get; set; }
@@ -120,8 +117,8 @@ namespace MetaverseMax.Database
         [Column("influence_poi_bonus")]
         public Boolean? influence_poi_bonus { get; set; }
 
-        
-        
+
+
         [Column("app_4_bonus")]
         public int? app_4_bonus { get; set; }
 
@@ -151,7 +148,7 @@ namespace MetaverseMax.Database
         [Column("citizen_count")]
         public int? citizen_count { get; set; }
 
-        [NotMapped]        
+        [NotMapped]
         public List<int> citizen { get; set; }
 
     }

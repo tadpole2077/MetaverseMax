@@ -1,13 +1,6 @@
 ﻿using MetaverseMax.Database;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -32,7 +25,7 @@ namespace MetaverseMax.ServiceClass
             try
             {
                 districtFundDB = new(_context);
-                districtFundList = districtFundDB.GetHistory(districtId, daysHistory);               
+                districtFundList = districtFundDB.GetHistory(districtId, daysHistory);
             }
             catch (Exception ex)
             {
@@ -122,7 +115,7 @@ namespace MetaverseMax.ServiceClass
             try
             {
                 DistrictTaxChangeDB districtTaxChangeDB = new(_context);
-                returnCode =districtTaxChangeDB.UpdateTaxChanges();
+                returnCode = districtTaxChangeDB.UpdateTaxChanges();
             }
             catch (Exception ex)
             {
@@ -146,7 +139,7 @@ namespace MetaverseMax.ServiceClass
 
                 // POST REST WS                
                 serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.DISTRICT_INFO, WORLD_TYPE.BNB => BNB_WS.DISTRICT_INFO, WORLD_TYPE.ETH => ETH_WS.DISTRICT_INFO, _ => TRON_WS.DISTRICT_INFO };
-                
+
                 HttpResponseMessage response;
                 using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
                 {
@@ -178,7 +171,7 @@ namespace MetaverseMax.ServiceClass
                     }
                     _context.SaveChanges();
                 }
-              
+
                 status = string.Concat("Update Prior Day funding for ", districtId, " districts");
             }
             catch (Exception ex)
@@ -221,7 +214,8 @@ namespace MetaverseMax.ServiceClass
 
             foreach (DistrictFund districtFund in districtFundList)
             {
-                fundSeries.Add(new NGXChartSeries {
+                fundSeries.Add(new NGXChartSeries
+                {
                     name = districtFund.update.ToString("dd-MMM-yyyy"),
                     value = (int)districtFund.balance
                 });
@@ -270,7 +264,7 @@ namespace MetaverseMax.ServiceClass
                 DistributionSeries.Add(new NGXChartSeries
                 {
                     name = districtFund.update.ToString("dd-MMM-yyyy"),
-                    value = (decimal)Math.Round(districtFund.distribution, 1, MidpointRounding.AwayFromZero)                
+                    value = (decimal)Math.Round(districtFund.distribution, 1, MidpointRounding.AwayFromZero)
                 });
             }
 

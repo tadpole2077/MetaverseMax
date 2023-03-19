@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.Database
 {
@@ -20,7 +19,7 @@ namespace MetaverseMax.Database
             try
             {
                 // do not track changes to the entity data, used for read-only scenarios, can not use SaveChanges(). min overhead on retriving and use of entity                
-                buildingList = _context.buildingTypeIP.FromSqlInterpolated($"exec sp_building_type_IP_get { buildingType }, { buildingLevel }").AsNoTracking().ToList();
+                buildingList = _context.buildingTypeIP.FromSqlInterpolated($"exec sp_building_type_IP_get {buildingType}, {buildingLevel}").AsNoTracking().ToList();
             }
             catch (Exception ex)
             {

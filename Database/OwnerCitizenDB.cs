@@ -1,7 +1,6 @@
 ﻿using MetaverseMax.ServiceClass;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +23,7 @@ namespace MetaverseMax.Database
         {
             List<OwnerCitizen> dbCitizenList = null;
             try
-            {                
+            {
                 dbCitizenList = _context.ownerCitizen.Where(x => x.owner_matic_key == ownerMatic && x.valid_to_date == validToDate).ToList();
             }
             catch (Exception ex)
@@ -75,7 +74,7 @@ namespace MetaverseMax.Database
                         ownerCitizenExistingList[i].valid_to_date = validToDate;
                         validToDate = ownerCitizenExistingList[i].link_date;
 
-                        logInfo(String.Concat("OwnerCitizenDB.GetExistingOwnerCitizen() : Fix dup active OwnerCitizen record for citizen: ", ownerCitizenExistingList[i].citizen_token_id," link_Key: ", ownerCitizenExistingList[i].link_key));
+                        logInfo(String.Concat("OwnerCitizenDB.GetExistingOwnerCitizen() : Fix dup active OwnerCitizen record for citizen: ", ownerCitizenExistingList[i].citizen_token_id, " link_Key: ", ownerCitizenExistingList[i].link_key));
                     }
                 }
             }
@@ -110,7 +109,7 @@ namespace MetaverseMax.Database
                         break;
                     }
                 }
-                    
+
 
                 // Find if record already exists, if not add it.
                 if (ownerCitizenMatch == null)
@@ -118,7 +117,7 @@ namespace MetaverseMax.Database
                     newOwnerCitizen = _context.ownerCitizen.Add(ownerCitizen);
 
                 }
-                
+
                 if (saveFlag)
                 {
                     _context.SaveChanges();
@@ -144,11 +143,11 @@ namespace MetaverseMax.Database
                 if (ownerCitizenExisting == null)
                 {
                     _context.ownerCitizen.Add(ownerCitizen);
-                    
+
                 }
-                else if ( ownerCitizen.land_token_id != ownerCitizenExisting.land_token_id ||
+                else if (ownerCitizen.land_token_id != ownerCitizenExisting.land_token_id ||
                         ownerCitizen.pet_token_id != ownerCitizenExisting.pet_token_id ||
-                        ownerCitizen.owner_matic_key != ownerCitizenExisting.owner_matic_key )
+                        ownerCitizen.owner_matic_key != ownerCitizenExisting.owner_matic_key)
                 {
                     // Mark prior record as expired but retain for use in Production history eval -  previously used -1 date, changed to using current datetime due to refresh feature.
                     ownerCitizenExisting.valid_to_date = ownerCitizen.link_date;
@@ -172,7 +171,7 @@ namespace MetaverseMax.Database
             }
             catch (Exception ex)
             {
-                logException(ex, String.Concat("OwnerCitizenDB.AddorUpdate() : Error adding record to db with citizen token_id : ", ownerCitizen.citizen_token_id));             
+                logException(ex, String.Concat("OwnerCitizenDB.AddorUpdate() : Error adding record to db with citizen token_id : ", ownerCitizen.citizen_token_id));
             }
 
             return 0;
@@ -201,7 +200,7 @@ namespace MetaverseMax.Database
             try
             {
                 _context.ownerCitizen.RemoveRange(
-                    _context.ownerCitizen.Where(x => x.citizen_token_id == tokenId && (x.link_date == null || x.link_date >= DateTime.UtcNow.AddDays((int)CITIZEN_HISTORY.DAYS)) )
+                    _context.ownerCitizen.Where(x => x.citizen_token_id == tokenId && (x.link_date == null || x.link_date >= DateTime.UtcNow.AddDays((int)CITIZEN_HISTORY.DAYS)))
                     );
 
 

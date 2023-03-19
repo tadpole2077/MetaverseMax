@@ -1,25 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Sockets;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using MetaverseMax.Database;
+﻿using MetaverseMax.Database;
 using Newtonsoft.Json.Linq;
 using SimpleBase;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography.X509Certificates;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using MetaverseMax.ServiceClass;
-using System.Reflection.Metadata;
-using Azure.Core;
-using System.Security.Cryptography;
+using System.Text;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -47,12 +29,12 @@ namespace MetaverseMax.ServiceClass
             switch (worldType)
             {
                 case WORLD_TYPE.ETH:
-                    return ref ownersListETH;                    
+                    return ref ownersListETH;
                 case WORLD_TYPE.BNB:
-                    return ref ownersListBNB;                    
+                    return ref ownersListBNB;
                 case WORLD_TYPE.TRON:
                 default:
-                    return ref ownersListTRON;                    
+                    return ref ownersListTRON;
             };
         }
 
@@ -80,7 +62,7 @@ namespace MetaverseMax.ServiceClass
             OwnerNameDB ownerNameDB = new OwnerNameDB(_context);
 
             ownerDB.SyncOwner();
-            ownerChangeList.ForEach(x => ownerNameDB.UpdateOwnerName(x) );
+            ownerChangeList.ForEach(x => ownerNameDB.UpdateOwnerName(x));
 
             return RETURN_CODE.SUCCESS;
         }
@@ -98,7 +80,7 @@ namespace MetaverseMax.ServiceClass
                 if (ownerAccount.public_key == string.Empty)
                 {
                     ownerAccount.public_key = walletPublicKey;
-                }        
+                }
             }
             else
             {
@@ -191,7 +173,7 @@ namespace MetaverseMax.ServiceClass
                             token_pos_y = offer.plot_y,
                             sold = offer.sold,
                             sold_date = offer.sold_date == null ? "" : ((DateTime)offer.sold_date).ToString("yyyy/MMM/dd")
-                        });                     
+                        });
                     }
                 }
             }
@@ -233,9 +215,9 @@ namespace MetaverseMax.ServiceClass
             RETURN_CODE returnCode = RETURN_CODE.ERROR;
             string activitySummary = string.Empty;
             int retryCount = 0;
-            int activeOfferCount = 0, soldOfferCount =0, cancelledOfferRemovedCount =0;
+            int activeOfferCount = 0, soldOfferCount = 0, cancelledOfferRemovedCount = 0;
             List<int> validOffers = new();
-            serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.SALES_OFFER, WORLD_TYPE.BNB => BNB_WS.SALES_OFFER, WORLD_TYPE.ETH => ETH_WS.SALES_OFFER, _ => TRON_WS.SALES_OFFER};
+            serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.SALES_OFFER, WORLD_TYPE.BNB => BNB_WS.SALES_OFFER, WORLD_TYPE.ETH => ETH_WS.SALES_OFFER, _ => TRON_WS.SALES_OFFER };
 
             while (returnCode == RETURN_CODE.ERROR && retryCount < 3)
             {
@@ -303,7 +285,7 @@ namespace MetaverseMax.ServiceClass
                                     ownerOfferDB.AddorUpdate(ownerOffer);
                                     activeOfferCount++;
                                     validOffers.Add(ownerOffer.offer_id);
-                                }                                
+                                }
                             }
                             else if (offers[index].Value<bool>("is_active") == false && (offers[index].Value<int?>("is_cancelled") ?? 0) == 0)
                             {
@@ -342,7 +324,7 @@ namespace MetaverseMax.ServiceClass
                                     soldOfferCount++;
                                     validOffers.Add(ownerOffer.offer_id);
                                 }
-                            }                            
+                            }
                         }
 
                         cancelledOfferRemovedCount = ownerOfferDB.RemoveCancelledOffers(validOffers, maticKey);      // Remove any legacy active offers that were cancelled
@@ -367,7 +349,7 @@ namespace MetaverseMax.ServiceClass
                 }
             }
 
-            return activitySummary;            
+            return activitySummary;
         }
 
         public async Task<JArray> GetOwnerLandsMCP(string ownerMaticKey)
@@ -402,7 +384,7 @@ namespace MetaverseMax.ServiceClass
             catch (Exception ex)
             {
                 _context.LogEvent(String.Concat("OwnerMange.GetOwnerLands() : Error on WS calls for owner matic : ", ownerMaticKey));
-                _context.LogEvent(ex.Message);             
+                _context.LogEvent(ex.Message);
             }
             return lands;
         }
@@ -410,7 +392,7 @@ namespace MetaverseMax.ServiceClass
         public OwnerData GetOwnerLands(string ownerMaticKey, bool updatePlotflag, bool processFullUpdate)
         {
             try
-            {                
+            {
                 List<Plot> localPlots = new();
                 Building building = new();
                 CitizenManage citizen = new(_context, worldType);
@@ -421,7 +403,7 @@ namespace MetaverseMax.ServiceClass
                 JArray lands = Task.Run(() => GetOwnerLandsMCP(ownerMaticKey)).Result;
 
                 if (lands != null && lands.Count > 0)
-                {                    
+                {
                     JToken land = lands.Children().First();
 
                     landOwner = land.Value<string>("owner") ?? "Not Found";
@@ -436,7 +418,8 @@ namespace MetaverseMax.ServiceClass
                         }
                         localPlots = plotDB.PlotsGet_ByOwnerMatic(ownerMaticKey).ToList();      // Only get stored plots after token check & ranking update.
 
-                        ownerData.owner_land = lands.Select(landInstance => {
+                        ownerData.owner_land = lands.Select(landInstance =>
+                        {
                             var plot = localPlots.Where(x => x.token_id == (landInstance.Value<int?>("token_id") ?? 0)).FirstOrDefault();
 
                             return new OwnerLand
@@ -485,7 +468,7 @@ namespace MetaverseMax.ServiceClass
                         ownerData.stamina_alert_count = ownerData.owner_land.Where(
                             row => row.citizen_stamina_alert == true
                             ).Count();
-                        
+
                     }
                 }
                 else
@@ -502,7 +485,7 @@ namespace MetaverseMax.ServiceClass
                         ownerData.search_info = "Unclaimed Plot, available for purchase!";
                     }
                     else
-                    {                        
+                    {
                         ownerData.last_action = "This player owns no land plots in " +
                              worldType switch { WORLD_TYPE.TRON => "Tron", WORLD_TYPE.BNB => "Binance", WORLD_TYPE.ETH => "Ethereum", _ => "Tron" }
                             + " World";
@@ -540,18 +523,19 @@ namespace MetaverseMax.ServiceClass
                 {
                     currentPlotFullUpdate = plotDB.UpdatePlotPartial(ownerLandList[i], false);
 
-                    if (currentPlotFullUpdate != null) {
+                    if (currentPlotFullUpdate != null)
+                    {
                         plotFullUpdateList.Add(currentPlotFullUpdate);
                     }
                     plotsUpdatedCount++;
-                }                                                      
+                }
             }
 
             if (plotsUpdatedCount > 0)
             {
                 _context.SaveChanges();
             }
-            
+
             if (processFullUpdate && plotFullUpdateList.Count > 0)
             {
                 Task.Run(() => plotManage.FullUpdateBuildingAsync(plotFullUpdateList));
@@ -559,8 +543,9 @@ namespace MetaverseMax.ServiceClass
 
             return plotsUpdatedCount;
         }
-        
-        private decimal CheckInfluenceRank(Plot plot) {
+
+        private decimal CheckInfluenceRank(Plot plot)
+        {
             return plot == null ? 0 : plot.current_influence_rank ?? 0;
         }
 
@@ -568,10 +553,10 @@ namespace MetaverseMax.ServiceClass
         {
             String content = string.Empty;
             int returnCode = 0;
-            
+
             try
             {
-                serviceUrl = worldType switch {WORLD_TYPE.TRON => TRON_WS.LAND_GET,  WORLD_TYPE.BNB => BNB_WS.LAND_GET, WORLD_TYPE.ETH => ETH_WS.LAND_GET, _ => TRON_WS.LAND_GET};
+                serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.LAND_GET, WORLD_TYPE.BNB => BNB_WS.LAND_GET, WORLD_TYPE.ETH => ETH_WS.LAND_GET, _ => TRON_WS.LAND_GET };
 
                 HttpResponseMessage response;
                 using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
@@ -623,10 +608,10 @@ namespace MetaverseMax.ServiceClass
             String content = string.Empty;
             CitizenManage citizen = new(_context, worldType);
             int returnCode = 0;
-            serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.USER_GET, WORLD_TYPE.BNB => BNB_WS.USER_GET, WORLD_TYPE.ETH => ETH_WS.USER_GET, _ => TRON_WS.USER_GET};
+            serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.USER_GET, WORLD_TYPE.BNB => BNB_WS.USER_GET, WORLD_TYPE.ETH => ETH_WS.USER_GET, _ => TRON_WS.USER_GET };
 
             try
-            {                
+            {
                 OwnerOfferDB ownerOfferDB = new(_context);
                 OwnerDB ownerDB = new(_context);
                 Owner owner = ownerDB.GetOwner(ownerMaticKey);
@@ -694,7 +679,7 @@ namespace MetaverseMax.ServiceClass
             catch (Exception ex)
             {
                 DBLogger dbLogger = new(_context, worldType);
-                dbLogger.logException(ex, String.Concat("OwnerMange.GetFromMaticKey() : Error on WS calls for owner matic : ", ownerMaticKey));   
+                dbLogger.logException(ex, String.Concat("OwnerMange.GetFromMaticKey() : Error on WS calls for owner matic : ", ownerMaticKey));
             }
 
             return returnCode;
@@ -747,19 +732,20 @@ namespace MetaverseMax.ServiceClass
 
             // Update db - update ownerAccount with matching public wallet key if not already stored.  (used for TRON where matic and public differ)
             OwnerDB ownerDB = new OwnerDB(_context);
-            ownerDB.UpdateOwner(maticKeyFormated, publicKey);            
+            ownerDB.UpdateOwner(maticKeyFormated, publicKey);
 
             return ownerAccount;
         }
-       
+
         public List<OwnerSummaryDistrict> GetOwnerSummaryDistrict(int districtId, int instanceNo)
         {
-            
+
             OwnerSummaryDistrictDB ownerSummaryDistrictDB = new(_context);
             List<OwnerSummaryDistrict> ownerSummaryDistrictList = ownerSummaryDistrictDB.GetOwnerSummeryDistrict(districtId, instanceNo);
 
             // Using Stored World owner account, assign latest avatar_id and ownerName used by account.
-            ownerSummaryDistrictList.ForEach(o => {
+            ownerSummaryDistrictList.ForEach(o =>
+            {
                 OwnerAccount ownerAccount = FindOwnerByMatic(o.owner_matic, string.Empty);
                 o.owner_avatar_id = ownerAccount.avatar_id;
                 o.owner_name = ownerAccount.name;
@@ -768,5 +754,5 @@ namespace MetaverseMax.ServiceClass
             return ownerSummaryDistrictList;
         }
     }
-   
+
 }

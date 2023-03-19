@@ -1,14 +1,144 @@
 ﻿NPM - Node Project Manager
 =====================================================
-2022/12/28: Version Info (currently using)
+2023/03/18: Version Info (currently using)
   Angular: 9.1.13
-  Node: 16.6.1
+  Node: 18.15.0			(16.6.1 - 2022/12/28)
   typescript: 3.8.3
 
 Find list of currently installed packages: 
 	npm list --depth=0
 
+CMD >> ng version
+NPM : V9.5.0				(7.20.3  - 2022/12/28)
+* Angular CLI: 9.1.15 	(old was 8.3.29)
+* Node: 16.6.1   		(old was 12.19.3)
+* Angular: 9.1.13		(old was 8.3.29)
+* rxjs: 6.6.3   		(on system root Angular install = 10.0.4, rxjs = 6.5.5)
+* ng-bootstrap : 5.x.x  (compatiable with V8 of angular)
 
+NVM - Node Version Manager
+======================================================
+NVM : Lastest version : 1.1.10  (18/03/2023) : https://github.com/coreybutler/nvm-windows/releases
+	1.1.7 (installed on 06/08/2021) 
+CMD
+	nvm --version	:  current version of nvm installed
+	nvm list		:  all available node version currently installed
+	nvm install latest : install latest version of node (eg V19.8.1)
+
+
+
+======================================================
+Start Angular server - hosting app
+======================================================
+1) CMD > D:\0_Development\2_Applications\GitHub\MetaverseMax\MetaverseMax\ClientApp
+2) npm start
+
+DEBUG : 
+	node --trace-deprecation ./node_modules/@angular/cli/bin/ng serve --port 44456 --ssl --ssl-cert %APPDATA%\\ASP.NET\\https\\%npm_package_name%.pem --ssl-key %APPDATA%\\ASP.NET\\https\\%npm_package_name%.key
+	angular build log location >> C:\Users\Peter\AppData\Local\Temp\XXXXXXX\angular-errors.log
+	ng serve --verbose=true	: package.json option,  adds full details of compile and serve of angular node app
+	VS debug log >> C:\Users\Peter\AppData\Local\Temp\visualstudio-js-debugger.txt
+
+=====================================================
+Find List of depreciated node modules used by app
+=====================================================
+1) CMD (admin) > cd D:\0_Development\2_Applications\GitHub\MetaverseMax\MetaverseMax\ClientApp
+2) npm outdated
+
+
+=====================================================
+Run Angluar & ASP.NET ON SAME PORT USING PROXY
+=====================================================
+Angluar (npm start) - runs on port A,  ASP.NET services run on port B,  but they can use same port - or separate per engine
+But can use a proxy to map and connect Angular to ASP.NET. https://stackoverflow.com/questions/50753407/run-angular-and-asp-net-web-api-on-the-same-port
+
+
+=====================================================
+2023/03/17 Update NVM, NPM and Node
+=====================================================
+Why: VS2022 & .NET6 failing to run Angular project (either test template or MetaverseMax)
+Action: n
+	npm update
+
+USING NVM (Node Version Manager)
+	nvm install latest
+	nvm use 19.8.1  :  set Node 19.8.1 as active version ,  Version List : https://nodejs.org/en/download/releases
+	nvm install 18.15.0 : + installs NPM V9.5.0
+	nvm install 16.19.1	: latest version release of the V16 branch : NPM V8.19.3 (installed with this node version)
+
+Update NPM - https://nodejs.org/en/download
+	NOTE: Use NVM to update NPM, it will update both {Node and NPM} together, maintains a version matches between NPM and Node.
+	Version List: https://www.npmjs.com/package/npm?activeTab=versions
+	OLD VERSION:  Node 16.6.1, NPM 7.20.3
+	NPM V9.6.2 is the latest version.
+	NPM V9.5.1 is version installed by NVM using nvm install latest.  BUT ISSUE REPORTED - its not compatible with node V19.8.1
+	Install : npm i npm
+
+Notes:
+	Webpack & load-runner throw errors on manual npm start (metaversemax), indicating that these packages need to be updated to match 18.15.0 Node
+
+Webpack : 4.42.0 (as of prior node 16.6.1 compatibiity)
+	"webpack is a module bundler. Its main purpose is to bundle JavaScript files for usage in a browser, yet it is also capable of transforming, bundling, or packaging just about any resource or asset."
+	Dependency in : 
+		@angular-devkit\build-angular\package.json >> "4.42.0" >> https://www.npmjs.com/package/webpack/v/4.42.0
+		@angular-devkit\build-angular\sass-loader	>> same as build-angular - careful with this package as later version requires later webpack.
+
+Conclusions:
+	Node 18.15.0 is not compatible with Angular 9.1.15  (at least not out of the box)
+	Revert back to Node 16.6.1, NPM 7.20.3.  cant upgrade to later node until angular is upgraded to V10 or later.
+
+=====================================================
+Angular webpack dependency and usage
+=====================================================
+Background info: https://medium.com/hackernoon/webpack-for-angular-developers-c8584a60e627
+Main use: node_modules\@angular\cli : 9.1.15 >> @angular-devkit/build-webpack : 0.901.15 
+	>> webpack : ^4.6.0
+	>> webpack-dev-server : ^3.1.4
+	Was using Webpack 4.42.0,  latest on that branch is 4.46.0
+
+
+
+=====================================================
+2023/03/17  WebSocket-driver  : [DEP0111] DeprecationWarning: Access to process.binding('http_parser') is deprecated.
+=====================================================
+* Using version 0.6.5  WebSocket-driver
+* No dependency within package.json - but it is getting picked up by bootstrap module - but no dependency in bootstrap/package.json
+* Used By: rxjs(Reactive Extensions for JavaScript) uses WebSocket (client to server socket using port:80)
+	"rxjs": "^6.6.3",
+    "rxjs-compat": "^6.6.7",
+* 3x Dependencies:
+	http-parser-js	: found in ClientApp\node_modules\websocket-driver\lib\websocket : 2.1.2 : https://www.npmjs.com/package/safer-buffer?activeTab=versions
+	safe-buffer		: found in ClientApp\node_modules	: 
+	websocket-extensions	: found in ClientApp\node_modules  : 0.1.4 (Current latest): http://github.com/faye/websocket-extensions-node
+
+ACTION:
+* upgrade 0.6.5 >> 0.7.4 : npm install websocket-driver@0.7.4 : https://www.npmjs.com/package/websocket-driver?activeTab=readme
+Result:
+* process.binding() Warning gone. 
+
+=====================================================
+2023/03/17  Updated depreciated modules  
+=====================================================
+1) tronweb  5.0.0  >> 5.1.0  : npm install tronweb@5.1.0  : https://www.npmjs.com/package/tronweb https://tronweb.network/docu/docs/intro/
+2) @types/node 16.6.1 >> 16.18.16 : npm install @types/node@16.18.16 : https://www.npmjs.com/package/@types/node/v/16.18.16?activeTab=readme
+3) bootstrap 4.6.0 >> 4.6.2 : npm install bootstrap@4.6.2 : https://www.npmjs.com/package/bootstrap
+4) core-js 3.16.1 >> 3.29.1 : npm install core-js@3.29.1 : https://www.npmjs.com/package/core-js
+5) jasmine-core 3.8.0 >> 3.99.1 : npm install jasmine-core@3.99.1
+6) jquery 3.6.0 >> 3.6.4 : npm install jquery@3.6.4
+
+NOTE: --save : add package to package.json, making it one of the projects dependencies
+
+
+
+=====================================================
+2023/03/16  Add run-script-os module (needed for .NET_6 Angular projects)
+=====================================================
+Install:
+1) CMD (admin) > cd D:\0_Development\2_Applications\GitHub\MetaverseMax\MetaverseMax\ClientApp
+2) npm install --save-dev run-script-os
+
+
+=====================================================
 2022/12/28  Add Explicit support For Metamask
 =====================================================
 URL : https://www.npmjs.com/package/@metamask/detect-provider

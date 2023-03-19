@@ -1,13 +1,6 @@
 ﻿using MetaverseMax.Database;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -27,7 +20,7 @@ namespace MetaverseMax.ServiceClass
         }
 
         public async Task<IEnumerable<DistrictPerk>> GetPerks()
-        {   
+        {
             List<DistrictPerk> districtPerkList = new();
             string content = string.Empty;
             Common common = new();
@@ -57,12 +50,12 @@ namespace MetaverseMax.ServiceClass
                     JObject jsonContent = JObject.Parse(content);
 
                     // Each district has a 0.n collection of Perks
-                    foreach(KeyValuePair<string,JToken> dPerks in jsonContent)
+                    foreach (KeyValuePair<string, JToken> dPerks in jsonContent)
                     {
                         JToken dPerk = dPerks.Value;
                         JArray perks = dPerk.Value<JArray>("perks");
 
-                        foreach(JToken perk in perks)
+                        foreach (JToken perk in perks)
                         {
                             districtPerkList.Add(new DistrictPerk()
                             {
@@ -72,7 +65,7 @@ namespace MetaverseMax.ServiceClass
                             });
                         }
                     }
-                    
+
                 }
             }
             catch (Exception ex)

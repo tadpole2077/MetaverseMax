@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.Database
 {
@@ -20,7 +19,7 @@ namespace MetaverseMax.Database
             {
                 // Select type query using LINQ returning a collection of row matching condition - selecting first row.               
                 ownerSummaryDistrictList = _context.ownerSummaryDistrict
-                    .Where(x => x.district_id == districtId && x.update_instance == updateInstance)                    
+                    .Where(x => x.district_id == districtId && x.update_instance == updateInstance)
                     .OrderByDescending(x => x.owned_plots)
                     .ToList();
             }

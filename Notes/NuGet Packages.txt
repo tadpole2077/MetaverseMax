@@ -22,6 +22,24 @@ Removed:
 =====================================================================
 Package Updates
 =====================================================================
+2023/03/17 - Upgrade to latest SPA service library
+    (new) Microsoft.AspNetCore.SpaServices.Extensions  6.0.15   [ replaces depreciated Microsoft.AspNetCore.SpaServices services]
+    (new) Microsoft.AspNetCore.SpaProxy 6.0.15  [latest version for .NET 6]
+
+
+2023/03/16 - DeprecationWarning on Dev run
+Error:
+	fail: Microsoft.AspNetCore.SpaServices[0]
+	(node:26676) [DEP0111] DeprecationWarning: Access to process.binding('http_parser') is deprecated.
+	Microsoft.AspNetCore.SpaServices: Error: (Use `node --trace-deprecation ...` to show where the warning was created)
+
+Changes:
+	Nuget Package : updated
+		Microsoft.AspNetCore.SpaServices.Extensions FROM 6.0.13 TO 6.0.15   (Still .NET 6.0 dependency)
+		Microsoft.TypeScript.MSBuild FROM 4.9.4 TO 4.9.5
+		Newtonsoft.Json FROM 13.0.2 TO 13.0.3
+
+
 2023-01-24  Upgrade NuGet Packages:
 1) Microsoft.AspNetCore.SpaServices.Extensions
     From: 5.0.16

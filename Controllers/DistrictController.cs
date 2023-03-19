@@ -1,16 +1,7 @@
 ﻿using MetaverseMax.Database;
 using MetaverseMax.ServiceClass;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace MetaverseMax.Controllers
@@ -21,7 +12,7 @@ namespace MetaverseMax.Controllers
     [Route("api/bnb/[controller]")]
     [Route("api/eth/[controller]")]
     public class DistrictController : ControllerBase
-    {       
+    {
         private readonly ILogger<DistrictController> _logger;
         private readonly MetaverseMaxDbContext _context;
         private DistrictDB districtDB;
@@ -62,7 +53,7 @@ namespace MetaverseMax.Controllers
             DistrictManage districtManage = new(_context, common.IdentifyWorld(Request.Path));
             if (ModelState.IsValid)
             {
-                return Ok( districtManage.GetDistrict(parameters.district_id) );
+                return Ok(districtManage.GetDistrict(parameters.district_id));
             }
             return BadRequest("District is invalid");       // 400 Error
         }
@@ -96,7 +87,7 @@ namespace MetaverseMax.Controllers
             DistrictWebMap districtWebMap = new(_context, common.IdentifyWorld(Request.Path));
             if (ModelState.IsValid)
             {
-                return Ok( districtWebMap.GetDistrictIdList(parameters.opened) );
+                return Ok(districtWebMap.GetDistrictIdList(parameters.opened));
             }
             return BadRequest("District list request is invalid");
         }
@@ -104,7 +95,7 @@ namespace MetaverseMax.Controllers
         [HttpGet("UpdateDistrict")]
         public IActionResult UpdateDistrict([FromQuery] QueryParametersDistrict parameters)
         {
-            DistrictManage districtManage = new(_context, common.IdentifyWorld(Request.Path)); 
+            DistrictManage districtManage = new(_context, common.IdentifyWorld(Request.Path));
             if (ModelState.IsValid)
             {
                 return Ok(Task.Run(() => districtManage.UpdateDistrict(parameters.district_id)).Result);
@@ -113,7 +104,7 @@ namespace MetaverseMax.Controllers
         }
 
         [HttpGet("UpdateAllOpenedDistricts")]
-        public IActionResult UpdateAllOpenedDistricts([FromQuery]QueryParametersSecurity parametersSecurity)
+        public IActionResult UpdateAllOpenedDistricts([FromQuery] QueryParametersSecurity parametersSecurity)
         {
             DistrictManage districtManage = new(_context, common.IdentifyWorld(Request.Path));
             if (ModelState.IsValid)
@@ -122,7 +113,7 @@ namespace MetaverseMax.Controllers
                 return Ok(Task.Run(() => districtManage.UpdateAllDistricts(parametersSecurity.secure_token)).Result);
             }
             return BadRequest("District update action is invalid");
-        }     
+        }
 
     }
 }

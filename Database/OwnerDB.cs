@@ -1,31 +1,30 @@
-﻿using System;
+﻿using MetaverseMax.ServiceClass;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-using MetaverseMax.ServiceClass;
-using Microsoft.EntityFrameworkCore;
 
 
 namespace MetaverseMax.Database
 {
     public class OwnerDB : DatabaseBase
-    {        
+    {
         public OwnerDB(MetaverseMaxDbContext _parentContext) : base(_parentContext)
-        {        
+        {
         }
 
         public Owner GetOwner(string ownerMatickey)
         {
-            Owner owner = new(); 
-            
+            Owner owner = new();
+
             List<OwnerName> ownerNameList = new();
             OwnerName ownerName;
             try
             {
                 ownerMatickey = ownerMatickey.ToLower();
                 owner = _context.owner.Where(o => o.owner_matic_key == ownerMatickey).FirstOrDefault();
-                ownerNameList = _context.ownerName.Where(o => o.owner_matic_key == ownerMatickey).ToList();        
+                ownerNameList = _context.ownerName.Where(o => o.owner_matic_key == ownerMatickey).ToList();
 
                 // CHECK - if owner does not exist (potentially old transaction such as an offer - owner sold all plots before start of metaverseMax first sync).
                 if (ownerNameList.Count() == 0 || owner == null)
@@ -72,14 +71,14 @@ namespace MetaverseMax.Database
                 ownerList = ownerDBList.ToDictionary(
                         o => o.owner_matic_key,
                         o => new OwnerAccount()
-                            {
-                                matic_key = o.owner_matic_key,
-                                public_key = o.public_key,
-                                name = o.owner_name,
-                                avatar_id = o.avatar_id ?? 0,
-                                pro_tools_enabled = (o.pro_access_expiry ?? DateTime.UtcNow) > DateTime.UtcNow ? true : false,
-                                pro_expiry_days = GetExpiryDays(o.pro_access_expiry, (o.pro_access_expiry ?? DateTime.UtcNow) > DateTime.UtcNow ? true : false)
-                            } 
+                        {
+                            matic_key = o.owner_matic_key,
+                            public_key = o.public_key,
+                            name = o.owner_name,
+                            avatar_id = o.avatar_id ?? 0,
+                            pro_tools_enabled = (o.pro_access_expiry ?? DateTime.UtcNow) > DateTime.UtcNow ? true : false,
+                            pro_expiry_days = GetExpiryDays(o.pro_access_expiry, (o.pro_access_expiry ?? DateTime.UtcNow) > DateTime.UtcNow ? true : false)
+                        }
                         );
 
                 returnCode = RETURN_CODE.SUCCESS;
@@ -115,7 +114,8 @@ namespace MetaverseMax.Database
             return proExpiryDays;
         }
 
-        public Owner UpdateOwner(string maticKey, string publicKey){
+        public Owner UpdateOwner(string maticKey, string publicKey)
+        {
 
             Owner owner = null;
             try
@@ -132,8 +132,8 @@ namespace MetaverseMax.Database
                 if (SyncWorld.syncInProgress == true && SyncWorld.saveDBOverride == false)
                 {
                     _ = ResetDataSync(_context);            // Allow aync to process in separate thread - 5 minute slowdown on data sync.
-                }             
-                
+                }
+
                 _context.SaveChanges();
 
             }
@@ -143,14 +143,14 @@ namespace MetaverseMax.Database
                 dBLogger.logException(ex, String.Concat("OwnerDB::UpdateOwner() : Error updating owner with Matic Key - ", maticKey));
             }
 
-            return owner; 
+            return owner;
         }
 
         public int SyncOwner()
         {
-            int result = 0, returnCode =0;
+            int result = 0, returnCode = 0;
             try
-            {                            
+            {
                 result = _context.Database.ExecuteSqlRaw("EXEC dbo.sp_owner_sync");
 
             }
@@ -176,7 +176,7 @@ namespace MetaverseMax.Database
                 servicePerfDB.AddServiceEntry("ResetDataSync() 5min period - 1 second interval calls", DateTime.Now, 5000, 0, "");
             }
 
-            var timeoutInMilliseconds = TimeSpan.FromMinutes(5);                       
+            var timeoutInMilliseconds = TimeSpan.FromMinutes(5);
             await Task.Delay(timeoutInMilliseconds);
 
             SyncWorld.jobInterval = oldInterval;

@@ -1,13 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Globalization;
 
 namespace MetaverseMax.ServiceClass
 {
     public class Common
     {
+        public static bool isDevelopment { get; set; }
+        public static string serverIP { get; set; }
+        public static bool logServiceInfo { get; set; }
+        public static bool showPrediction { get; set; }
+        public static string dbConnectionStringTron { get; set; }
+        public static string dbConnectionStringBNB { get; set; }
+        public static string dbConnectionStringETH { get; set; }
+        public static int dbCommandTimeout { get; set; }
+
+        public static void AssignSetting(bool isDevelopmentFlag)
+        {
+            string appSettingFileName = "appsettings.json";
+            isDevelopment = isDevelopmentFlag;
+            if (isDevelopment)
+            {
+                appSettingFileName = "appsettings.Development.json";
+            }
+
+
+            // Get Configuration Settings 
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile(appSettingFileName)
+                .Build();
+
+            // Hook into the appsettings.json file to pull database and app settings used by services - within published site pulling from web.config
+            serverIP = configuration["ServerIP"];
+            logServiceInfo = configuration["logServiceInfo"] == "1";
+            showPrediction = configuration["showPrediction"] == "1";
+            dbConnectionStringTron = configuration.GetConnectionString("DatabaseConnection");
+            dbConnectionStringBNB = configuration.GetConnectionString("DatabaseConnectionBNB");
+            dbConnectionStringETH = configuration.GetConnectionString("DatabaseConnectionETH");
+            dbCommandTimeout = (int)configuration.GetValue(typeof(int), "DBCommandTimeout");
+        }
+
         public WORLD_TYPE IdentifyWorld(string url)
         {
             WORLD_TYPE identifiedWorld = WORLD_TYPE.TRON;
@@ -16,7 +47,7 @@ namespace MetaverseMax.ServiceClass
             {
                 identifiedWorld = WORLD_TYPE.TRON;
             }
-            else if(url.ToLower().Contains("/api/bnb/"))
+            else if (url.ToLower().Contains("/api/bnb/"))
             {
                 identifiedWorld = WORLD_TYPE.BNB;
             }
@@ -30,9 +61,9 @@ namespace MetaverseMax.ServiceClass
         public string DateFormatStandard(DateTime? dtSourceTime)
         {
             string timeFormated = string.Empty;
-            
+
             DateTime? dtConvertedTime = TimeFormatStandardDT("", dtSourceTime);
-            
+
             if (dtConvertedTime != null)
             {
                 timeFormated = ((DateTime)dtConvertedTime).ToString("yyyy/MMM/dd");
@@ -58,7 +89,7 @@ namespace MetaverseMax.ServiceClass
                     timeFormated = ((DateTime)dtConvertedTime).ToString("yyyy/MMM/dd HH:mm:ss");
                 }
             }
-            
+
             return timeFormated;
         }
 
@@ -75,7 +106,7 @@ namespace MetaverseMax.ServiceClass
         }
 
         public DateTime? TimeFormatStandardDT(string sourceTime, DateTime? dtSourceTimeUTC)
-        {            
+        {
             DateTime? dateTimeUTC = null;
             DateTime? gmtDateTime = null;
 
@@ -89,7 +120,7 @@ namespace MetaverseMax.ServiceClass
             }
             else
             {
-                dateTimeUTC = DateTime.SpecifyKind((DateTime)dtSourceTimeUTC, DateTimeKind.Utc);                    
+                dateTimeUTC = DateTime.SpecifyKind((DateTime)dtSourceTimeUTC, DateTimeKind.Utc);
             }
 
             // Convert from UTC to Local GMT, and format.
@@ -113,7 +144,7 @@ namespace MetaverseMax.ServiceClass
                     "MM/dd/yyyy HH:mm:ss",
                     CultureInfo.InvariantCulture,
                     DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
-            }           
+            }
 
             return dateTimeUTC;
         }

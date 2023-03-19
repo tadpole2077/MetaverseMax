@@ -1,16 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using MetaverseMax.Database;
 using MetaverseMax.ServiceClass;
-using MetaverseMax.Database;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace MetaverseMax.Controllers
 {
@@ -36,23 +28,23 @@ namespace MetaverseMax.Controllers
 
 
         [HttpGet]
-        public IActionResult Get([FromQuery] QueryParametersOwnerData parameters )
+        public IActionResult Get([FromQuery] QueryParametersOwnerData parameters)
         {
             OwnerManage ownerManage = new(_context, common.IdentifyWorld(Request.Path));
             if (ModelState.IsValid)
             {
-                if (Task.Run(() => ownerManage.GetFromLandCoord(parameters.plotX, parameters.plotY)).Result != -1) 
+                if (Task.Run(() => ownerManage.GetFromLandCoord(parameters.plotX, parameters.plotY)).Result != -1)
                 {
                     ownerManage.GetOwnerLands(ownerManage.ownerData.owner_matic_key, true, true);
                 }
-                
+
                 return Ok(ownerManage.ownerData);
             }
 
             return BadRequest("Call is invalid");       // 400 Error   
         }
 
-        [HttpGet("GetUsingMatic")]       
+        [HttpGet("GetUsingMatic")]
         public IActionResult GetUsingMatic([FromQuery] QueryParametersOwnerDataMatic parameters)
         {
             OwnerManage ownerManage = new(_context, common.IdentifyWorld(Request.Path));
@@ -77,8 +69,8 @@ namespace MetaverseMax.Controllers
             OwnerManage ownerManage = new(_context, common.IdentifyWorld(Request.Path));
 
             if (ModelState.IsValid)
-            {               
-                return Ok( ownerManage.MatchOwner(parameters.owner_public_key) );
+            {
+                return Ok(ownerManage.MatchOwner(parameters.owner_public_key));
             }
 
             return BadRequest("Call is invalid");       // 400 Error   
@@ -92,7 +84,7 @@ namespace MetaverseMax.Controllers
 
             if (ModelState.IsValid)
             {
-                return Ok(Task.Run(() => ownerManage.GetOwnerOfferMCP(parameters.matic_key)).Result);                
+                return Ok(Task.Run(() => ownerManage.GetOwnerOfferMCP(parameters.matic_key)).Result);
             }
 
             return BadRequest("Call is invalid");       // 400 Error   
@@ -108,12 +100,12 @@ namespace MetaverseMax.Controllers
             if (ModelState.IsValid)
             {
                 if (parameters.refresh && ownerManage.SetSlowDown(parameters.requester))
-                {                    
+                {
                     Task.Run(() => citizenManage.GetOwnerCitizenCollectionMCP(parameters.owner_matic_key)).Wait();
-                    ownerCitizenDB.UpdateCitizenCount();                    
+                    ownerCitizenDB.UpdateCitizenCount();
                     _context.SaveWithRetry();           // GetCitizenMCP call may not save datetime refresh changes due to optimisation of Datasync features.
                 }
-                
+
                 return Ok(citizenManage.GetCitizen(parameters.owner_matic_key, parameters.requester));
             }
 
@@ -184,8 +176,8 @@ namespace MetaverseMax.Controllers
 
             if (ModelState.IsValid)
             {
-                OwnerChange ownerChange = new() { owner_matic_key= "0xe4a746550e1ffb5f69775d3e413dbe1b5b734e36", owner_name="TEST", owner_avatar_id=0 };
-                int rowCount =  Task.Run(() => ownerNameDB.UpdateOwnerName(ownerChange)).Result;
+                OwnerChange ownerChange = new() { owner_matic_key = "0xe4a746550e1ffb5f69775d3e413dbe1b5b734e36", owner_name = "TEST", owner_avatar_id = 0 };
+                int rowCount = Task.Run(() => ownerNameDB.UpdateOwnerName(ownerChange)).Result;
                 _context.SaveChanges();
 
                 return Ok(string.Concat("Plots updated :", rowCount));

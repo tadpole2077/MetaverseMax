@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace MetaverseMax.ServiceClass
+﻿namespace MetaverseMax.ServiceClass
 {
     public class TaxGraph
     {
@@ -21,7 +15,7 @@ namespace MetaverseMax.ServiceClass
             currentMonth = districtWeb.last_update.ToString("MMM");
             lastMonth = districtWebHistory.last_update.ToString("MMM");
         }
-        
+
         public NgxChart Construct()
         {
             NgxChart ngxChart = new()
@@ -107,7 +101,7 @@ namespace MetaverseMax.ServiceClass
 
                 show_yaxis_label = false
             };
-            
+
 
             ngxChart.graphColumns = new NGXGraphColumns[4]
             {

@@ -6,7 +6,7 @@
         public bool monument_activated { get; set; }
         public bool monument_deactivated { get; set; }
         public int owner_avatar_id { get; set; }
-        public string owner_name {get; set;}
+        public string owner_name { get; set; }
 
     }
 }
