@@ -5,3 +5,12 @@ https://update.angular.io/?l=2&v=9.1-10.0
 
 Actions:   
 	Angular upgrade 10.2.5 to 11.x,  + Materials + medium complexity
+
+	Warnings:
+	 @ng-bootstrap@8.0.4 needs to be manually upgraded
+	 @angular-devkit/build-angular@0.1102.19 requires PEER of @angular/service-worker@^11.2.0-next, ng-packagr@^11.2.0-next, tailwindcss@^2.0.0 - manual install
+	 resolve-url-loader@4.0.0 requires PEER rework@1.0.1, rework-visit@1.0.0
+	 webpack-subresource-integrity@1.5.2 requires PEER  html-webpack-plugin@>= 2.21.0 < 5
+	 ws@8.11.0 requires PEER bufferutil@^4.0.1, utf-8-validate@^5.0.2
+	Breaking Error:
+	 \@angular-devkit\build-angular\node_modules\rxjs\node_modules\tslib  no such file or directory
