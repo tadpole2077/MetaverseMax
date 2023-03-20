@@ -3,12 +3,28 @@ Links:
 https://update.angular.io/?l=2&v=12.0-13.0
 
 Run Test:
-
-
+	cmd: npm start		- works, compiles & loads angular engine and site without issue.
+	VS2022 IIS Express run -  still showing SpaProxyLaunchManager error and iterative auto-restart of SPA proxy
 
 Actions:
 	Angular upgrade 12.2.18 to 13.3.11,  + Materials + medium complexity
-
+	npm i typescript@4.4	
+	npm i @ng-bootstrap/ng-bootstrap@12.1.2   (prior version @10.0.0) : https://www.npmjs.com/package/@ng-bootstrap/ng-bootstrap/v/12.1.2
+	npm i @popperjs/core@2.10.2		: required for new ng-bootstrap module version.
+	npm i @swimlane/ngx-charts@20.1.2  (prior version 18.0.1 - FYI 20.1.2 is the latest module version as of 20/03/2023)
 
 
 Potential Code change:
+	./node_modules/tronweb/dist/TronWeb.node.js:2209:14-36 - Error: Module not found: Error: Can't resolve 'querystring' in 'D:\0_Development\2_Applications\GitHub\MetaverseMax\MetaverseMax\ClientApp\node_modules\tronweb\dist'
+		shown on npm start
+		Module: tronweb@5.1.0  (latest as of 20/03/2023)
+		https://github.com/tronprotocol/tronweb
+		https://www.npmjs.com/package/tronweb?activeTab=readme
+
+	Change > \ClientApp\node_modules\tronweb\webpack.config.js
+		fallback: {
+			"querystring": require.resolve("querystring-es3")
+		}
+
+		cmd: npm install querystring			
+		considered a deprecated package : npm WARN deprecated querystring@0.2.1: The querystring API is considered Legacy. new code should use the URLSearchParams API instead.
