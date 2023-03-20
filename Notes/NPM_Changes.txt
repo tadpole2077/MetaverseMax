@@ -29,7 +29,7 @@ CMD
 	nvm install latest : install latest version of node (eg V19.8.1)
 
 NVM Install Matches:  https://stackoverflow.com/questions/60248452/is-there-a-compatibility-list-for-angular-angular-cli-and-node-js
-	Node 12.11.1 - NPM 6.14.12 - Typescript 4.1.6		(Suitable for Angular 11.2.14 - @angular-devkit max support of NPM 6.x)
+	Node 12.11.1 - NPM 6.11.3 - Typescript 4.1.6		(Suitable for Angular 11.2.14 - @angular-devkit max support of NPM 6.x)
 	Node 10.24.1 - NPM 6.14.12 - Typescript 4.0.8		(Suitable for Angular 10 - @angular-devkit max support of NPM 6.x)
 	Node 12.19.3 - NPM 7.20.3
 	Node 16.19.1 - NPM 8.19.3 
