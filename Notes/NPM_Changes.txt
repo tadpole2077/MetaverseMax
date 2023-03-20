@@ -67,7 +67,7 @@ But can use a proxy to map and connect Angular to ASP.NET. https://stackoverflow
 2023/03/17 Update NVM, NPM and Node
 =====================================================
 Why: VS2022 & .NET6 failing to run Angular project (either test template or MetaverseMax)
-Action: n
+Action:
 	npm update
 
 USING NVM (Node Version Manager)

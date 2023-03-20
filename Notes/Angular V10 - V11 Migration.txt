@@ -1,0 +1,7 @@
+﻿
+WHEN: 20/03/2023
+Links:
+https://update.angular.io/?l=2&v=9.1-10.0
+
+Actions:   
+	Angular upgrade 10.2.5 to 11.x,  + Materials + medium complexity

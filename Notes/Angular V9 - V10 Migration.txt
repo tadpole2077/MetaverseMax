@@ -20,3 +20,19 @@ Actions:
 
 		
 		codelyzer : 5.5.5(OLD) :  NOT Used so removed it.  Code analysis module (not suppored any more it seems)
+
+		Module not found: Error: Can't resolve '@angular/localize/init'
+			CMD >  ng add @angular/localize
+			Package used to add translations for localization support, not using it, but add for possible later use.
+
+		ERROR in ./src/theme.scss
+			Module build failed (from ./node_modules/mini-css-extract-plugin/dist/loader.js):
+			ModuleBuildError: Module build failed (from ./node_modules/@angular-devkit/build-angular/node_modules/sass-loader/dist/cjs.js):
+			Error: Node Sass version 5.0.0 is incompatible with ^4.0.0.
+
+			Same issue as in Angular V9, expected, will review but quickly move on to Angular 11.
+			"node-sass": "^4.0.0" is a PEER dependency in sass-loader module (needs to be in project root - any version of 4.x)
+			sass-loader@10.0.1 is a dependency of core angular module @angular-devkit/build-angular@0.1002.4
+			Using webpack@4.44.1 which is good
+			Actually installed:  node-sass@5.0.0.   Attempting to install 4.x previously caused GPY compile issues (complex)
+			
