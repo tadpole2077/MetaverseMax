@@ -5,9 +5,14 @@ https://update.angular.io/?l=2&v=13.0-14.0
 Run Test:
 
 
+Reading:
+	Typescript 4.6 changes https://devblogs.microsoft.com/typescript/announcing-typescript-4-6/
 
 Actions:
 	Angular upgrade 13.3.11 to 14.2.11,  + Materials + medium complexity
+	npm i typescript@4.6
 
 
 Potential Code change:
+
+

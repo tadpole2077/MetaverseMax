@@ -29,7 +29,7 @@ CMD
 	nvm install latest : install latest version of node (eg V19.8.1)
 
 NVM Install Matches:  https://stackoverflow.com/questions/60248452/is-there-a-compatibility-list-for-angular-angular-cli-and-node-js
-	Node 16.10.0 - NPM 7.24.0  - Typescript 4.8.4 - RxJS 6.5.5	(Suitable for Angular 14.2.0 - @angular-devkit max support of NPM 8x)
+	Node 16.10.0 - NPM 7.24.0  - Typescript 4.8.4 - RxJS 6.5.5	(Suitable for Angular 14.2.11 - @angular-devkit max support of NPM 8x)
 	Node 14.15.0 - NPM 6.14.8  - Typescript 4.3.4 - RxJS 6.5.5	(Suitable for Angular 13.3.0 - @angular-devkit max support of NPM 8x)
 	Node 14.15.0 - NPM 6.14.8  - Typescript 4.2.4 - RxJS 6.5.5	(Suitable for Angular 12.2.18 - @angular-devkit max support of NPM 8x)
 	Node 12.11.1 - NPM 6.11.3  - Typescript 4.1.6				(Suitable for Angular 11.2.14 - @angular-devkit max support of NPM ?)
@@ -38,7 +38,7 @@ NVM Install Matches:  https://stackoverflow.com/questions/60248452/is-there-a-co
 	Node 16.19.1 - NPM 8.19.3 
 
 After install of new version of Node - also install a global version of Angular matching that version, useful for cmd>ng support.
-	Example npm i @angular/cli@10.2.4  --global
+	Example npm i @angular/cli@14.2.11  --global
 
 
 ======================================================
