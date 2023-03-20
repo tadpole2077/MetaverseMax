@@ -1,0 +1,13 @@
+﻿WHEN: 20/03/2023
+Links:
+https://update.angular.io/?l=2&v=13.0-14.0
+
+Run Test:
+
+
+
+Actions:
+	Angular upgrade 13.3.11 to 14.2.11,  + Materials + medium complexity
+
+
+Potential Code change:
