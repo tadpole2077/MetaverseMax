@@ -3,5 +3,29 @@ Links:
 https://update.angular.io/?l=2&v=11.0-12.0
 
 Run Test:
+	cmd: npm start		- works, compiles & loads angular engine and site without issue.
+	VS2022 IIS Express run -  still showing SpaProxyLaunchManager error and iterative auto-restart of SPA proxy
 
-Actions:  
+Actions:
+	Angular upgrade 10.2.5 to 11.x,  + Materials + medium complexity
+	npm i typescript@4.2.4	
+	npm i @ng-bootstrap/ng-bootstrap@10.0.0   (prior version @9.1.3) : https://www.npmjs.com/package/@ng-bootstrap/ng-bootstrap/v/10.0.0
+	npm i @types/node@14.14.31
+	npm WARN acorn-import-assertions@1.8.0 requires a peer of acorn@^8 but none is installed. You must install peer dependencies yourself.
+		 module provides a plugin that can be used to extend the Acorn Parser class.  NOT USED, dont add/update might be removed on next upgrade
+	npm i @swimlane/ngx-charts : no change - retain use of 18.0.1  as per Angular V11.x
+
+	./src/theme.scss - Error: Module build failed (from ./node_modules/mini-css-extract-plugin/dist/loader.js):
+		ModuleBuildError: Module build failed (from ./node_modules/@angular-devkit/build-angular/node_modules/sass-loader/dist/cjs.js):
+		SassError: Invalid CSS after "@include mat": expected 1 selector or at-rule, was ".core();"
+        on line 8 of src/theme.scss
+		Related to:
+			'node-sass' usage is deprecated and will be removed in a future major version. To opt-out of the deprecated behaviour and start using 'sass' uninstall 'node-sass'.
+		Solution: npm uninstall node-sass
+
+	On npm start >> Option "extractCss" is deprecated: Deprecated since version 11.0. No longer required to disable CSS extraction for HMR.
+		Solution: Remove option ["extractCss": true] from angular.json
+
+Potential Code change:
+	routerLinkActiveOptions property of RouterLinkActive now has a more specific type. You may need to update code accessing this property to align with the changes.
+		This is used in nav-menu.component, may need to update once i can run the project.

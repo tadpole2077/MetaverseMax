@@ -1,33 +1,34 @@
+@use '~@angular/material' as mat;
 @import '~@angular/material/theming';
 // Plus imports for other components in your app.
 
 // Include the common styles for Angular Material. We include this here so that you only
 // have to load a single css file for Angular Material in your app.
 // Be sure that you only ever include this mixin once!
-@include mat-core();
+@include mat.core();
 
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
-$light-app-primary: mat-palette($mat-blue,800);
-$light-app-accent: mat-palette($mat-blue);
-$light-app-warn: mat-palette($mat-red);
+$light-app-primary: mat.define-palette(mat.$blue-palette,800);
+$light-app-accent: mat.define-palette(mat.$blue-palette);
+$light-app-warn: mat.define-palette(mat.$red-palette);
 
-$dark-app-primary: mat-palette($mat-pink);
-$dark-app-accent: mat-palette($mat-pink);
+$dark-app-primary: mat.define-palette(mat.$pink-palette);
+$dark-app-accent: mat.define-palette(mat.$pink-palette);
 // The warn palette is optional (defaults to red).
-$dark-app-warn: mat-palette($mat-red);
+$dark-app-warn: mat.define-palette(mat.$red-palette);
 
 // Create the theme object (a Sass map containing all of the palettes).
-$light-app-theme: mat-light-theme($light-app-primary, $light-app-accent, $light-app-warn);
-$dark-app-theme: mat-dark-theme($dark-app-primary, $dark-app-accent, $dark-app-warn);
+$light-app-theme: mat.define-light-theme($light-app-primary, $light-app-accent, $light-app-warn);
+$dark-app-theme: mat.define-dark-theme($dark-app-primary, $dark-app-accent, $dark-app-warn);
 
 
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
 // Default using light theme set
-@include angular-material-theme($light-app-theme);
+@include mat.all-component-themes($light-app-theme);
 /*
 @include mat-core-theme($test-app-theme);
 @include mat-button-theme($light-app-theme);
@@ -38,21 +39,21 @@ $dark-app-theme: mat-dark-theme($dark-app-primary, $dark-app-accent, $dark-app-w
 
 // Extra color used within materials
 a {
-  color: mat-color($light-app-primary)
+  color: mat.get-color-from-palette($light-app-primary)
 }
 
 .mat-raised-button:hover {
-  background-color: mat-color(mat-palette($mat-blue,600));
+  background-color: mat.get-color-from-palette(mat.define-palette(mat.$blue-palette,600));
 }
 
 a.closeframe:hover {
-  color: mat-color($light-app-warn);
+  color: mat.get-color-from-palette($light-app-warn);
 }
 
 .mat-button-toggle {
 }
 .mat-button-toggle-checked {
-  background-color: mat-color($light-app-accent);  
+  background-color: mat.get-color-from-palette($light-app-accent);  
 }
 .mat-button-toggle-checked.mat-button-toggle-appearance-standard {
   color: white;
@@ -64,7 +65,7 @@ a.closeframe:hover {
 // Apply the dark theme only when the `.my-dark-theme` CSS class is applied
 // to an ancestor element of the components (such as `body`).
 .my-dark-theme {
-  @include angular-material-theme($dark-app-theme);
+  @include mat.all-component-themes($dark-app-theme);
 }
 
 
