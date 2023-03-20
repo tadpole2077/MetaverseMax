@@ -3,15 +3,34 @@ WHEN: 20/03/2023
 Links:
 https://update.angular.io/?l=2&v=9.1-10.0
 
+Run Test:
+	cmd: npm start		- works, compiles & loads angular engine and site without issue.
+	VS2022 IIS Express run -  still showing SpaProxyLaunchManager error and iterative auto-restart of SPA proxy
+
+	Not Seeing the ""Node Sass version 5.0.0 is incompatible with ^4.0.0." bug anymore
+		sass-loader@10.1.1 is a dependency of core angular module @angular-devkit/build-angular@0.1102.19  ,  this is an upgrade from 10.0.0 in Angular 10 and 9
+		sass-loader@10.1.1 module is installed on root
+		sass-loader@10.1.1 has a peerDependencies of : "node-sass": "^4.0.0 || ^5.0.0",  with node-sass@5.0.0 installed.  All good.
+
 Actions:   
 	Angular upgrade 10.2.5 to 11.x,  + Materials + medium complexity
+	npm i typescript@4.1.6
+	npm i @ng-bootstrap/ng-bootstrap@9.1.3   (prior version @8.0.4)
+	npm i @types/node@12.11.1
+	npm i @swimlane/ngx-charts@18.0.1  (prior version 16.0.0)
 
 	Warnings:
-	 @ng-bootstrap@8.0.4 needs to be manually upgraded
-	 @angular-devkit/build-angular@0.1102.19 requires PEER of @angular/service-worker@^11.2.0-next, ng-packagr@^11.2.0-next, tailwindcss@^2.0.0 - manual install
-	 resolve-url-loader@4.0.0 requires PEER rework@1.0.1, rework-visit@1.0.0
-	 webpack-subresource-integrity@1.5.2 requires PEER  html-webpack-plugin@>= 2.21.0 < 5
-	 ws@8.11.0 requires PEER bufferutil@^4.0.1, utf-8-validate@^5.0.2
+	  @ng-bootstrap@8.0.4 needs to be manually upgraded
+	  @angular-devkit/build-angular@0.1102.19 requires PEER of @angular/service-worker@^11.2.0-next, ng-packagr@^11.2.0-next, tailwindcss@^2.0.0 - manual install
+	  resolve-url-loader@4.0.0 requires PEER rework@1.0.1, rework-visit@1.0.0
+	  webpack-subresource-integrity@1.5.2 requires PEER  html-webpack-plugin@>= 2.21.0 < 5
+	  ws@8.11.0 requires PEER bufferutil@^4.0.1, utf-8-validate@^5.0.2
+	
 	Breaking Error:
-	 \@angular-devkit\build-angular\node_modules\rxjs\node_modules\tslib  no such file or directory
-	 Resolve by :  npm i
+	  \@angular-devkit\build-angular\node_modules\rxjs\node_modules\tslib  no such file or directory
+	  Resolve by :  npm i
+
+	  Module not found: Error: Can't resolve 'hammerjs' in 'D:\0_Development\2_Applications\GitHub\MetaverseMax\MetaverseMax\ClientApp\src'
+	  Resolve by:
+		hammerjs is no longer required in Angular Material (as of version 9)
+		remove from: main.js >> import 'hammerjs';  require("hammerjs");
