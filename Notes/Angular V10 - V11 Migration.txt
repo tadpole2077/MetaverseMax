@@ -14,3 +14,4 @@ Actions:
 	 ws@8.11.0 requires PEER bufferutil@^4.0.1, utf-8-validate@^5.0.2
 	Breaking Error:
 	 \@angular-devkit\build-angular\node_modules\rxjs\node_modules\tslib  no such file or directory
+	 Resolve by :  npm i
