@@ -3,6 +3,8 @@ Links:
 https://update.angular.io/?l=2&v=13.0-14.0
 
 Run Test:
+	cmd: npm start		- works, compiles & loads angular engine and site without issue.
+	VS2022 IIS Express run -  still showing SpaProxyLaunchManager error and iterative auto-restart of SPA proxy
 
 
 Reading:
@@ -11,8 +13,11 @@ Reading:
 Actions:
 	Angular upgrade 13.3.11 to 14.2.11,  + Materials + medium complexity
 	npm i typescript@4.6
+	npm i @ng-bootstrap/ng-bootstrap@13.1.1   (prior version @12.1.2) : https://www.npmjs.com/package/@ng-bootstrap/ng-bootstrap/v/13.1.1
 
 
 Potential Code change:
+	If you are defining routes with pathMatch, you may have to cast it to Route or Routes explicitly. Route.pathMatch is no longer compatible with string type.
+		See app.module.ts
 
 
