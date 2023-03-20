@@ -7,3 +7,16 @@ Actions:
 	Angular upgrade 9.1.x to 10.0.x,  + Materials + medium complexity
 	entryComponents [NgModules] can be removed.  
 		Only found in @swimlane/ngx-charts 14.0.0 <<< will need to be upgraded
+
+	Problem Packages:
+		@ng-bootstrap/ng-bootstrap  ^6.2.0 (OLD)  : https://www.npmjs.com/package/@ng-bootstrap/ng-bootstrap
+			Installed 8.0.4 (latest with support of Angular 10) 
+			App Used By: NdbDropDown Module
+			npm i @ng-bootstrap/ng-bootstrap@8.0.4
+
+			Peer dependencies - need to be updated:
+				node_modules/jasmine-core 
+				node_modules/karma-jasmine-html-reporter OLD: 1.7.0
+
+		
+		codelyzer : 5.5.5(OLD) :  NOT Used so removed it.  Code analysis module (not suppored any more it seems)

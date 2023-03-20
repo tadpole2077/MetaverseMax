@@ -16,6 +16,9 @@ NPM : V9.5.0				(7.20.3  - 2022/12/28)
 * rxjs: 6.6.3   		(on system root Angular install = 10.0.4, rxjs = 6.5.5)
 * ng-bootstrap : 5.x.x  (compatiable with V8 of angular)
 
+
+
+
 NVM - Node Version Manager
 ======================================================
 NVM : Lastest version : 1.1.10  (18/03/2023) : https://github.com/coreybutler/nvm-windows/releases
@@ -25,6 +28,13 @@ CMD
 	nvm list		:  all available node version currently installed
 	nvm install latest : install latest version of node (eg V19.8.1)
 
+NVM Install Matches:
+	Node 10.24.1 - NPM 6.14.12		(Suitable for Angular 10 - @angular-devkit max support of NPM 6.x)
+	Node 12.19.3 - NPM 7.20.3
+	Node 16.19.1 - NPM 8.19.3 
+
+After install of new version of Node - also install a global version of Angular matching that version, useful for cmd>ng support.
+	Example npm i @angular/cli@10.2.4  --global
 
 
 ======================================================
@@ -47,7 +57,7 @@ Find List of depreciated node modules used by app
 
 
 =====================================================
-Run Angluar & ASP.NET ON SAME PORT USING PROXY
+Run Angular & ASP.NET ON SAME PORT USING PROXY
 =====================================================
 Angluar (npm start) - runs on port A,  ASP.NET services run on port B,  but they can use same port - or separate per engine
 But can use a proxy to map and connect Angular to ASP.NET. https://stackoverflow.com/questions/50753407/run-angular-and-asp-net-web-api-on-the-same-port
