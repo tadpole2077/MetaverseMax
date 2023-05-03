@@ -10,6 +10,13 @@ import { BUILDING } from '../owner-data/owner-interface';
 import { Globals, WORLD } from '../common/global-var';
 import { Router } from '@angular/router';
 
+interface OfficeGlobalIp {
+  totalIP: number;
+  globalFund: number;
+  maxDailyDistribution: number;
+  maxDailyDistributionPerIP: number;
+}
+
 interface BuildingCollection {
   minIP: number;
   maxIP: number;
@@ -75,6 +82,7 @@ export class BuildingIPComponent {
   
   public buildingCollection: BuildingCollection = null;
   public viewBuildings: BuildingDetail[] = null;
+  public officeGlobalIp: OfficeGlobalIp = null;
 
   public hidePaginator: boolean;
   public historyShow: boolean = false;
@@ -104,7 +112,8 @@ export class BuildingIPComponent {
   @ViewChild("toRentChkbox", { static: true } as any) toRentChkbox: MatCheckbox;
   @ViewChild("forSaleChkbox", { static: true } as any) forSaleChkbox: MatCheckbox;
 
-  displayedColumns: string[] = ['pos', 'rank', 'ip_t', 'ip_b', 'bon', 'name', 'con', 'dis', 'pos_x', 'id'];
+  displayedColumns: string[];
+  displayColumnFull: string[] = ['pos', 'rank', 'ip_t', 'ip_b', 'bon', 'name', 'con', 'dis', 'pos_x', 'id'];
   displayedColumnsStandard: string[] = ['pos', 'rank', 'ip_t', 'ip_b', 'bon', 'name', 'con', 'dis', 'pos_x', 'id'];
   displayedColumnsPredict: string[] = ['pos', 'rank', 'ip_t', 'ip_b', 'bon', 'name', 'con', 'pre', 'dis', 'pos_x', 'id']
   displayedColumnsOffice: string[] = ['pos', 'ip_t', 'ip_b', 'bon', 'name', 'con', 'dis', 'pos_x', 'id'];
@@ -122,6 +131,11 @@ export class BuildingIPComponent {
     return window.innerWidth;
   }
 
+  public assignColumns(columnSet:string[]) {
+    return this.width < 415 ?
+      columnSet = columnSet.filter(e => e !== 'ip_b').filter(e => e !== 'bon') : columnSet;    
+  }
+
   public search(type: number, level: number) {
 
     // Redirect to home page if account does not have approval access right.
@@ -135,13 +149,17 @@ export class BuildingIPComponent {
     this.buildingCollection = null;
 
     // Mobile View - remove secondary columns
-    if (this.width < 768) {
+    if (this.width < 415) {
       
     }
     else {
     }
 
     this.progressIcon.nativeElement.classList.add("rotate");
+
+    if (type == BUILDING.OFFICE) {
+      this.getOfficeGlobalData();
+    }
 
 
     let params = new HttpParams();
@@ -154,15 +172,18 @@ export class BuildingIPComponent {
         this.buildingCollection = result;
         this.progressIcon.nativeElement.classList.remove("rotate");
 
-        if (this.buildingCollection.show_prediction) {          
-          this.displayedColumns = this.displayedColumnsPredict;
+        if (this.buildingCollection.show_prediction) {
+          this.displayedColumns = this.assignColumns(this.displayedColumnsPredict);
+        }
+        else {
+          this.displayedColumns = this.assignColumns(this.displayColumnFull);
         }
 
         if (type == BUILDING.OFFICE) {
-          this.displayedColumns = this.displayedColumnsOffice;
+          this.displayedColumns = this.assignColumns(this.displayedColumnsOffice);
         }
         else {
-          this.displayedColumns = this.displayedColumnsStandard;
+          this.displayedColumns = this.assignColumns(this.displayedColumnsStandard);
         }
 
         if (this.buildingCollection.buildings !=null && this.buildingCollection.buildings.length > 0) {
@@ -181,6 +202,18 @@ export class BuildingIPComponent {
 
     return;
   }
+
+  public getOfficeGlobalData() {
+    let params = new HttpParams();
+    //params = params.append('type', type.toString());
+    
+    this.httpClient.get<OfficeGlobalIp>(this.baseUrl + '/plot/OfficeGlobalSummary', { params: params })
+      .subscribe((result: OfficeGlobalIp) => {
+        this.officeGlobalIp = result;
+      });
+
+  }
+
 
   loadBuildingData(): void {
 
@@ -416,6 +449,7 @@ export class BuildingIPComponent {
 
 
   filterForSale(eventCheckbox: MatCheckboxChange) {
+
     var forSaleBuildings: BuildingDetail[] = new Array;
 
     // Use current building view with any applied filters

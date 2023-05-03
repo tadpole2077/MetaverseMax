@@ -34,7 +34,6 @@ h3{
   height: 24px;
   background-size: 110px 20px;
   display: inline-block;
-  -webkit-transition: opacity .25s ease-out;
   transition: opacity .25s ease-out;
 }
 
@@ -59,16 +58,14 @@ h3{
 }
 
 .action {
-  background-color: rgba(196, 198, 209, 0.2);
+  /*background-color: rgba(196, 198, 209, 0.2);*/
   background-clip: border-box;
-  border: 1px solid rgba(0,0,0,.125);
+  /*border: 1px solid rgba(0,0,0,.125);*/
   border-radius: .25rem;
-  
   display: flex;
   justify-content: center;
-  flex-direction:column;
-  align-items:center;
-
+  flex-direction: column;
+  align-items: center;
   flex-grow: 1;
   flex-basis: auto;
   min-width: 200px;
@@ -82,20 +79,20 @@ h3{
     display: block;
     font-weight: 500;
     font-size: .9rem;
-    color: #1b6ec2;
+    /*color: #1b6ec2;*/
   }
   .action i {
     margin-top: .3rem;
-    color: #1b6ec2;
+    /*color: #1b6ec2;*/
     font-size: 2.3rem;
   }
   .action:hover {
     text-decoration: none;
-    background-color: #1b6ec2;
+    /*background-color: #1b6ec2;*/
     cursor: pointer;
   }
     .action:hover i, .action:hover span {
-      color: white;
+      /*color: white;*/
       cursor: pointer;
     }
 
@@ -118,6 +115,7 @@ h3{
   margin-right: 3rem;
   margin-bottom: 1rem;
   font-size: 1.1rem;
+  margin-top: 0.8rem;
 }
 
   .partnerLink:hover {
@@ -154,7 +152,7 @@ h3{
   float: left;
 }
 
-@-webkit-keyframes glowBtn {
+@keyframes glowBtn {
   from {
     box-shadow: 0 0 3px #fff, 0 0 6px #fff, 0 0 9px #fff, 0 0 12px #fff;
   }

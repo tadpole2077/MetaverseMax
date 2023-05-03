@@ -5,21 +5,21 @@ a {
 .predictControl{}
 
 /* Progress Indicator */
-@-webkit-keyframes rotation {
+@keyframes rotation {
   from {
-    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
   }
 
   to {
-    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
   }
 }
 
 .rotate {
-  -webkit-animation: rotation 1s 30 linear;
+  animation: rotation 1s 30 linear;
 }
 .rotateFan {
-  -webkit-animation: rotation 2s 120 linear;
+  animation: rotation 2s 120 linear;
 }
 
 .progressIcon {
@@ -37,69 +37,15 @@ a {
 }
 
 
-/*** Link underline amine ***/
-a {
-  position: relative;
-  /*color: #000;*/
-  text-decoration: none;
-  /*opacity: .7*/
-}
 
-  a.lineAnim:hover {
-    /*color: #000;*/
-    color: #1b6ec2;
-    opacity: 1;
-  }
-
-  a.lineAnim::before {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 2px;
-    bottom: 0;
-    left: 0;
-    background-color: #1b6ec2;
-    /*background-color: #000;*/
-    visibility: hidden;
-    transform: scaleX(0);
-    transition: all 0.3s ease-in-out 0s;
-  }
-
-  a.lineAnim:hover::before {
-    visibility: visible;
-    transform: scaleX(1);
-  }
-
-
-
-
-.histroyframe {
+.modalFrame {
   width: 545px;
   height: 400px;
-  text-align: left;
-  /*width: 400px;*/
-  min-height: 50px;
-  border: solid 1px #ccc;
   position: fixed;
-  top: 30px;
-  padding-bottom: 10px;
+  top: 30px; 
   left: 35%;
-  color: rgba(0, 0, 0, 0.87);
-  cursor: move;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  background: #fff;
-  border-radius: 4px;
-  z-index: 1000;
-  transition: box-shadow 200ms cubic-bezier(0, 0, 0.2, 1);
-  box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
 }
 
- .histroyframe:active {
-  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
- }
 
 .title {
   text-align: center;
@@ -156,7 +102,7 @@ tr.mat-header-row{
 
 
 .produceRow {
-  max-width: 14rem
+  max-width: 20rem
 }
 .totalEle {
   margin-right: 10px;
@@ -184,7 +130,7 @@ tr.mat-header-row{
 .summaryWarningIcon{
   font-size:20px;
   position:absolute;
-  margin-left: -18px;
+  margin-left: -22px;
   margin-top:1px;
   color:darkorange;
 }
@@ -200,7 +146,9 @@ tr.mat-header-row{
   width: 13rem
 }
 
-
+th.mat-column-building_lvl, th.mat-column-efficiency_c {
+  line-height: 1.3rem
+}
 
 td.mat-column-run_datetime {
   width: 100px;
@@ -230,12 +178,10 @@ tr.detailRow {
 .predict-row td {
   border-style: solid;
   border-width: 2px 0 2px 0;
-  -webkit-animation: glowLine 1.4s ease-in-out infinite alternate;
-  -moz-animation: glowLine 1.4s ease-in-out infinite alternate;
   animation: glowLine 1.4s ease-in-out infinite alternate;
 }
 
-@-webkit-keyframes glowLine {
+@keyframes glowLine {
   from {
     border-color: rgba(0,0,0,.05);
   }
@@ -260,9 +206,12 @@ tr.mat-row:not(.detailRow) {
   width: 5rem;
 }
 .officeTable td.mat-column-efficiency_c{
-  padding-left: 2rem;
+  padding-left: 2rem;  
 }
-
+.officeTable td.mat-column-building_lvl {
+  width: 7rem;
+  text-indent: 2rem;
+}
 
 .citizenTable {
   overflow: hidden;
@@ -283,18 +232,18 @@ tr.mat-row:not(.detailRow) {
   z-index: 1;
 }
 
-@-webkit-keyframes rotation {
+@keyframes rotation {
   from {
-    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
   }
 
   to {
-    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
   }
 }
 
 .rotate {
-  -webkit-animation: rotation 1s 30 linear;
+  animation: rotation 1s 30 linear;
 }
 
 .helpTip {
@@ -308,8 +257,6 @@ tr.mat-row:not(.detailRow) {
 
   .helpTip .mat-icon {
     font-size: 1.4rem;
-    -webkit-animation: glowHelpTip 1.4s ease-in-out infinite alternate;
-    -moz-animation: glowHelpTip 1.4s ease-in-out infinite alternate;
     animation: glowHelpTip 1.4s ease-in-out infinite alternate;
   }
 
@@ -324,7 +271,7 @@ tr.mat-row:not(.detailRow) {
   margin-left: 2.1rem;
   color: gray;
 }
-@-webkit-keyframes glowHelpTip {
+@keyframes glowHelpTip {
   from {
     color: gray;
   }
@@ -379,12 +326,10 @@ tr.mat-row:not(.detailRow) {
   }
 
 .glowCalcText {
-  -webkit-animation: glowCalcText 1.4s ease-in-out infinite alternate;
-  -moz-animation: glowCalcText 1.4s ease-in-out infinite alternate;
   animation: glowCalcText 1.4s ease-in-out infinite alternate;
 }
 
-@-webkit-keyframes glowCalcText {
+@keyframes glowCalcText {
   from {
     color: gray;
   }
@@ -493,6 +438,7 @@ tr.mat-row:not(.detailRow) {
 
 
 @media only screen and (max-width: 415px) {
+
   .shortTxt {
     display: inline-block;
   }
@@ -509,6 +455,10 @@ tr.mat-row:not(.detailRow) {
   }
   .summaryBlock{
     font-size: .8rem;
+  }
+
+  .produceRow{
+    max-width: 18rem;
   }
 
   .predict {
@@ -549,8 +499,8 @@ tr.mat-row:not(.detailRow) {
   }
 
   .table-container {
-    margin-left: 0;
     margin-right: 0;
+    margin-left: -10px;
   }
 
   .closeframe {
@@ -564,7 +514,16 @@ tr.mat-row:not(.detailRow) {
     padding-bottom: .3rem;
   }
 
-  .historySummary{
+  .officeTable td.mat-column-building_lvl {
+    width: 5rem;
+    text-indent: 1.6rem;
+  }
+  .officeTable td.mat-column-efficiency_c {
+    padding-left: 1rem;
+    width: 7rem;
+  }
+
+  .historySummary {
     margin-left: 4px;
   }
   .historySummary div{
@@ -575,10 +534,6 @@ tr.mat-row:not(.detailRow) {
     position: absolute;
     right: 0;
     margin-top: -1.8rem;
-  }
-
-  .table-container{
-    margin-left: -10px;
   }
 
   .formula{

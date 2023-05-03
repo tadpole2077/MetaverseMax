@@ -1,27 +1,30 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
-    "module": "es2020",
-    "outDir": "./dist/out-tsc",
-    "sourceMap": true,
-    "declaration": false,
-    "moduleResolution": "node",
-    "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
+    "baseUrl": "./",
+    "declaration": false,
     "esModuleInterop": true,
-    "target": "es2020",
-    "typeRoots": [
-      "node_modules/@types"
-    ],
+    "experimentalDecorators": true,
     "lib": [
       "es2018",
       "dom"
     ],
-    "skipLibCheck": true
+    "module": "es2020",
+    "moduleResolution": "node",
+    "outDir": "./dist/out-tsc",
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "target": "es2020",     // test template using es2017,  shouldnt impact dev vs prod at all.
+    "typeRoots": [
+      "node_modules/@types"
+    ]
   },
   "angularCompilerOptions": {
     /*"allowSyntheticDefaultImports": true,
     "esModuleInterop": true*/
+    "strictInjectionParameters": true,  // taken from test vs2022 template - not set before
+    //"strictInputAccessModifiers": true, // taken from test vs2022 template - not set before
+    //"strictTemplates": true             // taken from test vs2022 template - not set before
   }
 }

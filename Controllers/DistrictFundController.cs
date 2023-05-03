@@ -57,5 +57,18 @@ namespace MetaverseMax.Controllers
             }
             return BadRequest("Update Tax History change request is invalid");
         }
+
+        [HttpGet("DistributionUpdate")]
+        public IActionResult DistributionUpdate([FromQuery] QueryParametersDistributeUpdate parameters)
+        {
+            DistrictFundManage districtFundManage = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(districtFundManage.DistributionUpdateMaster(parameters.secure_token, parameters.interval, (DISTRIBUTE_ACTION) parameters.distribute_action));
+            }
+
+            return BadRequest("Sync Failed");       // 400 Error     
+        }
     }
 }

@@ -11,5 +11,7 @@ namespace MetaverseMax.ServiceClass
         public bool pro_tools_enabled { get; set; }
         public int pro_expiry_days { get; set; }
         public DateTime? slowdown_end { get; set; }
+        public bool wallet_active_in_world { get; set; }
+        public bool dark_mode { get; set; }
     }
 }

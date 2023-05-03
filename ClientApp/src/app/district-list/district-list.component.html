@@ -11,7 +11,7 @@
 
 <div class="table-container" [hidden]="!districtList || !districtList.length">
 
-  <table mat-table [dataSource]="dataSource" matSort matSortStart="desc" class="table-striped mat-elevation-z8" style="width:100%; display:inline-table">
+  <table mat-table [dataSource]="dataSource" matSort matSortStart="desc" class="table table-striped mat-elevation-z8" style="width:100%; display:inline-table">
     <!--table table-striped-->
     <ng-container matColumnDef="district_id">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>
@@ -39,7 +39,7 @@
         <img *ngIf="district.owner_avatar_id>0" src="{{ globals.worldURLPath }}citizen/{{ district.owner_avatar_id }}" class="ownerImgCol" height="60" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <img *ngIf="district.owner_avatar_id==0" src="./images/MysteryOwner.png" class="mysteryImg"/>
 
-        <a class="nav-link lineAnim maticLinkCol" [routerLink]="['/', globals.worldCode, 'owner-data']" [queryParams]="{matic: district.owner_matic}" title="{{ district.owner_name }}">
+        <a class="lineAnim maticLinkCol" [routerLink]="['/', globals.worldCode, 'owner-data']" [queryParams]="{matic: district.owner_matic}" title="{{ district.owner_name }}">
           <span class="long-text" *ngIf="district.owner_name!=''">{{ district.owner_name.substring(0,16) }}</span>
           <span class="short-text" *ngIf="district.owner_name!=''">{{ district.owner_name.substring(0,9) }}</span>
 

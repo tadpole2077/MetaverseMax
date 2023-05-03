@@ -1,5 +1,6 @@
 @use '@angular/material' as mat;
-@import '@angular/material/theming';
+@use 'scss/palette_helper' as palette-helper;
+@use "scss/mode_mixin.scss" as mode;
 // Plus imports for other components in your app.
 
 // Include the common styles for Angular Material. We include this here so that you only
@@ -14,34 +15,273 @@ $light-app-primary: mat.define-palette(mat.$blue-palette,800);
 $light-app-accent: mat.define-palette(mat.$blue-palette);
 $light-app-warn: mat.define-palette(mat.$red-palette);
 
-$dark-app-primary: mat.define-palette(mat.$pink-palette);
-$dark-app-accent: mat.define-palette(mat.$pink-palette);
-// The warn palette is optional (defaults to red).
-$dark-app-warn: mat.define-palette(mat.$red-palette);
-
 // Create the theme object (a Sass map containing all of the palettes).
 $light-app-theme: mat.define-light-theme($light-app-primary, $light-app-accent, $light-app-warn);
-$dark-app-theme: mat.define-dark-theme($dark-app-primary, $dark-app-accent, $dark-app-warn);
 
+// Home Page
+$app-button-bg: rgba(196, 198, 209, 0.2);
+$app-button-color: mat.get-color-from-palette($light-app-primary);
+
+$app-link-color: mat.get-color-from-palette($light-app-primary);
+@include mode.home($app-button-bg, $app-button-color, $app-button-color);
+@include mode.link($app-link-color, #000);
 
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
 // Default using light theme set
+$light-app-theme: palette-helper.mat-set-custom-table($light-app-theme, #343a40);
 @include mat.all-component-themes($light-app-theme);
-/*
-@include mat-core-theme($test-app-theme);
-@include mat-button-theme($light-app-theme);
-@include mat-checkbox-theme($test-app-theme);
-@include mat-form-field-theme($light-app-theme);
-*/
+
+
+
+
+
+
+// *****************************************************************************************************
+// Apply the dark theme only when the `.darkMode` CSS class is applied
+// to an ancestor element of the components (such as `body`).
+$dark-app-primary: mat.define-palette(mat.$blue-palette,800);
+$dark-app-accent: mat.define-palette(mat.$blue-gray-palette);
+// The warn palette is optional (defaults to red).
+$dark-app-warn: mat.define-palette(mat.$red-palette);
+
+$dark-app-button-palette: mat.define-palette(mat.$blue-palette,400);
+$dark-app-button-bg: rgba(196, 198, 209, 0.2);
+$app-button-hover-bg: $app-button-color;
+$dark-app-button-color: mat.get-color-from-palette($dark-app-button-palette);
+$dark-outer-bg: #212936;
+$dark-inner-bg: #1A1C27;
+$dark-menu-bg: #303339;
+
+// Create the theme object (a Sass map containing all of the palettes).
+$dark-app-theme: mat.define-dark-theme(( color: ( primary: $dark-app-primary, accent: $dark-app-accent, warn: $dark-app-warn ), typography: mat.define-typography-config(), density: 0, ));
+
+// Also using .mat-app-background class on the root.body tag as not encapsulated within a materials object.
+// mat-set-background, replaces color.background and background with passed color (para#2), returning an updated theme.  This theme is then assigned during dark mode.
+$dark-app-theme: palette-helper.mat-set-background($dark-app-theme, $dark-outer-bg, $dark-inner-bg);
+$foreground: map-get($dark-app-theme, foreground);
+
+.darkMode {
+
+  div.accountContainer {
+    background-color: inherit;
+  }
+  div.promptLink {
+    border-color: #1b6ec2;
+    border-style: solid;
+  }
+
+  .modalFrame {
+    color: var(--bs-gray-300);
+  }
+  // Number shadow
+  span.buildingNum, span.dayExpiry, span.staminaLow {
+    text-shadow: none;
+  }
+  // Global underline animation
+  a.lineAnim::before {
+    background-color: #FFF;
+  }
+  //inner container
+  .container {
+    background-color: $dark-inner-bg;
+    border-radius: 10px;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    margin-top: -0.5rem;
+    min-height: 12rem;
+  }
+
+  header .container {
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: 0;
+    min-height: auto;
+  }
+
+  .districtNum {
+    color: $dark-app-button-color
+  }
+
+  .districtSell, a.showAllLink i.fa-times {
+    color: orangered
+  }
+
+  div.typeFilter {
+    border-color: darkslategray;
+    margin-right: -82px;
+  }
+
+  .typeFilter div {
+    background-color: $dark-inner-bg;
+  }
+
+  .typeFilter div.activeFilter, .typeFilter div:hover {
+    background-color: $dark-outer-bg;
+  }
+
+  .mysteryImg {
+    background-color: wheat;
+    border-radius: 50%;
+  }
+
+  .table-striped > tbody > tr:nth-of-type(odd) > * {
+    color: white;
+  }
+
+  .toRent, .salepos {
+    color: black;
+  }
+
+  div.modalFrame {
+    background-color: $dark-outer-bg;
+    overflow: hidden;
+  }
+
+  .mat-paginator-container {
+    background-color: $dark-inner-bg;
+  }
+
+  a.closeframe {
+    color: white;
+  }
+
+  .mat-expansion-panel-header, .mat-expansion-panel-header.mat-expanded:focus, .mat-expansion-panel-content {
+    background-color: $dark-outer-bg;
+  }
+  // District Summary
+  #taxChangeAccordion .mat-expansion-panel, #taxChangeAccordion .mat-expansion-panel-body {
+    background-color: $dark-inner-bg;
+  }
+  // Production History
+  span.summaryLabel, .helpTip span, .helpTipNoIcon span {
+    color: var(--bs-gray-500);
+  }
+
+  div.predictionDetailInner {
+    background-color: $dark-inner-bg;
+    color: var(--bs-gray-200);
+  }
+
+  .predictionDetailInner div.predictionDetailCalc div > span.summarydata:nth-child(3), span.summaryWarning {
+    color: var(--bs-gray-200);
+  }
+
+  .predictionDetailInner div.predictionDetailCalc div > span.summarydata:nth-child(4) {
+    color: var(--bs-gray-500);
+  }
+
+  .table-container tr.mat-row:not(.detailRow):hover {
+    background: $dark-outer-bg;
+  }
+
+  div.predictionDetailHeader, div.totalProduce {
+    border-bottom: 1px solid white;
+  }
+
+  div.borderTop, div.totalProduce {
+    border-top: 1px solid white;
+  }
+
+  .tips {
+    margin-top: 3rem;
+  }
+
+  div.helpTip {
+    margin-top: 0;
+  }
+  //ngx-charts
+  .ngx-charts {
+
+    text {
+      fill: white;
+    }
+  }
+
+  i.arrivalIcon {
+    animation: glowDark 1s ease-in-out infinite alternate;
+  }
+
+  i.arrivalIcon2 {
+    animation: glow2Dark 1s ease-in-out infinite alternate;
+  }
+  // owner-data component
+  div.slideOutLeft {
+    background: $dark-outer-bg;
+  }
+
+  div.districtEle {
+    border-color: mat.get-color-from-palette($foreground, divider); //rgba(255, 255, 255, 0.12)
+  }
+
+  div.districtEleActive {
+    background: $dark-outer-bg;
+    border-color: var(--bs-gray-600);
+  }
+
+  div.boxOutline {
+    border-color: var(--bs-gray-600);
+  }
+  // dropdown-menu
+  .dropdown-menu {
+    background-color: $dark-menu-bg;
+  }
+
+  .dropdown-menu .dropdown-item {
+    color: white;
+    margin-left: 4px;
+    margin-right: 4px;
+    text-indent: -4px;
+    width: -moz-available;
+    width: -webkit-fill-available;
+    width: fill-available;
+  }
+
+  .dropdown-menu mat-icon, .dropdown-menu .mat-slide-toggle-content {
+    color: white;
+  }
+
+  .dropdown-menu .dropdown-item:hover {
+    background-color: $dark-inner-bg;
+    border-radius: 6px;
+  }
+
+
+  @include mat.all-component-themes($dark-app-theme);
+  @include mat.table-theme($dark-app-theme);
+  @include mat.core-color($dark-app-theme);
+  @include mat.button-color($dark-app-theme);
+  @include mode.home($dark-app-button-bg, $app-button-hover-bg, $dark-app-button-color);
+  @include mode.link($dark-app-button-color, #FFF);
+
+
+  @keyframes glowDark {
+    from {
+      text-shadow: 0 0 2px #fff, 0 0 5px #fff, 0 0 8px #fff, 0 0 10px #1b6ec2, 0 0 13px #1b6ec2, 0 0 15px #1b6ec2, 0 0 18px #fff;
+    }
+
+    to {
+      text-shadow: 0 0 5px #fff, 0 0 7px #FFF, 0 0 10px #ff4da6, 0 0 12px #ff4da6, 0 0 15px #ff4da6, 0 0 17px #ff4da6, 0 0 20px #fff;
+    }
+  }
+
+  @keyframes glow2Dark {
+    from {
+      text-shadow: 0 0 1px #fff, 0 0 2px #fff, 0 0 4px #fff, 0 0 6px #28a745, 0 0 7px #28a745;
+    }
+
+    to {
+      text-shadow: 0 0 1px #fff, 0 0 3px #FFF, 0 0 5px #ff4da6, 0 0 7px #ff4da6;
+    }
+  }
+}
+
+
+
 
 
 // Extra color used within materials
-a {
-  color: mat.get-color-from-palette($light-app-primary)
-}
-
 .mat-raised-button:hover {
   background-color: mat.get-color-from-palette(mat.define-palette(mat.$blue-palette,600));
 }
@@ -52,46 +292,33 @@ a.closeframe:hover {
 
 .mat-button-toggle {
 }
+
 .mat-button-toggle-checked {
-  background-color: mat.get-color-from-palette($light-app-accent);  
+  background-color: mat.get-color-from-palette($light-app-accent);
 }
+
 .mat-button-toggle-checked.mat-button-toggle-appearance-standard {
   color: white;
 }
 
 
-
-
-// Apply the dark theme only when the `.my-dark-theme` CSS class is applied
-// to an ancestor element of the components (such as `body`).
-.my-dark-theme {
-  @include mat.all-component-themes($dark-app-theme);
+// underline animation
+a.lineAnim::before {
+  background-color: mat.get-color-from-palette($light-app-primary);
 }
 
-
-
-
-  // Apply the light theme by default
-  //@include mat.core-theme($candy-app-primary);
-  //@include mat.button-theme($candy-app-accent);
-  /*
-
-// Define a light theme
-$light-primary: mat.define-palette(mat.$indigo-palette);
-$light-accent: mat.define-palette(mat.$pink-palette);
-$light-theme: mat.define-light-theme(( color: ( primary: $light-primary, accent: $light-accent, ) ));
-
-// Define a dark theme
-$dark-primary: mat.define-palette(mat.$pink-palette);
-$dark-accent: mat.define-palette(mat.$blue-gray-palette);
-$dark-theme: mat.define-dark-theme(( color: ( primary: $dark-primary, accent: $dark-accent, ) ));
-
-
-
-// Apply the dark theme only when the `.my-dark-theme` CSS class is applied
-// to an ancestor element of the components (such as `body`).
-.my-dark-theme {
-  @include mat.core-color($dark-theme);
-  @include mat.button-color($dark-theme);
+.districtNum {
+  color: darkslateblue
 }
-*/
+
+// Owner-data table tad icons
+.typeFilter{  
+  border-color: #d3d3d3;
+}
+
+.districtSell, a.showAllLink i.fa-times {
+  color: #8b0000;
+}
+
+// Final overwrites - higher specificity then above rules
+@import "scss/overwrite_material_styles.scss";

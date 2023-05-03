@@ -83,7 +83,6 @@
   font-size: .9em;
   opacity: 0;
   visibility: hidden;
-  -webkit-transition: opacity 600ms, visibility 600ms;
   transition: opacity 600ms, visibility 600ms;
   padding-left:2px;
 }
@@ -130,13 +129,6 @@
   padding-top:30px;
 }
 
-.showAllLink {
-  display: block;
-  opacity: .7;
-  font-weight: bold;
-  width: 70px
-}
-
 .districtHeader {
   display: inline-block;
   vertical-align: top;
@@ -148,12 +140,6 @@
   padding-top:0
 }
 
-.districtLabel {
- 
-  vertical-align: top;
-  margin-right: .4rem
-}
-
 .districtLink{
     opacity:.7
 }
@@ -163,34 +149,7 @@
   display: inline-block
 }
 
-.districtEle {
-  font-weight: bold;
-  width: 100px;
-  display: inline-block;
-  margin-bottom: .1rem;
-  padding: 1px;
-  text-align: center;
-  border: 1px;
-  border-style:ridge
-}
-
-.districtEleActive {
-  border: 1px;
-  border-color: gray;
-  border-style: solid;
-  box-shadow: 0 5px 10px rgb(0 0 0 / 12%);
-  border-radius: 5px;
-}
-  .districtEleActive .districtLink{
-      opacity:1
-  }
-
-.districtNum {
-  color: darkslateblue
-}
-
 .districtSell {
-  color: darkred;
   opacity:.7
 }
 
@@ -329,7 +288,6 @@
 }
 
 .table-container {
-  max-height: calc(100vh - 155px);
   clear: both;
   margin-top: .8rem;
   display: inline-table;
@@ -342,7 +300,6 @@ table:last-child {
 }
 
 th.mat-header-cell {
-  color: inherit;
   font-size: .9rem;
   font-weight: bold;
   vertical-align: middle !important;
@@ -430,7 +387,7 @@ th.mat-column-owned_plots{
   font-size: .7rem;
 }
 
-<i class="fas fa-plane-arrival" > </i >
+
 /* Table filter Input */
 ::ng-deep .mat-focused .mat-form-field-label {
   /*change color of label*/
@@ -462,18 +419,15 @@ th.mat-column-owned_plots{
   font-size: .8rem;
 }
 .arrivalIcon {
-  -webkit-animation: glow 1s ease-in-out infinite alternate;
-  -moz-animation: glow 1s ease-in-out infinite alternate;
   animation: glow 1s ease-in-out infinite alternate;
 }
 .arrivalIcon2 {
   color: orange;
-  -webkit-animation: glow2 1s ease-in-out infinite alternate;
-  -moz-animation: glow2 1s ease-in-out infinite alternate;
   animation: glow2 1s ease-in-out infinite alternate;
 }
 
-@-webkit-keyframes glow {
+
+@keyframes glow {
   from {
     text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #1b6ec2, 0 0 25px #1b6ec2, 0 0 30px #1b6ec2, 0 0 33px #fff;
   }
@@ -482,7 +436,7 @@ th.mat-column-owned_plots{
     text-shadow: 0 0 10px #fff, 0 0 15px #FFF, 0 0 20px #ff4da6, 0 0 25px #ff4da6, 0 0 30px #ff4da6, 0 0 35px #ff4da6, 0 0 40px #fff;
   }
 }
-@-webkit-keyframes glow2 {
+@keyframes glow2 {
   from {
     text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #28a745, 0 0 25px #28a745, 0 0 30px #28a745, 0 0 33px #28a745;
   }
@@ -494,11 +448,9 @@ th.mat-column-owned_plots{
 
 
 .adIcon {
-  -webkit-animation: glowAd 1.2s ease-in-out infinite alternate;
-  -moz-animation: glowAd 1.2s ease-in-out infinite alternate;
   animation: glowAd 1.2s ease-in-out infinite alternate;
 }
-@-webkit-keyframes glowAd {
+@keyframes glowAd {
   from {
     text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 14px #fff, 0 0 16px red, 0 0 18px red, 0 0 20px #fff,0 0 23px #fff;
   }
@@ -507,39 +459,6 @@ th.mat-column-owned_plots{
     text-shadow: 0 0 4px #fff, 0 0 10px #FFF, 0 0 12px #fff, 0 0 15px #fff, 0 0 18px #fff, 0 0 21px #fff;
   }
 }
-
-/*** Link underline amine ***/
-a {
-  position: relative;
-  /*color: #000;*/
-  text-decoration: none;
-  /*opacity: .7*/
-}
-
-  a.lineAnim:hover {
-    /*color: #000;*/
-    color: #1b6ec2;
-    opacity: 1;
-  }
-
-  a.lineAnim::before {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 2px;
-    bottom: 0;
-    left: 0;
-    background-color: #1b6ec2;
-    /*background-color: #000;*/
-    visibility: hidden;
-    transform: scaleX(0);
-    transition: all 0.3s ease-in-out 0s;
-  }
-
-  a.lineAnim:hover::before {
-    visibility: visible;
-    transform: scaleX(1);
-  }
 
 
 /*** Hide short text by default (resolution > 1200px) ***/

@@ -76,6 +76,18 @@ namespace MetaverseMax.Controllers
             return BadRequest("Call is invalid");       // 400 Error   
         }
 
+        [HttpGet("SetDarkMode")]
+        public IActionResult SetDarkMode([FromQuery] QueryParametersOwnerDarkMode parameters)
+        {
+            OwnerManage ownerManage = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(ownerManage.SetDarkMode(parameters.owner_matic_key, parameters.dark_mode));
+            }
+
+            return BadRequest("Call is invalid");       // 400 Error   
+        }
 
         [HttpGet("GetOfferMCP")]
         public IActionResult GetOfferMCP([FromQuery] QueryParametersOwnerOffer parameters)
@@ -168,6 +180,20 @@ namespace MetaverseMax.Controllers
             return BadRequest("Call is invalid");       // 400 Error   
         }
 
+
+        [HttpGet("GetOwnerMaterialMatic")]
+        public IActionResult GetOwnerMaterialMatic([FromQuery] QueryParametersSecurity parameters)
+        {
+            OwnerManage ownerManage = new(_context, common.IdentifyWorld(Request.Path));
+
+            // As this service could be abused as a DDOS a security token is needed.                     
+            if (ModelState.IsValid && parameters.secure_token.Equals("JUST_SIMPLE_CHECK123"))
+            {
+                return Ok(Task.Run(() => ownerManage.GetMaterialAllMatic()).Result);
+            }
+
+            return BadRequest("Call is invalid");       // 400 Error   
+        }
 
         [HttpGet("UnitTest_UpdateOwnerName")]
         public IActionResult UnitTest_UpdateOwnerName()

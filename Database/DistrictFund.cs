@@ -13,8 +13,8 @@ namespace MetaverseMax.Database
         [Column("fund_key")]
         public int fund_key { get; set; }
 
-        [Column("update")]
-        public DateTime update { get; set; }
+        [Column("last_updated")]
+        public DateTime last_updated { get; set; }
 
         [Column("balance")]
         public decimal balance { get; set; }

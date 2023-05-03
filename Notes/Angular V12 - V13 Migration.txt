@@ -11,8 +11,7 @@ Actions:
 	npm i typescript@4.4	
 	npm i @ng-bootstrap/ng-bootstrap@12.1.2   (prior version @10.0.0) : https://www.npmjs.com/package/@ng-bootstrap/ng-bootstrap/v/12.1.2
 	npm i @popperjs/core@2.10.2		: required for new ng-bootstrap module version.
-	npm i @swimlane/ngx-charts@20.1.2  (prior version 18.0.1 - FYI 20.1.2 is the latest module version as of 20/03/2023)
-
+	npm i @swimlane/ngx-charts@20.1.2  (prior version 18.0.1 - FYI 20.1.2 is the latest module version as of 20/03/2023)	
 
 Potential Code change:
 	./node_modules/tronweb/dist/TronWeb.node.js:2209:14-36 - Error: Module not found: Error: Can't resolve 'querystring' in 'D:\0_Development\2_Applications\GitHub\MetaverseMax\MetaverseMax\ClientApp\node_modules\tronweb\dist'

@@ -1,15 +1,15 @@
-@-webkit-keyframes rotation {
+@keyframes rotation {
   from {
-    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
   }
 
   to {
-    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
   }
 }
 
 .rotate {
-  -webkit-animation: rotation 10s 1 linear;
+  animation: rotation 10s 1 linear;
 }
 
 a {
@@ -18,12 +18,10 @@ a {
 
 .buttonEffect {
   font-size: .96rem;
-  -webkit-animation: glowBtn 1.4s ease-in-out infinite alternate;
-  -moz-animation: glowBtn 1.4s ease-in-out infinite alternate;
   animation: glowBtn 1.4s ease-in-out infinite alternate;
 }
 
-@-webkit-keyframes glowBtn {
+@keyframes glowBtn {
   from {
     box-shadow: 0 0 3px #fff, 0 0 6px #fff, 0 0 9px #fff, 0 0 12px #fff;
   }
@@ -49,3 +47,8 @@ div.dropdown-menu {
   height: 22px;
   margin-right: 0.4rem;
 }
+
+
+
+
+

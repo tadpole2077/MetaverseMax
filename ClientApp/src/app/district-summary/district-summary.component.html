@@ -33,12 +33,12 @@
   <div aria-live="polite" class="ownerInfo">
     <div class="ownerImgPos">
       <img *ngIf="district.owner_avatar_id>0" src="{{ globals.worldURLPath }}citizen/{{ district.owner_avatar_id }}" height="64" crossorigin="anonymous" referrerpolicy="no-referrer" />
-      <img *ngIf="district.owner_avatar_id==0" src="./images/MysteryOwner.png" height="50" style="margin-top:0" />
+      <img *ngIf="district.owner_avatar_id==0" src="./images/MysteryOwner.png" class="mysteryImg" height="50" style="margin-top:0" />
     </div>
     <div class="ownerdata">
       <div>
         Owner:
-        <a class="districtOwnerLink nav-link text-dark lineAnim" [routerLink]="['/', worldCode, 'owner-data']" [queryParams]="{matic: district.owner_matic}" title="{{ district.owner_name }}"><strong>{{ district.owner_name }}</strong></a>
+        <a class="districtOwnerLink text-dark lineAnim" [routerLink]="['/', worldCode, 'owner-data']" [queryParams]="{matic: district.owner_matic}" title="{{ district.owner_name }}"><strong>{{ district.owner_name }}</strong></a>
       </div>
       <div *ngIf="district.owner_matic">
         District Owner Key:
@@ -110,7 +110,7 @@
         <div style="display:inline-block">
           <app-graph-fund #graphDistribute class="distributeGraph"></app-graph-fund>
           <div>
-            <span class="fundDataBlock">Distribution Period: <strong>{{ district.distribution_period }} days</strong> (<strong>{{fundDaily}}</strong> MEGA)</span>
+            <span class="fundDataBlock">Distribution Period: <strong>{{ district.distribution_period }} days</strong> (<strong>{{ fundDaily }} / {{ wholenumber(fundtotal, district.distribution_period) | number }}</strong> MEGA)</span>
           </div>
         </div>
       </div>
@@ -197,7 +197,7 @@
     </div>
   </div>
 
-  <table mat-table [dataSource]="dataSourceOwnerSummary" matSort matSortStart="desc" class="table-striped mat-elevation-z8" style="width:100%; display:inline-table">
+  <table mat-table [dataSource]="dataSourceOwnerSummary" matSort matSortStart="desc" class="table table-striped mat-elevation-z8" style="width:100%; display:inline-table">
     <!--table table-striped-->
     <ng-container matColumnDef="owner_name">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Owner </th><!-- start="asc"-->
@@ -208,7 +208,7 @@
         <img *ngIf="ownerSummary.owner_avatar_id>0" src="{{ globals.worldURLPath }}citizen/{{ ownerSummary.owner_avatar_id }}" class="" height="60" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <img *ngIf="ownerSummary.owner_avatar_id==0" src="./images/MysteryOwner.png" class="mysteryImg" height="50" />
 
-        <a class="nav-link lineAnim" [routerLink]="['/', worldCode, 'owner-data']" [queryParams]="{matic: ownerSummary.owner_matic}" title="{{ ownerSummary.owner_name }}">
+        <a class="lineAnim" [routerLink]="['/', worldCode, 'owner-data']" [queryParams]="{matic: ownerSummary.owner_matic}" title="{{ ownerSummary.owner_name }}">
           <span *ngIf="ownerSummary.owner_name!=''">{{ ownerSummary.owner_name }}</span>
           <span class="maticLink" *ngIf="ownerSummary.owner_name==''">{{ ownerSummary.owner_matic.substring(0,14) }}</span>
         </a>

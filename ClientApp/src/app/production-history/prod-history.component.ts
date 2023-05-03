@@ -8,7 +8,6 @@ import { DragDrop } from '@angular/cdk/drag-drop';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { CitizenBuildingTableComponent } from '../citizen-building-table/citizen-building-table.component';
 import { Globals, WORLD } from '../common/global-var';
-import { GraphDamageComponent } from '../graph-damage/graph-damage.component';
 
 interface Detail {
   run_datetime: string;
@@ -90,7 +89,7 @@ export class ProdHistoryComponent implements AfterViewInit {
   displayedColumns: string[];
   columnsStandard: string[] = ['amount_produced', 'building_product', 'efficiency_p', 'efficiency_m', 'efficiency_c', 'building_ip', 'run_datetime'];
   columnsStandardMobile: string[] = ['building_product', 'efficiency', 'building_ip', 'run_datetime'];
-  columnsOffice: string[] = ['run_datetime', 'building_ip', 'efficiency_c'];
+  columnsOffice: string[] = ['run_datetime', 'building_ip', 'building_lvl', 'efficiency_c'];
   columnsFactoryMobile: string[] =['building_product', 'efficiency_c', 'building_ip', 'run_datetime'];
   columnsFactory: string[] =['amount_produced', 'building_product', 'efficiency_c', 'building_ip', 'run_datetime'];
   

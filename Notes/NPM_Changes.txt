@@ -1,4 +1,4 @@
-﻿NPM - Node Project Manager
+﻿NPM - Node Package Manager
 =====================================================
 2023/03/18: Version Info (currently using)
   Angular: 9.1.13
@@ -27,6 +27,7 @@ CMD
 	nvm --version	:  current version of nvm installed
 	nvm list		:  all available node version currently installed
 	nvm install latest : install latest version of node (eg V19.8.1)
+	nvm use 16.10.0
 
 NVM Install Matches:  https://stackoverflow.com/questions/60248452/is-there-a-compatibility-list-for-angular-angular-cli-and-node-js
 	Node 16.10.0 - NPM 7.24.0  - Typescript 4.8.4 - RxJS 6.5.5	(Suitable for Angular 14.2.11 - @angular-devkit max support of NPM 8x)
@@ -37,7 +38,7 @@ NVM Install Matches:  https://stackoverflow.com/questions/60248452/is-there-a-co
 	Node 12.19.3 - NPM 7.20.3
 	Node 16.19.1 - NPM 8.19.3 
 
-After install of new version of Node - also install a global version of Angular matching that version, useful for cmd>ng support.
+After install of new version of Node - also install a global version of Angular (allowing use of ng cmd) matching that version, useful for cmd>ng support.
 	Example npm i @angular/cli@14.2.11  --global
 
 
@@ -61,10 +62,14 @@ Find List of depreciated node modules used by app
 
 
 =====================================================
-Run Angular & ASP.NET ON SAME PORT USING PROXY
+Run Angular & ASP.NET ON 2 PORT USING PROXY to passthough calls (dev env)
 =====================================================
-Angluar (npm start) - runs on port A,  ASP.NET services run on port B,  but they can use same port - or separate per engine
-But can use a proxy to map and connect Angular to ASP.NET. https://stackoverflow.com/questions/50753407/run-angular-and-asp-net-web-api-on-the-same-port
+Angluar (npm start) - runs on port A,  ASP.NET services run on port B,  but they can use same port (on IIS) - or separate per engine
+Dev env Use a proxy to map and connect Angular to ASP.NET. https://stackoverflow.com/questions/50753407/run-angular-and-asp-net-web-api-on-the-same-port
+Configuration:
+	MetaverseMax/Properties/launchSettings.json > Set >> "sslPort": 44359			:: Used by backend .net services and server side files.
+	package.json > "start:windows": "ng serve --port 44360							:: Used by angular client side serve
+	Application will first load using 44359, then angular engine will start on port 44360, then SPAProxy will redirect all client response to port 44360, and backend client requests remapped to 44359
 
 
 =====================================================
@@ -80,7 +85,7 @@ USING NVM (Node Version Manager)
 	nvm install 18.15.0 : + installs NPM V9.5.0
 	nvm install 16.19.1	: latest version release of the V16 branch : NPM V8.19.3 (installed with this node version)
 
-Update NPM - https://nodejs.org/en/download
+Update NPM (Node Package Manager) - https://nodejs.org/en/download
 	NOTE: Use NVM to update NPM, it will update both {Node and NPM} together, maintains a version matches between NPM and Node.
 	Version List: https://www.npmjs.com/package/npm?activeTab=versions
 	OLD VERSION:  Node 16.6.1, NPM 7.20.3

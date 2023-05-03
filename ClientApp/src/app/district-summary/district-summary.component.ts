@@ -149,7 +149,6 @@ export class DistrictSummaryComponent implements AfterViewInit {
 
         this.arrivalsWeek.checked = false;
         this.arrivalsMonth.checked = false;
-        this.removeLinkHighlight();
 
         if (this.district.district_id != 0) {
           this.childGraphConstruct.loadGraph(this.district.constructTax);
@@ -173,19 +172,6 @@ export class DistrictSummaryComponent implements AfterViewInit {
     return;
   }
 
-  removeLinkHighlight() {
-
-    // Highlight current filter, and remove prior link highlight
-    let districtLinkElements = this.elem.nativeElement.querySelectorAll('.districtEleActive');
-
-    if (districtLinkElements.length) {
-      for (var index = 0, element; element = districtLinkElements[index]; index++) {
-        element.classList.remove("districtEleActive");
-      }
-    }
-    return;
-  }
-
   // Single parameter struct containing 2 members, pushed by component search-plot
   searchOwnerSummaryDistrict(districtId: number, updateInstance:number) {
 
@@ -204,9 +190,6 @@ export class DistrictSummaryComponent implements AfterViewInit {
         
         this.dataSourceOwnerSummary = new MatTableDataSource<OwnerSummary>(this.ownerSummary);
         this.dataSourceOwnerSummary.sort = this.sort;                
-
-        this.removeLinkHighlight();
-        //plotPos.rotateEle.classList.remove("rotate");
 
         // Store new arrivals for use on filter
         this.ownerSummary.forEach(summary => {
@@ -271,4 +254,7 @@ export class DistrictSummaryComponent implements AfterViewInit {
     this.taxChange.getTaxChange(this.requestDistrictId);
   }
 
+  wholenumber(fundtotal, distribution_period) {
+    return Math.floor(fundtotal / distribution_period);
+  }
 }

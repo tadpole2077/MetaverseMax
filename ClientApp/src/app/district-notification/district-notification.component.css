@@ -5,31 +5,31 @@
     margin-right:6px
 }
 
-@-webkit-keyframes rotation {
+@keyframes rotation {
   from {
-    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
   }
 
   to {
-    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
   }
 }
 
-@-webkit-keyframes rotation-alt {
+@keyframes rotation-alt {
   from {
-    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
   }
 
   to {
-    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
   }
 }
 
 .rotate {
-  -webkit-animation: rotation 1s 22 linear;
+  animation: rotation 1s 22 linear;
 }
 .rotateReverse {
-  -webkit-animation: rotation-alt 1s 22 linear;
+  animation: rotation-alt 1s 22 linear;
 }
 
 .districtInput{

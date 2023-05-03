@@ -1,10 +1,5 @@
 ﻿using MetaverseMax.ServiceClass;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 
 namespace MetaverseMax.Database
 {
@@ -76,6 +71,7 @@ namespace MetaverseMax.Database
                             public_key = o.public_key,
                             name = o.owner_name,
                             avatar_id = o.avatar_id ?? 0,
+                            dark_mode = o.dark_mode,
                             pro_tools_enabled = (o.pro_access_expiry ?? DateTime.UtcNow) > DateTime.UtcNow ? true : false,
                             pro_expiry_days = GetExpiryDays(o.pro_access_expiry, (o.pro_access_expiry ?? DateTime.UtcNow) > DateTime.UtcNow ? true : false)
                         }
@@ -112,6 +108,30 @@ namespace MetaverseMax.Database
             }
 
             return proExpiryDays;
+        }
+        public RETURN_CODE UpdateOwnerDarkMode(string ownerMaticKey, bool darkMode)
+        {
+            RETURN_CODE returnCode = RETURN_CODE.ERROR;
+            Owner owner = null;
+            try
+            {
+                owner = _context.owner.Where(o => o.owner_matic_key == ownerMaticKey).FirstOrDefault();
+
+                if (owner != null)
+                {
+                    owner.dark_mode = darkMode;
+
+                    _context.SaveChanges();
+                    returnCode = RETURN_CODE.SUCCESS;
+                }                
+            }
+            catch (Exception ex)
+            {
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("OwnerDB::UpdateOwnerDarkMode() : Error updating owner with matic Key - ", ownerMaticKey));
+            }
+
+            return returnCode;
         }
 
         public Owner UpdateOwner(string maticKey, string publicKey)

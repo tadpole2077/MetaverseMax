@@ -1,5 +1,10 @@
 ﻿namespace MetaverseMax.ServiceClass
 {
+    public enum ACTIVE_BUILDING
+    {
+        DAYS = 9
+    } 
+
     public enum APPLICATION_ID
     {
         WHITE_AIR_CON = 1,
@@ -42,7 +47,19 @@
     public enum RETURN_CODE
     {
         ERROR = -1,
-        SUCCESS = 1
+        SUCCESS = 1,
+        SECURITY_FAIL = -2
+    }
+
+    public enum DISTRIBUTE_ACTION
+    {
+        GET_DISTRICT_FUND = 1,
+        CALC_DISTRICT_DISTRIBUTION = 2,
+        GET_GLOBAL_FUND = 3,
+        CALC_GLOBAL_DISTRIBUTION = 4,
+        REFRESH_GLOBAL_FUND = 5,
+        REFRESH_DISTRICT_FUND = 6,
+        REFRESH = 7
     }
 
     public enum ACTION_TYPE
@@ -479,9 +496,9 @@
         LEVEL_1 = 150,
         LEVEL_2 = 168,
         LEVEL_3 = 186,
-        LEVEL_4 = 0,
-        LEVEL_5 = 0,
-        LEVEL_6 = 0,
+        LEVEL_4 = 204,
+        LEVEL_5 = 258,
+        LEVEL_6 = 435,
         LEVEL_7 = 651
     }
     public enum MAX_CHEMICAL
@@ -489,9 +506,9 @@
         LEVEL_1 = 900,
         LEVEL_2 = 1006,
         LEVEL_3 = 1118,
-        LEVEL_4 = 0,
-        LEVEL_5 = 0,
-        LEVEL_6 = 0,
+        LEVEL_4 = 1283,
+        LEVEL_5 = 1548,
+        LEVEL_6 = 2610,
         LEVEL_7 = 3906
     }
     public enum MIN_PAPER
@@ -534,6 +551,11 @@
         public static readonly string COMPOSITE = "/assets/images/resources/composite.png";
     }
 
+    public class MATIC_WS
+    {
+        public static readonly string ACCOUNT_MATERIAL_GET = "https://misty-dawn-mountain.matic.quiknode.pro/4a6d10967c8875ef8d3488a9efc37234045b809b/";
+    }
+
     public class TRON_WS
     {
         public static readonly string LAND_GET = "https://ws-tron.mcp3d.com/land/get";
@@ -549,6 +571,7 @@
         public static readonly string REGIONS_LIST = "https://ws-tron.mcp3d.com/regions/list";
         public static readonly string PERKS_DISTRICT = "https://ws-tron.mcp3d.com/perks/districts";
         public static readonly string DISTRICT_INFO = "https://ws-tron.mcp3d.com/newspaper/district/info";
+        public static readonly string BALANCES = "https://ws-tron.mcp3d.com/balances";
 
     }
 
@@ -567,6 +590,7 @@
         public static readonly string REGIONS_LIST = "https://ws-bsc.mcp3d.com/regions/list";
         public static readonly string PERKS_DISTRICT = "https://ws-bsc.mcp3d.com/perks/districts";
         public static readonly string DISTRICT_INFO = "https://ws-bsc.mcp3d.com/newspaper/district/info";
+        public static readonly string BALANCES = "https://ws-bsc.mcp3d.com/balances";
     }
 
     public class ETH_WS
@@ -584,6 +608,7 @@
         public static readonly string REGIONS_LIST = "https://ws.mcp3d.com/regions/list";
         public static readonly string PERKS_DISTRICT = "https://ws.mcp3d.com/perks/districts";
         public static readonly string DISTRICT_INFO = "https://ws.mcp3d.com/newspaper/district/info";
+        public static readonly string BALANCES = "https://ws.mcp3d.com/balances";
     }
 
     public enum UPDATE_TYPE

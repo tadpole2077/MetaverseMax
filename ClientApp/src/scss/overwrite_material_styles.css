@@ -1,0 +1,31 @@
+﻿/* Global styles to override material or bootstrap styles */
+/* This scss styles gets pulled into the src\styles.css file and compiled */
+/* Remove bootstrap V5 - table header border bottom line*/
+table.mat-table > :not(:first-child) {
+  border-top: none;
+}
+
+th.mat-table-sticky {
+  background: white;
+  opacity: 1;
+}
+
+/* New change in Materials styles V14 flex-basis: 0 , causing wrapping issues.  flex-basis = 0 means same as width:0 which collapxses content to smallest size - first word for example - casuing unwanted wrap  */
+/* flex-basis: auto = allows size to automatic fit content - so full line of text will show on 1 line if it fits */
+/* https://developer.mozilla.org/en-US/docs/Web/CSS/flex-basis */
+.mat-expansion-panel-header .mat-expansion-panel-header-title, .mat-expansion-panel-header .mat-expansion-panel-header-description {
+  flex-basis: auto;
+}
+
+.mat-expansion-panel-header {
+  height: 48px;
+}
+
+/* use the theme color and not the _nav.scss style(new angular V14)*/
+a.nav-link, a.nav-link span {
+  color: inherit;
+}
+
+.mat-table, .mat-header-cell {
+  vertical-align: middle;
+}

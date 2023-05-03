@@ -54,6 +54,17 @@ namespace MetaverseMax.ServiceClass
 
     }
 
+    public class QueryParametersOwnerDarkMode
+    {
+        // Using BingRequired attribute and not Required as it forces a specific use of a parameter name
+        [BindRequired]
+        public string owner_matic_key { get; set; }
+
+        [BindRequired]
+        public bool dark_mode { get; set; }
+
+    }
+
     public class QueryParametersOwnerOffer
     {
         //[BindRequired]
@@ -115,6 +126,21 @@ namespace MetaverseMax.ServiceClass
 
         [BindRequired]
         public int interval { get; set; }
+    }
+
+    public class QueryParametersDistributeUpdate
+    {
+
+        // Using BingRequired attribute and not Required as it forces a specific use of a parameter name
+        [BindRequired]
+        public string secure_token { get; set; }
+
+        [BindRequired]
+        public int interval { get; set; }
+
+        [BindRequired]
+        public int distribute_action { get; set; }
+
     }
 
     public class QueryParametersPlotSingle

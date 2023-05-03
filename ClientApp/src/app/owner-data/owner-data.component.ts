@@ -1,4 +1,5 @@
 import { Component, Inject, ViewChild, EventEmitter, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Location } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { NavigationEnd, NavigationStart, RouterEvent, Router, ActivatedRoute, Params } from '@angular/router';
@@ -40,6 +41,7 @@ export class OwnerDataComponent implements AfterViewInit {
   public notifySubscription: Subscription = null;
   private myPortfolioRequest: boolean = false;
   private checkInstance: number = 0;
+  public mobileView: boolean = false;
 
   dataSource = new MatTableDataSource(null);
   @ViewChild(MatSort, { static: true }) sort: MatSort;
@@ -293,6 +295,7 @@ export class OwnerDataComponent implements AfterViewInit {
     // Mobile View - remove secondary columns
     if (this.width < 768) {
       this.displayedColumns = this.displayedColumnsMobile;
+      this.mobileView = true;
     }
 
     if (this.owner.owner_land) {
@@ -356,6 +359,10 @@ export class OwnerDataComponent implements AfterViewInit {
     this.sort.sort({ id: 'citizen_stamina_alert', start: 'desc', disableClear: true });
 
     return;
+  }
+
+  sortTableForSale() {
+    this.sort.sort({ id: 'forsale', start: 'desc', disableClear: true });
   }
   
   // Filter By District, and By Building Type [Storing pior District filter and using if found]

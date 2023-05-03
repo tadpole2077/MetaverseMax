@@ -1,4 +1,4 @@
-<div class="histroyframe" cdkDrag style="display:inline-table;text-align:left;">
+<div class="modalFrame histroyframe" cdkDrag style="display:inline-table;text-align:left;">
 
   <div class="title">
     <span *ngIf="historyBuildingType!=6">Production History</span>
@@ -157,15 +157,15 @@
             <span class="summarydata">({{ history.prediction.ip_and_cit_produce_dmg }})</span>
           </div>
           <!--
-            <div>
-              <span>Citizen & IP <span *ngIf="history.prediction.resource_lvl"> & Resource</span>:</span>
-              <span class="summarydata"><span class="gold">{{ history.prediction_range}}</span><span class="multi"> * </span><span>{{ history.prediction.ip_and_cit_percent_rounded }}({{ history.prediction.ip_and_cit_percent }})%<span class="multi"> =</span></span></span>
-              <span class="summarydata">{{ history.prediction.ip_and_cit_produce_rounded }}</span>
-              <span class="summarydata">({{ history.prediction.ip_and_cit_produce }})</span>
-            </div>
-          -->
           <div>
-            <span>Standard Produce:</span>            
+            <span>Citizen & IP <span *ngIf="history.prediction.resource_lvl"> & Resource</span>:</span>
+            <span class="summarydata"><span class="gold">{{ history.prediction_range}}</span><span class="multi"> * </span><span>{{ history.prediction.ip_and_cit_percent_rounded }}({{ history.prediction.ip_and_cit_percent }})%<span class="multi"> =</span></span></span>
+            <span class="summarydata">{{ history.prediction.ip_and_cit_produce_rounded }}</span>
+            <span class="summarydata">({{ history.prediction.ip_and_cit_produce }})</span>
+          </div>
+        -->
+          <div>
+            <span>Standard Produce:</span>
             <span class="summarydata"></span>
             <span class="summarydata bottomTopBorder">{{ history.prediction.subtotal_rounded}}</span>
             <span class="summarydata">({{ history.prediction.subtotal }})</span>
@@ -204,11 +204,11 @@
           </div>
         </div>
 
-      </div>      
+      </div>
     </div>
 
-    <div class="table-container" [hidden]="!history" [ngClass]="{'officeTable': historyBuildingType==6}" >      
-      <table mat-table [dataSource]="dataSourceHistory" matSort multiTemplateDataRows class="mat-elevation-z8" style="display:inline-table; width:100%">
+    <div class="table-container" [hidden]="!history" [ngClass]="{'officeTable': historyBuildingType==6}">
+      <table mat-table [dataSource]="dataSourceHistory" matSort multiTemplateDataRows class="table mat-elevation-z8" style="display:inline-table; width:100%">
         <!--table table-striped-->
         <ng-container matColumnDef="amount_produced">
           <th mat-header-cell *matHeaderCellDef mat-sort-header> Amount </th>
@@ -283,10 +283,16 @@
           <th mat-header-cell *matHeaderCellDef mat-sort-header> Date </th>
           <td mat-cell *matCellDef="let history"> {{ history.run_datetime }}</td>
         </ng-container>
+        <ng-container matColumnDef="building_lvl">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header title="Building Lvel"> Building Level </th>
+          <td mat-cell *matCellDef="let history">
+            <span>{{ history.building_lvl }}</span>
+          </td>
+        </ng-container>
 
         <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
         <ng-container matColumnDef="expandedDetail">
-          <td mat-cell *matCellDef="let history; let i = dataIndex" [attr.colspan]="displayedColumns.length">            
+          <td mat-cell *matCellDef="let history; let i = dataIndex" [attr.colspan]="displayedColumns.length">
             <app-citizen-building-table class="citizenTable"
                                         [@detailExpand]="forceClose == false && history == expandedHistory ? 'expanded' : 'collapsed'"
                                         [index]=i
@@ -310,21 +316,22 @@
                      class="paginatorContainer">
       </mat-paginator>
     </div>
-
-    <div class="helpTip">
-      <mat-icon>help</mat-icon>
-      <span>Click row to expand and show citizens</span>
-    </div>
-    <div class="helpTip" *ngIf="historyBuildingType!=6">
-      <mat-icon>info</mat-icon>
-      <span>Eff(P)% : Efficiency % using 0 to Max production range</span>
-    </div>
-    <div class="helpTipNoIcon" style="margin-top:-.3rem" *ngIf="historyBuildingType!=6">
-      <span>Eff(M)% : Efficiency % using Min to Max production range</span>
-    </div>
-    <div [ngClass]="{'helpTipNoIcon': historyBuildingType!=6, 'helpTip': historyBuildingType==6}">
-      <mat-icon *ngIf="historyBuildingType==6">info</mat-icon>
-      <span>Eff(Cit)% : Citizen trait Efficiency % for all citizens</span>
+    <div class="tips">
+      <div class="helpTip">
+        <mat-icon>help</mat-icon>
+        <span>Click row to expand and show citizens</span>
+      </div>
+      <div class="helpTip" *ngIf="historyBuildingType!=6">
+        <mat-icon>info</mat-icon>
+        <span>Eff(P)% : Efficiency % using 0 to Max production range</span>
+      </div>
+      <div class="helpTipNoIcon" style="margin-top:-.3rem" *ngIf="historyBuildingType!=6">
+        <span>Eff(M)% : Efficiency % using Min to Max production range</span>
+      </div>
+      <div [ngClass]="{'helpTipNoIcon': historyBuildingType!=6, 'helpTip': historyBuildingType==6}">
+        <mat-icon *ngIf="historyBuildingType==6">info</mat-icon>
+        <span>Eff(Cit)% : Citizen trait Efficiency % for all citizens</span>
+      </div>
     </div>
   </div>
 </div>

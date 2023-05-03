@@ -61,6 +61,10 @@ export class CitizenBuildingTableComponent {
         this.displayedColumns.push('trait_endurance');
         this.displayedColumns.push('trait_agility');
       }
+      else if (this.buildingType == BUILDING.OFFICE) {
+        this.displayedColumns.push('trait_intelligence');
+        this.displayedColumns.push('trait_charisma');
+      }
     }
     else {
       this.displayedColumns = ['token_id', 'name', 'trait_agility', 'trait_intelligence', 'trait_charisma', 'trait_endurance', 'trait_luck', 'trait_strength', 'trait_avg']
@@ -69,7 +73,6 @@ export class CitizenBuildingTableComponent {
     // Set default sort on efficiency column, add matching efficiency column to parent building.
     if (this.buildingType == BUILDING.INDUSTRIAL) {
       this.displayedColumns.push('efficiency_industry');
-
       // Only assign sort order once, as rows can be collapsed and expaned again causes a double sort and wrong direction.
       if (this.dataSource.sort != this.sort) {
         this.sort.sort({ id: 'efficiency_industry', start: 'desc', disableClear: true });
@@ -91,6 +94,12 @@ export class CitizenBuildingTableComponent {
       this.displayedColumns.push('efficiency_energy_water');
       if (this.dataSource.sort != this.sort) {
         this.sort.sort({ id: 'efficiency_energy_water', start: 'desc', disableClear: true });
+      }
+    }
+    else if (this.buildingType == BUILDING.OFFICE) {
+      this.displayedColumns.push('efficiency_office');
+      if (this.dataSource.sort != this.sort) {
+        this.sort.sort({ id: 'efficiency_office', start: 'desc', disableClear: true });
       }
     }
 

@@ -1,6 +1,8 @@
 ﻿using MetaverseMax.Database;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
+using System.ComponentModel;
+using System.Linq;
 using System.Text;
 
 
@@ -91,6 +93,21 @@ namespace MetaverseMax.ServiceClass
                     //buildingCollection.maxIP = (int)Math.Round(buildingList.Max(x => x.influence_info * (1 + (x.influence_bonus / 100.0))), 0, MidpointRounding.AwayFromZero);
                     //buildingCollection.minIP = buildingList.Where(x => x.influence_info <= 0).Count() > 0 ? 0 :
                     //    (int)Math.Round(buildingList.Where(x => x.influence_info > 0).Min(x => x.influence_info * (1 + (x.influence_bonus / 100.0))), 0, MidpointRounding.AwayFromZero);
+
+                    // Influence bug (2024/04/29) : POI acive or inactive : plot.influence contains bug showing IP with POI ALWAYS active, plot.influence_info shows total matching state of nearby/linked POI
+                    // Negative IP is only shown in influence_info, not shown in UI plot.influence.  But negative IP is used in IP max - min range and in ranking. 
+
+                    // 2023-04-29 CHECK if any building has negative influence_info value, then use influence_info for MIN, otherwise use plot.influence (with bug)
+                    //if (buildingList.Min(x => x.influence_info) <= 0)
+                    //{
+                        // Q: Does bonus impact negative IP?  I suspect not,  as bonus should be a positive effect right not a negative one :)
+
+                    //}
+                    //else
+                    //{
+                    //    buildingCollection.minIP = buildingList.Where(x => x.influence <= 0).Count() > 0 ? 0 :
+                    //        (int)Math.Round(buildingList.Where(x => x.influence > 0).Min(x => x.influence * (1 + (x.influence_bonus / 100.0))), 0, MidpointRounding.AwayFromZero);
+                    //}
 
                     // TEMP CODE - UNTIL MCP FIX IP (influence_info is correct but MCP doesnt use it) BUG
                     buildingCollection.maxIP = (int)Math.Round(buildingList.Max(x => x.influence * (1 + (x.influence_bonus / 100.0))), 0, MidpointRounding.AwayFromZero);
@@ -287,7 +304,7 @@ namespace MetaverseMax.ServiceClass
                     nid = building.owner_avatar_id,
                     name_m = building.owner_matic,
                     con = building.condition,
-                    act = building.active_building,
+                    act = building.active_building ? 1 : 0,
                     pre = building.predict_eval_result ?? 0,
                     warn = building.ip_warning ?? "",
                     img = building.building_img,
@@ -599,8 +616,13 @@ namespace MetaverseMax.ServiceClass
             PlotDB plotDB = new PlotDB(_context, worldType);
             List<PlotIP> plotIPList = plotDB.GetIP_Historic(targetPlot.token_id);
             PlotIP plotIPData;
+            decimal priorDayCitizenEff = -1;
+            HistoryProduction processDay;
 
-            //Add today
+            // Filter only office IP , will only show Citizen history records for office building type (plot may have been a different building type).
+            plotIPList = plotIPList.Where(x => x.building_type_id == (int)BUILDING_TYPE.OFFICE).ToList();
+
+            // Add today
             HistoryProduction currentDay = new();
             currentDay.building_lvl = targetPlot.building_level;
             currentDay.building_ip = GetInfluenceTotal(targetPlot.influence ?? 0, targetPlot.influence_bonus ?? 0);           // Replace with infuence_info when MCP fix influance issue
@@ -617,31 +639,123 @@ namespace MetaverseMax.ServiceClass
 
             historyProductionList.Add(currentDay);
 
+            // set time to midnight - collection time.
+            if (startDate != null) {
+                startDate = ((DateTime)startDate).AddDays(1);
+                startDate = ((DateTime)startDate).Date;
+            }
+
             evalDay = startDate;
             while (evalDay != null && evalDay < DateTime.UtcNow)
             {
                 plotIPData = plotIPList.Where(x => x.last_updated <= (DateTime)evalDay).OrderByDescending(x => x.last_updated).FirstOrDefault();
 
-                currentDay = new();
-                currentDay.building_lvl = plotIPData.building_level;
-                currentDay.building_ip = GetInfluenceTotal(targetPlot.influence ?? 0, targetPlot.influence_bonus ?? 0);           // Replace with infuence_info when MCP fix influance issue
-                currentDay.efficiency_c_60 = CalculateEfficiency_Citizen(
-                        ownerCitizenList,
-                        DateTime.UtcNow,
-                        targetPlot.building_level,
-                        targetPlot.building_type_id,
-                        BUILDING_PRODUCT.MEGA_PRODUCT_GLOBAL,
-                        null);
-                currentDay.efficiency_c = Math.Round(currentDay.efficiency_c_60 / .6m, 1, MidpointRounding.AwayFromZero);
-                currentDay.run_datetime = common.DateStandard(evalDay);
-                currentDay.run_datetimeDT = DateTime.Now.Ticks;
+                if (plotIPData != null)
+                {
+                    processDay = new();
+                    processDay.building_lvl = plotIPData.building_level;
+                    processDay.building_type = plotIPData.building_type_id;
+                    processDay.building_ip = GetInfluenceTotal(plotIPData.influence ?? 0, plotIPData.influence_bonus ?? 0);           // Replace with infuence_info when MCP fix influance issue
+                    processDay.efficiency_c_60 = CalculateEfficiency_Citizen(
+                            ownerCitizenList,
+                            evalDay,
+                            processDay.building_lvl,
+                            processDay.building_type,
+                            BUILDING_PRODUCT.MEGA_PRODUCT_GLOBAL,
+                            null);
+                    processDay.efficiency_c = Math.Round(processDay.efficiency_c_60 / .6m, 1, MidpointRounding.AwayFromZero);
+                    processDay.run_datetime = common.DateStandard(evalDay);
+                    processDay.run_datetimeDT = ((DateTime)evalDay).Ticks;
 
-                historyProductionList.Add(currentDay);
+                    if (priorDayCitizenEff != 0 || (priorDayCitizenEff == 0 && processDay.efficiency_c_60 != 0))
+                    {
+                        historyProductionList.Add(processDay);
+                    }
 
-                evalDay = (evalDay.Value.AddDays(1));
+                    priorDayCitizenEff = processDay.efficiency_c_60;
+                }
+
+                evalDay = (evalDay.Value.AddDays(1));                
             }
 
             return historyProductionList;
+        }
+
+        public OfficeGlobal OfficeGlobalSummaryGet()
+        {
+            OfficeGlobal officeGlobal = new();
+            PlotDB plotDB = new(_context);
+            DistrictFund globalFund;            
+            Common common = new Common();
+
+            try
+            {
+                officeGlobal.totalIP = plotDB.GetGlobalOfficeIP();
+                globalFund = _context.districtFund.Where(x => x.district_id == 0).OrderByDescending(x => x.fund_key).FirstOrDefault();
+
+                if (globalFund != null) {
+                    officeGlobal.globalFund = (long)Math.Round(globalFund.balance, 0, MidpointRounding.AwayFromZero);
+                    officeGlobal.maxDailyDistribution = Math.Round(officeGlobal.globalFund / 365, 0, MidpointRounding.AwayFromZero);
+                    officeGlobal.maxDailyDistributionPerIP = Math.Round(officeGlobal.maxDailyDistribution / (officeGlobal.totalIP / 1000), 4, MidpointRounding.AwayFromZero);
+                    officeGlobal.lastDistribution = (long)Math.Round(globalFund.distribution, 0, MidpointRounding.AwayFromZero);
+                    officeGlobal.lastDistributionDate = common.DateFormatStandard(globalFund.last_updated);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                DBLogger dbLogger = new(_context, worldType);
+                dbLogger.logException(ex, String.Concat("BuildingManage.OfficeGlobalSummaryGet() : Error on WS calls for balances"));
+            }
+
+            return officeGlobal;
+        }
+        public async Task<OfficeGlobal> OfficeGlobalSummaryGetLegacy()
+        {
+            OfficeGlobal officeGlobal = new();
+            PlotDB plotDB = new(_context);
+            HttpResponseMessage response;
+            string content = string.Empty;
+            decimal globalFund = 0;
+            serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.BALANCES, WORLD_TYPE.BNB => BNB_WS.BALANCES, WORLD_TYPE.ETH => ETH_WS.BALANCES, _ => TRON_WS.BALANCES};
+
+            try
+            {
+                officeGlobal.totalIP = plotDB.GetGlobalOfficeIP();
+
+                using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
+                {
+                    StringContent stringContent = new StringContent("{}", Encoding.UTF8, "application/json");
+
+                    response = await client.PostAsync(
+                        serviceUrl,
+                        stringContent);
+
+                    response.EnsureSuccessStatusCode(); // throws if not 200-299
+                    content = await response.Content.ReadAsStringAsync();
+
+                }
+                watch.Stop();
+                servicePerfDB.AddServiceEntry("Building - " + serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, string.Empty);
+
+                JObject jsonContent = JObject.Parse(content);
+                JToken banks = jsonContent.Value<JToken>("banks");
+                if (banks != null && banks.HasValues)
+                {
+                    globalFund = banks.Value<Decimal?>("global") ?? 0;
+                    officeGlobal.globalFund = (long)Math.Round(globalFund / 1000000000000000000, 0, MidpointRounding.AwayFromZero); // 18 places back
+                    officeGlobal.maxDailyDistribution = Math.Round(officeGlobal.globalFund/365, 0, MidpointRounding.AwayFromZero);
+                    officeGlobal.maxDailyDistributionPerIP = Math.Round(officeGlobal.maxDailyDistribution / (officeGlobal.totalIP /1000) , 4, MidpointRounding.AwayFromZero);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                DBLogger dbLogger = new(_context, worldType);
+                dbLogger.logException(ex, String.Concat("BuildingManage.OfficeGlobalSummaryGet() : Error on WS calls for balances"));
+            }
+
+            return officeGlobal;
         }
 
         public async Task<JArray> GetBuildingHistoryMCP(int tokenId)
@@ -883,7 +997,7 @@ namespace MetaverseMax.ServiceClass
 
             historyProductionDetails.efficiency_c = Math.Round(
                 historyProductionDetails.efficiency_c_60
-                / (historyProductionDetails.building_product_id == (int)BUILDING_PRODUCT.ENERGY ? .45m : .6m),
+                / (historyProductionDetails.building_type == (int)BUILDING_TYPE.ENERGY && historyProductionDetails.building_product_id == (int)BUILDING_PRODUCT.ENERGY ? .45m : .6m),
                 1,
                 MidpointRounding.AwayFromZero);
 
@@ -1216,16 +1330,17 @@ namespace MetaverseMax.ServiceClass
                     resourceTotal.Add(currentResource);
                 }
 
-                // ACTIVE BUILDING (Last 7 days produced) - Add building last run produce details - including if active or shutdown
-                if (building.last_run_produce_id == produce &&
+                // ACTIVE BUILDING (Last 9 days produced) - Add building last run produce details - including if active or shutdown
+                if (buildingType == (int)BUILDING_TYPE.OFFICE || (
+                    building.last_run_produce_id == produce &&
                     building.last_run_produce != null &&
                     building.last_run_produce > 0 &&
-                    building.last_run_produce_date >= DateTime.Now.AddDays(-9))
+                    building.last_run_produce_date >= DateTime.Now.AddDays(-(int)ACTIVE_BUILDING.DAYS)))
                 {
-                    currentResource.total += (long)building.last_run_produce;
+                    currentResource.total += building.last_run_produce == null ? 0 : (long)building.last_run_produce;
                     currentResource.buildingCount++;
 
-                    if (CheckBuildingActive(buildingType, building.citizen_count, buildingLvl))
+                    if (CheckBuildingActive((BUILDING_TYPE)buildingType, building.citizen_count, buildingLvl))
                     {
                         currentResource.buildingActive++;
                         building.active_building = true;
@@ -1246,9 +1361,11 @@ namespace MetaverseMax.ServiceClass
         }
 
         // Check building has min set of citizens assigned
-        private bool CheckBuildingActive(int buildingType, int citizenCount, int buildingLvl)
+        public bool CheckBuildingActive(BUILDING_TYPE buildingType, int citizenCount, int buildingLvl)
         {
-            return buildingLvl switch
+            bool active = false;
+
+            active = buildingLvl switch
             {
                 1 => citizenCount >= 1,
                 2 => citizenCount >= 2,
@@ -1257,8 +1374,10 @@ namespace MetaverseMax.ServiceClass
                 5 => citizenCount >= 8,
                 6 => citizenCount >= 11,
                 7 => citizenCount >= 14,
-                _ => true
+                _ => false
             };
+
+            return active;
         }
 
         private bool CheckProduct(int buildingType, int produceId, int buildingId)

@@ -31,7 +31,7 @@ export class NavMenuWorldComponent {
   constructor(public globals: Globals, public router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
 
     this.httpClient = http;
-    this.baseUrl = baseUrl;
+    this.baseUrl = baseUrl + "api/" + globals.worldCode;
 
     this.loadWorldListDropDown();
     
@@ -42,7 +42,7 @@ export class NavMenuWorldComponent {
     let params = new HttpParams();
     //params = params.append('opened', 'true');
 
-    this.httpClient.get<WorldNameCollection>(this.baseUrl + 'api/Plot/getWorldNames', { params: params })
+    this.httpClient.get<WorldNameCollection>(this.baseUrl + '/Plot/getWorldNames', { params: params })
       .subscribe((result: WorldNameCollection) => {
 
         this.worldNamelist = result.world_name;

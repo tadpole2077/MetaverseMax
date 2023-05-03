@@ -34,6 +34,7 @@ namespace MetaverseMax.Database
         public virtual DbSet<Citizen> citizen { get; set; }
         public virtual DbSet<OwnerCitizen> ownerCitizen { get; set; }
         public virtual DbSet<OwnerCitizenExt> OwnerCitizenExt { get; set; }
+        public virtual DbSet<OwnerMaterial> OwnerMaterial { get; set; }
         public virtual DbSet<Pet> pet { get; set; }
         public virtual DbSet<EventLog> eventLog { get; set; }
         public virtual DbSet<ServicePerf> servicePerf { get; set; }
@@ -135,7 +136,7 @@ namespace MetaverseMax.Database
                     recorded_time = DateTime.Now
                 });
 
-                this.SaveChanges();
+                SaveChanges();
             }
             catch (Exception ex)
             {

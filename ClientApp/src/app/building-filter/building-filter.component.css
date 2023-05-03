@@ -18,7 +18,7 @@
     border: 1px;
     border-style: ridge;
     opacity: .7;
-    border-color: lightgray;
+    border-color: inherit;
     /*border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;*/
   }
@@ -75,18 +75,18 @@
 }
 
 /* Progress Indicator */
-@-webkit-keyframes rotation {
+@keyframes rotation {
   from {
-    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
   }
 
   to {
-    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
   }
 }
 
 .rotate {
-  -webkit-animation: rotation 1s 30 linear;
+  animation: rotation 1s 30 linear;
   visibility: visible;
 }
 

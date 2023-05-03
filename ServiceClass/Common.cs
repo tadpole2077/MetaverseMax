@@ -8,6 +8,7 @@ namespace MetaverseMax.ServiceClass
         public static string serverIP { get; set; }
         public static bool logServiceInfo { get; set; }
         public static bool showPrediction { get; set; }
+        public static int jobFundRepeatCount { get; set; }
         public static string dbConnectionStringTron { get; set; }
         public static string dbConnectionStringBNB { get; set; }
         public static string dbConnectionStringETH { get; set; }
@@ -33,6 +34,7 @@ namespace MetaverseMax.ServiceClass
             serverIP = configuration["ServerIP"];
             logServiceInfo = configuration["logServiceInfo"] == "1";
             showPrediction = configuration["showPrediction"] == "1";
+            jobFundRepeatCount = Convert.ToInt32(configuration["jobFundRepeatCount"]);
             dbConnectionStringTron = configuration.GetConnectionString("DatabaseConnection");
             dbConnectionStringBNB = configuration.GetConnectionString("DatabaseConnectionBNB");
             dbConnectionStringETH = configuration.GetConnectionString("DatabaseConnectionETH");
@@ -161,6 +163,12 @@ namespace MetaverseMax.ServiceClass
             }
 
             return walletPublicKey;
+        }
+
+        public long Extract64HexChunkToNumeric(string source, int chunkSeqNum)
+        {
+            string chunk = source.Substring(64 * chunkSeqNum, 64);
+            return Convert.ToInt64(chunk,16);
         }
 
         public static string HexToASCII(string hex)

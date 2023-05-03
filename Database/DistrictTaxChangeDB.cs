@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MetaverseMax.ServiceClass;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +32,13 @@ namespace MetaverseMax.Database
             }
 
             return 0;
+        }
+
+        public RETURN_CODE DistributeUpdate(int internval, DISTRIBUTE_ACTION distributeAction)
+        {
+
+
+            return RETURN_CODE.SUCCESS;
         }
 
         public List<DistrictTaxChange> GetTaxChange(int districtId)

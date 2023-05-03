@@ -31,7 +31,7 @@
 
 <mat-accordion multi *ngIf="buildingCollection && buildingCollection.buildings">
 
-  <mat-expansion-panel expanded="true">
+  <mat-expansion-panel expanded="true" class="BuildingInfoSummary" [ngClass]="{'fullWidth': buildingType != 6 }">
     <mat-expansion-panel-header>
       <mat-panel-title>
         <mat-icon>info</mat-icon>
@@ -41,12 +41,12 @@
       </mat-panel-description>
     </mat-expansion-panel-header>
 
-    <div class="summaryInfo" *ngIf="buildingCollection && buildingCollection.buildings">
+    <div class="summaryInfo" *ngIf="buildingCollection && buildingCollection.buildings" [ngClass]="{'expandSummaryHeight': buildingType == 6 }">
       <div>
         <span>Buildings:</span>
         <span>{{ buildingCollection.buildings.length }}</span>
-        <span title="Effect on IP max-to-min range">IP Impact:</span>
-        <span>{{ buildingCollection.buildingIP_impact }}%</span>
+        <span  *ngIf="buildingCollection && buildingType != 6" title="Effect on IP max-to-min range">IP Impact:</span>
+        <span  *ngIf="buildingCollection && buildingType != 6">{{ buildingCollection.buildingIP_impact }}%</span>
       </div>
       <div>
         <span>Min IP:</span>
@@ -59,6 +59,40 @@
         <span>{{ buildingCollection.rangeIP }}</span>
         <span>Avg IP:</span>
         <span>{{ buildingCollection.avgIP }}</span>
+      </div>
+    </div>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel expanded="true" *ngIf="buildingCollection && buildingType == 6" class="officeGlobalSummary">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>info</mat-icon>
+        <span>Global Office</span>
+      </mat-panel-title>
+      <mat-panel-description>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <div class="summaryInfo" *ngIf="buildingCollection && buildingCollection.buildings">
+      <div>
+        <span>Gobal Fund:</span>
+        <span>{{ officeGlobalIp.globalFund.toLocaleString() }} Mega</span>
+      </div>
+      <div>
+        <span>Max Daily Payout:</span>
+        <span>{{ officeGlobalIp.maxDailyDistribution.toLocaleString() }} Mega</span>
+      </div>
+      <div>
+        <span>Total IP:</span>
+        <span>{{ officeGlobalIp.totalIP.toLocaleString() }}</span>
+      </div>
+      <div>
+        <span>Per 1000 IP:</span>
+        <span>{{ officeGlobalIp.maxDailyDistributionPerIP.toLocaleString() }} Mega</span>
+      </div>
+      <div>
+        <span style="vertical-align:top">Last Distribution:</span>
+        <span>{{ officeGlobalIp.lastDistribution.toLocaleString() }} Mega {{ officeGlobalIp.lastDistributionDate }}</span>
       </div>
     </div>
   </mat-expansion-panel>
@@ -85,7 +119,7 @@
         <span>{{ resource.total }}</span>
         <span>{{ resource.active }}</span>
         <span>{{ resource.shutdown }}</span>
-      </div>      
+      </div>
     </div>
   </mat-expansion-panel>
 
@@ -106,7 +140,7 @@
           <span>{{ buildingCollection.active_count }}</span>
           <span>* Recent Estimate</span>
         </div>
-        <div class="resourceCol" >
+        <div class="resourceCol">
           <div><span>Weekly</span></div>
           <div class="resourceTotal" *ngFor="let resource of buildingCollection.total_produced">
             <span>{{resource.name}}</span>
@@ -138,7 +172,7 @@
       <div>
         <span>Produce Buildings:</span>
         <span>{{ buildingCollection.buildings_predict }}</span>
-        <span style="width:8rem">* Last week period</span>
+        <span style="vertical-alignwidth:8rem">* Last week period</span>
       </div>
       <div>
         <span>Correct:</span>
@@ -171,12 +205,12 @@
 
 <app-building-filter [hidden]="!this.buildingFilterShow" (filterBuildingEvent)="filterBuilding($event)"></app-building-filter>
 
-<div class="table-container" [hidden]="!buildingCollection || !buildingCollection.buildings || !buildingCollection.buildings.length">
+<div class="table-container" [hidden]="!buildingCollection || !buildingCollection.buildings || !buildingCollection.buildings.length" [ngClass]="{'officeTable': this.buildingType==6}">
 
   <div *ngIf="buildingType==5 || buildingType==3 || buildingType==7" class="helpTip">    
     <mat-icon class="glowText">help</mat-icon>    
     <span>Click </span>
-    <img src="./assets/MagnifyHistory.png" class="magnifyHistoryIcon" height="30" />
+    <img src="./assets/magnify_history{{ globals.ownerAccount.dark_mode ? '_dark' : '' }}.png" class="magnifyHistoryIcon" height="34" />
     <span>to show history and production analysis</span>
   </div>
   <div class="lastUpdated">
@@ -190,7 +224,7 @@
     </mat-form-field>
   </div>
   <div class="filterControls">
-    <div class="activeFilter" fxLayout fxLayoutAlign="center center" [hidden]="buildingType!=5 && buildingType!=3 && buildingType!=7">
+    <div class="activeFilter" fxLayout fxLayoutAlign="center center" [hidden]="buildingType!=5 && buildingType!=3 && buildingType!=7 && buildingType!=6">
       <div>
         <mat-checkbox #activeChkbox
                       fxFlex="30%"
@@ -224,7 +258,7 @@
 
   <mat-paginator #paginatorTop (page)="handlePaginatorBottom($event)" [hidden]="hidePaginator" [pageSize]="500" [hidePageSize] [showFirstLastButtons] class="paginatorContainer top"></mat-paginator>
 
-  <table #ipRank mat-table [dataSource]="dataSource" matSort matSortStart="desc" class="table-striped mat-elevation-z8" style="width:100%; display:inline-table">
+  <table #ipRank mat-table [dataSource]="dataSource" matSort matSortStart="desc" class="table table-striped mat-elevation-z8" style="width:100%; display:inline-table">
     <ng-container matColumnDef="pos">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>
         <span>#</span>
@@ -247,7 +281,7 @@
         <span class="rankEff">{{row.rank}}%</span>
 
         <a class="magnifyHistoryPositioner" *ngIf="buildingType==5 || buildingType==3 || buildingType==7 || buildingType==6" role="button" (click)="showHistory(row.id, row.pos_x, row.pos_y, buildingType, row.rank)">
-          <img src="./assets/MagnifyHistory.png" class="magnifyHistoryIcon" height="30" />
+          <img src="./assets/magnify_history{{ globals.ownerAccount.dark_mode ? '_dark' : '' }}.png" class="magnifyHistoryIcon" height="30" />
         </a>
 
         <div class="rowWarning" *ngIf="row.warn != ''">
@@ -262,9 +296,11 @@
         <span class="long-text">Total IP</span><span class="short-text">Total IP</span>        
       </th>
       <td mat-cell *matCellDef="let row">
-        <span>{{ row.ip_t}}</span>
+        <span><span class="mobileVisible"><span>Total:</span></span> {{ row.ip_t}}</span>
+        <span class="mobileVisible"><span>Base:</span> {{ row.ip_b }}</span>
+        <span class="mobileVisible"><span>Bonus:</span> {{ row.bon }}%</span>
         <a class="magnifyHistoryPositioner officeMagify" *ngIf="buildingType==6" role="button" (click)="showHistory(row.id, row.pos_x, row.pos_y, buildingType, row.rank)">
-          <img src="./assets/MagnifyHistory.png" class="magnifyHistoryIcon" height="30" />
+          <img src="./assets/magnify_history{{ globals.ownerAccount.dark_mode ? '_dark' : '' }}.png" class="magnifyHistoryIcon" height="30" />
         </a>
       </td>
     </ng-container>
@@ -292,9 +328,9 @@
       <td mat-cell *matCellDef="let row">
 
         <img *ngIf="row.nid >0" src="{{ globals.worldURLPath }}citizen/{{ row.nid }}" class="ownerImgCol" height="60" crossorigin="anonymous" referrerpolicy="no-referrer" />
-        <img *ngIf="row.nid ==0" src="./images/MysteryOwner.png" class="ownerImgCol" height="50" style="margin-top:0" />
+        <img *ngIf="row.nid ==0" src="./images/MysteryOwner.png" class="ownerImgCol mysteryImg" height="50" style="margin-top:2px" />
 
-        <a class="nav-link lineAnim" [routerLink]="['/', globals.worldCode, 'owner-data']" [queryParams]="{matic: row.name_m}" title="{{ row.name }}">
+        <a class="lineAnim" [routerLink]="['/', globals.worldCode, 'owner-data']" [queryParams]="{matic: row.name_m}" title="{{ row.name }}">
           <span *ngIf="row.name !=''">{{ row.name }}</span>
           <span class="maticLink" *ngIf="row.name==''">{{ row.name_m.substring(0,14) }}</span>
         </a>
@@ -319,8 +355,8 @@
       </th>
       <td mat-cell *matCellDef="let row">
         <div>
-          <i *ngIf="row.pre==0 && row.act == true" class="fas fa-check filterIcon"></i>
-          <span *ngIf="row.act == true && row.pre!=0">{{row.pre > 0 ? '+':''}}{{ row.pre}}</span>
+          <i *ngIf="row.pre==0 && row.act == 1" class="fas fa-check filterIcon"></i>
+          <span *ngIf="row.act == 1 && row.pre!=0">{{row.pre > 0 ? '+':''}}{{ row.pre}}</span>
         </div>
       </td>
     </ng-container>
@@ -344,7 +380,7 @@
       <td mat-cell *matCellDef="let row" class="linkCol">
         <span> X:{{row.pos_x}} Y:{{row.pos_y}}</span>
         <div>
-          <a class="lineAnim" target="_blank" href="https://play.mcp3d.com/tron/land?x={{ row.pos_x }}&y={{ row.pos_y }}">Map</a>
+          <a class="lineAnim" target="_blank" href="https://play.mcp3d.com/{{ globals.worldName.toLowerCase() }}/land?x={{ row.pos_x }}&y={{ row.pos_y }}">Map</a>
         </div>
       </td>
     </ng-container>
@@ -352,9 +388,9 @@
     <ng-container matColumnDef="id">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Type & ID </th>
       <td mat-cell *matCellDef="let row">
-        <i *ngIf="row.act == true" class="fas fa-running activeProduce"></i>
+        <i *ngIf="row.act == 1" class="fas fa-running activeProduce"></i>
         <span *ngIf="row.poi>0" class="poiBonus">{{row.poi}}%</span>
-        <div>
+        <div class="buildingContain">
           <span class="buildingNum">{{row.id }}</span>
           <img *ngIf="buildingCollection" src="{{ buildingCollection.img_url + row.img }}" class="industryImg">
           <span *ngIf="row.r > 0" class="buildingRes">R: {{row.r }}</span>

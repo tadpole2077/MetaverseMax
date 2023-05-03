@@ -1,19 +1,12 @@
-
-.header {
-  /* Dark Header - User preference
-    padding: 10px 16px;
-    background: #555;
-    color: #f1f1f1;*/
+.innerContainer{
+  min-height: 20rem
 }
-
-/*@media (min-width: 1200px) {
-  td.mat-cell {
-    font-size: .8em;
-  }
-}*/
 
 a.mobileView{
   display:none
+}
+.hideTag{
+  display:none !important
 }
 
 .ownerImg {
@@ -38,7 +31,6 @@ a.mobileView{
   font-size: .9em;
   opacity: 0;
   visibility: hidden;
-  -webkit-transition: opacity 600ms, visibility 600ms;
   transition: opacity 600ms, visibility 600ms;
   padding-left:2px;
 }
@@ -115,8 +107,6 @@ a.mobileView{
 }
 
 .btnAlert {
-  -webkit-animation: glowBtnAlert 1.4s ease-in-out infinite alternate;
-  -moz-animation: glowBtnAlert 1.4s ease-in-out infinite alternate;
   animation: glowBtnAlert 1.4s ease-in-out infinite alternate;
   background-color: crimson;
   border-color: #B60024;
@@ -130,7 +120,7 @@ a.mobileView{
 }
 
 
-@-webkit-keyframes glowBtnAlert {
+@keyframes glowBtnAlert {
   from {
     box-shadow: 0 0 3px #fff, 0 0 6px #fff, 0 0 9px #fff, 0 0 12px #fff;
   }
@@ -142,18 +132,45 @@ a.mobileView{
 
 
 /***District Section***/
-.showAllLink {
-  display: block;
-  opacity: .7;
-  font-weight: bold;
-  width: 70px
-}
-
 .districtHeader {
   display: inline-block;
   vertical-align: top;
-  margin-top:2px
+  margin-top: 2px;
+  text-align: center;
 }
+
+.showAllContainer {
+  padding: .4rem;
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+}
+a.showAllLink {
+  display: block;
+  opacity: .7;
+  font-weight: bold;
+  width: 3.6rem;
+  font-size: .9rem;
+  text-align: center
+}
+  .fa-times {
+    color: darkred;
+    position: absolute;
+    left: -0.3rem;
+    margin-top: 0.1rem;
+    font-size: 1.2rem;
+  }
+
+.boxOutline {
+  border: 1px;
+  border-color: lightgray;
+  border-style: solid;
+  box-shadow: 0 5px 10px rgb(0 0 0 / 12%);
+  border-radius: 5px;
+}
+  .boxOutline:hover {
+    opacity: 1;
+    border-color: gray;
+  }
 
 .districtPlots {
   margin-top: .2rem;
@@ -162,7 +179,7 @@ a.mobileView{
 }
 
 .districtLabel {
- 
+  display: block;
   vertical-align: top;
   margin-right: .4rem
 }
@@ -198,12 +215,7 @@ a.mobileView{
       opacity:1
   }
 
-.districtNum {
-  color: darkslateblue
-}
-
 .districtSell {
-  color: darkred;
   opacity: .7;
   font-size: .7rem;
 }
@@ -234,7 +246,7 @@ a.mobileView{
     border-style: ridge;
     opacity: .7;
     border-left-width: 0;
-    border-color: lightgray;
+    border-color: inherit;
     /*border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;*/
   }
@@ -268,34 +280,11 @@ a {
   /*opacity: .7*/
 }
 
-  a.lineAnim:hover {
-    color: #000;
-    opacity: 1;
-  }
-  a.lineAnim::before {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 2px;
-    bottom: 0;
-    left: 0;
-    background-color: #000;
-    visibility: hidden;
-    transform: scaleX(0);
-    transition: all 0.3s ease-in-out 0s;
-  }
-
-  a.lineAnim:hover::before {
-    visibility: visible;
-    transform: scaleX(1);
-  }
-
 
 
 /*** TABLE ***/
 .table-container {
   position: relative;
-  max-height: calc(100vh - 155px);
   clear: both;
   /* or height: calc(100vh - 155px);
     depending on your need change overflow: auto;*/
@@ -306,8 +295,8 @@ table:last-child {
 }
 
 th.mat-header-cell {
-  color: inherit;
   font-size: inherit;
+  font-size: .9rem;
   font-weight: bold;
   vertical-align: middle !important;
 }
@@ -318,6 +307,7 @@ td.mat-cell {
   height: 72px;
   padding-right: .2em;
 }
+
 
 td.boldfield {
   font-weight: bold;
@@ -337,6 +327,7 @@ td.mat-column-building_type div{
 .buildingContain {
   width: 68px;
   margin-right: 4px;
+  position: relative;
 }
 .industryImg {
   max-width: 70px;
@@ -346,8 +337,7 @@ td.mat-column-building_type div{
 }
 .buildingNum {
   position: absolute;
-  margin-top: 36px;
-  /* margin-top: -20px; */
+  bottom: 0;
   color: lightcoral;
   font-size: .6rem;
   font-weight: bold;
@@ -378,10 +368,10 @@ td.mat-column-building_type div{
   right: 0;
 }
 .magnifyHistoryIcon {
-  margin-top: -6px;
+  margin-top: 0;
   position: absolute;
   margin-left: -6px;
-  opacity: .7
+  opacity: .6
 }
   .magnifyHistoryIcon:hover {
     opacity: 1
@@ -485,6 +475,25 @@ td.mat-column-building_level{
   display: inline-block;
 }
 
+.alertContainer{
+  height: 60px;
+}
+.activeProduce {
+  position: absolute;
+  color: #28a745;
+  font-size: 1.8rem;
+  right: 0;
+  margin-top: 9px;
+  border: gray 1px solid;
+  padding: 5px;
+  box-shadow: 0 5px 10px rgb(0 0 0 / 12%);
+  border-radius: 5px 0 0 5px;
+  border-right: none;
+}
+
+
+
+
 
 
 @media only screen and (max-width: 1320px) {
@@ -511,9 +520,12 @@ td.mat-column-building_level{
 }
 
 @media only screen and (max-width: 415px) {
+  .innerContainer {
+    min-height: 14rem
+  }
 
-  a.mobileView{
-    display:block;
+  a.mobileView {
+    display: block;
   }
 
   .typeFilter {
@@ -527,6 +539,7 @@ td.mat-column-building_level{
     .typeFilter div {
       display: inline-block;
       border-left-width: 1px;
+      border-color: inherit;
       margin: .6rem;
     }
       .typeFilter div.activeFilter, .typeFilter div:hover {
@@ -650,20 +663,18 @@ td.mat-column-building_level{
     margin-left: -40px;
   }
   .salepos {
-    margin-top: 16px;
-    margin-left: 0;
-    position: relative;
-    display: inline-block;
+    margin-top: -20px;
+    margin-left: -30px;
+    position: absolute;
     width: 60px;
-    margin-right: -6px;
   }
+    .salepos::before {
+      height: 37.4px;
+      width: 56px;
+      margin-top: -18px;
+      right: 0;
+    }
 
-  .salepos::before {
-    height: 38px;
-    width: 56px;
-    margin-top: -18px;
-    margin-left: -18px;
-  }
   .districtCol {    
     margin-top: 4px;
     margin-left: -10px;
@@ -689,14 +700,20 @@ td.mat-column-building_level{
     padding-bottom:.4rem;
   }
   .resource{
-    width: 2rem
+    width: auto;
+    font-size: inherit;
   }
 
   .magnifyHistoryPositioner {
     top: -30px;
   }
-  .buildingMaglink{
+  .buildDesc{
+    text-align: center;
+    width: 70px;
+  }
+  .buildingMaglink {
     width: 5rem;
+    text-align: center;
   }
   .citCount {    
     text-indent: 0.4rem;

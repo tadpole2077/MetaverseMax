@@ -3,3 +3,8 @@
 https://www.w3schools.com/howto/howto_css_glowing_text.asp
 
 Used by: New arrival players to District
+
+
+2) Material Icon List - full
+https://mui.com/material-ui/material-icons/
+

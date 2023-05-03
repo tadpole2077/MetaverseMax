@@ -1,22 +1,25 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, ElementRef, ChangeDetectorRef } from '@angular/core';
-import { Observable } from 'rxjs/Rx';
-import { Subscription } from 'rxjs';
+import { Subscription, interval } from 'rxjs';
 import { AccountApproveComponent } from '../account-approve/account-approve.component';
 import { OwnerDataComponent } from '../owner-data/owner-data.component';
+import { AppComponent } from '../app.component';
 import DetectEthereumProvider from '@metamask/detect-provider';
-import TronWebProvider from 'tronweb';
+/*import TronWebProvider from 'tronweb';*/    // Massive package 599kb included in main.js file - only needed on server side Tron apps i think
 import { Router, UrlSegmentGroup, PRIMARY_OUTLET, UrlSegment, UrlTree, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 
 
-interface OwnerAccount {  
+interface OwnerAccount {
+  wallet_active_in_world: boolean;
   matic_key: string;
   checked_matic_key: string;
   public_key: string;
   name: string;
   checked: boolean;
   pro_tools_enabled: boolean;
+  avatar_id: number;
+  dark_mode: boolean;
 }
 interface RequestAccountsResponse {
   code: Number, // 200：ok，4000：In-queue， 4001：user rejected
@@ -44,14 +47,15 @@ export class Globals {
   public windowTron: any;
   public selectedWorld: number = WORLD.UNKNOWN;   // Default Tron
   public worldCode: string = "trx";  // Default Tron
-  public worldURLPath: string = "https://mcp3d.com/tron/api/image/";   //Default Tron
-  public firstCitizen: number = 0;   // Default Tron
   public worldName: string = "Tron";
+  public worldURLPath: string = "https://mcp3d.com/tron/api/image/";   //Default Tron
+  public firstCitizen: number = 0;   // Default Tron  
   public approveSwitchComponent: AccountApproveComponent;
   public homeCDF: ChangeDetectorRef = null;
   public menuCDF: ChangeDetectorRef = null;
   public ownerCDF: ChangeDetectorRef = null;
   public ownerComponent: OwnerDataComponent = null;
+  public appComponentInstance: AppComponent = null;
 
 
   // Flag triggers an update on any module that uses the Account Approval component
@@ -88,12 +92,15 @@ export class Globals {
   initAccount() {
 
     this.ownerAccount = {
+      wallet_active_in_world: false,
       public_key: "",
       matic_key: "Not Found",
       checked_matic_key: "",
       name: "",
       checked: false,
-      pro_tools_enabled: false
+      pro_tools_enabled: false,
+      avatar_id: 0,
+      dark_mode: false
     };  
 
   }
@@ -109,13 +116,13 @@ export class Globals {
         this.ownerAccount = result;
         this.ownerAccount.checked = true;
         
-        if (this.ownerAccount.matic_key == "Not Found") {
-          this.requestApprove = true;
-          this.approvalType = APPROVAL_TYPE.ACCOUNT_WITH_NO_PLOTS;          
-        }
-        else {
+        if (this.ownerAccount.wallet_active_in_world) {
           this.requestApprove = false;
           this.approvalType = APPROVAL_TYPE.NONE;
+        }
+        else {
+          this.requestApprove = true;
+          this.approvalType = APPROVAL_TYPE.ACCOUNT_WITH_NO_PLOTS;                    
         }        
 
         this.requestApproveRefresh();
@@ -123,6 +130,9 @@ export class Globals {
         if (checkMyPortfolio) {
           this.checkMyPortfolio();
         }
+
+        // Apply owner stored preference for dark_mode theme
+        this.appComponentInstance.darkModeChange(this.ownerAccount.dark_mode);
 
       }, error => console.error(error));
 
@@ -136,25 +146,27 @@ export class Globals {
     let attempts: number = 0;
     let subTron: Subscription;
 
-    const tronWebProvider = await TronWebProvider;
+    //const tronWebProvider = await TronWebProvider;
     let requestAccountsResponse: RequestAccountsResponse;
 
 
     // Delay check on Tron Widget load and init, must be a better way of hooking into it.  Try to find Tron account 5 times - 1 per 500ms, on find run WS or end.
-    subTron = Observable.interval(500)
+    subTron = interval(500)
       .subscribe(
         async (val) => {
 
           attempts++;
-          const tronWebProvider = await TronWebProvider;
           const tronWeb = (window as any).tronWeb;
+          let ownerPublicKey: any = tronWeb == null ? null : tronWeb.defaultAddress;          
 
+          // iterate 5 attempts to find tron account, even with tronWeb lib loaded, account may not yet be initiated.
           if (attempts >= 5) {
 
             subTron.unsubscribe();
+            this.checkTronAccountKey(httpClient, baseUrl, false);    // Show login request/approval bar
 
           }
-          else if (tronWeb) {
+          else if (tronWeb && ownerPublicKey != null && ownerPublicKey.base58 != false) {
 
             subTron.unsubscribe();
 
@@ -163,7 +175,6 @@ export class Globals {
             //let x2 = tronWeb.isTronLink;      // true/false - will also Force an dApp approve connection.
 
             this.checkTronAccountKey(httpClient, baseUrl, false);
-
 
             //requestAccountsResponse = await tronWebProvider.request({ method: 'tron_requestAccounts' });
             //requestAccountsResponse = await tronWeb.request({ method: 'tron_requestAccounts' });
@@ -178,7 +189,7 @@ export class Globals {
   checkTronAccountKey(httpClient: HttpClient, baseUrl: string, checkMyPortfolio: boolean) {
 
     const tronWeb = (window as any).tronWeb;
-    let ownerPublicKey: any = tronWeb.defaultAddress;
+    let ownerPublicKey: any = tronWeb == null ? null : tronWeb.defaultAddress;
 
     if (ownerPublicKey != null && ownerPublicKey.base58 != false) {
 
@@ -186,7 +197,9 @@ export class Globals {
      
     }
     else {
-      
+
+      this.appComponentInstance.darkModeChange(false);
+
       this.requestApprove = true;
       this.approvalType = APPROVAL_TYPE.NO_WALLET_ENABLED;
       this.requestApproveRefresh();
@@ -224,6 +237,8 @@ export class Globals {
       else {
         console.log(">>>No Ethereum Account linked<<<");
         console.log("ChainId = ", chainId);
+
+        this.appComponentInstance.darkModeChange(false);
 
         this.requestApprove = true;
         this.requestApproveRefresh();

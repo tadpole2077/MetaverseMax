@@ -16,6 +16,8 @@
     <!-- Set this to true if you enable server-side prerendering -->
     <BuildServerSideRenderer>false</BuildServerSideRenderer>
     <UserSecretsId>4a171f81-92b0-4c70-a27c-f5384809b6ea</UserSecretsId>
+    <AssemblyName>$(MSBuildProjectName)</AssemblyName>
+    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -42,6 +44,10 @@
     <Content Remove="$(SpaRoot)**" />
     <None Remove="$(SpaRoot)**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="compilerconfig.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -72,6 +78,7 @@
     <TypeScriptCompile Remove="ClientApp\src\app\district-summary\district-summary.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\graph-fund\graph-fund.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\graph-tax\graph-tax.component.ts" />
+    <TypeScriptCompile Remove="ClientApp\src\app\nav-menu-owner\nav-menu-owner.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\nav-menu-world\nav-menu-world.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\note-modal\note-modal.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\offer-modal\offer-modal.component.ts" />
@@ -1803,6 +1810,7 @@
     <None Include="ClientApp\node_modules\%40fortawesome\fontawesome-free\webfonts\fa-regular-400.woff2" />
     <None Include="ClientApp\node_modules\%40fortawesome\fontawesome-free\webfonts\fa-solid-900.svg" />
     <None Include="ClientApp\node_modules\%40fortawesome\fontawesome-free\webfonts\fa-solid-900.woff2" />
+    <None Include="compilerconfig.json" />
     <None Include="wwwroot\images\POI.png" />
   </ItemGroup>
 
@@ -1835,15 +1843,14 @@
   <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
     <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
     <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -- --prod" />
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build:ssr -- --prod" Condition=" '$(BuildServerSideRenderer)' == 'true' " />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -- --configuration production" />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build:ssr -- --configuration production" Condition=" '$(BuildServerSideRenderer)' == 'true' " />
 
     <!-- Include the newly-built files in the publish output -->
     <ItemGroup>
       <DistFiles Include="$(SpaRoot)dist\**; $(SpaRoot)dist-server\**" />
-      <DistFiles Include="$(SpaRoot)node_modules\**" Condition="'$(BuildServerSideRenderer)' == 'true'" />
-      <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
-        <RelativePath>%(DistFiles.Identity)</RelativePath>
+      <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">        
+		<RelativePath>wwwroot\%(RecursiveDir)%(FileName)%(Extension)</RelativePath>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </ResolvedFileToPublish>

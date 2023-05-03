@@ -34,7 +34,7 @@ namespace MetaverseMax.ServiceClass
                         change_date = common.DateFormatStandard(taxChange.change_date),
                         change_desc = taxChange.change_desc,
                         change_owner = taxChange.change_owner,
-                        change_value = taxChange.change_value
+                        change_value = taxChange.change_value ?? 0
                     });
                 }
 

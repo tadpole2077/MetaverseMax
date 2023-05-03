@@ -390,7 +390,7 @@ namespace MetaverseMax.ServiceClass
                     updateInstance = districtManage.UpdateDistrict(districtId).Result;
 
                     // Sync Funding for current district
-                    await districtFundManage.UpdateFundPriorDay(districtId);
+                    //await districtFundManage.UpdateFundPriorDay(districtId);
 
                     // Assign Distrist update instance to related district perks (if any)
                     for (int perkIndex = 0; perkIndex < districtPerkListMCP.Count; perkIndex++)

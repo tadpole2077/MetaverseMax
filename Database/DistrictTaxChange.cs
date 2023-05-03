@@ -31,7 +31,7 @@ namespace MetaverseMax.Database
         public string change_owner { get; set; }
 
         [Column("change_value")]
-        public int change_value { get; set; }
+        public int? change_value { get; set; }
 
     }
 }

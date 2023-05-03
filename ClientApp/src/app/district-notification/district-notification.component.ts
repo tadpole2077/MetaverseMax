@@ -5,6 +5,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { AfterViewInit } from '@angular/core';
 import { interval, Observable, Subscription } from 'rxjs';
+import { Globals, WORLD } from '../common/global-var';
 
 declare const testNotificationClick: any;
 
@@ -55,10 +56,10 @@ export class DistrictNotificationComponent implements AfterViewInit {
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
 
-  constructor(public router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef)
+  constructor(public globals: Globals, public router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef)
   {
     this.httpClient = http;
-    this.baseUrl = baseUrl;
+    this.baseUrl = baseUrl + "api/" + globals.worldCode;
 
   }
 
@@ -129,7 +130,7 @@ export class DistrictNotificationComponent implements AfterViewInit {
 
 
 
-    this.httpClient.get<District>(this.baseUrl + 'api/district/GetMCP', { params: params })
+    this.httpClient.get<District>(this.baseUrl + '/district/GetMCP', { params: params })
       .subscribe((result: District) => {
 
         this.district = result;

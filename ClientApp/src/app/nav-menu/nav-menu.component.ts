@@ -5,7 +5,6 @@ import { OwnerAccount, Globals, WORLD } from '../common/global-var';
 import { NavMenuWorldComponent } from '../nav-menu-world/nav-menu-world.component';
 import { Location } from '@angular/common';
 
-import detectEthereumProvider from '@metamask/detect-provider';
 
 @Component({
   selector: 'app-nav-menu',
@@ -23,19 +22,24 @@ export class NavMenuComponent {
 
   isExpanded = false;
   @Output() selectWorldEvent = new EventEmitter<any>();
+  @Output() darkModeChangeEvent = new EventEmitter<any>();
   @ViewChild(NavMenuWorldComponent, { static: true }) menuWorld: NavMenuWorldComponent;
   @ViewChild('menuOwner', { static: false }) menuOwner: ElementRef;
 
 
   constructor(private zone: NgZone, private cdf: ChangeDetectorRef, private location: Location, public globals: Globals, public activatedRoute: ActivatedRoute, private router: Router, http: HttpClient, @Inject('BASE_URL') rootBaseUrl: string) {
 
-    this.rootBaseUrl = rootBaseUrl;
+    this.rootBaseUrl = rootBaseUrl;     // Unknow world type at this point, checkWorldFromURL will identify.
     this.httpClient = http;
     globals.menuCDF = cdf;
 
-    //let x = activatedRoute.snapshot;
     this.checkWorldFromURL();
 
+  }
+
+  darkModeChange(modeEnabled: boolean) {
+
+    this.darkModeChangeEvent.emit(modeEnabled);    // bubble event up to parent component
   }
 
   // Unknown world type - check URL to id world
@@ -101,6 +105,7 @@ export class NavMenuComponent {
     //console.log("first: " + firstRouteName);
     //console.log("last: " + lastComponentName);
 
+    // Reset Browser URL to match selected world
     let navigateTo: string = '/' + worldCode + (lastComponentName != "" && lastComponentName != "/" ? '/' + lastComponentName : "");
     this.router.navigate([navigateTo], { queryParams: routeTree.queryParams });
 
@@ -220,7 +225,6 @@ export class NavMenuComponent {
 
     this.globals.initAccount();
     this.globals.getEthereumAccounts(this.httpClient, this.baseUrl, true);
-   
 
   };
 

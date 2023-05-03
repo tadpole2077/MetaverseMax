@@ -1,0 +1,51 @@
+// Angular 14 need to replace both legacy and color background (via merge of background color into each palette of the dark theme)
+// A theme is a map with the following structure:
+// (
+//   color: (..., background),
+//   ...,
+//   background: ...
+// )
+//
+// We need to replace the background color in two palettes.
+// Once in the background palette inside the color map.
+// Again in the background palette itself.
+
+@function mat-set-background($theme, $background-color, $background-color-inner) {
+
+
+  // Replace the background in the color object's background palette.
+  $theme-color: map-get($theme, color);
+  $color-background-palette: map-get($theme-color, background);
+  $color-background-palette: map_merge($color-background-palette, (background: $background-color));
+  $color-background-palette: map-merge($color-background-palette, (raised-button: $background-color));
+  // Table bg
+  $color-background-palette: map-merge($color-background-palette, (card: $background-color-inner));
+
+
+  // Replace the background in the background palette.
+  $background-palette: map-get($theme, background);
+  $background-palette: map-merge($background-palette, (background: $background-color));
+  $background-palette: map-merge($background-palette, (raised-button: $background-color));
+
+  // Merge the changes into a new theme.
+  $modified-theme-color: map-merge($theme-color, (background: $color-background-palette));
+  $modified-theme: map-merge($theme, (color: $modified-theme-color));
+  $modified-theme: map-merge($modified-theme, (background: $background-palette));
+
+
+  @return $modified-theme;
+}
+
+
+@function mat-set-custom-table($theme, $table-header-color) {
+
+  $theme-color: map-get($theme, color);
+
+  // Table header color
+  $color-foreground-palette: map-get($theme-color, foreground);
+  $color-foreground-palette: map-merge($color-foreground-palette, (secondary-text: $table-header-color));
+  $modified-theme: map-merge($theme-color, (foreground: $color-foreground-palette));
+
+  @return $modified-theme;
+}
+

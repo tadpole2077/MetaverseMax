@@ -3,18 +3,25 @@ Links:
 https://update.angular.io/?l=2&v=13.0-14.0
 
 Run Test:
-	cmd: npm start		- works, compiles & loads angular engine and site without issue.
-	VS2022 IIS Express run -  still showing SpaProxyLaunchManager error and iterative auto-restart of SPA proxy
-
+	cmd: npm start			- works, compiles & loads angular engine and site without issue.
+	VS2022 IIS Express run	-  still showing SpaProxyLaunchManager error and iterative auto-restart of SPA proxy   (UPDATE - final resolution details in angular.docx, relates to manual setting config in angular.json file)
+	npm i @types/node@16.10.0
 
 Reading:
 	Typescript 4.6 changes https://devblogs.microsoft.com/typescript/announcing-typescript-4-6/
+
+Apply To: CMD > CD D:\0_Development\2_Applications\GitHub\MetaverseMax\MetaverseMax\ClientApp
 
 Actions:
 	Angular upgrade 13.3.11 to 14.2.11,  + Materials + medium complexity
 	npm i typescript@4.6
 	npm i @ng-bootstrap/ng-bootstrap@13.1.1   (prior version @12.1.2) : https://www.npmjs.com/package/@ng-bootstrap/ng-bootstrap/v/13.1.1
-
+	npm i rxjs@7.5.5				: previously installed as rxjs@6.6.3   (updated to match test template)
+	npm uninstall rxjs-compat		: previously installed as rxjs-compat@6.6.7
+	npm i zone.js@0.11.6			: previously installed as zone.js@0.11.4   (updated to match test template)
+	npm i oidc-client@1.11.5		: previously installed as oidc-client@1.11.3   (updated to match test template)
+	npm i bootstrap@5.1.3			: previously installed as bootstrap@4.6.2  (updated to match test template)
+	npm uninstall sass-loader@10.1.1	: version no longer used in root, sass-loader@13.0.3 now used in @angular-devkit\build-angular\node_modules\
 
 Potential Code change:
 	If you are defining routes with pathMatch, you may have to cast it to Route or Routes explicitly. Route.pathMatch is no longer compatible with string type.

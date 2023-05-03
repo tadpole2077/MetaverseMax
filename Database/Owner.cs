@@ -47,6 +47,9 @@ namespace MetaverseMax.Database
         [Column("pro_access_renew_code")]
         public string? pro_access_renew_code { get; set; }
 
+        [Column("dark_mode")]
+        public bool dark_mode { get; set; }
+
         // Account can update names - this is the last updated name that is not blank.
         [NotMapped]
         [Column("owner_name")]
@@ -106,5 +109,8 @@ namespace MetaverseMax.Database
 
         [Column("avatar_id")]
         public int? avatar_id { get; set; }
+
+        [Column("dark_mode")]
+        public bool dark_mode { get; set; }
     }
 }

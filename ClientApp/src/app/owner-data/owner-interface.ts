@@ -25,6 +25,7 @@ interface OwnerLandData
   rented: boolean;
   current_influence_rank: number;
   condition: number;
+  active: number;
 }
 
 interface OwnerData

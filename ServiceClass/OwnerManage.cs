@@ -1,6 +1,8 @@
 ﻿using MetaverseMax.Database;
 using Newtonsoft.Json.Linq;
 using SimpleBase;
+using System;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace MetaverseMax.ServiceClass
@@ -81,12 +83,14 @@ namespace MetaverseMax.ServiceClass
                 {
                     ownerAccount.public_key = walletPublicKey;
                 }
+                ownerAccount.wallet_active_in_world = true;
             }
             else
             {
                 ownerAccount = new();
-                ownerAccount.matic_key = "Not Found";
+                ownerAccount.matic_key = "";
                 ownerAccount.pro_tools_enabled = false;
+                ownerAccount.wallet_active_in_world = false;
 
             }
 
@@ -396,6 +400,7 @@ namespace MetaverseMax.ServiceClass
                 List<Plot> localPlots = new();
                 Building building = new();
                 CitizenManage citizen = new(_context, worldType);
+                BuildingManage buildingManage = new(_context, worldType);
 
                 PlotDB plotDB = new(_context, worldType);
                 string landOwner;
@@ -447,6 +452,7 @@ namespace MetaverseMax.ServiceClass
                                 rented = landInstance.Value<string>("renter") != null,
                                 current_influence_rank = CheckInfluenceRank(plot),
                                 condition = landInstance.Value<int?>("condition") ?? 0,
+                                active = 1// buildingManage.CheckBuildingActive((BUILDING_TYPE)(landInstance.Value<int?>("building_type_id") ?? 0), citizen.GetCitizenCount(landInstance.Value<JArray>("citizens")), landInstance.Value<int?>("building_level") ?? 0) == true ? 1 : 0
                             };
                         })
                         .OrderBy(row => row.district_id).ThenBy(row => row.pos_x).ThenBy(row => row.pos_y);
@@ -495,12 +501,8 @@ namespace MetaverseMax.ServiceClass
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("OwnerManage.GetOwnerLands() : Error on WS calls for owner matic : ", ownerMaticKey));
-                    _context.LogEvent(log);
-                }
+                DBLogger dbLogger = new(_context, worldType);
+                dbLogger.logException(ex, String.Concat("OwnerManage.GetOwnerLands() : Error on WS calls for owner matic : ", ownerMaticKey));
             }
 
             return ownerData;
@@ -591,12 +593,8 @@ namespace MetaverseMax.ServiceClass
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                if (_context != null)
-                {
-                    _context.LogEvent(String.Concat("OwnerMange.GetFromLandCoord() : Error on WS calls for Pos_X : ", posX, " Pos_Y", posY));
-                    _context.LogEvent(log);
-                }
+                DBLogger dbLogger = new(_context, worldType);
+                dbLogger.logException(ex, String.Concat("OwnerMange.GetFromLandCoord() : Error on WS calls for Pos_X : ", posX, " Pos_Y", posY));
             }
 
             return returnCode;
@@ -707,9 +705,10 @@ namespace MetaverseMax.ServiceClass
                 // Check if passed string is valid Tron key
                 if (publicKey == "false")
                 {
-                    ownerAccount.matic_key = "Not Found";
+                    ownerAccount.wallet_active_in_world = false;
+                    ownerAccount.matic_key = "";
                     return ownerAccount;
-                }
+                }                
 
                 // Base58 Public Tron to Hex Conversion.
                 // Span<byte> is analogous to byte[] in usage but allows the library
@@ -737,6 +736,18 @@ namespace MetaverseMax.ServiceClass
             return ownerAccount;
         }
 
+        public bool SetDarkMode(string maticKey, bool darkMode)
+        {
+            // Update db - update ownerAccount with matching public wallet key if not already stored.  (used for TRON where matic and public differ)
+            OwnerDB ownerDB = new OwnerDB(_context);
+            ownerDB.UpdateOwnerDarkMode(maticKey, darkMode);
+
+            OwnerAccount ownerAccount = FindOwnerByMatic(maticKey, string.Empty);
+            ownerAccount.dark_mode = darkMode;      // Update local cache store of ownerAccount.
+
+            return true;
+        }
+
         public List<OwnerSummaryDistrict> GetOwnerSummaryDistrict(int districtId, int instanceNo)
         {
 
@@ -752,6 +763,102 @@ namespace MetaverseMax.ServiceClass
             });
 
             return ownerSummaryDistrictList;
+        }
+
+
+        public int GetMaterialAllMatic()
+        {
+            Dictionary<string, OwnerAccount> ownersList = GetOwnersListByWorldType();
+            OwnerMaterial ownerMaterial = null;
+            OwnerMaterialDB ownerMaterialDB = new OwnerMaterialDB(_context);
+
+            foreach (string maticKey in ownersList.Keys)
+            {
+                ownerMaterial = GetMaterialFromMatic(maticKey).Result;
+                ownerMaterialDB.Add(ownerMaterial);
+            }
+            return 0;
+        }
+
+
+        public async Task<OwnerMaterial> GetMaterialFromMatic(string ownerMaticKey)
+        {
+            HttpResponseMessage response;
+            String content = string.Empty;          
+            OwnerMaterial ownerMaterial = new();
+            Common common = new();
+
+            serviceUrl = MATIC_WS.ACCOUNT_MATERIAL_GET;
+
+            try
+            {
+                using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
+                {
+                    StringContent stringContent = new StringContent(string.Concat(
+                        "{\"jsonrpc\": \"2.0\",",
+                        "\"id\": 825,",
+                        "\"method\": \"eth_call\",",
+                        "\"params\": [{",
+                        "\"data\": \"0xc3df5bf1000000000000000000000000" + ownerMaticKey.Substring(2),
+                        "0000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000f000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000050000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000700000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000009000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000b000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000d000000000000000000000000000000000000000000000000000000000000000e000000000000000000000000000000000000000000000000000000000000000f\",",
+                        "\"to\": \"0x5e4f2dc880295a1296699bad6d471c1e2bdbb4e3\"},",
+                        "\"latest\"]}"
+                        ),
+                        Encoding.UTF8, "application/json");
+
+                    response = await client.PostAsync(
+                        serviceUrl,
+                        stringContent);
+
+                    response.EnsureSuccessStatusCode(); // throws if not 200-299
+                    content = await response.Content.ReadAsStringAsync();
+
+                }
+
+                // End timer
+                watch.Stop();
+                servicePerfDB.AddServiceEntry(serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, ownerMaticKey);
+
+                if (content.Length == 0 || JObject.Parse(content).Count == 0)
+                {
+                }
+                else
+                {
+                    JObject jsonContent = JObject.Parse(content);
+                    string result = jsonContent.Value<string>("result");
+                    if (result != null && result.Length > 0)
+                    {
+                        result = result.Substring(2);  // remove leading 0x chars
+                        // 64 char-byte chunks - 17 chunks
+                        ownerMaterial.wood = (int)common.Extract64HexChunkToNumeric(result, 2);
+                        ownerMaterial.sand = (int)common.Extract64HexChunkToNumeric(result, 3);
+                        ownerMaterial.stone = (int)common.Extract64HexChunkToNumeric(result, 4);
+                        ownerMaterial.metal = (int)common.Extract64HexChunkToNumeric(result, 5);
+                        ownerMaterial.brick = (int)common.Extract64HexChunkToNumeric(result, 6);
+                        ownerMaterial.glass = (int)common.Extract64HexChunkToNumeric(result, 7);
+                        ownerMaterial.water = (int)common.Extract64HexChunkToNumeric(result, 8);
+                        ownerMaterial.energy = (int)common.Extract64HexChunkToNumeric(result, 9);
+                        ownerMaterial.steel = (int)common.Extract64HexChunkToNumeric(result, 10);
+                        ownerMaterial.concrete = (int)common.Extract64HexChunkToNumeric(result, 11);
+                        ownerMaterial.plastic = (int)common.Extract64HexChunkToNumeric(result, 12);
+                        ownerMaterial.glue = (int)common.Extract64HexChunkToNumeric(result, 13);
+                        ownerMaterial.mixes = (int)common.Extract64HexChunkToNumeric(result, 14);
+                        ownerMaterial.composites = (int)common.Extract64HexChunkToNumeric(result, 15);
+                        ownerMaterial.paper = (int)common.Extract64HexChunkToNumeric(result, 16);
+
+                        ownerMaterial.owner_matic_key = ownerMaticKey;
+                        ownerMaterial.last_updated = DateTime.UtcNow;
+                    }
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                DBLogger dbLogger = new(_context, worldType);
+                dbLogger.logException(ex, String.Concat("OwnerMange.GetMaterialFromMatic() : Error on WS calls for owner matic : ", ownerMaticKey));
+            }
+
+            return ownerMaterial;
         }
     }
 

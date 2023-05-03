@@ -1,7 +1,6 @@
 import { ChangeDetectorRef, Component, Inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Subscription } from 'rxjs';
-import { Observable } from 'rxjs/Rx';
+import { Subscription, Observable } from 'rxjs';
 import { OwnerAccount, Globals, WORLD } from '../common/global-var';
 
 

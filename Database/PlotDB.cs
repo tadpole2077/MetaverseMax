@@ -1,8 +1,11 @@
 ﻿using MetaverseMax.ServiceClass;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlTypes;
 using System.Linq;
 
 namespace MetaverseMax.Database
@@ -132,6 +135,38 @@ namespace MetaverseMax.Database
             }
 
             return plotIPList;
+        }
+
+        public long GetGlobalOfficeIP()
+        {
+            long globalIp = 0;
+            int result;
+            SqlInt64 ipValueholder;
+
+            try
+            {
+                SqlParameter sqlGlobalIp = new SqlParameter
+                {
+                    ParameterName = "@office_global_ip",
+                    SqlDbType = System.Data.SqlDbType.BigInt,
+                    Direction = System.Data.ParameterDirection.Output,
+                };
+
+                //exec sproc to add set of owner summary rows matching instanct of district.
+                result = _context.Database.ExecuteSqlRaw("EXEC @office_global_ip = dbo.sp_building_office_ip_get", new[] { sqlGlobalIp });
+
+                ipValueholder = (SqlInt64)sqlGlobalIp.SqlValue;                 // SqlInt64 is not IConvertable interface so cant use Convert.ToInt64()
+                globalIp = ipValueholder.IsNull ? 0 : (long)ipValueholder;      
+
+            }
+            catch (Exception ex)
+            {
+                string log = ex.Message;
+                _context.LogEvent(String.Concat("PlotDB::GetGlobalOfficeIP() : Error total IP for all (Global) Office block buildings"));
+                _context.LogEvent(log);
+            }
+
+            return globalIp;
         }
 
         public RETURN_CODE UpdatePlot(int tokenId, decimal influenceEfficiency, int predictProduce, int lastRunProduce, int produceId, DateTime? lastRunProduceDate, bool lastRunProducePredict, int buildingAbundance, bool saveEvent)

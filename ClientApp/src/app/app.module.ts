@@ -9,6 +9,7 @@ import { AppComponent } from './app.component';
 import { AccountApproveComponent } from './account-approve/account-approve.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { NavMenuWorldComponent } from './nav-menu-world/nav-menu-world.component';
+import { NavMenuOwnerComponent } from './nav-menu-owner/nav-menu-owner.component';
 import { HomeComponent } from './home/home.component';
 import { SearchPlotComponent } from './search-plot/search-plot.component';
 import { SearchDistrictComponent } from './search-district/search-district.component';
@@ -40,6 +41,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatBadgeModule } from '@angular/material/badge';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NumberDirective } from './numberonly.directive';
@@ -56,6 +58,7 @@ import { Globals } from './common/global-var';
     AccountApproveComponent,
     NavMenuComponent,
     NavMenuWorldComponent,
+    NavMenuOwnerComponent,
     HomeComponent,
     SearchPlotComponent,
     SearchDistrictComponent,
@@ -93,6 +96,7 @@ import { Globals } from './common/global-var';
     MatButtonToggleModule,
     MatButtonModule,
     MatBadgeModule,
+    MatSlideToggleModule,
     DragDropModule,
     NgbDropdownModule,
     NgxChartsModule,    

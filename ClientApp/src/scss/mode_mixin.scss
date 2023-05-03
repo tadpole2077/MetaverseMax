@@ -1,0 +1,31 @@
+
+@mixin home($app-button-bg, $app-button-hover-bg, $app-button-color) {
+
+  .action {
+    background-color: $app-button-bg;
+    border: 1px solid rgba(0,0,0,.125);
+  }
+
+  .action:hover {
+    background-color: $app-button-hover-bg;
+  }
+
+  .action span {
+    color: $app-button-color;
+  }
+
+  .action:hover i, .action:hover span {
+    color: white;
+  }
+}
+
+
+@mixin link($app-link-color, $app-link-hover) {
+  a, a span {
+    color: $app-link-color;
+  }
+
+  a.lineAnim:hover, a.lineAnim:hover span{
+    color: $app-link-hover;
+  }
+}

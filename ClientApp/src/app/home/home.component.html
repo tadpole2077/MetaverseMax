@@ -36,7 +36,7 @@
 
   <div id="introBlock">
     <ul class="introList">
-      <li>Version 1.1.2 (2023_03_10)</li>
+      <li>Version 1.2.0 (2023_04_23)</li>
       <li>Our tools currently support 3x "MEGA WORLD" metaverse environments: <a target="_blank" href="https://play.mcp3d.com/ethereum">Eth</a> / <a target="_blank" href="https://play.mcp3d.com/bsc">BSC</a> / <a target="_blank" href="https://play.mcp3d.com/tron">Tron</a>.</li>
       <li>Notice will be given within our discord channel before any scheduled outage-deployment occurance. Please report any bugs within our discord channel</li>
       <li>
@@ -68,82 +68,47 @@
       <ng-template matExpansionPanelContent>
         <div class="infoSection">
           <div class="infoBlockImg blockRight">
-            <img src="./assets/world_selection.png" class="promoImg" height="160" />
-            <img src="./assets/wallet_connect.png" class="promoImg" height="200" />
+            <img src="./assets/night_mode_option.png" class="promoImg" height="120" />
+            <img src="./assets/night_mode.png" class="promoImg" height="200" style="margin-top:2rem" />
           </div>
           <div class="infoBlock blockLeft">
-            <h3>Access</h3>
-            Select MegaWorld type via single click of top menu.
+            <h3>Dark Mode</h3>
+            Select light or dark mode theme.
             <ul style="margin-top:.6rem">
-              <li>Instant switch between world views.</li>
-              <li>To enable MyPortfolio and "ProTools" feature, site connent permission is required to view-confirm your Public Key.</li>
-              <li>A reduced set of feature can be used with no site wallet connection.</li>
-              <li>MetaverseMax features issue no transaction signage on your wallet</li>
-              <li>Tron and Metamask wallet types are currently supported</li>
+              <li>Instant switch between themes, using slider.</li>
+              <li>Click the Avatar icon on the menu bar to show account pop-up menu - slide to select night mode</li>
+              <li>All system feature styles have been custom configured and optimised for night mode.</li>
+              <li>For wallet linked accounts, night mode preference is stored and reapplied on next visit - cross devices.</li>
+              <li>Night mode is also available for usage without linked wallet, but preference is not stored, resets to day mode on next visit.</li>
             </ul>
           </div>
         </div>
 
         <div class="infoSection">
           <div class="infoBlockImg blockLeft">
-            <img src="./assets/building_ranking.png" class="promoImg" height="300" />
+            <img src="./assets/fund_distribution.png" class="promoImg" height="300" />
           </div>
           <div class="infoBlock blockRight">
-            <h3>Ranking</h3>
-            Building Ranking - ProTools Feature.
+            <h3>Ranking / Office / Funding</h3>
+            Funding and distribution details for Global and Local
             <ul style="margin-top:.6rem">
-              <li>View every building IP ranking per building type and level</li>
+              <li>Shown on all Office ranking pages - key detail on funds</li>
               <li>Extensive set of Filters : For sale / Active production/ Rent / Owner / Building type etc</li>
-              <li>Combined pricing data and district tax to help identify the best available deals</li>
-              <li>Access to production history and next run prediction - via analysis icon per building</li>
+              <li>Max payout, per 1k IP, and last distribution</li>
+              <li>Distribution also shown on each District Summary page Actual/Max</li>
             </ul>
           </div>
         </div>
 
         <div class="infoSection">
           <div class="infoBlockImg blockRight">
-            <img src="./assets/ranking_summary.png" class="promoImg" height="180" />
           </div>
           <div class="infoBlock blockLeft">
-            <h3>Ranking Summary</h3>
-            Building Ranking - ProTools Feature.
+            <h3>More...</h3>
+            Full List of enhancements and fixed defects found over on MetaverseMax Discord Group
             <ul style="margin-top:.6rem">
-              <li>View summary of active vs inactive buildings</li>
-              <li>View max production of currently active buildings</li>
-              <li>Identify production gaps and optimal type of building to build</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="infoSection">
-          <div class="infoBlockImg blockLeft">
-            <img src="./assets/prediction_calc.png" class="promoImg" height="380" />
-          </div>
-          <div class="infoBlock blockRight">
-            <h3>Prediction - Next Run</h3>
-            Prediction calculation Feature.
-            <ul style="margin-top:.6rem">
-              <li>View step by step calculation of Current Run Prediction</li>
-              <li>Apply changes [change citizens, pets] and run refresh to update prediction calculation</li>
-              <li>Identify change needed to reach next 'step' in production output</li>
-              <li>Check impact of current damage, evaluate repair cost vs output gain</li>
-              <li>Feature identifies all changes since last run - including temp use of Pets, IP, ranking, citizen, building changes</li>
-              <li>Click show/Hide Calculation to view breakdown, click table row to view citizens and pets used in each run</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="infoSection">
-          <div class="infoBlockImg blockRight">
-            <img src="./assets/ranking_mobile_combo.png" class="promoImg" height="380" />
-          </div>
-          <div class="infoBlock blockLeft">
-            <h3>Responsive Design</h3>
-            Mobile support added for new features.
-            <ul style="margin-top:.6rem">
-              <li>Filter and buttons realigned for optimal touch click</li>
-              <li>Table data reduced and compacted</li>
-              <li>Popups aligned to full screen width and height</li>
+              <li>Discord link : <div class="discordButton"><a class="widgetLogo-6zH6Nv" href="https://discord.gg/CYmCtBjs9v" target="_blank"></a></div></li>
+              <li>Go to the Release-Note channel</li>
             </ul>
           </div>
         </div>
@@ -163,6 +128,92 @@
       </mat-expansion-panel-header>
 
       <ng-template matExpansionPanelContent>
+
+        <div style="margin-bottom:3rem">
+          <h3>District Summary [Release 1.1.1] (2022_03_10)</h3>
+          <div class="infoSection">
+            <div class="infoBlockImg blockRight">
+              <img src="./assets/world_selection.png" class="promoImg" height="160" />
+              <img src="./assets/wallet_connect.png" class="promoImg" height="200" />
+            </div>
+            <div class="infoBlock blockLeft">
+              <h3>Access</h3>
+              Select MegaWorld type via single click of top menu.
+              <ul style="margin-top:.6rem">
+                <li>Instant switch between world views.</li>
+                <li>To enable MyPortfolio and "ProTools" feature, site connent permission is required to view-confirm your Public Key.</li>
+                <li>A reduced set of feature can be used with no site wallet connection.</li>
+                <li>MetaverseMax features issue no transaction signage on your wallet</li>
+                <li>Tron and Metamask wallet types are currently supported</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="infoSection">
+            <div class="infoBlockImg blockLeft">
+              <img src="./assets/building_ranking.png" class="promoImg" height="300" />
+            </div>
+            <div class="infoBlock blockRight">
+              <h3>Ranking</h3>
+              Building Ranking - ProTools Feature.
+              <ul style="margin-top:.6rem">
+                <li>View every building IP ranking per building type and level</li>
+                <li>Extensive set of Filters : For sale / Active production/ Rent / Owner / Building type etc</li>
+                <li>Combined pricing data and district tax to help identify the best available deals</li>
+                <li>Access to production history and next run prediction - via analysis icon per building</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="infoSection">
+            <div class="infoBlockImg blockRight">
+              <img src="./assets/ranking_summary.png" class="promoImg" height="180" />
+            </div>
+            <div class="infoBlock blockLeft">
+              <h3>Ranking Summary</h3>
+              Building Ranking - ProTools Feature.
+              <ul style="margin-top:.6rem">
+                <li>View summary of active vs inactive buildings</li>
+                <li>View max production of currently active buildings</li>
+                <li>Identify production gaps and optimal type of building to build</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="infoSection">
+            <div class="infoBlockImg blockLeft">
+              <img src="./assets/prediction_calc.png" class="promoImg" height="380" />
+            </div>
+            <div class="infoBlock blockRight">
+              <h3>Prediction - Next Run</h3>
+              Prediction calculation Feature.
+              <ul style="margin-top:.6rem">
+                <li>View step by step calculation of Current Run Prediction</li>
+                <li>Apply changes [change citizens, pets] and run refresh to update prediction calculation</li>
+                <li>Identify change needed to reach next 'step' in production output</li>
+                <li>Check impact of current damage, evaluate repair cost vs output gain</li>
+                <li>Feature identifies all changes since last run - including temp use of Pets, IP, ranking, citizen, building changes</li>
+                <li>Click show/Hide Calculation to view breakdown, click table row to view citizens and pets used in each run</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="infoSection">
+            <div class="infoBlockImg blockRight">
+              <img src="./assets/ranking_mobile_combo.png" class="promoImg" height="380" />
+            </div>
+            <div class="infoBlock blockLeft">
+              <h3>Responsive Design</h3>
+              Mobile support added for new features.
+              <ul style="margin-top:.6rem">
+                <li>Filter and buttons realigned for optimal touch click</li>
+                <li>Table data reduced and compacted</li>
+                <li>Popups aligned to full screen width and height</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
 
         <div style="margin-bottom:3rem">
           <h3>District Summary [Release 0.13 Beta] (2022_04_19)</h3>

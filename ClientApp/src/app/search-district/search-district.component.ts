@@ -21,7 +21,7 @@ export class SearchDistrictComponent {
   constructor(public globals: Globals, public router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
 
     this.httpClient = http;
-    this.baseUrl = baseUrl + "api/" + (globals.selectedWorld == WORLD.TRON ? "trx" : globals.selectedWorld == WORLD.BNB ? "bnb" : "eth");
+    this.baseUrl = baseUrl + "api/" + globals.worldCode;
 
     this.loadDistrictDropDown();
   }

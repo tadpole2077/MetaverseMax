@@ -137,4 +137,15 @@ namespace MetaverseMax.ServiceClass
         public int buildingSeq { get; set; }
 
     }
+
+    public class OfficeGlobal
+    {
+        public long  totalIP { get; set; }
+        public decimal globalFund { get; set; }
+        public decimal maxDailyDistribution { get; set; }
+        public decimal maxDailyDistributionPerIP { get; set; }
+        public string lastDistributionDate { get; set; }
+        public decimal lastDistribution {  get; set; }
+
+    }
 }

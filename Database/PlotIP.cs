@@ -7,6 +7,9 @@ namespace MetaverseMax.Database
     [Table("PlotIP")]
     public class PlotIP
     {
+        [Column("influence")]
+        public int? influence { get; set; }
+
         [Column("influence_info")]
         public int? influence_info { get; set; }
 
@@ -34,6 +37,9 @@ namespace MetaverseMax.Database
 
         [Column("is_perk_activated")]
         public bool? is_perk_activated { get; set; }
+
+        [Column("building_type_id")]
+        public int building_type_id { get; set; }
 
         [Column("building_id")]
         public int building_id { get; set; }

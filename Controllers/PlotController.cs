@@ -80,6 +80,19 @@ namespace MetaverseMax.Controllers
             return BadRequest("GetBuildingByType is invalid");       // 400 Error     
         }
 
+        [HttpGet("OfficeGlobalSummary")]
+        public IActionResult OfficeGlobalSummary()
+        {
+            BuildingManage buildingManage = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(buildingManage.OfficeGlobalSummaryGet());
+            }
+
+            return BadRequest("GetBuildingByType is invalid");       // 400 Error     
+        }
+
         [HttpGet("UpdateIPRanking")]
         public IActionResult UpdateIPRanking()
         {

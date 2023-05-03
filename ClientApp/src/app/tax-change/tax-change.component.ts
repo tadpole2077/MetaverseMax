@@ -4,8 +4,8 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { TaxChange } from '../district-summary/data-district-interface';
+import { Globals, WORLD } from '../common/global-var';
 
-//<td mat-cell *matCellDef="let change"> {{ new Date(change.change_date) }}</td>
 
 @Component({
   selector: 'app-tax-change',
@@ -30,10 +30,10 @@ export class TaxChangeComponent implements AfterViewInit {
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumns: string[] = ['change_date', 'tax_type', 'tax', 'change_desc', 'change_owner'];
 
-  constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string) {//, cdr: ChangeDetectorRef) {
+  constructor(public globals: Globals, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {//, cdr: ChangeDetectorRef) {
 
     this.httpClient = http;
-    this.baseUrl = baseUrl;
+    this.baseUrl = baseUrl + "api/" + globals.worldCode;
 
     this.taxChangeList = new Array;
 
@@ -49,7 +49,7 @@ export class TaxChangeComponent implements AfterViewInit {
     let params = new HttpParams();
     params = params.append('district_id', districtId.toString());
 
-    this.httpClient.get<TaxChange[]>(this.baseUrl + 'api/district/gettaxchange', { params: params })
+    this.httpClient.get<TaxChange[]>(this.baseUrl + '/district/gettaxchange', { params: params })
       .subscribe((result: TaxChange[]) => {
 
         this.taxChangeList = result;

@@ -4,7 +4,8 @@ namespace MetaverseMax.ServiceClass
 {
     public class Building
     {
-        // Price format differs per World token type
+        //
+        // format differs per World token type
         //    TRON :  6 places - need to divide by 1 million to get value in Tron.
         //    BNB  :  18 places - need to divide by 1,000,000,000,000,000,000 to get integer value in BNB
         //    ETH  :  18 places 

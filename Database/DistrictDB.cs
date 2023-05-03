@@ -149,6 +149,14 @@ namespace MetaverseMax.Database
                     district.construction_commercial_tax = constructionTax.Value<int?>(3) ?? 0;
                     district.construction_municipal_tax = constructionTax.Value<int?>(4) ?? 0;
                 }
+                else
+                {
+                    district.construction_energy_tax = 0;
+                    district.construction_industry_production_tax = 0;
+                    district.construction_residential_tax = 0;
+                    district.construction_commercial_tax = 0;
+                    district.construction_municipal_tax = 0;
+                }
 
                 district.distribution_period = districtToken.Value<int?>("distribution_period") ?? 0;
                 district.insurance_commission = districtToken.Value<int?>("insurance_commission") ?? 0;
