@@ -20,7 +20,7 @@ export class GraphTaxComponent {
   //graphDataConstruct: any;
   //graphDataProduce: any;
 
-  multi: any[];
+  private multi: any[];
   view: any[];
 
   // options
@@ -55,9 +55,9 @@ export class GraphTaxComponent {
     this.showYAxisLabel = graphTax.show_yaxis_label;
     //this.view = graphTax.view;
     this.colorScheme.domain = graphTax.domain;
-    this.multi = graphTax.graphColumns;    
+    let multiData = this.multi = graphTax.graphColumns;
 
-    Object.assign(this, this.multi);
+    Object.assign(this, { multiData });
 
   }
 

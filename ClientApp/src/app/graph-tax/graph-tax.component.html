@@ -16,6 +16,8 @@
                               [yAxisTickFormatting]="setPrecentLabel"
                               (select)="onSelect($event)"
                               (activate)="onActivate($event)"
-                              (deactivate)="onDeactivate($event)">
+                              (deactivate)="onDeactivate($event)"
+                              [noBarWhenZero]="false"
+                              >
   </ngx-charts-bar-vertical-2d>
 </div>

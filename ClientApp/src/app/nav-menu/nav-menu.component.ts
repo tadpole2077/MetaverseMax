@@ -154,13 +154,13 @@ export class NavMenuComponent {
     if (this.globals.selectedWorld == WORLD.TRON) {
 
       this.globals.requestApprove = false;
-      this.globals.getTronAccounts(this.httpClient, this.baseUrl);
+      this.globals.getTronAccounts(this.baseUrl);
       
     }
     else if (this.globals.selectedWorld == WORLD.BNB || this.globals.selectedWorld == WORLD.ETH ) {
 
       this.globals.requestApprove = false;
-      this.globals.getEthereumAccounts(this.httpClient, this.baseUrl, false);      
+      this.globals.getEthereumAccounts(this.baseUrl, false);      
 
     }
 
@@ -224,7 +224,7 @@ export class NavMenuComponent {
     console.log("Ethereum Account Changed");
 
     this.globals.initAccount();
-    this.globals.getEthereumAccounts(this.httpClient, this.baseUrl, true);
+    this.globals.getEthereumAccounts(this.baseUrl, true);
 
   };
 
@@ -234,7 +234,7 @@ export class NavMenuComponent {
       console.log("setAccount event", e.data.message);
       console.log("current address:", e.data.message.data.address);
 
-      this.globals.checkTronAccountKey(this.httpClient, this.baseUrl, this.cdf);
+      this.globals.checkTronAccountKey(this.baseUrl, this.cdf);
     }*/
 
     if (e.data.message && e.data.message.action == "accountsChanged") {
@@ -242,7 +242,7 @@ export class NavMenuComponent {
       console.log("Tron current address:", e.data.message.data.address);
 
       this.globals.initAccount();
-      this.globals.checkTronAccountKey(this.httpClient, this.baseUrl, true);
+      this.globals.checkTronAccountKey(this.baseUrl, true);
     }
 
   };

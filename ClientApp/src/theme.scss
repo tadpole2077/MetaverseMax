@@ -24,13 +24,20 @@ $app-button-color: mat.get-color-from-palette($light-app-primary);
 
 $app-link-color: mat.get-color-from-palette($light-app-primary);
 @include mode.home($app-button-bg, $app-button-color, $app-button-color);
-@include mode.link($app-link-color, #000);
+@include mode.link($app-link-color, #000, mat.get-color-from-palette($light-app-primary));
 
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
 // Default using light theme set
 $light-app-theme: palette-helper.mat-set-custom-table($light-app-theme, #343a40);
+
+// Icons
+$money-light: #85bb65;
+
+// highlight button color
+$light-button-active-glow: mat.get-color-from-palette(mat.define-palette(mat.$blue-palette,600));
+
 @include mat.all-component-themes($light-app-theme);
 
 
@@ -67,6 +74,7 @@ $foreground: map-get($dark-app-theme, foreground);
   div.accountContainer {
     background-color: inherit;
   }
+
   div.promptLink {
     border-color: #1b6ec2;
     border-style: solid;
@@ -78,10 +86,6 @@ $foreground: map-get($dark-app-theme, foreground);
   // Number shadow
   span.buildingNum, span.dayExpiry, span.staminaLow {
     text-shadow: none;
-  }
-  // Global underline animation
-  a.lineAnim::before {
-    background-color: #FFF;
   }
   //inner container
   .container {
@@ -104,7 +108,7 @@ $foreground: map-get($dark-app-theme, foreground);
     color: $dark-app-button-color
   }
 
-  .districtSell, a.showAllLink i.fa-times {
+  .districtSell, a.showAllLink i.fa-times, .warnData {
     color: orangered
   }
 
@@ -124,6 +128,23 @@ $foreground: map-get($dark-app-theme, foreground);
   .mysteryImg {
     background-color: wheat;
     border-radius: 50%;
+  }
+
+  .menuContainer .ownerImg:hover {
+    background: #f8f2e4;
+  }
+
+  .menuContainer img.mysteryDark:hover {
+    background-color: white;
+  }
+  // Bell and shake effect
+  .alertBell a span:hover {
+    color: white
+  }
+
+  .shake1:before, .shake2:before, .shake1:after, .shake2:after {
+    border: 0 solid transparent;
+    border-top: 2px solid lightgray;
   }
 
   .table-striped > tbody > tr:nth-of-type(odd) > * {
@@ -153,6 +174,10 @@ $foreground: map-get($dark-app-theme, foreground);
   // District Summary
   #taxChangeAccordion .mat-expansion-panel, #taxChangeAccordion .mat-expansion-panel-body {
     background-color: $dark-inner-bg;
+  }
+
+  .adframe {
+    color: white;
   }
   // Production History
   span.summaryLabel, .helpTip span, .helpTipNoIcon span {
@@ -199,6 +224,10 @@ $foreground: map-get($dark-app-theme, foreground);
     }
   }
 
+  .chart-legend .legend-label .active .legend-label-text {
+    color: white;
+  }
+
   i.arrivalIcon {
     animation: glowDark 1s ease-in-out infinite alternate;
   }
@@ -223,7 +252,11 @@ $foreground: map-get($dark-app-theme, foreground);
   div.boxOutline {
     border-color: var(--bs-gray-600);
   }
-  // dropdown-menu
+  // building-ip component
+  td .activeProduce {
+    background-color: $dark-inner-bg;
+  }
+  // dropdown-menu - Alert component
   .dropdown-menu {
     background-color: $dark-menu-bg;
   }
@@ -247,14 +280,35 @@ $foreground: map-get($dark-app-theme, foreground);
     border-radius: 6px;
   }
 
+  .deleteAlert {
+    border: 1px solid white;
+  }
+
+  .scrollbarFancy::-webkit-scrollbar-thumb {
+    background-color: $dark-inner-bg;
+  }
+
+  .moneyIcon, .warningIcon {
+    color: inherit;
+  }
+
+  .messageItem {
+    border-bottom-color: gray;
+  }
+
+
 
   @include mat.all-component-themes($dark-app-theme);
-  @include mat.table-theme($dark-app-theme);
-  @include mat.core-color($dark-app-theme);
-  @include mat.button-color($dark-app-theme);
   @include mode.home($dark-app-button-bg, $app-button-hover-bg, $dark-app-button-color);
-  @include mode.link($dark-app-button-color, #FFF);
+  @include mode.link($dark-app-button-color, #FFF, #FFF);
 
+  .mat-raised-button:hover {
+    background-color: $light-button-active-glow;
+  }
+
+  .mat-button-toggle-appearance-standard {
+    color: rgba(255, 255, 255, 0.5);
+  }
 
   @keyframes glowDark {
     from {
@@ -275,6 +329,20 @@ $foreground: map-get($dark-app-theme, foreground);
       text-shadow: 0 0 1px #fff, 0 0 3px #FFF, 0 0 5px #ff4da6, 0 0 7px #ff4da6;
     }
   }
+
+  .topBtnDiv .mat-button-toggle-checked button {
+    animation: glowBtnDoggleDark 1.4s ease-in-out infinite alternate;
+  }
+
+  @keyframes glowBtnDoggleDark {
+    from {
+      box-shadow: 0 0 1px gray, 0 0 2px gray
+    }
+
+    to {
+      box-shadow: 0 0 2px #353741, 0 0 3px #353741;
+    }
+  }
 }
 
 
@@ -282,8 +350,18 @@ $foreground: map-get($dark-app-theme, foreground);
 
 
 // Extra color used within materials
+@keyframes glowBtnDoggle {
+  from {
+    box-shadow: 0 0 1px gray, 0 0 3px gray;
+  }
+
+  to {
+    box-shadow: 0 0 2px $light-button-active-glow, 0 0 3px $light-button-active-glow, 0 0 5px $light-button-active-glow, 0 0 7px $light-button-active-glow;
+  }
+}
+
 .mat-raised-button:hover {
-  background-color: mat.get-color-from-palette(mat.define-palette(mat.$blue-palette,600));
+  background-color: $light-button-active-glow;
 }
 
 a.closeframe:hover {
@@ -302,11 +380,6 @@ a.closeframe:hover {
 }
 
 
-// underline animation
-a.lineAnim::before {
-  background-color: mat.get-color-from-palette($light-app-primary);
-}
-
 .districtNum {
   color: darkslateblue
 }
@@ -318,6 +391,39 @@ a.lineAnim::before {
 
 .districtSell, a.showAllLink i.fa-times {
   color: #8b0000;
+}
+
+.menuContainer .ownerImg:hover {
+  background: #e1f1fd;
+}
+.menuContainer .mysteryLight:hover {
+  background-color: lightsalmon;
+}
+
+
+.deleteAlert {  
+  border: 1px solid gray;
+}
+
+.adframe {
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.scrollbarFancy::-webkit-scrollbar-thumb {
+  background-color: $app-link-color;
+}
+.moneyIcon {
+  color: $money-light
+}
+.warningIcon {
+  color: darkorange
+}
+.messageItem {
+  border-bottom: solid 1px rgba(0, 0, 0, 0.12);
+}
+.shake1:before, .shake2:before, .shake1:after, .shake2:after {
+  border: 0 solid transparent;
+  border-top: 2px solid darkgray;
 }
 
 // Final overwrites - higher specificity then above rules

@@ -38,3 +38,26 @@ a {
   text-shadow: -1px -1px 1px #fff, 1px 1px 1px #fff;
   width:3rem;
 }
+
+.world{
+
+}
+
+.alertHistory {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.8rem;
+  font-size: 1.6rem;
+}
+
+@media only screen and (max-width: 415px) {
+  .world {
+  }
+
+  .alertHistory {
+    position: relative;
+    margin-top: -16px;
+    margin-left: 10px;
+  }
+
+}

@@ -74,7 +74,7 @@ namespace MetaverseMax.Controllers
 
             if (ModelState.IsValid)
             {
-                return Ok(Task.Run(() => buildingManage.BuildingIPbyTypeGet(parameters.type, parameters.level, false, 50, true)).Result);
+                return Ok(Task.Run(() => buildingManage.BuildingIPbyTypeGet(parameters.type, parameters.level, false, 50, true, parameters.requester_matic)).Result);
             }
 
             return BadRequest("GetBuildingByType is invalid");       // 400 Error     
@@ -113,7 +113,7 @@ namespace MetaverseMax.Controllers
 
             if (ModelState.IsValid)
             {
-                return Ok(Task.Run(() => buildingManage.UpdateIPRankingByType(parameters.type, parameters.level, 100, true)).Result);
+                return Ok(Task.Run(() => buildingManage.UpdateIPRankingByType(parameters.type, parameters.level, 100, true, parameters.requester_matic)).Result);
             }
 
             return BadRequest("UpdateIPRankingByType is invalid");       // 400 Error     

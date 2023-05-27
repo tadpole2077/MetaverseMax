@@ -13,7 +13,9 @@
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <app-nav-menu-world class="searchDistrict" (selectWorldEvent)="selectWorld($event)" [selectedWorld]="globals.selectedWorld"></app-nav-menu-world>
+      <app-nav-menu-world class="world" (selectWorldEvent)="selectWorld($event)" [selectedWorld]="globals.selectedWorld"></app-nav-menu-world>
+
+      <app-alert-history class="alertHistory" *ngIf="globals.ownerAccount.alert_count >0"></app-alert-history>
 
       <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end" [ngClass]="{ show: isExpanded }">
 
@@ -23,8 +25,8 @@
               [routerLinkActiveOptions]="{ exact: true }">
             <a class="nav-link lineAnim" [ngClass]="{ 'text-dark':!globals.ownerAccount.dark_mode, 'text-light':globals.ownerAccount.dark_mode}" [routerLink]="['/', globals.worldCode]">Home</a>
           </li>
-          <li #officeFilter *ngIf="globals.ownerAccount.matic_key != 'Not Found'" class="nav-item" [routerLinkActive]="['link-active']">
-            <a class="nav-link lineAnim" [ngClass]="{ 'text-dark':!globals.ownerAccount.dark_mode, 'text-light':globals.ownerAccount.dark_mode}" (click)="navMyPortfolio()" >My-Portfolio</a>
+          <li #officeFilter *ngIf="globals.ownerAccount.wallet_active_in_world" class="nav-item" [routerLinkActive]="['link-active']">
+            <a class="nav-link lineAnim" [ngClass]="{ 'text-dark':!globals.ownerAccount.dark_mode, 'text-light':globals.ownerAccount.dark_mode}" (click)="navMyPortfolio()">My-Portfolio</a>
           </li>
           <li class="nav-item" [routerLinkActive]="['link-active']">
             <a class="nav-link lineAnim" [ngClass]="{ 'text-dark':!globals.ownerAccount.dark_mode, 'text-light':globals.ownerAccount.dark_mode}" [routerLink]="['/', globals.worldCode, 'owner-data']">Plot-Owner</a>
@@ -39,15 +41,14 @@
             </a>
           </li>
           <li>
-            <app-nav-menu-owner (darkModeChangeEvent)="darkModeChange($event)"></app-nav-menu-owner>           
+            <app-nav-menu-owner (darkModeChangeEvent)="darkModeChange($event)"></app-nav-menu-owner>
           </li>
         </ul>
-
       </div>
     </div>
   </nav>
 
-  <app-account-approve></app-account-approve>
+  <app-account-approve></app-account-approve>  
 
 </header>
 

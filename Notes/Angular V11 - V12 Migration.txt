@@ -2,13 +2,17 @@
 Links:
 https://update.angular.io/?l=2&v=11.0-12.0
 
+PreInstall Check:
+	node -v  >>  v16.10.0   (version set by NVM)
+	nvm install 18.10.0 >>  Install Node 18.10.0  (compatible with Angular 15)
+	npm i typescript@4.8.2	
+
 Run Test:
 	cmd: npm start		- works, compiles & loads angular engine and site without issue.
 	VS2022 IIS Express run -  still showing SpaProxyLaunchManager error and iterative auto-restart of SPA proxy
 
 Actions:
 	Angular upgrade 11 to 12.2.18,  + Materials + medium complexity
-	npm i typescript@4.2.4	
 	npm i @ng-bootstrap/ng-bootstrap@10.0.0   (prior version @9.1.3) : https://www.npmjs.com/package/@ng-bootstrap/ng-bootstrap/v/10.0.0
 	npm i @types/node@14.14.31
 	npm WARN acorn-import-assertions@1.8.0 requires a peer of acorn@^8 but none is installed. You must install peer dependencies yourself.
@@ -31,4 +35,4 @@ Potential Code change:
 		This is used in nav-menu.component, may need to update once i can run the project.
 
 Reading:
-	Typescript 4.4 changes https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-4.html
+	Typescript 4.8.2 changes https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-8.html

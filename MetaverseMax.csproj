@@ -47,12 +47,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="ClientApp\src\app\alert-history\alert-history.component.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="compilerconfig.json" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\app\alert-bottom\alert-bottom.component.ts" />
+    <None Remove="ClientApp\src\app\alert-menu\alert-menu.component.ts" />
     <None Remove="ClientApp\src\app\building-filter\building-filter.component.ts" />
     <None Remove="ClientApp\src\app\building-ip\building-ip.component.ts" />
+    <None Remove="ClientApp\src\app\common\enum.ts" />
     <None Remove="ClientApp\src\app\common\global-var.ts" />
     <None Remove="ClientApp\src\app\common\graph-interface.ts" />
     <None Remove="ClientApp\src\app\district-list\district-list.component.css" />

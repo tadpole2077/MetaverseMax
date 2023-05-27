@@ -73,7 +73,8 @@ namespace MetaverseMax.Database
                             avatar_id = o.avatar_id ?? 0,
                             dark_mode = o.dark_mode,
                             pro_tools_enabled = (o.pro_access_expiry ?? DateTime.UtcNow) > DateTime.UtcNow ? true : false,
-                            pro_expiry_days = GetExpiryDays(o.pro_access_expiry, (o.pro_access_expiry ?? DateTime.UtcNow) > DateTime.UtcNow ? true : false)
+                            pro_expiry_days = GetExpiryDays(o.pro_access_expiry, (o.pro_access_expiry ?? DateTime.UtcNow) > DateTime.UtcNow ? true : false),
+                            alert_activated = o.alert_activated,
                         }
                         );
 
@@ -130,6 +131,33 @@ namespace MetaverseMax.Database
                 DBLogger dBLogger = new(_context.worldTypeSelected);
                 dBLogger.logException(ex, String.Concat("OwnerDB::UpdateOwnerDarkMode() : Error updating owner with matic Key - ", ownerMaticKey));
             }
+
+
+            return returnCode;
+        }
+        
+        public RETURN_CODE UpdateOwnerAlertActivated(string ownerMaticKey, bool alertActivated)
+        {
+            RETURN_CODE returnCode = RETURN_CODE.ERROR;
+            Owner owner = null;
+            try
+            {
+                owner = _context.owner.Where(o => o.owner_matic_key == ownerMaticKey).FirstOrDefault();
+
+                if (owner != null)
+                {
+                    owner.alert_activated = alertActivated;
+
+                    _context.SaveChanges();
+                    returnCode = RETURN_CODE.SUCCESS;
+                }
+            }
+            catch (Exception ex)
+            {
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("OwnerDB::UpdateOwnerAlertActivated() : Error updating owner with matic Key - ", ownerMaticKey));
+            }
+
 
             return returnCode;
         }

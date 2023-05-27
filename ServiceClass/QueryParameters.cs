@@ -65,7 +65,7 @@ namespace MetaverseMax.ServiceClass
 
     }
 
-    public class QueryParametersOwnerOffer
+    public class QueryParametersMatic
     {
         //[BindRequired]
         //public bool active { get; set; }
@@ -80,6 +80,51 @@ namespace MetaverseMax.ServiceClass
     {
         [BindRequired]
         public string secure_token { get; set; }
+
+    }
+
+    public class QueryParametersAlert
+    {
+        [BindRequired]
+        public string matic_key { get; set; }
+
+        [BindRequired]
+        public int alert_type { get; set; }
+
+        [BindRequired]
+        public int id { get; set; }
+
+        [BindRequired]
+        public int action { get; set; }
+
+    }
+    public class QueryParametersAlertGet
+    {
+        [BindRequired]
+        public string matic_key { get; set; }
+
+        [BindRequired]
+        public int district_id { get; set; }
+
+    }
+
+    public class QueryParametersAlertPendingGet
+    {
+        [BindRequired]
+        public string matic_key { get; set; }
+
+        [BindRequired]
+        public int pending_alert { get; set; }
+
+    }
+
+    public class QueryParametersAlertDelete
+    {
+        [BindRequired]
+        public string matic_key { get; set; }
+
+        [BindRequired]
+        public int alert_pending_key { get; set; }
 
     }
 
@@ -162,6 +207,10 @@ namespace MetaverseMax.ServiceClass
 
         [BindRequired]
         public int level { get; set; }
+
+        [BindRequired]
+        public string requester_matic { get; set; }
+        
     }
 
     public class QueryParametersGetPlotMatric

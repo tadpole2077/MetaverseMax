@@ -180,7 +180,7 @@ namespace MetaverseMax.ServiceClass
             }
 
             return citizenCollection;
-        }
+        }        
 
         private List<CitizenWeb> PopulateCitizenList(List<OwnerCitizenExt> citizenList)
         {
@@ -845,12 +845,12 @@ namespace MetaverseMax.ServiceClass
                 ownerCitizenAction.link_date = citizenAction[actionCounter].action_datetime ?? DateTime.UtcNow;
 
 
-                // Get next older action prior to current action being processed                
+                // FROM LOCAL DB - Get next older action prior to current action being processed                
                 ownerCitizenActionDBPrior = storedActions.Where(oc => oc.link_date <= ownerCitizenAction.link_date)
                     .OrderByDescending(oc => oc.link_date)
                     .FirstOrDefault();
 
-                // Get next newer action prior to current action being processed                
+                // FROM LOCAL DB - Get next newer action prior to current action being processed                
                 ownerCitizenActionDBNext = storedActions.Where(oc => oc.link_date > ownerCitizenAction.link_date)
                     .OrderBy(oc => oc.link_date)
                     .FirstOrDefault();
@@ -865,6 +865,7 @@ namespace MetaverseMax.ServiceClass
                 // Assign New Action Data
                 ownerCitizenAction.land_token_id = citizenAction[actionCounter].action_type switch
                 {
+                    (int)ACTION_TYPE.NEW_OWNER => 0,        // Citizen Transfer, reset land to new owner
                     (int)ACTION_TYPE.REMOVE_CITIZEN => 0,
                     (int)ACTION_TYPE.ASSIGN_CITIZEN => citizenAction[actionCounter].land_token_id,
                     _ => ownerCitizenActionDBPrior != null ? ownerCitizenActionDBPrior.land_token_id : 0
@@ -872,6 +873,7 @@ namespace MetaverseMax.ServiceClass
 
                 ownerCitizenAction.pet_token_id = citizenAction[actionCounter].action_type switch
                 {
+                    (int)ACTION_TYPE.NEW_OWNER => 0,        // Citizen Transfer, reset Pet to none
                     (int)ACTION_TYPE.REMOVE_PET => 0,
                     (int)ACTION_TYPE.PET_NEW_OWNER => 0,
                     (int)ACTION_TYPE.ASSIGN_PET => citizenAction[actionCounter].pet_token_id,

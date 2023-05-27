@@ -90,7 +90,7 @@ namespace MetaverseMax.Controllers
         }
 
         [HttpGet("GetOfferMCP")]
-        public IActionResult GetOfferMCP([FromQuery] QueryParametersOwnerOffer parameters)
+        public IActionResult GetOfferMCP([FromQuery] QueryParametersMatic parameters)
         {
             OwnerManage ownerManage = new(_context, common.IdentifyWorld(Request.Path));
 
@@ -194,6 +194,71 @@ namespace MetaverseMax.Controllers
 
             return BadRequest("Call is invalid");       // 400 Error   
         }
+
+        [HttpGet("UpdateOwnerAlert")]
+        public IActionResult UpdateOwnerAlert([FromQuery] QueryParametersAlert parameters)
+        {
+            ServiceClass.AlertTrigger alertTrigger = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(alertTrigger.UpdateOwnerAlert(parameters.matic_key, parameters.alert_type, parameters.id, (ALERT_ACTION_TYPE)parameters.action));
+            }
+
+            return BadRequest("Call is invalid");       // 400 Error   
+        }
+
+        [HttpGet("GetAlert")]
+        public IActionResult GetAlert([FromQuery] QueryParametersAlertGet parameters)
+        {
+            ServiceClass.AlertTrigger alertTrigger = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(alertTrigger.Get(parameters.matic_key, parameters.district_id));
+            }
+
+            return BadRequest("Call is invalid");       // 400 Error   
+        }
+
+        [HttpGet("GetPendingAlert")]
+        public IActionResult GetPendingAlert([FromQuery] QueryParametersAlertPendingGet parameters)
+        {
+            AlertManage alert = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(alert.Get(parameters.matic_key, (ALERT_STATE)parameters.pending_alert));
+            }
+
+            return BadRequest("Call is invalid");       // 400 Error   
+        }
+
+        [HttpGet("UpdateRead")]
+        public IActionResult GetUpdateRead([FromQuery] QueryParametersMatic parameters)
+        {
+            AlertManage alert = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(alert.UpdateRead(parameters.matic_key));
+            }
+
+            return BadRequest("Call is invalid");       // 400 Error   
+        }
+
+        [HttpGet("DeletePendingAlert")]
+        public IActionResult DeleteAlert([FromQuery] QueryParametersAlertDelete parameters)
+        {
+            AlertManage alert = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(alert.Delete(parameters.matic_key, parameters.alert_pending_key));
+            }
+
+            return BadRequest("Call is invalid");       // 400 Error   
+        }        
 
         [HttpGet("UnitTest_UpdateOwnerName")]
         public IActionResult UnitTest_UpdateOwnerName()

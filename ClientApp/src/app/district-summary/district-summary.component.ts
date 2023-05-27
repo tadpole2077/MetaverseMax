@@ -7,6 +7,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { AfterViewInit } from '@angular/core';
 import { NoteModalComponent } from '../note-modal/note-modal.component';
+import { AlertMenuComponent } from '../alert-menu/alert-menu.component';
 import { GraphTaxComponent } from '../graph-tax/graph-tax.component';
 import { GraphFundComponent } from '../graph-fund/graph-fund.component';
 import { TaxChangeComponent } from '../tax-change/tax-change.component';
@@ -46,6 +47,7 @@ export class DistrictSummaryComponent implements AfterViewInit {
   dataSourceOwnerSummary = new MatTableDataSource(null);
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(NoteModalComponent, { static: true }) childNote: NoteModalComponent;
+  @ViewChild(AlertMenuComponent, { static: true }) alertMenu: AlertMenuComponent;
   @ViewChild("taxChange", { static: true }) taxChange: TaxChangeComponent;
   @ViewChild("taxChangePanel", { static: true }) taxChangePanel: MatExpansionPanel;
 
@@ -76,6 +78,7 @@ export class DistrictSummaryComponent implements AfterViewInit {
       owner_matic: "",
       active_from: "",
       land_count: 0,
+      initial_land_price: 0,
       energy_count: 0,
       industry_count: 0,
       production_count: 0,
@@ -111,7 +114,17 @@ export class DistrictSummaryComponent implements AfterViewInit {
       this.isMobileView = true;
     }
 
-    this.districtImgURL = "https://play.mcp3d.com/assets/images/districts/" + globals.worldCode.toUpperCase() + "/"  + this.requestDistrictId + ".png";
+    this.districtImgURL = "https://play.mcp3d.com/assets/images/districts/" + globals.worldCode.toUpperCase() + "/" + this.requestDistrictId + ".png";
+
+    // Monitor using service - when account status changes - active / inactive.
+    this.globals.accountActive$.subscribe(active => {
+
+      console.log("account status : " + active);
+      if (this.district.district_id != 0) {
+        this.alertMenu.getAlert(this.district.district_id);
+      }
+
+    })
 
   }
 
@@ -123,50 +136,59 @@ export class DistrictSummaryComponent implements AfterViewInit {
   }
 
   // Single parameter struct containing 1 element, pushed by component search-district
-  searchDistrict(district_id: number) {
+  searchDistrict(districtId: number) {
 
     let params = new HttpParams();
-    params = params.append('district_id', district_id.toString());
+    params = params.append('district_id', districtId.toString());
 
     this.adShow = false;
-    this.requestDistrictId = district_id;
+    this.requestDistrictId = districtId;
 
 
     this.districtImgURL = "https://play.mcp3d.com/assets/images/districts/" + this.globals.worldCode.toUpperCase() + "/" + this.requestDistrictId + ".png";
 
     this.httpClient.get<District>(this.baseUrl + '/district', { params: params })
-      .subscribe((result: District) => {                
+      .subscribe({
+        next: (result) => {
 
-        this.district = result;
+          this.district = result;
 
-        // Redirect back to list if no district found matching id
-        if (this.district.district_id == 0) {        
-          let navigateTo: string = '/' + this.globals.worldCode + '/district-list';
-          this.router.navigate([navigateTo]);
-        }
+          // CORNER CASE: Redirect back to list if no district found matching id  (Change World)
+          if (this.district.district_id == 0) {
+            let navigateTo: string = '/' + this.globals.worldCode + '/district-list';
+            this.router.navigate([navigateTo]);
+          }
+          else {
+            this.router.navigate(['/' + this.globals.worldCode + '/district-summary'], { queryParams: { district_id: districtId } });
+          }
 
-        this.searchOwnerSummaryDistrict(district_id, this.district.update_instance);
+          this.searchOwnerSummaryDistrict(districtId, this.district.update_instance);
 
-        this.arrivalsWeek.checked = false;
-        this.arrivalsMonth.checked = false;
+          this.arrivalsWeek.checked = false;
+          this.arrivalsMonth.checked = false;
 
-        if (this.district.district_id != 0) {
-          this.childGraphConstruct.loadGraph(this.district.constructTax);
-          this.childGraphProduce.loadGraph(this.district.produceTax);
-          this.childGraphFund.loadGraph(this.district.fundHistory);
-          this.childGraphDistribute.loadGraph(this.district.distributeHistory);
-        }
-        //plotPos.rotateEle.classList.remove("rotate");
+          if (this.district.district_id != 0) {
+            this.childGraphConstruct.loadGraph(this.district.constructTax);
+            this.childGraphProduce.loadGraph(this.district.produceTax);
+            this.childGraphFund.loadGraph(this.district.fundHistory);
+            this.childGraphDistribute.loadGraph(this.district.distributeHistory);
+          }
+          //plotPos.rotateEle.classList.remove("rotate");
 
-        // Extract last fund total amount and display
-        if (this.district.fundHistory) {
-          let fund = this.district.fundHistory.graphColumns[0].series;
-          let distribute = this.district.distributeHistory.graphColumns[0].series;
-          this.fundtotal = fund[fund.length - 1].value;
-          this.fundDaily = distribute[distribute.length - 1].value;
-        }
+          // Extract last fund total amount and display
+          if (this.district.fundHistory) {
+            let fund = this.district.fundHistory.graphColumns[0].series;
+            let distribute = this.district.distributeHistory.graphColumns[0].series;
+            this.fundtotal = fund[fund.length - 1].value;
+            this.fundDaily = distribute[distribute.length - 1].value;
+          }
 
-      }, error => console.error(error));
+          if (this.globals.ownerAccount.wallet_active_in_world) {
+            this.alertMenu.getAlert(districtId);
+          }
+        },
+        error: (error) => { console.error(error) }
+      });
 
 
     return;
@@ -184,24 +206,27 @@ export class DistrictSummaryComponent implements AfterViewInit {
     this.taxChangePanel.close();
     
     this.httpClient.get<OwnerSummary[]>(this.baseUrl + '/ownersummary', { params: params })
-      .subscribe((result: OwnerSummary[]) => {
+      .subscribe({
+        next: (result) => {          
 
-        this.ownerSummary = result;
+          this.ownerSummary = result;
         
-        this.dataSourceOwnerSummary = new MatTableDataSource<OwnerSummary>(this.ownerSummary);
-        this.dataSourceOwnerSummary.sort = this.sort;                
+          this.dataSourceOwnerSummary = new MatTableDataSource<OwnerSummary>(this.ownerSummary);
+          this.dataSourceOwnerSummary.sort = this.sort;                
 
-        // Store new arrivals for use on filter
-        this.ownerSummary.forEach(summary => {
-          if (summary.new_owner == true) {
-            this.ownerSummaryNewArrivals_Week.push(summary);
-          }
-          if (summary.new_owner_month == true) {
-            this.ownerSummaryNewArrivals_Month.push(summary);
-          }          
-        });
+          // Store new arrivals for use on filter
+          this.ownerSummary.forEach(summary => {
+            if (summary.new_owner == true) {
+              this.ownerSummaryNewArrivals_Week.push(summary);
+            }
+            if (summary.new_owner_month == true) {
+              this.ownerSummaryNewArrivals_Month.push(summary);
+            }
+          });
 
-      }, error => console.error(error));
+        },
+        error: (error) => { console.error(error) }
+      });
 
     return;
   }
@@ -236,6 +261,7 @@ export class DistrictSummaryComponent implements AfterViewInit {
 
   // District ad modal popup shown - user can close or move it
   showAd(promotionText: string, promotionStart: string, promotionEnd: string) {
+
     this.childNote.adShow(promotionText, promotionStart, promotionEnd);
     this.adShow = true;
 

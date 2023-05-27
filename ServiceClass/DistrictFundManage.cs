@@ -102,9 +102,8 @@ namespace MetaverseMax.ServiceClass
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                _context.LogEvent(String.Concat("DistrictFund::UpdateFundAll() : Error updating district_id = ", districtId));
-                _context.LogEvent(log);
+                DBLogger dbLogger = new(_context, worldType);
+                dbLogger.logException(ex, String.Concat("DistrictFund::UpdateFundAll() : Error updating district_id = ", districtId));
             }
 
             return status;
@@ -120,9 +119,8 @@ namespace MetaverseMax.ServiceClass
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                _context.LogEvent(String.Concat("DistrictFund::UpdateTaxChanges() : Error occured "));
-                _context.LogEvent(log);
+                DBLogger dbLogger = new(_context, worldType);
+                dbLogger.logException(ex, String.Concat("DistrictFund::UpdateTaxChanges() : Error occured"));
             }
 
             return returnCode;
@@ -166,9 +164,8 @@ namespace MetaverseMax.ServiceClass
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                _context.LogEvent(String.Concat("DistrictFund::DistributionUpdate() : Error occured "));
-                _context.LogEvent(log);
+                DBLogger dbLogger = new(_context, worldType);
+                dbLogger.logException(ex, String.Concat("DistrictFund::DistributionUpdateMaster() : Error occured - Action : ", (int)distributeAction));
             }
 
             return totalProcessed;
@@ -301,9 +298,8 @@ namespace MetaverseMax.ServiceClass
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                _context.LogEvent(String.Concat("DistrictFund::DistrubutionUpdatePerWorld() : Error occured "));
-                _context.LogEvent(log);
+                DBLogger dbLogger = new(_context, worldType);
+                dbLogger.logException(ex, String.Concat("DistrictFund::DistrubutionUpdatePerWorld() : Error occured Action: ", (int)distributeAction));
 
                 if (processContext != null && processContext.IsDisposed() == false)
                 {
@@ -411,9 +407,8 @@ namespace MetaverseMax.ServiceClass
             }
             catch (Exception ex)
             {
-                string log = ex.Message;
-                _context.LogEvent(String.Concat("DistrictFund::UpdateFundPriorDay() : Error updating district_id = ", districtId));
-                _context.LogEvent(log);
+                DBLogger dbLogger = new(_context, worldType);
+                dbLogger.logException(ex, String.Concat("DistrictFund::UpdateFundPriorDay() : Error updating district_id = ", districtId));
             }
 
             return status;

@@ -33,5 +33,8 @@ namespace MetaverseMax.Database
         [Column("change_value")]
         public int? change_value { get; set; }
 
+        [Column("alert_type")]
+        public int? alert_type { get; set; }
+
     }
 }

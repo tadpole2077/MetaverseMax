@@ -12,8 +12,10 @@
             district = districtWeb;
             districtHistory = districtWebHistory;
 
-            currentMonth = districtWeb.last_update.ToString("MMM");
+            currentMonth = districtWeb.last_update.ToString("MMM");            
             lastMonth = districtWebHistory.last_update.ToString("MMM");
+            lastMonth = lastMonth == currentMonth ? null : lastMonth;           // dont show repeat month - if only 1 month of data
+
         }
 
         public NgxChart Construct()
@@ -34,49 +36,91 @@
                 show_yaxis_label = true
             };
 
-
-            ngxChart.graphColumns = new NGXGraphColumns[5]
+            if (lastMonth != null) 
             {
-                new NGXGraphColumns(){
-                    name = "Energy",
-                    series = new NGXChartSeries[2] {
-                        new NGXChartSeries(){ name = lastMonth, value = districtHistory.construction_energy_tax },
-                        new NGXChartSeries(){ name = currentMonth, value = district.construction_energy_tax }
-                    }
-                },
-                new NGXGraphColumns()
+                ngxChart.graphColumns = new NGXGraphColumns[5]
                 {
-                    name = "Ind+Prod",
-                    series = new NGXChartSeries[2] {
-                        new NGXChartSeries(){ name = lastMonth, value = districtHistory.construction_industry_production_tax },
-                        new NGXChartSeries(){ name = currentMonth, value = district.construction_industry_production_tax }
+                    new NGXGraphColumns(){
+                        name = "Energy",
+                        series = new NGXChartSeries[2] {
+                            new NGXChartSeries(){ name = lastMonth, value = districtHistory.construction_energy_tax },
+                            new NGXChartSeries(){ name = currentMonth, value = district.construction_energy_tax }
+                        }
+                    },
+                    new NGXGraphColumns()
+                    {
+                        name = "Ind+Prod",
+                        series = new NGXChartSeries[2] {
+                            new NGXChartSeries(){ name = lastMonth, value = districtHistory.construction_industry_production_tax },
+                            new NGXChartSeries(){ name = currentMonth, value = district.construction_industry_production_tax }
+                        }
+                    },
+                    new NGXGraphColumns()
+                    {
+                        name = "Off+Com",
+                        series = new NGXChartSeries[2] {
+                            new NGXChartSeries(){ name = lastMonth, value = districtHistory.construction_commercial_tax },
+                            new NGXChartSeries(){ name = currentMonth, value = district.construction_commercial_tax }
+                        }
+                    },
+                    new NGXGraphColumns()
+                    {
+                        name = "Muni.",
+                        series = new NGXChartSeries[2] {
+                            new NGXChartSeries(){ name = lastMonth, value = districtHistory.construction_municipal_tax },
+                            new NGXChartSeries(){ name = currentMonth, value = district.construction_municipal_tax }
+                        }
+                    },
+                    new NGXGraphColumns()
+                    {
+                        name = "Resid.",
+                        series = new NGXChartSeries[2] {
+                            new NGXChartSeries(){ name = lastMonth, value = districtHistory.construction_residential_tax },
+                            new NGXChartSeries(){ name = currentMonth, value = district.construction_residential_tax }
+                        }
                     }
-                },
-                new NGXGraphColumns()
-                {
-                    name = "Off+Com",
-                    series = new NGXChartSeries[2] {
-                        new NGXChartSeries(){ name = lastMonth, value = districtHistory.construction_commercial_tax },
-                        new NGXChartSeries(){ name = currentMonth, value = district.construction_commercial_tax }
+                };
+            }
+            else
+            {
+                ngxChart.graphColumns = new NGXGraphColumns[5]
+   {
+                    new NGXGraphColumns(){
+                        name = "Energy",
+                        series = new NGXChartSeries[1] {
+                            new NGXChartSeries(){ name = currentMonth, value = district.construction_energy_tax }
+                        }
+                    },
+                    new NGXGraphColumns()
+                    {
+                        name = "Ind+Prod",
+                        series = new NGXChartSeries[1] {
+                            new NGXChartSeries(){ name = currentMonth, value = district.construction_industry_production_tax }
+                        }
+                    },
+                    new NGXGraphColumns()
+                    {
+                        name = "Off+Com",
+                        series = new NGXChartSeries[1] {
+                            new NGXChartSeries(){ name = currentMonth, value = district.construction_commercial_tax }
+                        }
+                    },
+                    new NGXGraphColumns()
+                    {
+                        name = "Muni.",
+                        series = new NGXChartSeries[1] {
+                            new NGXChartSeries(){ name = currentMonth, value = district.construction_municipal_tax }
+                        }
+                    },
+                    new NGXGraphColumns()
+                    {
+                        name = "Resid.",
+                        series = new NGXChartSeries[1] {
+                            new NGXChartSeries(){ name = currentMonth, value = district.construction_residential_tax }
+                        }
                     }
-                },
-                new NGXGraphColumns()
-                {
-                    name = "Muni.",
-                    series = new NGXChartSeries[2] {
-                        new NGXChartSeries(){ name = lastMonth, value = districtHistory.construction_municipal_tax },
-                        new NGXChartSeries(){ name = currentMonth, value = district.construction_municipal_tax }
-                    }
-                },
-                new NGXGraphColumns()
-                {
-                    name = "Resid.",
-                    series = new NGXChartSeries[2] {
-                        new NGXChartSeries(){ name = lastMonth, value = districtHistory.construction_residential_tax },
-                        new NGXChartSeries(){ name = currentMonth, value = district.construction_residential_tax }
-                    }
-                }
-            };
+                };
+            }
 
             return ngxChart;
         }
@@ -103,40 +147,76 @@
             };
 
 
-            ngxChart.graphColumns = new NGXGraphColumns[4]
+            if (lastMonth != null)
             {
-                new NGXGraphColumns(){
-                    name = "Energy",
-                    series = new NGXChartSeries[2] {
-                        new NGXChartSeries(){ name = lastMonth, value = districtHistory.energy_tax },
-                        new NGXChartSeries(){ name = currentMonth, value = district.energy_tax }
-                    }
-                },
-                new NGXGraphColumns()
+                ngxChart.graphColumns = new NGXGraphColumns[4]
                 {
-                    name = "Ind+Prod",
-                    series = new NGXChartSeries[2] {
-                        new NGXChartSeries(){ name = lastMonth, value = districtHistory.production_tax },
-                        new NGXChartSeries(){ name = currentMonth, value = district.production_tax }
+                    new NGXGraphColumns(){
+                        name = "Energy",
+                        series = new NGXChartSeries[2] {
+                            new NGXChartSeries(){ name = lastMonth, value = districtHistory.energy_tax },
+                            new NGXChartSeries(){ name = currentMonth, value = district.energy_tax }
+                        }
+                    },
+                    new NGXGraphColumns()
+                    {
+                        name = "Ind+Prod",
+                        series = new NGXChartSeries[2] {
+                            new NGXChartSeries(){ name = lastMonth, value = districtHistory.production_tax },
+                            new NGXChartSeries(){ name = currentMonth, value = district.production_tax }
+                        }
+                    },
+                    new NGXGraphColumns()
+                    {
+                        name = "Off+Com",
+                        series = new NGXChartSeries[2] {
+                            new NGXChartSeries(){ name = lastMonth, value = districtHistory.commercial_tax },
+                            new NGXChartSeries(){ name = currentMonth, value = district.commercial_tax }
+                        }
+                    },
+                    new NGXGraphColumns()
+                    {
+                        name = "Citizen",
+                        series = new NGXChartSeries[2] {
+                            new NGXChartSeries(){ name = lastMonth, value = districtHistory.citizen_tax},
+                            new NGXChartSeries(){ name = currentMonth, value = district.citizen_tax }
+                        }
                     }
-                },
-                new NGXGraphColumns()
-                {
-                    name = "Off+Com",
-                    series = new NGXChartSeries[2] {
-                        new NGXChartSeries(){ name = lastMonth, value = districtHistory.commercial_tax },
-                        new NGXChartSeries(){ name = currentMonth, value = district.commercial_tax }
+                };
+            }
+            else
+            {
+               ngxChart.graphColumns = new NGXGraphColumns[4]
+               {
+                    new NGXGraphColumns(){
+                        name = "Energy",
+                        series = new NGXChartSeries[1] {
+                            new NGXChartSeries(){ name = currentMonth, value = district.energy_tax }
+                        }
+                    },
+                    new NGXGraphColumns()
+                    {
+                        name = "Ind+Prod",
+                        series = new NGXChartSeries[1] {
+                            new NGXChartSeries(){ name = currentMonth, value = district.production_tax }
+                        }
+                    },
+                    new NGXGraphColumns()
+                    {
+                        name = "Off+Com",
+                        series = new NGXChartSeries[1] {
+                            new NGXChartSeries(){ name = currentMonth, value = district.commercial_tax }
+                        }
+                    },
+                    new NGXGraphColumns()
+                    {
+                        name = "Citizen",
+                        series = new NGXChartSeries[1] {
+                            new NGXChartSeries(){ name = currentMonth, value = district.citizen_tax }
+                        }
                     }
-                },
-                new NGXGraphColumns()
-                {
-                    name = "Citizen",
-                    series = new NGXChartSeries[2] {
-                        new NGXChartSeries(){ name = lastMonth, value = districtHistory.citizen_tax},
-                        new NGXChartSeries(){ name = currentMonth, value = district.citizen_tax }
-                    }
-                }
-            };
+               };
+            }
             return ngxChart;
         }
     }

@@ -63,6 +63,7 @@ namespace MetaverseMax.Database
             try
             {
                 // Check if Data anomoly - multiple active citizen link - log and fix.
+                // TO_DO check if identify link_date then true dup and should be removed - only one record matching that link_date and time (not sure if this is an active issue)
                 ownerCitizenExistingList = _context.ownerCitizen.Where(r => r.citizen_token_id == tokenId && r.valid_to_date == null).OrderByDescending(x => x.link_date).ToList();
                 ownerCitizenExisting = ownerCitizenExistingList.Count > 0 ? ownerCitizenExistingList[0] : null;
 

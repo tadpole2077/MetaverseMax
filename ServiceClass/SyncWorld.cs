@@ -211,23 +211,21 @@ namespace MetaverseMax.ServiceClass
                                     }
                                     else
                                     {
-                                        targetOwnerChange.monument_activated = targetOwnerChange.monument_activated == false ?
-                                            activated : false;
-
-                                        targetOwnerChange.monument_deactivated = targetOwnerChange.monument_deactivated == false ?
-                                           deactivated : false;
+                                        targetOwnerChange.monument_activated = targetOwnerChange.monument_activated == false ? activated : false;
+                                        targetOwnerChange.monument_deactivated = targetOwnerChange.monument_deactivated == false ? deactivated : false;
                                     }
                                 }
                             }
                         }
                     }
-                    _context.LogEvent(String.Concat("POI Change :  a) District with 1+ Landmark change : ", districtChangeCount, " b) Owners with 1+ Monument change: ", ownerChange.Count));
+
+                    customContext.LogEvent(String.Concat("POI Change :  a) District with 1+ Landmark change : ", districtChangeCount, " b) Owners with 1+ Monument change: ", ownerChange.Count));
                     customContext.SaveWithRetry();
                 }
             }
             catch (Exception ex)
             {
-                DBLogger dbLogger = new(worldType);
+                DBLogger dbLogger = new(passedWorldType);
                 dbLogger.logException(ex, String.Concat("SyncWorld::UpdatePoiBuildings() : Error updating POI buildings"));
             }
 
@@ -236,7 +234,7 @@ namespace MetaverseMax.ServiceClass
 
         public async Task<RETURN_CODE> SyncRun(int jobInterval, WORLD_TYPE worldType)
         {
-            MetaverseMaxDbContext _context = null;
+            MetaverseMaxDbContext _customContext = null;
             PlotDB plotDB;
             DistrictManage districtManage;
             DistrictTaxChangeDB districtTaxChangeDB;
@@ -267,15 +265,15 @@ namespace MetaverseMax.ServiceClass
 
             try
             {
-                _context = new MetaverseMaxDbContext(worldType);
+                _customContext = new MetaverseMaxDbContext(worldType);
 
-                BuildingManage buildingManage = new(_context, worldType);
-                districtManage = new(_context, worldType);
-                districtPerkManage = new(_context, worldType);
-                plotDB = new(_context, worldType);
-                plotManage = new(_context, worldType);
+                BuildingManage buildingManage = new(_customContext, worldType);
+                districtManage = new(_customContext, worldType);
+                districtPerkManage = new(_customContext, worldType);
+                plotDB = new(_customContext, worldType);
+                plotManage = new(_customContext, worldType);
 
-                _context.LogEvent(String.Concat("Start Nightly Sync"));
+                _customContext.LogEvent(String.Concat("Start Nightly Sync"));
                 saveDBOverride = false;
 
                 // Update All Districts from MCP, as a new district may have opened.  Attempt 3 times, before failing - as no districts mean no plot updates
@@ -288,7 +286,7 @@ namespace MetaverseMax.ServiceClass
                 }
                 if (retryCount > 1 && districtListMCPBasic != null && districtListMCPBasic.Count > 0)
                 {
-                    _context.LogEvent(String.Concat("SyncWorld:SyncPlotData() : GetDistrictsFromMCP() retry successful - no ", retryCount));
+                    _customContext.LogEvent(String.Concat("SyncWorld:SyncPlotData() : GetDistrictsFromMCP() retry successful - no ", retryCount));
                 }
                 districtListMCPBasic ??= new();
 
@@ -296,7 +294,7 @@ namespace MetaverseMax.ServiceClass
                 // Store copy of current plots as archived plot state
                 plotDB.ArchivePlots();
                 districtManage.ArchiveOwnerSummaryDistrict();
-                _context.LogEvent(String.Concat("Nightly Sync: Plots Archived, OwnerSummaryDistrict Archived"));
+                _customContext.LogEvent(String.Concat("Nightly Sync: Plots Archived, OwnerSummaryDistrict Archived"));
 
 
                 // Get district perks, attempt 3 times.
@@ -312,33 +310,33 @@ namespace MetaverseMax.ServiceClass
                 }
                 if (retryCount > 1 && districtPerkListMCP != null && districtPerkListMCP.Count > 0)
                 {
-                    _context.LogEvent(String.Concat("SyncWorld:SyncPlotData() : GetPerks() retry successful - no ", retryCount));
+                    _customContext.LogEvent(String.Concat("SyncWorld:SyncPlotData() : GetPerks() retry successful - no ", retryCount));
                 }
-                districtPerkListMCP ??= new();  // CHECK if Error occured and logged - still no succuess after retry, then set List and continue with sync, wont be able to update plots, but other components can complete.
+                districtPerkListMCP ??= new();      // CHECK if Error occured and logged - still no succuess after retry, then set List and continue with sync, wont be able to update plots, but other components can complete.
 
 
-                districtChangeCount = UpdatePoiBuildings(districtListMCPBasic, ownerChangeList, _context, worldType);               // Find changes and Update all POI plots active_until date
+                districtChangeCount = UpdatePoiBuildings(districtListMCPBasic, ownerChangeList, _customContext, worldType);               // Find changes and Update all POI plots active_until date
 
-                plotList = _context.plot.Where(r => r.land_type == (int)LAND_TYPE.BNB_BUILDABLE_LAND || r.land_type == (int)LAND_TYPE.TRON_BUILDABLE_LAND).ToList();
+                plotList = _customContext.plot.Where(r => r.land_type == (int)LAND_TYPE.BNB_BUILDABLE_LAND || r.land_type == (int)LAND_TYPE.TRON_BUILDABLE_LAND).ToList();
                 unclaimedPlotRemovedCount = plotManage.RemoveDistrictPlots(districtListMCPBasic, plotList);     // remove all unclaimed plots from districts that have not changed since last sync
                 accountPlotRemovedCount = plotManage.RemoveAccountPlot(jobInterval, ownerChangeList, districtListMCPBasic, plotList);             // removes all empty plots from process list : if owner account has >2 empty plots - then get latest owner lands (1 SW) and remove all currently empty plots from process list                
                 megaHugeplotsRemoved = plotManage.RemoveMegaHugePlot(plotList);                                 // remove all Mega & Huge plots that comprise a building, having only one plot representing the building.
 
-                _context.LogEvent(String.Concat("Plot filter:  a) unclaimed Plots: ", unclaimedPlotRemovedCount, " b) claimed Plots: ", accountPlotRemovedCount, "  c) huge+mega plots: ", megaHugeplotsRemoved, "  d) Plots to process: ", plotList.Count));
+                _customContext.LogEvent(String.Concat("Plot filter:  a) unclaimed Plots: ", unclaimedPlotRemovedCount, " b) claimed Plots: ", accountPlotRemovedCount, "  c) huge+mega plots: ", megaHugeplotsRemoved, "  d) Plots to process: ", plotList.Count));
 
                 // Iterate each district, update all "buildable plots" within the district then sync district owners, and funds.
                 for (int index = 0; index < districtListMCPBasic.Count; index++)
                 {
                     // Reset DB Context before each DISTRICT plot set sync (as db context may auto close/drop after a set period of time)
-                    _context.SaveWithRetry();
+                    _customContext.SaveWithRetry();
                     saveCounter = 0;
-                    _context.Dispose();
-                    _context = new MetaverseMaxDbContext(worldType);
-                    plotDB = new(_context, worldType);
-                    plotManage = new(_context, worldType);
-                    districtPerkDB = new(_context);
-                    districtManage = new(_context, worldType);
-                    districtFundManage = new(_context, worldType);
+                    _customContext.Dispose();
+                    _customContext = new MetaverseMaxDbContext(worldType);
+                    plotDB = new(_customContext, worldType);
+                    plotManage = new(_customContext, worldType);
+                    districtPerkDB = new(_customContext);
+                    districtManage = new(_customContext, worldType);
+                    districtFundManage = new(_customContext, worldType);
 
                     // Extract list of plots for current target district
                     districtId = districtListMCPBasic[index].district_id;
@@ -379,11 +377,11 @@ namespace MetaverseMax.ServiceClass
                         // Save every 40 plot update collection - improve performance on local db updates.
                         if (saveCounter >= 40 || saveDBOverride == true || plotIndex == plotList.Count - 1)
                         {
-                            _context.SaveWithRetry();
+                            _customContext.SaveWithRetry();
                             saveCounter = 0;
                         }
                     }
-                    _context.LogEvent(String.Concat(districtPlotList.Count, " plots for district ", districtId, " processed"));
+                    _customContext.LogEvent(String.Concat(districtPlotList.Count, " plots for district ", districtId, " processed"));
 
 
                     // All plots for district now updated, ready to sync district details with MCP, and generation a new set of owner summary records.
@@ -414,42 +412,42 @@ namespace MetaverseMax.ServiceClass
 
                 if (districtPerkListMCP.Count > 0)
                 {
-                    _context.ActionUpdate(ACTION_TYPE.PLOT);
+                    _customContext.ActionUpdate(ACTION_TYPE.PLOT);
                 }
 
 
                 // Refresh db context - supposed to be a short term use + when using async tasks seems to be dropped over time (not sure what triggers the drop - perhaps memory leaks)
-                _context.SaveWithRetry();
-                _context.Dispose();
-                _context = new MetaverseMaxDbContext(worldType);
+                _customContext.SaveWithRetry();
+                _customContext.Dispose();
+                _customContext = new MetaverseMaxDbContext(worldType);
                 saveCounter = 0;
 
-                ownerManage = new(_context, worldType);
-                ownerOfferDB = new(_context);
-                citizenManage = new(_context, worldType);
+                ownerManage = new(_customContext, worldType);
+                ownerOfferDB = new(_customContext);
+                citizenManage = new(_customContext, worldType);
 
-                _context.LogEvent(String.Concat("Start Offer,Pet,Cit Sync"));
-                _context.LogEvent(String.Concat("Owner change list count: ", ownerChangeList.Count));
+                _customContext.LogEvent(String.Concat("Start Offer,Pet,Cit Sync"));
+                _customContext.LogEvent(String.Concat("Owner change list count: ", ownerChangeList.Count));
 
                 // Add/deactive Owner Offers
                 ownerManage.SyncOwner(ownerChangeList);                                             // Find New owners and owner names from nightly sync                
                 Dictionary<string, OwnerAccount> ownersList = ownerManage.GetOwners(true);          // Refresh list after nightly sync
 
                 ownerOfferDB.SetOffersInactive();
-                _context.LogEvent(String.Concat("All Owner Offers set to Inactive (recreate)"));
+                _customContext.LogEvent(String.Concat("All Owner Offers set to Inactive (recreate)"));
 
                 foreach (string maticKey in ownersList.Keys)
                 {
                     // Save every 40 owner account - improve performance on local db updates.
                     if (saveCounter >= 40 || saveDBOverride == true)
                     {
-                        _context.SaveWithRetry();
+                        _customContext.SaveWithRetry();
                         saveCounter = 0;
 
-                        _context.Dispose();
-                        _context = new MetaverseMaxDbContext(worldType);
-                        ownerManage = new(_context, worldType);
-                        citizenManage = new(_context, worldType);
+                        _customContext.Dispose();
+                        _customContext = new MetaverseMaxDbContext(worldType);
+                        ownerManage = new(_customContext, worldType);
+                        citizenManage = new(_customContext, worldType);
                     }
 
                     ownerManage.GetOwnerOfferMCP(maticKey).Wait();
@@ -463,47 +461,47 @@ namespace MetaverseMax.ServiceClass
                     await Task.Delay(saveDBOverride == true ? 2000 : jobInterval);
                 }
 
-                _context.LogEvent(String.Concat("Owner (Offer, Pet, Citizen) Accounts Updated count : ", ownerCount));
-                _context.ActionUpdate(ACTION_TYPE.CITIZEN);
-                _context.ActionUpdate(ACTION_TYPE.OFFER);
-                _context.ActionUpdate(ACTION_TYPE.PET);
-                _context.LogEvent(String.Concat("End Offer,Pet,Cit Sync"));
-                _context.SaveWithRetry();
+                _customContext.LogEvent(String.Concat("Owner (Offer, Pet, Citizen) Accounts Updated count : ", ownerCount));
+                _customContext.ActionUpdate(ACTION_TYPE.CITIZEN);
+                _customContext.ActionUpdate(ACTION_TYPE.OFFER);
+                _customContext.ActionUpdate(ACTION_TYPE.PET);
+                _customContext.LogEvent(String.Concat("End Offer,Pet,Cit Sync"));
+                _customContext.SaveWithRetry();
 
                 // refresh db contexts - in case of long running tasks casusing auto expiry
-                ownerCitizenDB = new(_context);
-                petDB = new(_context);
-                districtTaxChangeDB = new(_context);
+                ownerCitizenDB = new(_customContext);
+                petDB = new(_customContext);
+                districtTaxChangeDB = new(_customContext);
 
                 petDB.UpdatePetCount();
                 ownerCitizenDB.UpdateCitizenCount();
 
                 districtTaxChangeDB.UpdateTaxChanges();
-                _context.LogEvent(String.Concat("End Tax Change Sync"));
+                _customContext.LogEvent(String.Concat("End Tax Change Sync"));
 
                 // Refresh db context - supposed to be a short term use + when using async tasks seems to be dropped over time (not sure what triggers the drop - perhaps memory leaks)
-                _context.SaveWithRetry();
-                _context.Dispose();
-                _context = new MetaverseMaxDbContext(worldType);
-                buildingManage = new(_context, worldType);
+                _customContext.SaveWithRetry();
+                _customContext.Dispose();
+                _customContext = new MetaverseMaxDbContext(worldType);
+                buildingManage = new(_customContext, worldType);
 
-                _context.LogEvent(String.Concat("Start IP Ranking Sync"));
+                _customContext.LogEvent(String.Concat("Start IP Ranking Sync"));
                 buildingManage.UpdateIPRanking(jobInterval);
-                _context.LogEvent(String.Concat("End IP Ranking Sync"));
+                _customContext.LogEvent(String.Concat("End IP Ranking Sync"));
 
-                _context.LogEvent(String.Concat("End Nightly Sync"));
+                _customContext.LogEvent(String.Concat("End Nightly Sync"));
 
             }
             catch (Exception ex)
             {
-                DBLogger dbLogger = new(_context, worldType);
+                DBLogger dbLogger = new(_customContext, worldType);
                 dbLogger.logException(ex, String.Concat("SyncWorld::SyncPlotData() : Error Processing Sync"));
             }
 
             syncInProgress = false;
-            if (_context != null && _context.IsDisposed() == false)
+            if (_customContext != null && _customContext.IsDisposed() == false)
             {
-                _context.Dispose();
+                _customContext.Dispose();
             }
 
             return RETURN_CODE.SUCCESS;

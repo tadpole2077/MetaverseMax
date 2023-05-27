@@ -28,24 +28,24 @@ namespace MetaverseMax.ServiceClass
         {
             for (int level = 1; level < 8; level++)
             {
-                BuildingIPbyTypeGet((int)BUILDING_TYPE.RESIDENTIAL, level, true, waitPeriodMS, true);
-                BuildingIPbyTypeGet((int)BUILDING_TYPE.INDUSTRIAL, level, true, waitPeriodMS, true);
-                BuildingIPbyTypeGet((int)BUILDING_TYPE.PRODUCTION, level, true, waitPeriodMS, true);
-                BuildingIPbyTypeGet((int)BUILDING_TYPE.ENERGY, level, true, waitPeriodMS, true);
-                BuildingIPbyTypeGet((int)BUILDING_TYPE.COMMERCIAL, level, true, waitPeriodMS, true);
-                BuildingIPbyTypeGet((int)BUILDING_TYPE.MUNICIPAL, level, true, waitPeriodMS, true);
+                BuildingIPbyTypeGet((int)BUILDING_TYPE.RESIDENTIAL, level, true, waitPeriodMS, true, "SYSTEM");
+                BuildingIPbyTypeGet((int)BUILDING_TYPE.INDUSTRIAL, level, true, waitPeriodMS, true, "SYSTEM");
+                BuildingIPbyTypeGet((int)BUILDING_TYPE.PRODUCTION, level, true, waitPeriodMS, true, "SYSTEM");
+                BuildingIPbyTypeGet((int)BUILDING_TYPE.ENERGY, level, true, waitPeriodMS, true, "SYSTEM");
+                BuildingIPbyTypeGet((int)BUILDING_TYPE.COMMERCIAL, level, true, waitPeriodMS, true, "SYSTEM");
+                BuildingIPbyTypeGet((int)BUILDING_TYPE.MUNICIPAL, level, true, waitPeriodMS, true, "SYSTEM");
             }
 
             return RETURN_CODE.SUCCESS;
         }
 
-        public RETURN_CODE UpdateIPRankingByType(int type, int level, int waitPeriodMS, bool skipNoActiveCitizen)
+        public RETURN_CODE UpdateIPRankingByType(int type, int level, int waitPeriodMS, bool skipNoActiveCitizen, string requesterMatic)
         {
             RETURN_CODE returnCode = RETURN_CODE.ERROR;
 
             try
             {
-                BuildingIPbyTypeGet(type, level, true, waitPeriodMS, skipNoActiveCitizen);
+                BuildingIPbyTypeGet(type, level, true, waitPeriodMS, skipNoActiveCitizen, requesterMatic);
 
                 _context.SaveChanges();
 
@@ -64,7 +64,7 @@ namespace MetaverseMax.ServiceClass
         // History Service call has a milisecond wait feature - to reduce overloading backend services (and risk block)
         // last_run_produce_predict : Bool set to true(1) if plot had a prior recent run (7 - 1 days depending on building lvl) +AND+ no major change to Plot since (IP, Cits, POI) then include plot in prediction eval total.
         //                            Set by  buildingHistory.use_prediction within GetHistory() >  plotDB.UpdatePlot().   Used with field plot.predict_produce and plot.last_run_produce
-        public BuildingCollection BuildingIPbyTypeGet(int buildingType, int buildingLevel, bool evalHistory, int waitPeriodMS, bool skipNoActiveCitizen)
+        public BuildingCollection BuildingIPbyTypeGet(int buildingType, int buildingLevel, bool evalHistory, int waitPeriodMS, bool skipNoActiveCitizen, string requesterMatic)
         {
             Building building = new();
             Dictionary<int, decimal> IPRank = new();
@@ -72,6 +72,10 @@ namespace MetaverseMax.ServiceClass
             List<ResourceActiveWeb> activeBuildingList = new();
             int position = 1, correctAppBonus = 0, saveCounter = 0, buildingCanCollectCount = 0, buildingNoCitizenCount = 0;
             BuildingHistory buildingHistory;
+            OwnerManage ownerManage = new(_context, worldType);
+            List<Database.AlertTrigger> ownerAlerts = new(), allOwnerAlerts = new();
+            AlertTrigger alertTrigger = new(_context, worldType);
+            AlertManage alert = new(_context, worldType);
 
             try
             {
@@ -94,25 +98,17 @@ namespace MetaverseMax.ServiceClass
                     //buildingCollection.minIP = buildingList.Where(x => x.influence_info <= 0).Count() > 0 ? 0 :
                     //    (int)Math.Round(buildingList.Where(x => x.influence_info > 0).Min(x => x.influence_info * (1 + (x.influence_bonus / 100.0))), 0, MidpointRounding.AwayFromZero);
 
-                    // Influence bug (2024/04/29) : POI acive or inactive : plot.influence contains bug showing IP with POI ALWAYS active, plot.influence_info shows total matching state of nearby/linked POI
-                    // Negative IP is only shown in influence_info, not shown in UI plot.influence.  But negative IP is used in IP max - min range and in ranking. 
-
-                    // 2023-04-29 CHECK if any building has negative influence_info value, then use influence_info for MIN, otherwise use plot.influence (with bug)
-                    //if (buildingList.Min(x => x.influence_info) <= 0)
-                    //{
-                        // Q: Does bonus impact negative IP?  I suspect not,  as bonus should be a positive effect right not a negative one :)
-
-                    //}
-                    //else
-                    //{
-                    //    buildingCollection.minIP = buildingList.Where(x => x.influence <= 0).Count() > 0 ? 0 :
-                    //        (int)Math.Round(buildingList.Where(x => x.influence > 0).Min(x => x.influence * (1 + (x.influence_bonus / 100.0))), 0, MidpointRounding.AwayFromZero);
-                    //}
 
                     // TEMP CODE - UNTIL MCP FIX IP (influence_info is correct but MCP doesnt use it) BUG
                     buildingCollection.maxIP = (int)Math.Round(buildingList.Max(x => x.influence * (1 + (x.influence_bonus / 100.0))), 0, MidpointRounding.AwayFromZero);
-                    buildingCollection.minIP = buildingList.Where(x => x.influence <= 0).Count() > 0 ? 0 :
-                        (int)Math.Round(buildingList.Where(x => x.influence > 0).Min(x => x.influence * (1 + (x.influence_bonus / 100.0))), 0, MidpointRounding.AwayFromZero);
+
+                    // 2023_05_07 Min IP - Rule only check buildings that have a calcualted influence_info >=0
+                    // Case: Energy buildings may have a negative IP, these buildings are not included in max - min IP check.
+                    buildingCollection.minIP = buildingList.Where(x => x.influence_info < 0).Count() == buildingList.Count ? 0 :
+                        (int)Math.Round(buildingList.Where(x => x.influence_info >= 0).Min(x => x.influence * (1 + (x.influence_bonus / 100.0))), 0, MidpointRounding.AwayFromZero);
+
+                    //buildingCollection.minIP = buildingList.Where(x => x.influence <= 0).Count() > 0 ? 0 :
+                    //    (int)Math.Round(buildingList.Where(x => x.influence > 0).Min(x => x.influence * (1 + (x.influence_bonus / 100.0))), 0, MidpointRounding.AwayFromZero);
 
                     // Check if influence is negnative then set to 0 for use in average calc.
                     //buildingCollection.avgIP = Math.Round(buildingList.Average(x => (x.influence_info < 0 ? 0 : x.influence_info) * (1 + ((x.influence_bonus) / 100.0))), 0, MidpointRounding.AwayFromZero);
@@ -123,6 +119,14 @@ namespace MetaverseMax.ServiceClass
                     // Calc and Eval Produce Prediction : using building that produced in last 7 days.
                     //buildingPredictList = buildingList.Where(x => x.last_run_produce_date >= new DateTime(2022, 01, 30, 23, 00, 00)).ToList();
                     //buildingPredictionSummary(buildingList);
+
+                    if (!requesterMatic.Contains("SYSTEM") && ownerManage.CheckOwnerExistsByMatic(requesterMatic))
+                    {
+                        ownerAlerts = alertTrigger.GetByType(requesterMatic, ALERT_TYPE.RANKING);
+                    }                   
+                    // CHECK for any user alert active for this building
+                    allOwnerAlerts = alertTrigger.GetByType("ALL", ALERT_TYPE.RANKING);                    
+
                 }
 
                 buildingCollection.sync_date = common.TimeFormatStandard(string.Empty, _context.ActionTimeGet(ACTION_TYPE.PLOT));
@@ -134,14 +138,13 @@ namespace MetaverseMax.ServiceClass
 
                 for (int i = 0; i < buildingList.Count; i++)
                 {
-
+                    decimal ipEfficiencyStored = 0;
                     buildingList[i].building_img = building.GetBuildingImg(buildingType, buildingList[i].building_id, buildingLevel, worldType)
                         .Replace(buildingCollection.img_url, "");
-
-                    buildingList[i].influence_info = buildingList[i].influence_info < 0 ? 0 : buildingList[i].influence_info;
-                    if (buildingList[i].influence_info != buildingList[i].influence)
+                    
+                    if (buildingList[i].influence_info != buildingList[i].influence && buildingList[i].influence_info >= 0)
                     {
-                        // Visual bug caused by not including negative IP impact
+                        // Visual bug caused by not including negative IP impact for POI-Monument active/deactive
                         buildingList[i].ip_warning = string.Concat("MCP [Base IP] bug : ", buildingList[i].influence_info, "[Correct] vs ", buildingList[i].influence, "[Incorrect shown in Plot History] ");
                     }
 
@@ -171,14 +174,15 @@ namespace MetaverseMax.ServiceClass
                     //buildingList[i].total_ip = GetInfluenceTotal(buildingList[i].influence_info, buildingList[i].influence_bonus);    // USE THIS ONCE MCP FIX IP BUG
                     buildingList[i].total_ip = GetInfluenceTotal(buildingList[i].influence, buildingList[i].influence_bonus);
 
-                    // Special Case: if only 1 building at this level assign full 100% IP eff
-                    if (buildingList.Count == 1)
+                    // Special Case: if only 1 building at this level assign full 100% IP eff, or if multiple buildings all at max
+                    ipEfficiencyStored = buildingList[i].current_influence_rank;
+                    if (buildingList.Count == 1 || buildingCollection.maxIP == buildingList[i].total_ip)
                     {
-                        buildingList[i].ip_efficiency = 100;
+                        buildingList[i].current_influence_rank = 100;
                     }
                     else
                     {
-                        buildingList[i].ip_efficiency = (decimal)Math.Round(GetIPEfficiency(buildingList[i].total_ip, buildingCollection.rangeIP, buildingCollection.minIP) * 100, 2);
+                        buildingList[i].current_influence_rank = (decimal)Math.Round(GetIPEfficiency(buildingList[i].total_ip, buildingCollection.rangeIP, buildingCollection.minIP) * 100, 2);
                     }
 
                     buildingList[i].produce_tax = AssignTaxMatch(districtList.Where(x => x.district_id == buildingList[i].district_id).FirstOrDefault(), buildingType);
@@ -188,7 +192,7 @@ namespace MetaverseMax.ServiceClass
                         && EvalBuildingHistory(buildingList[i].last_run_produce_date, buildingLevel) == true)
                     {
                         // Save each building's evaluated IP efficiency, latest run and predicted produce.
-                        buildingHistory = GetHistory(buildingList[i].token_id, waitPeriodMS, false, false, buildingList[i].owner_matic, buildingList[i].ip_efficiency, string.Empty, skipNoActiveCitizen);
+                        buildingHistory = GetHistory(buildingList[i].token_id, waitPeriodMS, false, false, buildingList[i].owner_matic, buildingList[i].current_influence_rank, string.Empty, skipNoActiveCitizen);
 
                         saveCounter++;
                         buildingCanCollectCount++;
@@ -212,8 +216,19 @@ namespace MetaverseMax.ServiceClass
                     else
                     {
                         //Store all Building IP rank and Update DB in bulk
-                        IPRank.Add(buildingList[i].token_id, buildingList[i].ip_efficiency);
+                        IPRank.Add(buildingList[i].token_id, buildingList[i].current_influence_rank);
                     }
+
+                    // CHECK for any user alert active for this building - Ranking changed - then add new alert for those accounts.
+                    if (ipEfficiencyStored != buildingList[i].current_influence_rank)
+                    {
+                        ownerAlerts.Where(x => x.id == buildingList[i].token_id).ToList().ForEach(x =>
+                        {
+                            alert.AddRankingAlert(x.matic_key, buildingList[i].owner_matic, buildingList[i].token_id, ipEfficiencyStored, buildingList[i].current_influence_rank, buildingLevel, building.BuildingType(buildingType, buildingList[i].building_id));
+                        });
+                    }
+
+
                 }
 
                 resourceTotal = resourceTotal.OrderBy(x => x.name).ToList();
@@ -238,7 +253,7 @@ namespace MetaverseMax.ServiceClass
 
                 // Calc and Eval Produce Prediction : using building that produced in last 7 days.
                 // Refresh building list data if history eval step was completed as building prediction data may have changed/updated.
-                // Potential for PERF improvement here - Remove need to call expensive db sproc again
+                // TO_DO >> Potential for PERF improvement here - Remove need to call expensive db sproc again
                 if (evalHistory)
                 {
                     buildingList = buildingTypeIPDB.BuildingTypeGet(buildingType, buildingLevel).ToList();
@@ -253,7 +268,7 @@ namespace MetaverseMax.ServiceClass
                     buildingList[i].position = position++;
                 }
 
-                // Store all IP for non evaluated buildings (no history check) - such as residential, municipals, office.
+                // Store all IP for non evaluated buildings (no history check) OR history_check active but residential, municipals, office type
                 if (IPRank.Count > 0)
                 {
                     foreach (KeyValuePair<int, Decimal> plotRank in IPRank)
@@ -269,7 +284,7 @@ namespace MetaverseMax.ServiceClass
                     _context.LogEvent(String.Concat("Building type: " + GetBuildingTypeDesc(buildingType) + " Lvl: " + buildingLevel + " - Total : ", buildingList.Count, " with History Processed : ", buildingCanCollectCount - buildingNoCitizenCount));
                 }
 
-                buildingCollection.buildings = ConvertBuildingWeb(buildingList);
+                buildingCollection.buildings = ConvertBuildingWeb(buildingList, ownerAlerts);
             }
             catch (Exception ex)
             {
@@ -280,7 +295,7 @@ namespace MetaverseMax.ServiceClass
             return buildingCollection;
         }
 
-        private IEnumerable<BuildingIPWeb> ConvertBuildingWeb(List<BuildingTypeIP> buildingList)
+        private IEnumerable<BuildingIPWeb> ConvertBuildingWeb(List<BuildingTypeIP> buildingList, List<Database.AlertTrigger> ownerAlertList)
         {
             List<BuildingIPWeb> buildingIPWeb = new();
 
@@ -295,9 +310,10 @@ namespace MetaverseMax.ServiceClass
                     pos_y = building.pos_y,
 
                     pos = building.position,
-                    rank = building.ip_efficiency,
+                    rank = building.current_influence_rank,
                     ip_t = building.total_ip,                   // plot.influence_info * plot.influence_bonus
                     //ip_b = building.influence_info,           // TEMP CODE - USE THIS WHEN MCP FIX IP BUG
+                    ip_i = GetInfluenceTotal(building.influence_info, building.influence_bonus),
                     ip_b = building.influence,
                     bon = building.influence_bonus,
                     name = building.owner_nickname,
@@ -313,12 +329,12 @@ namespace MetaverseMax.ServiceClass
                     ren = building.rented == true ? 1 : 0,      // rented
                     poi = building.production_poi_bonus,
                     tax = building.produce_tax,
-                    r = building.building_abundance
+                    r = building.building_abundance,
+                    al = ownerAlertList.Where( x=> x.id == building.token_id).Any() == true ? 1 : 0,
                 });
             }
 
             return buildingIPWeb.ToArray();
-
         }
 
         public int buildingPredictionSummary(List<BuildingTypeIP> buildingList)
@@ -1776,6 +1792,7 @@ namespace MetaverseMax.ServiceClass
                 }
                 else if (buildingProduct == BUILDING_PRODUCT.ENERGY)
                 {
+                    //  NOTE Energy using a coefficient of .45 of min-max output versus 60% for all others.
                     efficiency = filterCitizens.Count == 0 ? 0 : (decimal)Math.Round(
                     (filterCitizens.Sum(x => x.trait_endurance) + petUsageDifference.endurance) * .25 / citizenMax +
                     (filterCitizens.Sum(x => x.trait_agility) + petUsageDifference.agility) * .15 / citizenMax +

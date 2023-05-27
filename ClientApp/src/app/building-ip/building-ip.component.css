@@ -31,8 +31,8 @@
 
   .salepos::before, .toRent::before {    
     content: "";
-    height: 54.4px;
-    width: 82px;
+    height: 53px;
+    width: 80px;
     display: inline-block;
     margin-top: -26px;
     left: 0;
@@ -511,10 +511,11 @@ td.mat-column-name {
 }
 
 /* Magnifier Icon */
-.magnifyHistoryPositioner {
+.magnifyHistoryPosition {
   display: inline-block;
   position: relative;
   vertical-align: top;
+  width: 24px;
   /*float: right;
   margin-right: 3rem;*/
 }
@@ -527,26 +528,77 @@ td.mat-column-name {
   position: absolute;
   opacity: .6
 }
-
   .magnifyHistoryIcon:hover {
     opacity: 1
   }
 
+.showIPAlertPosition {
+  display: inline-block;
+  position: relative;
+  margin-left: .8rem;
+  vertical-align: top;
+  width: 24px;
+}
+.ipAlert {
+  font-size: 1.4rem;
+  margin-top: -12px;
+  position: absolute;
+  opacity: .6;
+  /* color: white*/
+}
+  .ipAlert:hover {    
+    opacity: 1
+  }
+  .shake1:before {
+    content: "";
+    position: absolute;    
+    border-radius: 20px 20px 0 0;
+    top: 2px;
+    left: -2px;
+    width: 10px;
+    height: 18px;
+    transform: rotate(-90deg);
+  }
+  .shake1:after {
+    content: "";
+    position: absolute;
+    border-radius: 20px 20px 0 0;
+    top: 2px;
+    left: 11px;
+    width: 10px;
+    height: 18px;
+    transform: rotate(90deg);
+  }
+  .shake2:before {
+    content: "";
+    position: absolute;
+    border-radius: 20px 20px 0 0;
+    top: 2px;
+    left: -10px;
+    width: 16px;
+    height: 18px;
+    transform: rotate(-90deg);
+  }
+  .shake2:after {
+    content: "";
+    position: absolute;   
+    border-radius: 20px 20px 0 0;
+    top: 2px;
+    left: 14px;
+    width: 16px;
+    height: 18px;
+    transform: rotate(90deg);
+  }
 
-.lastUpdated {
-  vertical-align: middle;
-  font-size: .7rem;
-  color: gray;
-  margin: 0.5rem 0 0.5rem;
+
+.lastUpdated .mat-icon {
+  font-size: 1.4rem;
 }
 
-  .lastUpdated .mat-icon {
-    font-size: 1.4rem;
-  }
-
-  .lastUpdated span {
-    vertical-align: super;
-  }
+.lastUpdated span {
+  vertical-align: super;
+  font-size: .8rem;
+}
 
 .mat-column-rank .rowWarning {
   position: absolute;
@@ -934,10 +986,11 @@ td.mat-column-name {
       margin-left: -42px;
     }
 
-  .magnifyHistoryPositioner {
+  .magnifyHistoryPosition {
     margin-left: -3rem;
     margin-top: -1.6rem;
   }
+
   .officeMagify {
     margin-top: 0;
     margin-left: -3rem;

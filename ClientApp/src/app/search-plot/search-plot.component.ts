@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 
 @Component({
@@ -9,14 +9,14 @@ import { MatInputModule } from '@angular/material/input';
 export class SearchPlotComponent {
 
   @Output() searchPlotEvent = new EventEmitter<any>();
+  public rotateActive: boolean = false;
 
   constructor() {
   }
 
   getPlotData(plotPos) {
 
-    plotPos.rotateEle = document.getElementById("searchIcon")
-    plotPos.rotateEle.classList.add("rotate");
+    this.rotateActive = true;
       
     this.searchPlotEvent.emit(plotPos);
   }

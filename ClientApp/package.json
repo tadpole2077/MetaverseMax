@@ -48,7 +48,7 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^14.2.11",
-    "@angular/cli": "^14.2.11",
+    "@angular/cli": "^15.2.8",
     "@angular/compiler-cli": "^14.3.0",
     "@angular/language-service": "^14.3.0",
     "@angular/localize": "^14.3.0",
@@ -63,7 +63,7 @@
     "karma-coverage-istanbul-reporter": "~3.0.2",
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "^1.5.0",
-    "typescript": "^4.6.4"
+    "typescript": "^4.8.2"
   },
   "overrides": {
     "autoprefixer": "10.4.5"

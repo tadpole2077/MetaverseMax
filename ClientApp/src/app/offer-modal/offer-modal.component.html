@@ -22,7 +22,7 @@
               <th mat-header-cell *matHeaderCellDef mat-sort-header> Buyer </th>
               <td mat-cell *matCellDef="let offer">
                 <img *ngIf="offer.buyer_avatar_id>0" src="{{ globals.worldURLPath }}citizen/{{ offer.buyer_avatar_id }}" class="ownerImgCol" height="42" crossorigin="anonymous" referrerpolicy="no-referrer" />
-                <img *ngIf="offer.buyer_avatar_id==0" src="./images/MysteryOwner.png" class="ownerImgCol" height="33" style="margin-top:-4px" />
+                <img *ngIf="offer.buyer_avatar_id==0" src="./images/MysteryOwner.png" class="ownerImgCol mysteryImg" height="33" style="margin-top:-4px" />
 
                 <a class="text-dark lineAnim" [routerLink]="['/', globals.worldCode, 'owner-data']" [queryParams]="{matic: offer.buyer_matic_key}" title="{{ offer.buyer_owner_name }}">
                   <span *ngIf="offer.buyer_owner_name != ''">{{ offer.buyer_owner_name }}</span>
@@ -75,7 +75,7 @@
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> Buyer </th>
                 <td mat-cell *matCellDef="let offer">
                   <img *ngIf="offer.buyer_avatar_id>0" src="{{ globals.worldURLPath }}citizen/{{ offer.buyer_avatar_id }}" class="ownerImgCol" height="42" crossorigin="anonymous" referrerpolicy="no-referrer" />
-                  <img *ngIf="offer.buyer_avatar_id==0" src="./images/MysteryOwner.png" class="ownerImgCol" height="33" style="margin-top:-4px" />
+                  <img *ngIf="offer.buyer_avatar_id==0" src="./images/MysteryOwner.png" class="ownerImgCol mysteryImg" height="33" style="margin-top:-4px" />
 
                   <a class="text-dark lineAnim" [routerLink]="['/', globals.worldCode, 'owner-data']" [queryParams]="{matic: offer.buyer_matic_key}" title="{{ offer.buyer_owner_name }}">
                     <span *ngIf="offer.buyer_owner_name != ''">{{ offer.buyer_owner_name }}</span>

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MetaverseMax.Database
+﻿namespace MetaverseMax.Database
 {
     public class CitizenDB : DatabaseBase
     {

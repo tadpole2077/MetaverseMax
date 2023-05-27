@@ -70,6 +70,8 @@ namespace MetaverseMax.ServiceClass
 
         public int ip_b { get; set; }
 
+        public int ip_i { get; set; }
+
         public int bon { get; set; }
 
         public string name { get; set; }
@@ -105,5 +107,8 @@ namespace MetaverseMax.ServiceClass
 
         // Building_id - used for filtering by building subtype.
         public int bid { get; set; }
+
+        // Building Ranking Alert
+        public int al { get; set; }
     }
 }

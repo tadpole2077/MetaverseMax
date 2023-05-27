@@ -1,0 +1,28 @@
+
+<mat-nav-list class="messageContainer scrollbarFancy">
+  <div mat-list-item (click)="markRead($event)" *ngFor="let alert of alertPendingManager.alert" class="messageItem">
+
+    <div class="alertMessage">
+      <div class="flexCellFirst">
+        <span class="alertDate">{{ alert.last_updated }}</span>
+        <div>
+          <mat-icon *ngIf="alert.icon_type == ALERT_ICON_TYPE.INFO" class="warningIcon">info</mat-icon>
+          <i *ngIf="alert.icon_type == ALERT_ICON_TYPE.NEW_OFFER" class="fas fa-comments-dollar msgIcon moneyIcon"></i>
+          <img *ngIf="alert.icon_type == ALERT_ICON_TYPE.STAMINA" src="./assets/OutOfStamina.png" class="msgIconStamina">
+          <div class="multiIcon">
+            <img *ngIf="alert.icon_type == ALERT_ICON_TYPE.RANKING" src="./assets/magnify_history{{ globals.ownerAccount.dark_mode ? '_dark' : '' }}.png" class="msgIconMagnify" />
+            <i *ngIf="alert.icon_type_change == ICON_TYPE_CHANGE.INCREASE" class="fas fa-arrow-up supportIcon"></i>
+            <i *ngIf="alert.icon_type_change == ICON_TYPE_CHANGE.DECREASE" class="fas fa-arrow-down supportIcon"></i>
+          </div>
+        </div>
+        <div id="alignfiller"></div>
+      </div>
+      <span class="alertText">{{ alert.alert_message }}</span>
+
+      <div class="controls">
+        <a class="deleteAlert" (click)="markDelete($event, alert.alert_pending_key, alertPendingManager.alert.indexOf(alert))"><i class="far fa-trash-alt"></i>Delete</a>
+      </div>
+
+    </div>
+  </div>
+</mat-nav-list>

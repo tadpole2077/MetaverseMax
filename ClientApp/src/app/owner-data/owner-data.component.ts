@@ -14,6 +14,7 @@ import { CitizenModalComponent } from '../citizen-modal/citizen-modal.component'
 import { MatButton } from '@angular/material/button';
 import { OwnerLandData, OwnerData, PlotPosition, BUILDING, FilterCount } from './owner-interface';
 import { Globals, WORLD } from '../common/global-var';
+import { SearchPlotComponent } from '../search-plot/search-plot.component';
 
 
 @Component({
@@ -43,12 +44,16 @@ export class OwnerDataComponent implements AfterViewInit {
   private checkInstance: number = 0;
   public mobileView: boolean = false;
 
+  // UI class flags
+  public searchBlinkOnce: boolean = false;
+
   dataSource = new MatTableDataSource(null);
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(ProdHistoryComponent, { static: true }) prodHistory: ProdHistoryComponent;
   @ViewChild(OfferModalComponent, { static: true }) offerModal: OfferModalComponent;
   @ViewChild(PetModalComponent, { static: true }) petModal: PetModalComponent;
   @ViewChild(CitizenModalComponent, { static: true }) citizenModal: CitizenModalComponent;
+  @ViewChild(SearchPlotComponent, { static: false }) searchPlotComponent: SearchPlotComponent;
 
   // ViewChild used for these elements to provide for rapid element attribute changes without need for scanning DOM and readability.
   @ViewChild('emptyPlotFilter', { static: false}) emptyPlotFilter: ElementRef;
@@ -63,7 +68,7 @@ export class OwnerDataComponent implements AfterViewInit {
 
   @ViewChild('lowStaminaBtn', { static: false }) lowStaminaBtn: MatButton;
   @ViewChild('offerDetailsBtn', { static: false }) offerDetailsBtn: MatButton;
-  @ViewChild('searchComponent', { static: false }) searchComponent: ElementRef;
+  
 
 
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
@@ -78,7 +83,16 @@ export class OwnerDataComponent implements AfterViewInit {
     this.initFilterCount();    
 
     globals.ownerCDF = cdf;
-    globals.ownerComponent = this;
+    globals.ownerComponent = this;    
+
+  }
+
+  public get width() {
+    return window.innerWidth;
+  }
+
+  // Need the Plot Search component loaded to change its flags
+  ngAfterViewInit() {
 
     // Check on URL change due to movement between features
     this.subscriptionRouterEvent = this.router.events.subscribe((event: RouterEvent) => {
@@ -94,13 +108,10 @@ export class OwnerDataComponent implements AfterViewInit {
       }
     });
 
-  }
-
-  public get width() {
-    return window.innerWidth;
-  }
-
-  ngAfterViewInit() {
+    // CASE reset the search to empty when moving from My Portfolio to Owner Report
+    if (this.router.url.indexOf("/owner-data?") > -1) {
+      this.triggerSearchByMatic();
+    }
 
   }
 
@@ -116,28 +127,31 @@ export class OwnerDataComponent implements AfterViewInit {
 
   // Trigger used on page load, or on URL change - moving between My portfolio and Owner Report features
   triggerSearchByMatic(forceCDFrefresh: boolean = false) {
-
-    this.prodHistory.setHide();
+    
     this.offerShow = false;
     let resetFields: boolean = false;
 
     let requestOwnerMatic = this.route.snapshot.queryParams["matic"];
+    let plotX = this.route.snapshot.queryParams["plotx"];
+    let plotY = this.route.snapshot.queryParams["ploty"];
    
     if (requestOwnerMatic) {
 
       if (requestOwnerMatic.toLowerCase() == "myportfolio") {
 
-        this.myPortfolioRequest = true;
+        this.myPortfolioRequest = true;     // Control URL auto reformating 
 
         // Check if Account is checked, identified this wallet as a valid owner account,  max loop 5 instances
         if (this.globals.ownerAccount.checked == false && this.checkInstance < 4) {
 
           //Wait until account is checked before loading.
           if (this.notifySubscription == null) {
+
             this.notifySubscription = interval(1000).subscribe(x => {
               this.triggerSearchByMatic(forceCDFrefresh);
             });
           }
+
           this.checkInstance++;
           return;
         }
@@ -160,12 +174,18 @@ export class OwnerDataComponent implements AfterViewInit {
       }
 
     }
+    else if (plotX && plotY)
+    {
+      this.searchPlotComponent.rotateActive = true;
+      this.searchPlot({ plotX: plotX, plotY: plotY }, true);
+    }
     else {
       resetFields = true;
     }
 
 
     if (resetFields) {
+
       // CASE reset the search to empty when moving from MyPortfolio to [default] Owner Report
       this.setInitVar();
       this.dataSource = new MatTableDataSource(null);
@@ -173,6 +193,7 @@ export class OwnerDataComponent implements AfterViewInit {
       this.currentDistrictFilter = 0;
       this.buttonShowAll = false;
       this.hideBuildingFilter(this.owner.owner_land);
+      this.prodHistory.setHide();
 
       // Corner Case: when owner component load tiggered by Wallet change - a cdf force is required to render page
       if (forceCDFrefresh) {
@@ -244,7 +265,7 @@ export class OwnerDataComponent implements AfterViewInit {
   }
 
   // Single parameter struct containing 2 members, pushed by component search-plot
-  searchPlot(plotPos: PlotPosition ) {
+  searchPlot(plotPos: PlotPosition, loadBuildingHistory: boolean = false) {
 
     let params = new HttpParams();
     params = params.append('plotX', plotPos.plotX);
@@ -253,31 +274,49 @@ export class OwnerDataComponent implements AfterViewInit {
     // Check if no X Y , then skip and blink instructions.
     if (plotPos.plotX == '' || plotPos.plotY == '') {
 
-      this.searchComponent.nativeElement.classList.remove("blink");
-      plotPos.rotateEle.classList.remove("rotate");
-      this.searchComponent.nativeElement.classList.add("blink");
+      this.searchBlinkOnce = true;
+      this.searchPlotComponent.rotateActive = false;
 
       return;
     }
 
     //this.httpClient.get<OwnerData>(this.baseUrl + 'ownerdata/Get?plotX=' + encodeURIComponent(plotPos.plotX) + '&plotY=' + encodeURIComponent(plotPos.plotY))
-    this.httpClient.get<OwnerData>(this.baseUrl + '/ownerdata', { params: params })
-      .subscribe((result: OwnerData) => {
+    this.httpClient.get<OwnerData>(this.baseUrl + '/OwnerData', { params: params })
+      .subscribe({
+        next: (result) => {
 
-        this.loadClientData(result);
+          this.loadClientData(result);
 
-        // Reset the URL to reflect no account matic found
-        if (this.owner.owner_matic_key === "") {
-          this.router.navigate([]);
-        }
+          // Reset the URL to reflect no account matic found
+          if (this.owner.owner_matic_key === "") {
+            this.router.navigate([]);
+          }
 
-        plotPos.rotateEle.classList.remove("rotate");        
+          // Auto load building History if search on specific building by URL parameters
+          if (loadBuildingHistory && result && result.owner_land) {
 
-      },
-      error => {
-        console.error(error)
-      }
-     );
+            let x: number = Number(plotPos.plotX);
+            let y: number = Number(plotPos.plotY);
+            let assetId: number = 0;
+            let buildingType: number = 0;
+
+            result.owner_land.forEach(land => {
+              if (land.pos_x == x && land.pos_y == y) {
+                assetId = land.token_id;
+                buildingType = land.building_type;
+              }
+            });
+
+            if (buildingType == BUILDING.ENERGY || buildingType == BUILDING.INDUSTRIAL || buildingType == BUILDING.PRODUCTION) {
+              this.showHistory(assetId, x, y, buildingType, 0);
+            }
+          }
+
+          this.searchPlotComponent.rotateActive = false;
+
+        },
+        error: (error) => { console.error(error) }
+      });
 
     return;
   }

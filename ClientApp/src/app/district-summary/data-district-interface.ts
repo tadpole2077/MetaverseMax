@@ -28,6 +28,7 @@ interface District {
   district_id: number;
   district_name: string;
   land_count: number;
+  initial_land_price: number;
   building_count: number;
   plots_claimed: number;
   energy_count: number;

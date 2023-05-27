@@ -20,12 +20,20 @@
 }
 
 
-@mixin link($app-link-color, $app-link-hover) {
+@mixin link($app-link-color, $app-link-hover, $app-link-underscore) {
   a, a span {
     color: $app-link-color;
   }
 
-  a.lineAnim:hover, a.lineAnim:hover span{
+  a.lineAnim:hover, a.lineAnim:hover span {
     color: $app-link-hover;
+  }
+
+  .alertBell a span:hover {
+    color: $app-link-hover;
+  }
+  // underline animation
+  a.lineAnim::before {
+    background-color: $app-link-underscore;
   }
 }

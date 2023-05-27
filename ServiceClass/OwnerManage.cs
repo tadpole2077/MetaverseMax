@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using SimpleBase;
 using System;
+using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
@@ -99,6 +100,40 @@ namespace MetaverseMax.ServiceClass
             return ownerAccount;
         }
 
+        // Finding match on maticKey as this is the key used by MCP for ownership of assets in-world and within local db's
+        public string FindOwnerNameByMatic(string maticKey)
+        {
+            OwnerAccount ownerAccount = null;
+            ref Dictionary<string, OwnerAccount> ownersList = ref GetOwnersListByWorldType();
+            string accountName = string.Empty;
+
+            if (ownersList.TryGetValue(maticKey.ToLower(), out ownerAccount))
+            {                
+                accountName = ownerAccount.name;
+            }
+
+            if (accountName == string.Empty) {  
+                if (ownerAccount != null)
+                {
+                        accountName = ownerAccount.public_key.ToLower();
+                }
+                else
+                {
+                    accountName = maticKey.ToLower();
+                }
+            }
+
+            return accountName;
+        }
+
+        public bool CheckOwnerExistsByMatic(string maticKey)
+        {
+            ref Dictionary<string, OwnerAccount> ownersList = ref GetOwnersListByWorldType();
+
+            return ownersList.TryGetValue(maticKey.ToLower(), out _);
+        }
+
+
         public int GetSlowDown(string maticKey)
         {
             int slowDownSeconds = 0;
@@ -170,7 +205,7 @@ namespace MetaverseMax.ServiceClass
                             buyer_offer = offer.buyer_offer,
                             offer_date = offer.offer_date == null ? "" : ((DateTime)offer.offer_date).ToString("yyyy/MMM/dd"),
                             token_type_id = offer.token_type,
-                            token_type = LookupTokenType(offer.token_type),
+                            token_type = common.LookupTokenType(offer.token_type),
                             token_id = offer.token_id,
                             token_district = offer.plot_district,
                             token_pos_x = offer.plot_x,
@@ -188,25 +223,7 @@ namespace MetaverseMax.ServiceClass
 
             return offerList.ToArray();
         }
-
-        private string LookupTokenType(int typeId)
-        {
-            string tokenType = string.Empty;
-
-            tokenType = typeId switch
-            {
-                (int)TOKEN_TYPE.PLOT => "Plot",
-                (int)TOKEN_TYPE.APPLICATION => "Application",
-                (int)TOKEN_TYPE.CAR => "Car",
-                (int)TOKEN_TYPE.CITIZEN => "Citizen",
-                (int)TOKEN_TYPE.DISTRICT => "District",
-                (int)TOKEN_TYPE.PET => "Pet",
-                (int)TOKEN_TYPE.RESOURCE => "Resource",
-                _ => "Unknown",
-            };
-
-            return tokenType;
-        }
+        
 
         // Get from MCP 3rd tier services
         // LEGACY SYSTEM : 2019 offers WS response a few offers contain no root>sale_data>buyer_matic_key && root>sale_data>value (Buyer offer).  Skip these offers
@@ -215,6 +232,7 @@ namespace MetaverseMax.ServiceClass
             String content = string.Empty;
             OwnerOffer ownerOffer = new();
             OwnerOfferDB ownerOfferDB = new(_context);
+            AlertManage alert = new(_context, worldType);
             Building building = new();
             RETURN_CODE returnCode = RETURN_CODE.ERROR;
             string activitySummary = string.Empty;
@@ -290,6 +308,11 @@ namespace MetaverseMax.ServiceClass
                                     activeOfferCount++;
                                     validOffers.Add(ownerOffer.offer_id);
                                 }
+
+                                if (ownerOffer.offer_date >= DateTime.UtcNow.AddDays(-1)) 
+                                {
+                                    alert.AddOfferAlert(ownerOffer.token_owner_matic_key, ownerOffer.buyer_matic_key, ownerOffer.token_type, ownerOffer.buyer_offer, ownerOffer.token_id);
+                                }
                             }
                             else if (offers[index].Value<bool>("is_active") == false && (offers[index].Value<int?>("is_cancelled") ?? 0) == 0)
                             {
@@ -327,6 +350,11 @@ namespace MetaverseMax.ServiceClass
                                     ownerOfferDB.AddorUpdate(ownerOffer);
                                     soldOfferCount++;
                                     validOffers.Add(ownerOffer.offer_id);
+                                }
+
+                                if (ownerOffer.sold_date >= DateTime.UtcNow.AddDays(-1))
+                                {
+                                    alert.AddOfferAcceptAlert(ownerOffer.buyer_matic_key, ownerOffer.token_owner_matic_key, ownerOffer.token_type, ownerOffer.buyer_offer, ownerOffer.token_id);
                                 }
                             }
                         }
@@ -699,6 +727,7 @@ namespace MetaverseMax.ServiceClass
         {
             string maticKeyFormated = string.Empty;
             OwnerAccount ownerAccount = new();
+            AlertDB alertDB = new AlertDB(_context);
 
             if (worldType == WORLD_TYPE.TRON)
             {
@@ -729,9 +758,12 @@ namespace MetaverseMax.ServiceClass
 
             ownerAccount = FindOwnerByMatic(maticKeyFormated, publicKey);
 
-            // Update db - update ownerAccount with matching public wallet key if not already stored.  (used for TRON where matic and public differ)
+            // Update db - update ownerAccount : last_used, matching public wallet key if not already stored(on TRON matic and public differ)
             OwnerDB ownerDB = new OwnerDB(_context);
             ownerDB.UpdateOwner(maticKeyFormated, publicKey);
+
+
+            ownerAccount.alert_count = alertDB.count(ownerAccount.matic_key);
 
             return ownerAccount;
         }
@@ -746,7 +778,8 @@ namespace MetaverseMax.ServiceClass
             ownerAccount.dark_mode = darkMode;      // Update local cache store of ownerAccount.
 
             return true;
-        }
+        }       
+
 
         public List<OwnerSummaryDistrict> GetOwnerSummaryDistrict(int districtId, int instanceNo)
         {
@@ -779,7 +812,6 @@ namespace MetaverseMax.ServiceClass
             }
             return 0;
         }
-
 
         public async Task<OwnerMaterial> GetMaterialFromMatic(string ownerMaticKey)
         {

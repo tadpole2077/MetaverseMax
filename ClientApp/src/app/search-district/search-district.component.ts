@@ -16,7 +16,7 @@ export class SearchDistrictComponent {
   baseUrl: string;
   public districtId_list: number[];
 
-  @Output() searchDistrictEvent = new EventEmitter<any>();
+  @Output() searchDistrictEvent = new EventEmitter<any>();    // Need to insure only one event triggered - 2 buttons with this EventEmitter mapping on parent.
 
   constructor(public globals: Globals, public router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
 
@@ -49,7 +49,7 @@ export class SearchDistrictComponent {
     //plotPos.rotateEle = document.getElementById("searchIcon")
     //plotPos.rotateEle.classList.add("rotate");
           
-    this.router.navigate(['/district-summary'], { queryParams: { district_id: districtId } });
+    //this.router.navigate(['/district-summary'], { queryParams: { district_id: districtId } });
     this.searchDistrictEvent.emit(districtId);
   }
 

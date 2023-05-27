@@ -1,0 +1,43 @@
+<div ngbDropdown class="d-inline-block; menuContainer">
+
+  <button mat-raised-button color="primary" class="buttonEffect" id="ddAlert" ngbDropdownToggle>Change Alerts</button>
+
+  <div ngbDropdownMenu>
+    <div>
+      <mat-slide-toggle #ilvSlide aria-labelledby="Initial Land Value"
+                        class="slideNight"
+                        (change)="alertChange($event, ALERT_TYPE.INITIAL_LAND_VALUE)"
+                        [checked]="false">
+      </mat-slide-toggle>
+      <mat-label class="mat-slide-toggle-content">Initial Land Value&nbsp;</mat-label>
+    </div>
+
+    <div>
+      <mat-slide-toggle #constructSlide aria-labelledby="Construction Tax"
+                        class="slideNight"
+                        (change)="alertChange($event, ALERT_TYPE.CONSTRUCTION_TAX)"
+                        [checked]="false">
+      </mat-slide-toggle>
+      <mat-label class="mat-slide-toggle-content">Construction Tax&nbsp;</mat-label>
+    </div>
+
+    <div>
+      <mat-slide-toggle #produceSlide aria-labelledby="Production Tax"
+                        class="slideNight"
+                        (change)="alertChange($event, ALERT_TYPE.PRODUCTION_TAX)"
+                        [checked]="false">
+      </mat-slide-toggle>
+      <mat-label class="mat-slide-toggle-content">Production Tax&nbsp;</mat-label>
+    </div>
+
+    <div>
+      <mat-slide-toggle #distributeSlide aria-labelledby="Fund Distribution Period"
+                        class="slideNight"
+                        (change)="alertChange($event, ALERT_TYPE.DISTRIBUTION)"
+                        [checked]="false">
+      </mat-slide-toggle>
+      <mat-label class="mat-slide-toggle-content">Fund Distrbution Period&nbsp;</mat-label>
+    </div>
+  </div>
+
+</div>

@@ -35,6 +35,7 @@ a {
   color: white;
 }
 
+
 /*Sale Sign*/
 .salepos {
   position: absolute;
@@ -75,7 +76,7 @@ tr.mat-header-row {
 }
 
 .paginatorContainer {
-  width: 360px;
+  width: 380px;
   height: 2.4em;
   margin-top: -8px;  
 }
@@ -157,13 +158,14 @@ td.mat-column-efficiency_industry, td.mat-column-efficiency_production, td.mat-c
 }
 
 .topBtnDiv ::ng-deep .mat-button-toggle-label-content {
-  line-height: 2.4rem
+  line-height:38px;
 }
 .topBtnDiv ::ng-deep .mat-button-toggle-group {
-  height: 2.4rem;
+  height: 38px;
   font-size: .8rem;
   font-weight: 500;
 }
+
 
 .lastUpdated {
   vertical-align:middle;
@@ -295,6 +297,7 @@ td.mat-column-efficiency_energy_water span {
     left: 48vw;
     position: absolute;
   }
+
 
   .tableHeader {
     display: inline-block;

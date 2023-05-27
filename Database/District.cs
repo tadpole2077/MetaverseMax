@@ -109,5 +109,8 @@ namespace MetaverseMax.Database
         [Column("insurance_commission")]
         public int insurance_commission { get; set; }
 
+        [Column("land_plot_price")]
+        public int? land_plot_price{ get; set; }
+
     }
 }

@@ -9,6 +9,7 @@ import { BuildingFilterComponent } from '../building-filter/building-filter.comp
 import { BUILDING } from '../owner-data/owner-interface';
 import { Globals, WORLD } from '../common/global-var';
 import { Router } from '@angular/router';
+import { ALERT_TYPE, ALERT_ACTION } from '../common/enum'
 
 interface OfficeGlobalIp {
   totalIP: number;
@@ -40,6 +41,7 @@ interface BuildingDetail {
   pos: number;  
       
   rank: number;
+  al: number;     /* Alert 1=active, 0=inactive*/
   ip_t: number;
   ip_b: number;
   bon: number;
@@ -87,6 +89,7 @@ export class BuildingIPComponent {
   public hidePaginator: boolean;
   public historyShow: boolean = false;
   public buildingFilterShow: boolean = false;
+  public showIPAlert: boolean = false;
 
   public buildingType: number = 0;
   public selectedType: string = "Select Type";
@@ -165,40 +168,44 @@ export class BuildingIPComponent {
     let params = new HttpParams();
     params = params.append('type', type.toString());
     params = params.append('level', level.toString());
+    params = params.append('requester_matic', this.globals.ownerAccount.matic_key);
 
     this.httpClient.get<BuildingCollection>(this.baseUrl + '/plot/BuildingIPbyTypeGet', { params: params })
-      .subscribe((result: BuildingCollection) => {
+      .subscribe({
+        next: (result) => {
 
-        this.buildingCollection = result;
-        this.progressIcon.nativeElement.classList.remove("rotate");
+          this.buildingCollection = result;
+          this.progressIcon.nativeElement.classList.remove("rotate");
 
-        if (this.buildingCollection.show_prediction) {
-          this.displayedColumns = this.assignColumns(this.displayedColumnsPredict);
-        }
-        else {
-          this.displayedColumns = this.assignColumns(this.displayColumnFull);
-        }
+          if (this.buildingCollection.show_prediction) {
+            this.displayedColumns = this.assignColumns(this.displayedColumnsPredict);
+          }
+          else {
+            this.displayedColumns = this.assignColumns(this.displayColumnFull);
+          }
 
-        if (type == BUILDING.OFFICE) {
-          this.displayedColumns = this.assignColumns(this.displayedColumnsOffice);
-        }
-        else {
-          this.displayedColumns = this.assignColumns(this.displayedColumnsStandard);
-        }
+          if (type == BUILDING.OFFICE) {
+            this.displayedColumns = this.assignColumns(this.displayedColumnsOffice);
+          }
+          else {
+            this.displayedColumns = this.assignColumns(this.displayedColumnsStandard);
+          }
 
-        if (this.buildingCollection.buildings !=null && this.buildingCollection.buildings.length > 0) {
-          this.loadBuildingData();                   
-        }
-        else {
-          this.buildingFilter.initFilterIcons();
-          this.dataSource = new MatTableDataSource<BuildingDetail>(null);
-        }
+          if (this.buildingCollection.buildings != null && this.buildingCollection.buildings.length > 0) {
+            this.loadBuildingData();
+          }
+          else {
+            this.buildingFilter.initFilterIcons();
+            this.dataSource = new MatTableDataSource<BuildingDetail>(null);
+          }
 
-        this.activeChkbox.checked = false;
-        this.toRentChkbox.checked = false;
-        this.forSaleChkbox.checked = false;
+          this.activeChkbox.checked = false;
+          this.toRentChkbox.checked = false;
+          this.forSaleChkbox.checked = false;
 
-      }, error => console.error(error));
+        },
+        error: (error) => { console.error(error) }
+      });
 
     return;
   }
@@ -481,4 +488,44 @@ export class BuildingIPComponent {
     return;
   }
 
+  showAlertChange(eventCheckbox: MatCheckboxChange) {
+    if (eventCheckbox.checked) {
+      this.showIPAlert = true;
+    }
+    else {
+      this.showIPAlert = false;
+    }
+
+  }
+
+  enableRankingAlert(row: BuildingDetail) {
+
+    row.al = row.al == 1 ? 0 : 1;
+
+    this.updateAlert(this.globals.ownerAccount.matic_key, ALERT_TYPE.BUILDING_RANKING, row.id, row.al == 1 ? ALERT_ACTION.ADD : ALERT_ACTION.REMOVE);
+
+  }
+
+  updateAlert(maticKey: string, alertType: number, tokenId: number, action: number) {
+
+    let params = new HttpParams();
+    params = params.append('matic_key', maticKey);
+    params = params.append('alert_type', alertType);
+    params = params.append('id', tokenId);
+    params = params.append('action', action);
+
+
+    if (this.globals.ownerAccount.wallet_active_in_world) {
+
+      this.httpClient.get<Object>(this.baseUrl + '/OwnerData/UpdateOwnerAlert', { params: params })
+        .subscribe({
+          next: (result) => {
+          },
+          error: (error) => { console.error(error) }
+        });
+
+    }
+
+    return;
+  }
 }

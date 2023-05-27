@@ -31,7 +31,9 @@ namespace MetaverseMax.Database
         public virtual DbSet<OwnerEXT> ownerEXT { get; set; }
         public virtual DbSet<OwnerName> ownerName { get; set; }
         public virtual DbSet<OwnerOffer> ownerOffer { get; set; }
-        public virtual DbSet<Citizen> citizen { get; set; }
+        public virtual DbSet<AlertTrigger> alertTrigger { get; set; }
+        public virtual DbSet<Alert> alert { get; set; }
+        public virtual DbSet<Citizen> citizen { get; set; }        
         public virtual DbSet<OwnerCitizen> ownerCitizen { get; set; }
         public virtual DbSet<OwnerCitizenExt> OwnerCitizenExt { get; set; }
         public virtual DbSet<OwnerMaterial> OwnerMaterial { get; set; }
@@ -202,8 +204,8 @@ namespace MetaverseMax.Database
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Note precision can also be defined within column metadata >> [Column("for_rent", TypeName = "decimal(16, 4)")]
-            modelBuilder.Entity<DistrictFund>().Property(p => p.balance).HasPrecision(12, 6);           // Set decimal format to match defualt for C#
-            modelBuilder.Entity<DistrictFund>().Property(p => p.distribution).HasPrecision(12, 6);
+            modelBuilder.Entity<DistrictFund>().Property(p => p.balance).HasPrecision(14, 7);           // Set decimal format to match defualt for C#
+            modelBuilder.Entity<DistrictFund>().Property(p => p.distribution).HasPrecision(14, 7);
             modelBuilder.Entity<BuildingTypeIP>().Property(p => p.current_price).HasPrecision(16, 4);
 
             //modelBuilder.Entity<OwnerOffer>().HasKey(p => new { p.offer_id });      // Explicitly set the primary key, as using key from source and not db seed generated.

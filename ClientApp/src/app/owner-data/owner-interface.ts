@@ -72,7 +72,6 @@ interface PlotPosition
 {
   plotX: string,
   plotY: string,
-  rotateEle: Element
 }
 
 interface DistrictPlot

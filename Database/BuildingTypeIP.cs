@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MetaverseMax.Database
@@ -16,9 +15,8 @@ namespace MetaverseMax.Database
         [Column("position")]
         public int position { get; set; }
 
-        [NotMapped]
-        [Column("ip_efficiency")]
-        public decimal ip_efficiency { get; set; }
+        [Column("current_influence_rank")]
+        public decimal current_influence_rank { get; set; }
 
 
         //[NotMapped]

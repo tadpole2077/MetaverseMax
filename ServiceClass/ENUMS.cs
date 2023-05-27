@@ -76,6 +76,50 @@
         PET_NEW_OWNER = 15
     }
 
+    public enum ALERT_ACTION_TYPE
+    {
+        ENABLE = 1,
+        DISABLE = 2
+    }
+    public enum ALERT_TYPE
+    {
+        INITIAL_LAND_VALUE = 1,
+        CONSTRUCTION_TAX = 2,
+        PRODUCTION_TAX = 3,
+        DISTRIBUTION = 4,
+        RANKING = 5,
+    }
+
+    public enum ALERT_ICON_TYPE
+    {
+        INFO = 1,
+        TAX = 2,
+        STAMINA = 3,
+        NEW_OFFER = 4,
+        RANKING = 5,
+    }
+
+    public enum ALERT_ICON_TYPE_CHANGE
+    { 
+        NONE = 0,
+        INCREASE = 1,
+        DECREASE = 2
+    }
+
+    public class ALERT_MESSAGE {
+        public static readonly string INTRO = "Your alerts are now activated. New alerts will be shown here when identified, and stored in your alert history. Click delete to clear alert from history.";
+        public static readonly string LOW_STAMINA = "#CIT_AMOUNT# x Building have low stamina citizens and will stop building activity after next collection cycle.";
+        public static readonly string NEW_OFFER = "New offer received from #BIDDER# for your #ASSET#(#ASSET_ID#), offer price #PRICE#.";
+        public static readonly string OFFER_ACCEPTED_BY = "Your offer was accepted by #OWNER# for your #ASSET#(#ASSET_ID#), offer price #PRICE#.";
+        public static readonly string RANKING_CHANGE = "IP Ranking change on #BUILDING_TYPE# Building level-#LEVEL# (#TOKEN_ID#).\nOld Ranking: #OLD_RANKING#% vs New Ranking: #NEW_RANKING#%.#OWNER#";
+    }
+
+    public enum ALERT_STATE
+    {
+        ALL = 1,
+        UNREAD = 2,
+    }
+
     public enum PET_LOOK
     {
         BULLDOG = 1,
@@ -513,23 +557,23 @@
     }
     public enum MIN_PAPER
     {
-        LEVEL_1 = 120,
+        LEVEL_1 = 240,
         LEVEL_2 = 0,
         LEVEL_3 = 0,
         LEVEL_4 = 0,
         LEVEL_5 = 0,
-        LEVEL_6 = 348,
-        LEVEL_7 = 0
+        LEVEL_6 = 696,
+        LEVEL_7 = 1042
     }
     public enum MAX_PAPER
     {
-        LEVEL_1 = 480,
+        LEVEL_1 = 960,
         LEVEL_2 = 0,
         LEVEL_3 = 0,
         LEVEL_4 = 0,
         LEVEL_5 = 0,
-        LEVEL_6 = 1392,
-        LEVEL_7 = 0
+        LEVEL_6 = 2784,
+        LEVEL_7 = 4166
     }
 
     public enum WORLD_TYPE

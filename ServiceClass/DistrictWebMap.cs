@@ -172,6 +172,7 @@ namespace MetaverseMax.ServiceClass
             districtWeb.production_tax = district.production_tax ?? 0;
             districtWeb.commercial_tax = district.commercial_tax ?? 0;
             districtWeb.citizen_tax = district.citizen_tax ?? 0;
+            districtWeb.initial_land_price = district.land_plot_price ?? 0;
 
             return districtWeb;
         }

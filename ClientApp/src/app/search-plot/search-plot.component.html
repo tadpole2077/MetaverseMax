@@ -12,6 +12,7 @@
     </div>
   </div>
   <div style="float:right">
-    <i id="searchIcon" class="fas fa-sync-alt searchIcon" style=""></i><button mat-raised-button color="primary" id="buttonfind" class="buttonEffect" (click)="getPlotData({plotX: plotX.value, plotY: plotY.value})">Find Owner</button>
+    <i id="searchIcon" [ngClass]="{'rotate': rotateActive }" class="fas fa-sync-alt searchIcon" style=""></i>
+    <button mat-raised-button color="primary" id="buttonfind" class="buttonEffect" (click)="getPlotData({plotX: plotX.value, plotY: plotY.value})">Find Owner</button>
   </div>
 </div>

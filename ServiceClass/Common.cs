@@ -209,5 +209,24 @@ namespace MetaverseMax.ServiceClass
             }
             return dateFormated;
         }
+
+        public string LookupTokenType(int typeId)
+        {
+            string tokenType = string.Empty;
+
+            tokenType = typeId switch
+            {
+                (int)TOKEN_TYPE.PLOT => "Plot",
+                (int)TOKEN_TYPE.APPLICATION => "Application",
+                (int)TOKEN_TYPE.CAR => "Car",
+                (int)TOKEN_TYPE.CITIZEN => "Citizen",
+                (int)TOKEN_TYPE.DISTRICT => "District",
+                (int)TOKEN_TYPE.PET => "Pet",
+                (int)TOKEN_TYPE.RESOURCE => "Resource",
+                _ => "Unknown",
+            };
+
+            return tokenType;
+        }
     }
 }

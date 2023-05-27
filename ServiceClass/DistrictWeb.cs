@@ -30,6 +30,7 @@ namespace MetaverseMax.ServiceClass
         public int production_tax { get; set; }
         public int commercial_tax { get; set; }
         public int citizen_tax { get; set; }
+        public int initial_land_price { get; set; }
 
         public int construction_energy_tax { get; set; }
         public int construction_industry_production_tax { get; set; }

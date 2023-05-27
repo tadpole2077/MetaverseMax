@@ -24,8 +24,7 @@ a {
   position: fixed;
   padding-bottom: 10px;
   margin-top:-40px;
-  left: 30%;
-  color: rgba(0, 0, 0, 0.87);
+  left: 30%;  
   cursor: move;
   display: flex;
   justify-content: center;

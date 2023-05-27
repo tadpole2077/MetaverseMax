@@ -1,7 +1,7 @@
 
 
 <div class="searchTop">
-  <app-search-district class="searchDistrict" (searchDistrictEvent)="searchDistrict($event)"></app-search-district>
+  <app-search-district #SearchDistristTop class="searchDistrict" (searchDistrictEvent)="searchDistrict($event)"></app-search-district>
 </div>
 
 <div class="districtImgContainer">
@@ -68,6 +68,15 @@
         <app-graph-tax #graphConstruct class="taxGraphDistrictConstruct" [graph_type]="CONSTRUCT"></app-graph-tax>
         <app-graph-tax #graphProduce class="taxGraphDistrictProduce" [graph_type]="PRODUCE"></app-graph-tax>
 
+        <div class="extraTaxData">
+          <span class="taxlabel">Initial Land Prices </span>
+          <span class="taxData">+{{ district.initial_land_price }}%</span>
+
+          <div class="alertMenu" [hidden]="!globals.ownerAccount.wallet_active_in_world">
+            <app-alert-menu [districtId]="district.district_id"></app-alert-menu>
+          </div>
+        </div>
+
         <mat-accordion id="taxChangeAccordion" class="example-headers-align" multi>
           
           <mat-expansion-panel #taxChangePanel (opened)="loadTaxChange()">
@@ -107,6 +116,7 @@
             <span class="fundDataBlock">Fund: <strong>{{ fundtotal | number }}</strong></span>
           </div>
         </div>
+
         <div style="display:inline-block">
           <app-graph-fund #graphDistribute class="distributeGraph"></app-graph-fund>
           <div>
@@ -167,7 +177,7 @@
 </div>
 
 <div class="searchBottom">
-  <app-search-district class="searchDistrict" (searchDistrictEvent)="searchDistrict($event)"></app-search-district>
+  <app-search-district #SearchDistristBottom class="searchDistrict" (searchDistrictEvent)="searchDistrict($event)"></app-search-district>
 </div>
 
 <div class="table-container" [hidden]="!ownerSummary || !ownerSummary.length">

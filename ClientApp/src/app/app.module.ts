@@ -7,6 +7,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppComponent } from './app.component';
 import { AccountApproveComponent } from './account-approve/account-approve.component';
+import { AlertMenuComponent } from './alert-menu/alert-menu.component';
+import { AlertBottomComponent } from './alert-bottom/alert-bottom.component';
+import { AlertHistoryComponent } from './alert-history/alert-history.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { NavMenuWorldComponent } from './nav-menu-world/nav-menu-world.component';
 import { NavMenuOwnerComponent } from './nav-menu-owner/nav-menu-owner.component';
@@ -35,6 +38,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet'; 
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -43,6 +47,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatListModule } from '@angular/material/list';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NumberDirective } from './numberonly.directive';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
@@ -56,6 +61,9 @@ import { Globals } from './common/global-var';
   declarations: [
     AppComponent,
     AccountApproveComponent,
+    AlertMenuComponent,
+    AlertBottomComponent,
+    AlertHistoryComponent,
     NavMenuComponent,
     NavMenuWorldComponent,
     NavMenuOwnerComponent,
@@ -96,7 +104,9 @@ import { Globals } from './common/global-var';
     MatButtonToggleModule,
     MatButtonModule,
     MatBadgeModule,
+    MatBottomSheetModule,
     MatSlideToggleModule,
+    MatListModule,
     DragDropModule,
     NgbDropdownModule,
     NgxChartsModule,    

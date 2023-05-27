@@ -13,5 +13,7 @@ namespace MetaverseMax.ServiceClass
         public DateTime? slowdown_end { get; set; }
         public bool wallet_active_in_world { get; set; }
         public bool dark_mode { get; set; }
+        public bool alert_activated { get; set; }
+        public int alert_count { get; set; }
     }
 }

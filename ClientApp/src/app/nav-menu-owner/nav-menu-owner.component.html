@@ -3,7 +3,7 @@
 
 <div ngbDropdown class="d-inline-block; menuContainer">
   <img ngbDropdownToggle *ngIf="globals.ownerAccount.avatar_id>0" height="38" crossorigin="anonymous" referrerpolicy="no-referrer" class="ownerImg" src="{{ globals.worldURLPath }}citizen/{{globals.ownerAccount.avatar_id}}">
-  <img ngbDropdownToggle *ngIf="globals.ownerAccount.avatar_id==0" height="38" src="./images/MysteryOwner.png" class="ownerImg" [ngClass]="{ 'mysteryDark': globals.ownerAccount.dark_mode }"  />
+  <img ngbDropdownToggle *ngIf="globals.ownerAccount.avatar_id==0" height="38" src="./images/MysteryOwner.png" class="ownerImg" [ngClass]="{ 'mysteryDark': globals.ownerAccount.dark_mode,  'mysteryLight': !globals.ownerAccount.dark_mode}"  />
 
   <div ngbDropdownMenu>
     <!--<mat-icon class="mr-8">brightness_5</mat-icon>-->

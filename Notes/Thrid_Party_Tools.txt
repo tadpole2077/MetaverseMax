@@ -4,10 +4,17 @@
 1) ICONS: Awesome
 =========================================================================================
 Site: https://fontawesome.com/icons?d=gallery&p=2
+GIT: https://github.com/FortAwesome/Font-Awesome
 
-package.json:
+(Current)
+Using Version: 6.4
+Downloaded from Git (Web zip), and override existing 5.15.3
+Read: https://fontawesome.com/docs/web/setup/packages
+NPM 6.4 Package: https://www.npmjs.com/package/@fortawesome/angular-fontawesome
+
+(legacy) package.json:
 Dependencies
-	"@fortawesome/fontawesome-free": "^5.15.3",
+	"@fortawesome/fontawesome-free": "^5.15.3"
 
 Icons Used:
 https://fontawesome.com/v5.15/icons/plane-arrival?style=solid
@@ -24,7 +31,9 @@ https://fontawesome.com/v5.15/icons/search-location?style=solid
 
 Add FontAwesome to app.
 * Install FontAwesome. npm install @fortawesome/fontawesome-free --save.
-* Register it on angular.json under styles. "node_modules/@fortawesome/fontawesome-free/css/all.min.css"
+* Register it on angular.json under styles. 
+"styles": [
+   "./node_modules/@fortawesome/fontawesome-free/css/all.min.css",
 * Use it on your application.
 
 

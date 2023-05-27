@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, ElementRef, ChangeDetectorRef } from '@angular/core';
-import { Subscription, interval } from 'rxjs';
+import { Subscription, interval, Subject } from 'rxjs';
+import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { AccountApproveComponent } from '../account-approve/account-approve.component';
 import { OwnerDataComponent } from '../owner-data/owner-data.component';
 import { AppComponent } from '../app.component';
@@ -8,6 +9,8 @@ import DetectEthereumProvider from '@metamask/detect-provider';
 /*import TronWebProvider from 'tronweb';*/    // Massive package 599kb included in main.js file - only needed on server side Tron apps i think
 import { Router, UrlSegmentGroup, PRIMARY_OUTLET, UrlSegment, UrlTree, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
+import { ALERT_TYPE, ALERT_ICON_TYPE, PENDING_ALERT } from '../common/enum'
+import { AlertBottomComponent } from '../alert-bottom/alert-bottom.component';
 
 
 interface OwnerAccount {
@@ -20,10 +23,30 @@ interface OwnerAccount {
   pro_tools_enabled: boolean;
   avatar_id: number;
   dark_mode: boolean;
+  alert_count: number;
 }
 interface RequestAccountsResponse {
-  code: Number, // 200：ok，4000：In-queue， 4001：user rejected
-  message: String
+  code: number, // 200：ok，4000：In-queue， 4001：user rejected
+  message: string
+}
+
+
+interface AlertCollection {
+  historyCount: number,
+  alert: AlertPending[]
+}
+interface AlertPending {
+  alert_pending_key: number,
+  matic_key: string,
+  last_updated: string,
+  alert_message: string,
+  icon_type: number,
+  icon_type_change: number
+}
+
+interface AlertPendingManager {
+  manage: boolean,  
+  alert: AlertPending[]
 }
 
 
@@ -38,7 +61,8 @@ const APPROVAL_TYPE = {
   NONE: 0,
   NO_WALLET_ENABLED: 1,
   ACCOUNT_WITH_NO_PLOTS: 2
-} 
+}
+
 
 @Injectable()
 export class Globals {
@@ -56,7 +80,9 @@ export class Globals {
   public ownerCDF: ChangeDetectorRef = null;
   public ownerComponent: OwnerDataComponent = null;
   public appComponentInstance: AppComponent = null;
-
+  public alertSub: Subscription;
+  public newAlertSheetActive: boolean = false;
+  public bottomAlertRef: MatBottomSheetRef = null;
 
   // Flag triggers an update on any module that uses the Account Approval component
   public _requestApprove: boolean = false;
@@ -74,16 +100,20 @@ export class Globals {
         this.approveSwitchComponent.hide();
       }
     }
-    console.log("RequestApprove:", this._requestApprove);
+    //console.log("RequestApprove:", this._requestApprove);
   }
   get requestApprove() {
     return this._requestApprove;
   }
 
-  public approvalType: number = APPROVAL_TYPE.NONE;  
+  public approvalType: number = APPROVAL_TYPE.NONE;
+
+  // Service to capture when an account become active - used by components to update/enable account specific features
+  private accountActiveSubject = new Subject<boolean>()
+  public accountActive$ = this.accountActiveSubject.asObservable()
 
 
-  constructor(public router: Router, private location: Location, private route: ActivatedRoute) {
+  constructor(private httpClient: HttpClient, private alertSheet: MatBottomSheet, public router: Router, private location: Location, private route: ActivatedRoute) {
     
     this.initAccount();
     
@@ -100,48 +130,60 @@ export class Globals {
       checked: false,
       pro_tools_enabled: false,
       avatar_id: 0,
-      dark_mode: false
+      dark_mode: false,
+      alert_count: 0
     };  
 
   }
 
-  CheckUserAccountKey(OwnerPublicKey: string, httpClient: HttpClient, baseUrl: string, checkMyPortfolio: boolean) {
+  checkUserAccountKey(OwnerPublicKey: string, baseUrl: string, checkMyPortfolio: boolean) {
 
     let params = new HttpParams();
     params = params.append('owner_public_key', OwnerPublicKey);
 
-    httpClient.get<OwnerAccount>(baseUrl + '/OwnerData/CheckHasPortfolio', { params: params })
-      .subscribe((result: OwnerAccount) => {
+    // Clear any prior alert subscription - due to switching worlds.
+    if (this.alertSub && !this.alertSub.closed) {
+      this.alertSub.unsubscribe();      
+    }
 
-        this.ownerAccount = result;
-        this.ownerAccount.checked = true;
-        
-        if (this.ownerAccount.wallet_active_in_world) {
-          this.requestApprove = false;
-          this.approvalType = APPROVAL_TYPE.NONE;
-        }
-        else {
-          this.requestApprove = true;
-          this.approvalType = APPROVAL_TYPE.ACCOUNT_WITH_NO_PLOTS;                    
-        }        
+    this.httpClient.get<OwnerAccount>(baseUrl + '/OwnerData/CheckHasPortfolio', { params: params })
+      .subscribe({
+        next: (result) => {
 
-        this.requestApproveRefresh();
+          this.ownerAccount = result;
+          this.ownerAccount.checked = true;
 
-        if (checkMyPortfolio) {
-          this.checkMyPortfolio();
-        }
+          if (this.ownerAccount.wallet_active_in_world) {
+            this.requestApprove = false;
+            this.approvalType = APPROVAL_TYPE.NONE;
 
-        // Apply owner stored preference for dark_mode theme
-        this.appComponentInstance.darkModeChange(this.ownerAccount.dark_mode);
+            this.enableAlertChecker(baseUrl, this.ownerAccount.matic_key);               // Interval account alert checker job
+            this.accountActiveSubject.next(true);
+          }
+          else {
+            this.requestApprove = true;
+            this.approvalType = APPROVAL_TYPE.ACCOUNT_WITH_NO_PLOTS;
+            this.accountActiveSubject.next(false);
+          }
 
-      }, error => console.error(error));
+          this.requestApproveRefresh();
+
+          if (checkMyPortfolio) {
+            this.checkMyPortfolio();
+          }
+
+          // Apply owner stored preference for dark_mode theme
+          this.appComponentInstance.darkModeChange(this.ownerAccount.dark_mode);
+        },
+        error: (error) => { console.error(error) }
+      });
 
 
     return;
   }
 
 
-  async getTronAccounts(httpClient: HttpClient, baseUrl: string) {
+  async getTronAccounts(baseUrl: string) {
 
     let attempts: number = 0;
     let subTron: Subscription;
@@ -163,7 +205,7 @@ export class Globals {
           if (attempts >= 5) {
 
             subTron.unsubscribe();
-            this.checkTronAccountKey(httpClient, baseUrl, false);    // Show login request/approval bar
+            this.checkTronAccountKey(baseUrl, false);    // Show login request/approval bar
 
           }
           else if (tronWeb && ownerPublicKey != null && ownerPublicKey.base58 != false) {
@@ -174,7 +216,7 @@ export class Globals {
             //x.then(() => { console.log("connection response : " + x) });
             //let x2 = tronWeb.isTronLink;      // true/false - will also Force an dApp approve connection.
 
-            this.checkTronAccountKey(httpClient, baseUrl, false);
+            this.checkTronAccountKey(baseUrl, false);
 
             //requestAccountsResponse = await tronWebProvider.request({ method: 'tron_requestAccounts' });
             //requestAccountsResponse = await tronWeb.request({ method: 'tron_requestAccounts' });
@@ -186,14 +228,14 @@ export class Globals {
       );
   }
 
-  checkTronAccountKey(httpClient: HttpClient, baseUrl: string, checkMyPortfolio: boolean) {
+  checkTronAccountKey(baseUrl: string, checkMyPortfolio: boolean) {
 
     const tronWeb = (window as any).tronWeb;
     let ownerPublicKey: any = tronWeb == null ? null : tronWeb.defaultAddress;
 
     if (ownerPublicKey != null && ownerPublicKey.base58 != false) {
 
-      this.CheckUserAccountKey(ownerPublicKey.base58, httpClient, baseUrl, checkMyPortfolio);
+      this.checkUserAccountKey(ownerPublicKey.base58, baseUrl, checkMyPortfolio);
      
     }
     else {
@@ -202,7 +244,9 @@ export class Globals {
 
       this.requestApprove = true;
       this.approvalType = APPROVAL_TYPE.NO_WALLET_ENABLED;
+
       this.requestApproveRefresh();
+
       if (checkMyPortfolio) {
         this.checkMyPortfolio();
       }
@@ -211,7 +255,7 @@ export class Globals {
   }
 
   // Triggered by (a) Change World Type (b) On initial load of page or redirect load
-  async getEthereumAccounts(httpClient: HttpClient, baseUrl: string, checkMyPortfolio: boolean) {
+  async getEthereumAccounts(baseUrl: string, checkMyPortfolio: boolean) {
 
     const provider = await DetectEthereumProvider();
     const ethereum = (window as any).ethereum;
@@ -232,7 +276,7 @@ export class Globals {
         console.log("Key = ", ethereum.selectedAddress);
         this.requestApprove = false;        
 
-        this.CheckUserAccountKey(ethereum.selectedAddress, httpClient, baseUrl, checkMyPortfolio);
+        this.checkUserAccountKey(ethereum.selectedAddress, baseUrl, checkMyPortfolio);
       }
       else {
         console.log(">>>No Ethereum Account linked<<<");
@@ -330,10 +374,68 @@ export class Globals {
 
     return segmentList;
   }
+
+  enableAlertChecker(baseUrl: string, ownerMaticKey: string) {
+    
+    var that = this;
+    let alertPendingManager: AlertPendingManager = {
+      alert: null,
+      manage: false
+    };
+    let params = new HttpParams();    
+
+    params = params.append('matic_key', ownerMaticKey);
+    params = params.append('pending_alert', PENDING_ALERT.UNREAD);
+
+    // 3 min interval checking alerts
+    this.alertSub = interval(180000)
+      .subscribe(
+        async (val) => {
+
+          console.log("Account Alert Check : " + new Date());
+
+          // Skip interval check if full history is currently open
+          if (that.bottomAlertRef != null && that.newAlertSheetActive == false) {
+            console.log("Alert full History currently Open - skip new alert check : " + new Date());
+            return;
+          }
+
+          this.httpClient.get<AlertCollection>(baseUrl + '/OwnerData/GetPendingAlert', { params: params })
+            .subscribe({
+              next: (result) => {
+
+                alertPendingManager.alert = result.alert;
+                that.ownerAccount.alert_count = result.historyCount;
+
+                if (alertPendingManager.alert && alertPendingManager.alert.length > 0) {
+
+                  that.newAlertSheetActive = true;
+
+                  that.bottomAlertRef = that.alertSheet.open(AlertBottomComponent, {
+                    data: alertPendingManager,
+                  });
+
+                }
+                else {
+                  that.newAlertSheetActive = false;
+                }
+              },
+              error: (error) => {
+                console.error("WARNING Account Alert Check ERROR : " + error);
+              }
+            });
+        }
+    );
+    
+  }
+
 }
 
 export {
   OwnerAccount,
   WORLD,
+  AlertPending,
+  AlertPendingManager,
+  AlertCollection,
   APPROVAL_TYPE
 }

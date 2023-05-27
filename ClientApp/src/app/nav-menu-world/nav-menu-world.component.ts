@@ -23,6 +23,7 @@ export class NavMenuWorldComponent {
   baseUrl: string;
   public worldNamelist: WorldName[];
   public selectedWorldName: string = "World: Tron";
+  private mobileView: boolean = false;
 
   @ViewChild(NgbDropdown, { static: true }) worldDropDown: NgbDropdown;
   @Output() selectWorldEvent = new EventEmitter<any>();
@@ -34,7 +35,16 @@ export class NavMenuWorldComponent {
     this.baseUrl = baseUrl + "api/" + globals.worldCode;
 
     this.loadWorldListDropDown();
+
+    // Mobile View - remove secondary columns
+    if (this.width < 768) {
+      this.mobileView = true;
+    }
     
+  }
+
+  public get width() {
+    return window.innerWidth;
   }
 
   loadWorldListDropDown() {
@@ -61,14 +71,14 @@ export class NavMenuWorldComponent {
   // called by parent function on page load
   updateSelectedWorldList(worldId: number) {
 
-    var worldName = (worldId == WORLD.TRON ? "Tron" : worldId == WORLD.BNB ? "BSC" : "Ethereum");
-    this.selectedWorldName = "World: " + worldName;
+    var worldName = (worldId == WORLD.TRON ? "Tron" : worldId == WORLD.BNB ? "BSC" : "ETH");
+    this.selectedWorldName = (this.mobileView ? "" : "World: ") + worldName;
     
   }
 
   setWorldVar( worldId:number, worldName:string ) {
 
-    this.selectedWorldName = "World: " + worldName;
+    this.selectedWorldName = (this.mobileView ? "" : "World: ") + worldName;
     this.globals.selectedWorld = worldId;
 
     this.selectWorldEvent.emit(worldId);    // bubble event up to parent component

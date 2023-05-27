@@ -33,7 +33,7 @@ namespace MetaverseMax.ServiceClass
             try
             {
                 district = districtDB.DistrictGet(district_id);
-                districtHistory_1Mth = districtDB.DistrictGet_History1Mth(district_id);
+                districtHistory_1Mth = districtDB.DistrictGet_History1Mth(district_id, district.last_update);
 
                 if (district.district_id == 0)
                 {

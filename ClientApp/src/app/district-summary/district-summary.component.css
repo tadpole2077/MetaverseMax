@@ -188,16 +188,31 @@
     margin-bottom:.4rem;
 }
 
+.extraTaxData{
+  display:inline-block;
+  margin-bottom: .6rem;
+  margin-top: .1rem;
+}
+.taxData {
+  font-weight: 600;
+}
+.alertMenu{
+  margin-top:1rem;
+}
+
 .taxGraphDistrictConstruct {
+  vertical-align: top;
   display: inline-block;
   width: 430px;
   height: 210px
 }
 .taxGraphDistrictProduce {
+  vertical-align: top;
   display: inline-block;
   /*width: 330px; /* Less then actual size, used to force 2nd grid to stay on same line until legend is nearly hiden*/
   width: 420px;
-  height: 210px
+  height: 210px;
+  margin-right: 1.4rem;
 }
 .fundGraph {
   display: inline-block;
@@ -632,7 +647,7 @@ th.mat-column-owned_plots{
     margin-left: -28px !important;
   }
 
-  .taxGraphDistrictConstruct {
+  .taxGraphDistrictConstruct {    
     width: 360px;
   }
 

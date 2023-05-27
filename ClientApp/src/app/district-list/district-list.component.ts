@@ -102,7 +102,7 @@ export class DistrictListComponent implements AfterViewInit {
 
   // Single parameter struct containing 2 members, pushed by component search-plot
   searchDistrict(district_id: number) {
-    this.router.navigate([this.globals.worldCode + '/district-summary'], { queryParams: { district_id: district_id } });
+    this.router.navigate(['/' + this.globals.worldCode + '/district-summary'], { queryParams: { district_id: district_id } });
   }
 
 }

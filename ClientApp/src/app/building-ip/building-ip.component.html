@@ -24,7 +24,7 @@
 <h3 class="featureHeader">Building Ranking League</h3>
 
 <h6 class="featureDesc">View ranked listing of buildings based on IP (Influence Points)</h6>
-<p  class="featureInstruct">Select a building type and level to start search</p>
+<p class="featureInstruct">Select a building type and level to start search</p>
 <p class="loading" *ngIf="buildingType>0 && !buildingCollection"><em>Searching...</em><i id="searchIcon" class="fas fa-sync-alt searchIcon rotate" style=""></i></p>
 
 <app-prod-history [hidden]="!this.historyShow" (hideHistoryEvent)="hideHistory($event)"></app-prod-history>
@@ -172,7 +172,7 @@
       <div>
         <span>Produce Buildings:</span>
         <span>{{ buildingCollection.buildings_predict }}</span>
-        <span style="vertical-alignwidth:8rem">* Last week period</span>
+        <span style="width:8rem">* Last week period</span>
       </div>
       <div>
         <span>Correct:</span>
@@ -254,6 +254,16 @@
         </mat-checkbox>
       </div>
     </div>
+    <div class="activeFilter" fxLayout fxLayoutAlign="center center">
+      <div>
+        <mat-checkbox #forSaleChkbox
+                      fxFlex="30%"
+                      class="activeWeek"
+                      (change)="showAlertChange($event)">
+          <i class="far fa-bell filterIcon" title="Show Alert Column"></i>Show Alerts
+        </mat-checkbox>
+      </div>
+    </div>
   </div>
 
   <mat-paginator #paginatorTop (page)="handlePaginatorBottom($event)" [hidden]="hidePaginator" [pageSize]="500" [hidePageSize] [showFirstLastButtons] class="paginatorContainer top"></mat-paginator>
@@ -280,8 +290,12 @@
       <td mat-cell *matCellDef="let row" [style.height]="row.warn != '' ? '5.1rem' :'0'">
         <span class="rankEff">{{row.rank}}%</span>
 
-        <a class="magnifyHistoryPositioner" *ngIf="buildingType==5 || buildingType==3 || buildingType==7 || buildingType==6" role="button" (click)="showHistory(row.id, row.pos_x, row.pos_y, buildingType, row.rank)">
+        <a class="magnifyHistoryPosition" *ngIf="buildingType==5 || buildingType==3 || buildingType==7 || buildingType==6" role="button" (click)="showHistory(row.id, row.pos_x, row.pos_y, buildingType, row.rank)">
           <img src="./assets/magnify_history{{ globals.ownerAccount.dark_mode ? '_dark' : '' }}.png" class="magnifyHistoryIcon" height="30" />
+        </a>
+
+        <a class="showIPAlertPosition" *ngIf="showIPAlert" role="button" (click)="enableRankingAlert(row)">
+          <i *ngIf="showIPAlert" [ngClass]="{'far':row.al==0, 'fas': row.al==1}" class="fa-bell ipAlert"><span [ngClass]="{'shake1': row.al==1}"></span><span [ngClass]="{'shake2': row.al==1}"></span></i>
         </a>
 
         <div class="rowWarning" *ngIf="row.warn != ''">
@@ -296,12 +310,12 @@
         <span class="long-text">Total IP</span><span class="short-text">Total IP</span>        
       </th>
       <td mat-cell *matCellDef="let row">
-        <span><span class="mobileVisible"><span>Total:</span></span> {{ row.ip_t}}</span>
+        <span><span class="mobileVisible"><span>Total:</span></span> {{ row.ip_t}}<span *ngIf="row.ip_i<0" class="warnData"> ({{ row.ip_i }})</span></span>
         <span class="mobileVisible"><span>Base:</span> {{ row.ip_b }}</span>
         <span class="mobileVisible"><span>Bonus:</span> {{ row.bon }}%</span>
-        <a class="magnifyHistoryPositioner officeMagify" *ngIf="buildingType==6" role="button" (click)="showHistory(row.id, row.pos_x, row.pos_y, buildingType, row.rank)">
+        <a class="magnifyHistoryPosition officeMagify" *ngIf="buildingType==6" role="button" (click)="showHistory(row.id, row.pos_x, row.pos_y, buildingType, row.rank)">
           <img src="./assets/magnify_history{{ globals.ownerAccount.dark_mode ? '_dark' : '' }}.png" class="magnifyHistoryIcon" height="30" />
-        </a>
+        </a>        
       </td>
     </ng-container>
 

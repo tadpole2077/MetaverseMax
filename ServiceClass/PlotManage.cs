@@ -216,12 +216,15 @@ namespace MetaverseMax.ServiceClass
         {
             int totalPlotsRemoved = 0;
             OwnerManage ownerManage = new(_context, worldType);
+            AlertManage alert = new(_context, worldType);
             OwnerChange ownerChange = null;
             DistrictName districtName = null;
             List<Plot> buildingPlotList = null;
             bool ownerMonumentStateChanged = false, districtPOIStateChanged = false;
             PlotDB plotDB = new PlotDB(_context, worldType);
-            int buildingTypeId = 0, districtId = 0, tokenId = 0, storedInfluenceBonus = 0, influenceBonus = 0, storedInfluence = 0, influence = 0;
+            CitizenManage citizen = new(_context, worldType);
+
+            int buildingTypeId = 0, districtId = 0, tokenId = 0, storedInfluenceBonus = 0, influenceBonus = 0, storedInfluence = 0, influence = 0, staminaAlertCount =0 ;
             int buildingUpdatedCount = 0, emptyPlotsUpdatedCount = 0;
             int storedApp123bonus = 0, storedApp4 = 0, storedApp5 = 0, storedInfluenceInfo = 0;
 
@@ -236,6 +239,7 @@ namespace MetaverseMax.ServiceClass
             // Get owner lands, check if MCP plot is empty then remove from plot sync list (if also empty in local db)
             for (int i = 0; i < accountWithMin2Plot.Count; i++)
             {
+                staminaAlertCount = 0;
                 ownerChange = ownerChangeList.Where(x => x.owner_matic_key == accountWithMin2Plot[i]).FirstOrDefault();
                 ownerMonumentStateChanged = ownerChange == null ? false : ownerChange.monument_activated || ownerChange.monument_deactivated;  // if either flag enabled, return true - [state has changed].
 
@@ -250,11 +254,19 @@ namespace MetaverseMax.ServiceClass
                     continue;       // All lands sold/transfered since last sync - run full sync process on these plots - dont filter.
                 }
                 else
-                {
+                {                    
                     // CHECK if ALL owner lands have been sold/transfered since last sync, or only 1 land remains, then run full process sync on that plot/building. Needed for account avatar and name check
-                    if (lands.Count <= 1)
+                    if (lands.Count == 0)
                     {
                         continue;
+                    }
+                    else if (lands.Count == 1)
+                    {
+                        // Check if that single land has low-stamina alert.
+                        if (citizen.CheckCitizenStamina(lands[0].Value<JArray>("citizens"), lands[0].Value<int?>("building_type_id") ?? 0))
+                        {
+                            alert.AddLowStaminaAlert(accountWithMin2Plot[i], 1);
+                        }
                     }
 
                     // Skip first account plot (start at 1 not 0) - full sync first account plot will retrive latest avatar and name used by account.
@@ -313,6 +325,13 @@ namespace MetaverseMax.ServiceClass
                                x.owner_matic == accountWithMin2Plot[i] &&
                                x.token_id == tokenId);
                         }
+                        staminaAlertCount = citizen.CheckCitizenStamina(lands[landIndex].Value<JArray>("citizens"), lands[landIndex].Value<int?>("building_type_id") ?? 0) ? ++staminaAlertCount : staminaAlertCount;
+                    }
+
+                    // Add Owner Alert if any lands have citizens with low stamina
+                    if (staminaAlertCount > 0)
+                    {
+                        alert.AddLowStaminaAlert(accountWithMin2Plot[i], staminaAlertCount);
                     }
                 }
 

@@ -57,13 +57,13 @@ namespace MetaverseMax.Database
         }
 
         //Get District snapshot from 1 month prior to extract prior district tax attributes
-        public District DistrictGet_History1Mth(int districtId)
+        public District DistrictGet_History1Mth(int districtId, DateTime districtLatestUpdate)
         {
             District matchedDistrict = new();
 
             try
             {
-                matchedDistrict = _context.district.Where(x => x.district_id == districtId && x.last_update <= DateTime.Now.AddMonths(-1))
+                matchedDistrict = _context.district.Where(x => x.district_id == districtId && x.last_update <= districtLatestUpdate.AddMonths(-1))
                     .OrderByDescending(x => x.update_instance)
                     .FirstOrDefault();
             }
@@ -162,6 +162,7 @@ namespace MetaverseMax.Database
                 district.insurance_commission = districtToken.Value<int?>("insurance_commission") ?? 0;
 
                 district.resource_zone = districtToken.Value<int?>("resources") ?? 0;
+                district.land_plot_price = districtToken.Value<int?>("land_plot_price") ?? 0;
 
                 returnCode = DistrictUpdate(district);
 
