@@ -1,8 +1,8 @@
 import { Component, Inject, ViewChild, Output, EventEmitter, AfterViewInit } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
 import { MatSort } from '@angular/material/sort';
-import { MatPaginator } from '@angular/material/paginator';
+import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator';
 import { TaxChange } from '../district-summary/data-district-interface';
 import { Globals, WORLD } from '../common/global-var';
 

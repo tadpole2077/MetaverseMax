@@ -13,9 +13,10 @@ Reading:
 
 Apply To: CMD > CD D:\0_Development\2_Applications\GitHub\MetaverseMax\MetaverseMax\ClientApp
 
-Main Run (note check prerequisites within angular guide first):
+Main Run (note check prerequisites within angular guide first && select 'I use Angular Material'):
 	Commit files to Git
 	ng update @angular/core@15 @angular/cli@15
+	ng update @angular/material@15
 
 Actions:
 	Angular upgrade 14.2.11 to 15.2.9,  + Materials + medium complexity
@@ -29,8 +30,14 @@ Actions:
 	npm uninstall sass-loader@10.1.1	: version no longer used in root, sass-loader@13.0.3 now used in @angular-devkit\build-angular\node_modules\
 
 Potential Code change:
-	If you are defining routes with pathMatch, you may have to cast it to Route or Routes explicitly. Route.pathMatch is no longer compatible with string type.
-		See app.module.ts
+> (Potential CSS Impact - as in use) In v15, the Angular compiler prefixes @keyframes in CSS with the component's scope. 
+  This means that any TypeScript code that relies on keyframes names no longer works in v15. Update any such instances to: define keyframes programmatically, use global stylesheets, or change the component's view 
+  encapsulation. Read further https://angular.io/guide/update-to-version-15#v15-bc-03
+
+> In Angular Material v15, many of the components have been refactored to be based on the official Material Design Components for Web (MDC). 
+  This change affected the DOM and CSS classes of many components. Read further https://rc.material.angular.io/guide/mdc-migration
+
+> In your application's tsconfig.json file, remove enableIvy. In v15, Ivy is the only rendering engine so enableIvy is not required.
 
 
 > In Angular version 15, the deprecated `relativeLinkResolution` config parameter of the Router is removed.
@@ -40,3 +47,23 @@ Potential Code change:
 > Since Angular v15, the `RouterLink` contains the logic of the `RouterLinkWithHref` directive.
   This migration replaces all `RouterLinkWithHref` references with `RouterLink`.
   Migration completed (No changes made).
+
+
+✓  Updated Angular Material to version 15
+
+UPDATE src/theme.scss (11614 bytes)
+UPDATE src/app/app.module.ts (7336 bytes)
+UPDATE src/app/owner-data/owner-data.component.ts (23572 bytes)
+UPDATE src/app/district-summary/district-summary.component.ts (11149 bytes)
+UPDATE src/app/production-history/prod-history.component.ts (11825 bytes)
+UPDATE src/app/building-ip/building-ip.component.ts (16948 bytes)
+UPDATE src/app/nav-menu-owner/nav-menu-owner.component.ts (2438 bytes)
+UPDATE src/app/offer-modal/offer-modal.component.ts (5289 bytes)
+UPDATE src/app/citizen-building-table/citizen-building-table.component.ts (5529 bytes)
+UPDATE src/app/citizen-modal/citizen-modal.component.ts (7498 bytes)
+UPDATE src/app/pet-modal/pet-modal.component.ts (4077 bytes)
+UPDATE src/app/alert-menu/alert-menu.component.ts (3926 bytes)
+UPDATE src/app/tax-change/tax-change.component.ts (3998 bytes)
+UPDATE src/app/district-list/district-list.component.ts (3504 bytes)
+UPDATE src/app/district-notification/district-notification.component.ts (4289 bytes)
+UPDATE src/app/search-plot/search-plot.component.ts (606 bytes)

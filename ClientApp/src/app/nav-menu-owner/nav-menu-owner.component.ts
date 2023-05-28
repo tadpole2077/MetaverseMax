@@ -4,7 +4,7 @@ import { NgbDropdown } from '@ng-bootstrap/ng-bootstrap';
 import { Router } from '@angular/router';
 import { Globals, WORLD } from '../common/global-var';
 import { ThemePalette } from '@angular/material/core';
-import { MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { MatLegacySlideToggleChange as MatSlideToggleChange } from '@angular/material/legacy-slide-toggle';
 
 
 interface WorldNameCollection {

@@ -6,7 +6,16 @@
 // Include the common styles for Angular Material. We include this here so that you only
 // have to load a single css file for Angular Material in your app.
 // Be sure that you only ever include this mixin once!
-@include mat.core();
+// TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
+//  The following line adds:
+//    1. Default typography styles for all components
+//    2. Styles for typography hierarchy classes (e.g. .mat-headline-1)
+//  If you specify typography styles for the components you use elsewhere, you should delete this line.
+//  If you don't need the default component typographies but still want the hierarchy styles,
+//  you can delete this line and instead use:
+//    `@include mat.legacy-typography-hierarchy(mat.define-legacy-typography-config());`
+@include mat.all-legacy-component-typographies();
+@include mat.legacy-core();
 
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
@@ -38,7 +47,7 @@ $money-light: #85bb65;
 // highlight button color
 $light-button-active-glow: mat.get-color-from-palette(mat.define-palette(mat.$blue-palette,600));
 
-@include mat.all-component-themes($light-app-theme);
+@include mat.all-legacy-component-themes($light-app-theme);
 
 
 
@@ -62,7 +71,7 @@ $dark-inner-bg: #1A1C27;
 $dark-menu-bg: #303339;
 
 // Create the theme object (a Sass map containing all of the palettes).
-$dark-app-theme: mat.define-dark-theme(( color: ( primary: $dark-app-primary, accent: $dark-app-accent, warn: $dark-app-warn ), typography: mat.define-typography-config(), density: 0, ));
+$dark-app-theme: mat.define-dark-theme(( color: ( primary: $dark-app-primary, accent: $dark-app-accent, warn: $dark-app-warn ), typography: mat.define-legacy-typography-config(), density: 0, ));
 
 // Also using .mat-app-background class on the root.body tag as not encapsulated within a materials object.
 // mat-set-background, replaces color.background and background with passed color (para#2), returning an updated theme.  This theme is then assigned during dark mode.
@@ -298,7 +307,7 @@ $foreground: map-get($dark-app-theme, foreground);
 
 
 
-  @include mat.all-component-themes($dark-app-theme);
+  @include mat.all-legacy-component-themes($dark-app-theme);
   @include mode.home($dark-app-button-bg, $app-button-hover-bg, $dark-app-button-color);
   @include mode.link($dark-app-button-color, #FFF, #FFF);
 

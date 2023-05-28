@@ -1,9 +1,9 @@
 import { Component, Inject, ViewChild, Output, Input, EventEmitter, ElementRef } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { MatTableDataSource, MatTable } from '@angular/material/table';
+import { MatLegacyTableDataSource as MatTableDataSource, MatLegacyTable as MatTable } from '@angular/material/legacy-table';
 import { MatSort, MatSortable } from '@angular/material/sort';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
+import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator';
+import { MatLegacyCheckbox as MatCheckbox, MatLegacyCheckboxChange as MatCheckboxChange } from '@angular/material/legacy-checkbox';
 import { ProdHistoryComponent } from '../production-history/prod-history.component';
 import { BuildingFilterComponent } from '../building-filter/building-filter.component';
 import { BUILDING } from '../owner-data/owner-interface';

@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Component, Output, EventEmitter, Inject, ViewChild, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { Globals, WORLD } from '../common/global-var';
-import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { MatLegacySlideToggle as MatSlideToggle, MatLegacySlideToggleChange as MatSlideToggleChange } from '@angular/material/legacy-slide-toggle';
 import { ALERT_TYPE, ALERT_ACTION } from '../common/enum'
 
 interface OwnerAlert {
