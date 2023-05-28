@@ -312,15 +312,14 @@ namespace MetaverseMax.ServiceClass
                 {
                     _customContext.LogEvent(String.Concat("SyncWorld:SyncPlotData() : GetPerks() retry successful - no ", retryCount));
                 }
-                districtPerkListMCP ??= new();      // CHECK if Error occured and logged - still no succuess after retry, then set List and continue with sync, wont be able to update plots, but other components can complete.
 
-
-                districtChangeCount = UpdatePoiBuildings(districtListMCPBasic, ownerChangeList, _customContext, worldType);               // Find changes and Update all POI plots active_until date
+                districtPerkListMCP ??= new();                                                                                          // CHECK if Error occured and logged - still no succuess after retry, then set List and continue with sync, wont be able to update plots, but other components can complete.
+                districtChangeCount = UpdatePoiBuildings(districtListMCPBasic, ownerChangeList, _customContext, worldType);             // Find changes and Update all POI plots active_until date
 
                 plotList = _customContext.plot.Where(r => r.land_type == (int)LAND_TYPE.BNB_BUILDABLE_LAND || r.land_type == (int)LAND_TYPE.TRON_BUILDABLE_LAND).ToList();
-                unclaimedPlotRemovedCount = plotManage.RemoveDistrictPlots(districtListMCPBasic, plotList);     // remove all unclaimed plots from districts that have not changed since last sync
-                accountPlotRemovedCount = plotManage.RemoveAccountPlot(jobInterval, ownerChangeList, districtListMCPBasic, plotList);             // removes all empty plots from process list : if owner account has >2 empty plots - then get latest owner lands (1 SW) and remove all currently empty plots from process list                
-                megaHugeplotsRemoved = plotManage.RemoveMegaHugePlot(plotList);                                 // remove all Mega & Huge plots that comprise a building, having only one plot representing the building.
+                unclaimedPlotRemovedCount = plotManage.RemoveDistrictPlots(districtListMCPBasic, plotList);                             // remove all unclaimed plots from districts that have not changed since last sync
+                accountPlotRemovedCount = plotManage.RemoveAccountPlot(jobInterval, ownerChangeList, districtListMCPBasic, plotList);   // removes all empty plots from process list : if owner account has >2 empty plots - then get latest owner lands (1 SW) and remove all currently empty plots from process list                
+                megaHugeplotsRemoved = plotManage.RemoveMegaHugePlot(plotList);                                                         // remove all Mega & Huge plots that comprise a building, having only one plot representing the building.
 
                 _customContext.LogEvent(String.Concat("Plot filter:  a) unclaimed Plots: ", unclaimedPlotRemovedCount, " b) claimed Plots: ", accountPlotRemovedCount, "  c) huge+mega plots: ", megaHugeplotsRemoved, "  d) Plots to process: ", plotList.Count));
 

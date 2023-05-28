@@ -1,12 +1,12 @@
 ﻿WHEN: 27/05/2023
 Links:
-https://update.angular.io/?l=2&v=13.0-14.0
+https://update.angular.io/?l=2&v=14.0-15.0
 
 Run Test:
 	cmd: npm start					- works, compiles & loads angular engine and site without issue.
 	MetaveseMax > IIS Express run	- details in angular.docx
-	npm i @types/node@16.10.0		- required for angular V15
-	npm i @angular/cli@15.2.8		- as new version of node installed, need the basic ng cli to update angular to V15
+	npm i typescript@4.9.4			- required for angular V15
+	npm i @angular/cli@15.2.8 -g	- as new version of node installed, need the basic ng cli within the GLOBAL NPM store - needed update angular to V15 on local project
 
 Reading:
 	Typescript 4.6 changes https://devblogs.microsoft.com/typescript/announcing-typescript-4-6/
@@ -14,10 +14,11 @@ Reading:
 Apply To: CMD > CD D:\0_Development\2_Applications\GitHub\MetaverseMax\MetaverseMax\ClientApp
 
 Main Run (note check prerequisites within angular guide first):
+	Commit files to Git
 	ng update @angular/core@15 @angular/cli@15
 
 Actions:
-	Angular upgrade 13.3.11 to 14.2.11,  + Materials + medium complexity
+	Angular upgrade 14.2.11 to 15.2.9,  + Materials + medium complexity
 	npm i typescript@4.6
 	npm i @ng-bootstrap/ng-bootstrap@13.1.1   (prior version @12.1.2) : https://www.npmjs.com/package/@ng-bootstrap/ng-bootstrap/v/13.1.1
 	npm i rxjs@7.5.5				: previously installed as rxjs@6.6.3   (updated to match test template)
@@ -32,3 +33,10 @@ Potential Code change:
 		See app.module.ts
 
 
+> In Angular version 15, the deprecated `relativeLinkResolution` config parameter of the Router is removed.
+  This migration removes all `relativeLinkResolution` fields from the Router config objects.
+  Migration completed (No changes made).
+
+> Since Angular v15, the `RouterLink` contains the logic of the `RouterLinkWithHref` directive.
+  This migration replaces all `RouterLinkWithHref` references with `RouterLink`.
+  Migration completed (No changes made).
