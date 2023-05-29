@@ -43,7 +43,8 @@ div.dropdown-menu {
   left: unset;
   right: 0;
   margin-top: 0.9rem;
-  width: 12.8rem;
+  width: 14rem;
+  line-height: 2rem;
 }
 
 .mat-slide-toggle-content {
@@ -56,5 +57,11 @@ div.dropdown-menu {
 
 .dropdown-menu .mat-icon {
   vertical-align: bottom
+}
+
+@media only screen and (max-width: 415px) {
+  div.dropdown-menu {
+    line-height: 2.2rem;
+  }
 }
 

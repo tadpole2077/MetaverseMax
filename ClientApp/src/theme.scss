@@ -50,6 +50,16 @@ $light-button-active-glow: mat.get-color-from-palette(mat.define-palette(mat.$bl
 @include mat.all-legacy-component-themes($light-app-theme);
 
 
+// Angular 15 - Material theme
+$light-app-theme15: mat.define-light-theme((
+  color: (
+    primary: $light-app-primary,
+    accent: $light-app-accent,
+    warn: $light-app-warn,
+  ),
+  typography: mat.define-typography-config(),
+));
+@include mat.all-component-themes($light-app-theme15);
 
 
 
@@ -77,6 +87,16 @@ $dark-app-theme: mat.define-dark-theme(( color: ( primary: $dark-app-primary, ac
 // mat-set-background, replaces color.background and background with passed color (para#2), returning an updated theme.  This theme is then assigned during dark mode.
 $dark-app-theme: palette-helper.mat-set-background($dark-app-theme, $dark-outer-bg, $dark-inner-bg);
 $foreground: map-get($dark-app-theme, foreground);
+
+// Angular 15 - Material theme
+$dark-app-theme15: mat.define-light-theme((
+  color: (
+    primary: $dark-app-primary,
+    accent: $dark-app-accent,
+    warn: $dark-app-warn,
+  ),
+  typography: mat.define-typography-config(),
+));
 
 .darkMode {
 
@@ -308,6 +328,8 @@ $foreground: map-get($dark-app-theme, foreground);
 
 
   @include mat.all-legacy-component-themes($dark-app-theme);
+  //@include mat.all-component-themes($dark-app-theme15);
+
   @include mode.home($dark-app-button-bg, $app-button-hover-bg, $dark-app-button-color);
   @include mode.link($dark-app-button-color, #FFF, #FFF);
 

@@ -20,11 +20,9 @@ html {
 /*** Link underline amine ***/
 a {
   position: relative;
-  color: #000;
   text-decoration: none;
 }
   a:hover {
-    color: #000;
   }
 
 

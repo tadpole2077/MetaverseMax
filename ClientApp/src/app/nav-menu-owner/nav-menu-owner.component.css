@@ -34,3 +34,24 @@ div.dropdown-menu {
   vertical-align:bottom
 }
 
+@media only screen and (max-width: 415px) {
+
+  .menuContainer {
+    margin-left: 0;
+  }
+
+  div.dropdown-menu.show {
+    display: inline-block;
+    margin-left: 1rem;
+    margin-top: 1.2rem;
+  }
+
+  .ownerImg {
+    margin-left: 1rem;
+    margin-bottom: 0.6rem;
+    margin-top: 0.6rem;
+    vertical-align: top;
+    height: 52px
+  }
+}
+

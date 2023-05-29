@@ -4,7 +4,7 @@ import { NgbDropdown } from '@ng-bootstrap/ng-bootstrap';
 import { Router } from '@angular/router';
 import { Globals, WORLD } from '../common/global-var';
 import { ThemePalette } from '@angular/material/core';
-import { MatLegacySlideToggleChange as MatSlideToggleChange } from '@angular/material/legacy-slide-toggle';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
 
 interface WorldNameCollection {
@@ -64,10 +64,11 @@ export class NavMenuOwnerComponent {
     if (this.globals.ownerAccount.wallet_active_in_world) {
 
       this.httpClient.get<Object>(this.baseUrl + '/OwnerData/SetDarkMode', { params: params })
-        .subscribe((result: Object) => {
-
-        }, error => console.error(error));
-
+        .subscribe({
+          next: (result) => {
+          },
+          error: (error) => { console.error(error) }
+        });
     }
 
     return;

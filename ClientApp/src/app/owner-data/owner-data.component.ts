@@ -251,15 +251,17 @@ export class OwnerDataComponent implements AfterViewInit {
     rotateEle.classList.add("rotate");
     
     this.httpClient.get<OwnerData>(this.baseUrl + '/ownerdata/getusingmatic', { params: params })
-      .subscribe((result: OwnerData) => {
+      .subscribe({
+        next: (result) => {
 
-        this.loadClientData(result);
+          this.loadClientData(result);
 
-        if (forceCDFrefresh) {
-          this.cdf.detectChanges();
-        }
-
-      }, error => console.error(error));
+          if (forceCDFrefresh) {
+            this.cdf.detectChanges();
+          }
+        },
+        error: (error) => { console.error(error) }
+      });
 
     return;
   }
