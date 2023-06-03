@@ -36,7 +36,7 @@
 
   <div id="introBlock">
     <ul class="introList">
-      <li>Version 1.2.0 (2023_04_23)</li>
+      <li>Version 1.3.0 (01_JUNE_2023)</li>
       <li>Our tools currently support 3x "MEGA WORLD" metaverse environments: <a target="_blank" href="https://play.mcp3d.com/ethereum">Eth</a> / <a target="_blank" href="https://play.mcp3d.com/bsc">BSC</a> / <a target="_blank" href="https://play.mcp3d.com/tron">Tron</a>.</li>
       <li>Notice will be given within our discord channel before any scheduled outage-deployment occurance. Please report any bugs within our discord channel</li>
       <li>
@@ -66,36 +66,71 @@
         </mat-panel-description>
       </mat-expansion-panel-header>
       <ng-template matExpansionPanelContent>
+
         <div class="infoSection">
           <div class="infoBlockImg blockRight">
-            <img src="./assets/night_mode_option.png" class="promoImg" height="120" />
-            <img src="./assets/night_mode.png" class="promoImg" height="200" style="margin-top:2rem" />
+            <img src="./assets/user_guide_alert_bell.png" class="promoImg" height="50" />
+            <img src="./assets/user_guide_alert_history.png" class="promoImg" height="200" style="margin-top:2rem" />
           </div>
           <div class="infoBlock blockLeft">
-            <h3>Dark Mode</h3>
-            Select light or dark mode theme.
+            <h3>Alerts - Realtime &amp; Historic</h3>
+            Click the Bell icon on the top menu toolbar
             <ul style="margin-top:.6rem">
-              <li>Instant switch between themes, using slider.</li>
-              <li>Click the Avatar icon on the menu bar to show account pop-up menu - slide to select night mode</li>
-              <li>All system feature styles have been custom configured and optimised for night mode.</li>
-              <li>For wallet linked accounts, night mode preference is stored and reapplied on next visit - cross devices.</li>
-              <li>Night mode is also available for usage without linked wallet, but preference is not stored, resets to day mode on next visit.</li>
+              <li>Bell appears when one or more alerts are recorded</li>
+              <li>Count of stored alerts shown above bell</li>
+              <li>On click, History sheet appear from the bottom</li>
+              <li>Alert types: Ranking change, Citizen Stamina, District Tax, Offers received &amp; accepted</li>
+              <li>Alert listed from newest to oldest. Delete alerts from your history by clicking delete butotn.</li>
+              <li>New alert will appear and popup automatically, and are also stored in your alert history.</li>
             </ul>
           </div>
         </div>
 
         <div class="infoSection">
           <div class="infoBlockImg blockLeft">
-            <img src="./assets/fund_distribution.png" class="promoImg" height="300" />
+            <img src="./assets/user_guide_alert_district_tax.png" class="promoImg" height="70" />
+            <img src="./assets/user_guide_alert_tax.png" class="promoImg" height="200" style="margin-top:2rem" />
           </div>
           <div class="infoBlock blockRight">
-            <h3>Ranking / Office / Funding</h3>
-            Funding and distribution details for Global and Local
+            <h3>District Tax Alerts</h3>
+            Set alerts on individual districts
             <ul style="margin-top:.6rem">
-              <li>Shown on all Office ranking pages - key detail on funds</li>
-              <li>Extensive set of Filters : For sale / Active production/ Rent / Owner / Building type etc</li>
-              <li>Max payout, per 1k IP, and last distribution</li>
-              <li>Distribution also shown on each District Summary page Actual/Max</li>
+              <li>A new button "Change Alerts" is now shown within the District Summary page, District Tax Graphs Panel</li>
+              <li>Click to open a set of sliders, matching 4 categories of Taxes</li>
+              <li>When a Tax change is identify and an owner alert is active, they receive an alert</li>
+              <li>That alert will indicate the type of tax and the change in value.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="infoSection">
+          <div class="infoBlockImg blockRight">
+            <img src="./assets/user_guide_alert_ranking.png" class="promoImg" height="70" />
+            <img src="./assets/user_guide_alert_ranking_bell.png" class="promoImg" height="300" style="margin-top:2rem" />
+          </div>
+          <div class="infoBlock blockLeft">
+            <h3>Ranking Alerts</h3>
+            Set alerts on each building, just click the bell to activate (bell ringing)
+            <ul style="margin-top:.6rem">
+              <li>Within the IP Ranking feature - tick the 'Show Alerts' to show the alert bells on each building</li>
+              <li>When building alert bell is active and ranking change occurs, an alert is generated</li>
+              <li>Alert shows with change arrow, increase and decrease details, which building and owner</li>
+            </ul>
+          </div>
+        </div>
+
+
+        <div class="infoSection">
+          <div class="infoBlockImg blockLeft">
+            <img src="./assets/user_guide_alert_mobile.png" class="promoImg" height="260" />
+          </div>
+          <div class="infoBlock blockRight">
+            <h3>Alert supported by Mobile App</h3>
+            Responsive designed, to fit and function gracefuly within mobile/tablet devices.
+            <ul style="margin-top:.6rem">
+              <li>Same layout as desktop - alert bell shown at menu top right</li>
+              <li>Alert sheet scrolls up from bottom, click anywhere to auto close it</li>
+              <li>Rapid figure scroll though large lists of stored alerts</li>
             </ul>
           </div>
         </div>
@@ -112,10 +147,8 @@
             </ul>
           </div>
         </div>
-        
       </ng-template>
     </mat-expansion-panel>
-
 
     <mat-expansion-panel expanded="false">
       <mat-expansion-panel-header>
@@ -129,308 +162,458 @@
 
       <ng-template matExpansionPanelContent>
 
-        <div style="margin-bottom:3rem">
-          <h3>District Summary [Release 1.1.1] (2022_03_10)</h3>
-          <div class="infoSection">
-            <div class="infoBlockImg blockRight">
-              <img src="./assets/world_selection.png" class="promoImg" height="160" />
-              <img src="./assets/wallet_connect.png" class="promoImg" height="200" />
+        <mat-expansion-panel expanded="false" style="">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>new_releases</mat-icon>
+              <span style="margin-left:.2rem">Release Content [Version 1.2.0] (23_APR_2023)</span>
+            </mat-panel-title>
+            <mat-panel-description>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <ng-template matExpansionPanelContent>
+            <div style="margin-bottom:3rem">
+
+              <div class="infoSection">
+                <div class="infoBlockImg blockRight">
+                  <img src="./assets/night_mode_option.png" class="promoImg" height="120" />
+                  <img src="./assets/night_mode.png" class="promoImg" height="200" style="margin-top:2rem" />
+                </div>
+                <div class="infoBlock blockLeft">
+                  <h3>Dark Mode</h3>
+                  Select light or dark mode theme.
+                  <ul style="margin-top:.6rem">
+                    <li>Instant switch between themes, using slider.</li>
+                    <li>Click the Avatar icon on the menu bar to show account pop-up menu - slide to select night mode</li>
+                    <li>All system feature styles have been custom configured and optimised for night mode.</li>
+                    <li>For wallet linked accounts, night mode preference is stored and reapplied on next visit - cross devices.</li>
+                    <li>Night mode is also available for usage without linked wallet, but preference is not stored, resets to day mode on next visit.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="infoSection">
+                <div class="infoBlockImg blockLeft">
+                  <img src="./assets/fund_distribution.png" class="promoImg" height="300" />
+                </div>
+                <div class="infoBlock blockRight">
+                  <h3>Ranking / Office / Funding</h3>
+                  Funding and distribution details for Global and Local
+                  <ul style="margin-top:.6rem">
+                    <li>Shown on all Office ranking pages - key detail on funds</li>
+                    <li>Extensive set of Filters : For sale / Active production/ Rent / Owner / Building type etc</li>
+                    <li>Max payout, per 1k IP, and last distribution</li>
+                    <li>Distribution also shown on each District Summary page Actual/Max</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="infoSection">
+                <div class="infoBlockImg blockRight">
+                </div>
+                <div class="infoBlock blockLeft">
+                  <h3>More...</h3>
+                  Full List of enhancements and fixed defects found over on MetaverseMax Discord Group
+                  <ul style="margin-top:.6rem">
+                    <li>Discord link : <div class="discordButton"><a class="widgetLogo-6zH6Nv" href="https://discord.gg/CYmCtBjs9v" target="_blank"></a></div></li>
+                    <li>Go to the Release-Note channel</li>
+                  </ul>
+                </div>
+              </div>
             </div>
-            <div class="infoBlock blockLeft">
-              <h3>Access</h3>
-              Select MegaWorld type via single click of top menu.
+          </ng-template>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel expanded="false" style="">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>new_releases</mat-icon>
+              <span style="margin-left:.2rem">Release Content [Version 1.1.1] (10_MARCH_2023)</span>
+            </mat-panel-title>
+            <mat-panel-description>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <ng-template matExpansionPanelContent>
+            <div style="margin-bottom:3rem">
+
+              <div class="infoSection">
+                <div class="infoBlockImg blockRight">
+                  <img src="./assets/world_selection.png" class="promoImg" height="160" />
+                  <img src="./assets/wallet_connect.png" class="promoImg" height="200" />
+                </div>
+                <div class="infoBlock blockLeft">
+                  <h3>Access</h3>
+                  Select MegaWorld type via single click of top menu.
+                  <ul style="margin-top:.6rem">
+                    <li>Instant switch between world views.</li>
+                    <li>To enable MyPortfolio and "ProTools" feature, site connent permission is required to view-confirm your Public Key.</li>
+                    <li>A reduced set of feature can be used with no site wallet connection.</li>
+                    <li>MetaverseMax features issue no transaction signage on your wallet</li>
+                    <li>Tron and Metamask wallet types are currently supported</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="infoSection">
+                <div class="infoBlockImg blockLeft">
+                  <img src="./assets/building_ranking.png" class="promoImg" height="300" />
+                </div>
+                <div class="infoBlock blockRight">
+                  <h3>Ranking</h3>
+                  Building Ranking - ProTools Feature.
+                  <ul style="margin-top:.6rem">
+                    <li>View every building IP ranking per building type and level</li>
+                    <li>Extensive set of Filters : For sale / Active production/ Rent / Owner / Building type etc</li>
+                    <li>Combined pricing data and district tax to help identify the best available deals</li>
+                    <li>Access to production history and next run prediction - via analysis icon per building</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="infoSection">
+                <div class="infoBlockImg blockRight">
+                  <img src="./assets/ranking_summary.png" class="promoImg" height="180" />
+                </div>
+                <div class="infoBlock blockLeft">
+                  <h3>Ranking Summary</h3>
+                  Building Ranking - ProTools Feature.
+                  <ul style="margin-top:.6rem">
+                    <li>View summary of active vs inactive buildings</li>
+                    <li>View max production of currently active buildings</li>
+                    <li>Identify production gaps and optimal type of building to build</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="infoSection">
+                <div class="infoBlockImg blockLeft">
+                  <img src="./assets/prediction_calc.png" class="promoImg" height="380" />
+                </div>
+                <div class="infoBlock blockRight">
+                  <h3>Prediction - Next Run</h3>
+                  Prediction calculation Feature.
+                  <ul style="margin-top:.6rem">
+                    <li>View step by step calculation of Current Run Prediction</li>
+                    <li>Apply changes [change citizens, pets] and run refresh to update prediction calculation</li>
+                    <li>Identify change needed to reach next 'step' in production output</li>
+                    <li>Check impact of current damage, evaluate repair cost vs output gain</li>
+                    <li>Feature identifies all changes since last run - including temp use of Pets, IP, ranking, citizen, building changes</li>
+                    <li>Click show/Hide Calculation to view breakdown, click table row to view citizens and pets used in each run</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="infoSection">
+                <div class="infoBlockImg blockRight">
+                  <img src="./assets/ranking_mobile_combo.png" class="promoImg" height="380" />
+                </div>
+                <div class="infoBlock blockLeft">
+                  <h3>Responsive Design</h3>
+                  Mobile support added for new features.
+                  <ul style="margin-top:.6rem">
+                    <li>Filter and buttons realigned for optimal touch click</li>
+                    <li>Table data reduced and compacted</li>
+                    <li>Popups aligned to full screen width and height</li>
+                  </ul>
+                </div>
+              </div>
+
+            </div>
+          </ng-template>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel expanded="false" style="">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>new_releases</mat-icon>
+              <span style="margin-left:.2rem">Release Content [Version 0.13 Beta] (19_APR_2022)</span>
+            </mat-panel-title>
+            <mat-panel-description>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <ng-template matExpansionPanelContent>
+            <div style="margin-bottom:3rem">
+              <h3>Release Content [Version 0.13 Beta] (2022_04_19)</h3>
+              <h5>My Portfolio / Owner Report : Building Tabs </h5>
+              <img src="./assets/user_guide_tabs_desktop.png" class="promoImg" style="margin-right: 1rem" height="200" />
+              <img src="./assets/user_guide_tabs_mobile.png" class="promoImg" style="" height="200" />
               <ul style="margin-top:.6rem">
-                <li>Instant switch between world views.</li>
-                <li>To enable MyPortfolio and "ProTools" feature, site connent permission is required to view-confirm your Public Key.</li>
-                <li>A reduced set of feature can be used with no site wallet connection.</li>
-                <li>MetaverseMax features issue no transaction signage on your wallet</li>
-                <li>Tron and Metamask wallet types are currently supported</li>
+                <li>Desktop(left) & Mobile(right) support. Each tab shows a count of the building types matching the current filtered view.</li>
+                <li>Note that the view filter can be set to show all plots in a portfolio (default), or filtered by district.</li>
+              </ul>
+              <h5>Production History module - Citizens</h5>
+              <img src="./assets/user_guide_production_desktop.png" class="promoImg" style="margin-right: 1rem" height="200" />
+              <img src="./assets/user_guide_production_mobile.png" class="promoImg" style="" height="200" />
+              <ul>
+                <li>Desktop(left) & Mobile(right) supported</li>
+                <li>Click on a Run row to View citizens used per run, including pet usage.</li>
+                <li>New column: Eff(Cit) : citizen efficiency % for all citizens assigned to this building during each run.</li>
+                <li>If building supports a max of 2 citizens, but only 1 is assigned, then EFF(Cit) % is limited to a max of 50%.</li>
+                <li>Citizen traits and specific Citizen efficiency rating shown matching the building type (industry, production, energy)</li>
+                <li>Mobile view redesigned for optimal responsive and usability, secondary columns either combined or removed compared to desktop mode. </li>
+              </ul>
+              <h5> Citizen module - enhanced</h5>
+              <img src="./assets/user_guide_citizen_desktop.png" class="promoImg" style="margin-right: 1rem" height="200" />
+              <img src="./assets/user_guide_citizen_mobile.png" class="promoImg" style="" height="200" />
+              <ul>
+                <li>Desktop(left) & Mobile(right) supported</li>
+                <li>Pets currently assigned are now shown using a Paw icon</li>
+                <li>Citizen sale price shown</li>
+                <li>Citizen breed & name change updated</li>
+                <li>Timestamp shown when last updated</li>
+                <li>Support added to show Energy and Water efficiency</li>
               </ul>
             </div>
-          </div>
+          </ng-template>
+        </mat-expansion-panel>
 
-          <div class="infoSection">
-            <div class="infoBlockImg blockLeft">
-              <img src="./assets/building_ranking.png" class="promoImg" height="300" />
-            </div>
-            <div class="infoBlock blockRight">
-              <h3>Ranking</h3>
-              Building Ranking - ProTools Feature.
+        <mat-expansion-panel expanded="false" style="">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>new_releases</mat-icon>
+              <span style="margin-left:.2rem">Release Content [Version 0.12 Beta] (14_SEP_2021)</span>
+            </mat-panel-title>
+            <mat-panel-description>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <ng-template matExpansionPanelContent>
+            <div style="margin-bottom:3rem">
+              <h5>My Portfolio / Owner Report : Pets & Citizens </h5>
+              <img src="./assets/user-guide-cit-eff-sml.png" class="promoImg" style="margin-right:1rem" height="150" />
+              <img src="./assets/user-guide-cit-trait-sml.png" class="promoImg" style="margin-right: 1rem" height="150" />
+              <img src="./assets/user-guide-pet.png" class="promoImg" style="" height="150" />
               <ul style="margin-top:.6rem">
-                <li>View every building IP ranking per building type and level</li>
-                <li>Extensive set of Filters : For sale / Active production/ Rent / Owner / Building type etc</li>
-                <li>Combined pricing data and district tax to help identify the best available deals</li>
-                <li>Access to production history and next run prediction - via analysis icon per building</li>
+                <li>Pet and Citizen Panel showing relevant details on owned assets.</li>
+                <li>Citizen panel supports 2 views: Traits & Efficiency%</li>
+                <li>Use the Citizen panel to evaluate suitibility per building type</li>
+                <li>'Copy to Clipboard' data formatted for import into spreadsheets</li>
+              </ul>
+              <h5>District Report : Tax Change History </h5>
+              <img src="./assets/user_guide_district_tax_change.png" class="promoImg" style="" height="150" />
+              <ul>
+                <li>History of Tax changes, % change, who and when.</li>
+                <li>Use to evaluate stability of a districts Taxes.</li>
+                <li>Note district taxes can only change once per 30 day period</li>
               </ul>
             </div>
-          </div>
+          </ng-template>
+        </mat-expansion-panel>
 
-          <div class="infoSection">
-            <div class="infoBlockImg blockRight">
-              <img src="./assets/ranking_summary.png" class="promoImg" height="180" />
-            </div>
-            <div class="infoBlock blockLeft">
-              <h3>Ranking Summary</h3>
-              Building Ranking - ProTools Feature.
+        <mat-expansion-panel expanded="false" style="">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>new_releases</mat-icon>
+              <span style="margin-left:.2rem">Release Content [Version 0.11 Beta] (08_JULY_2021)</span>
+            </mat-panel-title>
+            <mat-panel-description>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <ng-template matExpansionPanelContent>
+            <div>
+              <h5>My Portfolio / Owner Report : Offer Alerts</h5>
+              <img src="./assets/user_guide_sold_sml.png" class="promoImg" style="" height="150" />
               <ul style="margin-top:.6rem">
-                <li>View summary of active vs inactive buildings</li>
-                <li>View max production of currently active buildings</li>
-                <li>Identify production gaps and optimal type of building to build</li>
+                <li>Offer panel now includes all sold assets (offer approved).</li>
+                <li>Useful to identify if an owner is active and accepting offers, identify the acceptable price range on similar plots</li>
+                <li>The offer table is the first to support sorting by date, rolling out to other tool tables shortly</li>
               </ul>
             </div>
-          </div>
+          </ng-template>
+        </mat-expansion-panel>
 
-          <div class="infoSection">
-            <div class="infoBlockImg blockLeft">
-              <img src="./assets/prediction_calc.png" class="promoImg" height="380" />
-            </div>
-            <div class="infoBlock blockRight">
-              <h3>Prediction - Next Run</h3>
-              Prediction calculation Feature.
-              <ul style="margin-top:.6rem">
-                <li>View step by step calculation of Current Run Prediction</li>
-                <li>Apply changes [change citizens, pets] and run refresh to update prediction calculation</li>
-                <li>Identify change needed to reach next 'step' in production output</li>
-                <li>Check impact of current damage, evaluate repair cost vs output gain</li>
-                <li>Feature identifies all changes since last run - including temp use of Pets, IP, ranking, citizen, building changes</li>
-                <li>Click show/Hide Calculation to view breakdown, click table row to view citizens and pets used in each run</li>
+        <mat-expansion-panel expanded="false" style="">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>new_releases</mat-icon>
+              <span style="margin-left:.2rem">Release Content [Version 0.10 Beta] (01_JULY_2021)</span>
+            </mat-panel-title>
+            <mat-panel-description>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <ng-template matExpansionPanelContent>
+            <div>
+              <h5>My Portfolio / Owner Report : Offer & Stamina Alerts</h5>
+              <img src="./assets/user_guide_deal.png" class="promoImg" style="" height="150" />
+              <ul>
+                <li>Alert buttons for Stamina and Offers, when alerts are found the button glows Red, showing the amount of alerts.</li>
+                <li>Alert button Click > Stamina > to show all Plots with Alerts at the top of the plot table (useful with large portfolios)</li>
+                <li>Alert button Click > Offer > to show all Active Offers sent to this owner in a pop up style floating and movable panel.</li>
+                <li>Offer Table, is ordered by newest offer first, support all offer token types, offer amount, and direct link to open the target plot in world.</li>
+                <li>Table is sortable, pagination at the bottom, enabled when more then 5 active offers are found.</li>
               </ul>
             </div>
-          </div>
+          </ng-template>
+        </mat-expansion-panel>
 
-          <div class="infoSection">
-            <div class="infoBlockImg blockRight">
-              <img src="./assets/ranking_mobile_combo.png" class="promoImg" height="380" />
-            </div>
-            <div class="infoBlock blockLeft">
-              <h3>Responsive Design</h3>
-              Mobile support added for new features.
-              <ul style="margin-top:.6rem">
-                <li>Filter and buttons realigned for optimal touch click</li>
-                <li>Table data reduced and compacted</li>
-                <li>Popups aligned to full screen width and height</li>
+        <mat-expansion-panel expanded="false" style="">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>new_releases</mat-icon>
+              <span style="margin-left:.2rem">Release Content [Version 0.9 Beta] (14_JUNE_2021)</span>
+            </mat-panel-title>
+            <mat-panel-description>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <ng-template matExpansionPanelContent>
+            <div style="margin-top:50px">
+              <h3>Release Content [Version 0.9 Beta] (2021_06_14)</h3>
+              <h5>District Perks & My Portfolio:</h5>
+              <img src="./assets/user_guide_portfolio_sml.png" class="promoImg" style="" height="150" />
+              <img src="./assets/user_guide_perks_sml.png" class="promoImg" style="" height="150" />
+              <p>My Portfolio links directly to the account report matching the Active TronLink Wallet</p>
+              <ul>
+                <li>Within District List feature - a count of Perks is now shown for each district</li>
+                <li>Within District Report - a new perks panal shows the active perks for that district. This panel is not shown is no perks are active</li>
+                <li>My Portfolio features, are only active if the TronLink is enabled</li>
+                <li>District Report > New Arrivals, now offers filtering by arrivals in the last week or month period</li>
               </ul>
             </div>
-          </div>
+          </ng-template>
+        </mat-expansion-panel>
 
-        </div>
+        <mat-expansion-panel expanded="false" style="">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>new_releases</mat-icon>
+              <span style="margin-left:.2rem">Release Content [Version 0.8 Beta] (25_JUNE_2021)</span>
+            </mat-panel-title>
+            <mat-panel-description>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
 
-        <div style="margin-bottom:3rem">
-          <h3>District Summary [Release 0.13 Beta] (2022_04_19)</h3>
-          <h5>My Portfolio / Owner Report : Building Tabs </h5>
-          <img src="./assets/user_guide_tabs_desktop.png" class="promoImg" style="margin-right: 1rem" height="200" />
-          <img src="./assets/user_guide_tabs_mobile.png" class="promoImg" style="" height="200" />
-          <ul style="margin-top:.6rem">
-            <li>Desktop(left) & Mobile(right) support. Each tab shows a count of the building types matching the current filtered view.</li>
-            <li>Note that the view filter can be set to show all plots in a portfolio (default), or filtered by district.</li>
-          </ul>
-          <h5>Production History module - Citizens</h5>
-          <img src="./assets/user_guide_production_desktop.png" class="promoImg" style="margin-right: 1rem" height="200" />
-          <img src="./assets/user_guide_production_mobile.png" class="promoImg" style="" height="200" />
-          <ul>
-            <li>Desktop(left) & Mobile(right) supported</li>
-            <li>Click on a Run row to View citizens used per run, including pet usage.</li>
-            <li>New column: Eff(Cit) : citizen efficiency % for all citizens assigned to this building during each run.</li>
-            <li>If building supports a max of 2 citizens, but only 1 is assigned, then EFF(Cit) % is limited to a max of 50%.</li>
-            <li>Citizen traits and specific Citizen efficiency rating shown matching the building type (industry, production, energy)</li>
-            <li>Mobile view redesigned for optimal responsive and usability, secondary columns either combined or removed compared to desktop mode. </li>
-          </ul>
-          <h5> Citizen module - enhanced</h5>
-          <img src="./assets/user_guide_citizen_desktop.png" class="promoImg" style="margin-right: 1rem" height="200" />
-          <img src="./assets/user_guide_citizen_mobile.png" class="promoImg" style="" height="200" />
-          <ul>
-            <li>Desktop(left) & Mobile(right) supported</li>
-            <li>Pets currently assigned are now shown using a Paw icon</li>
-            <li>Citizen sale price shown</li>
-            <li>Citizen breed & name change updated</li>
-            <li>Timestamp shown when last updated</li>
-            <li>Support added to show Energy and Water efficiency</li>
-          </ul>
-        </div>
+          <ng-template matExpansionPanelContent>
+            <div style="margin-top:50px">
+              <h5>District Fund, Tax and Owner list:</h5>
+              <img src="./assets/user_guide_district_summary_sml.png" class="promoImg" style="" height="294" />
+              <p>Open areas of interest, funds, promotions, tax rate details, owner information</p>
+              <ul>
+                <li>Listing of all district owners and the district plots and building they own</li>
+                <li>District Tax and local funding details (1 year history), interactive chart</li>
+                <li>Identify new arrival owners in the last week (and prior month coming soon)</li>
+                <li>Table support Search and filter by an owner and sorting by column</li>
+                <li>Owner table displaing plots built per Building type, per owner</li>
+                <li>Districts with active promotions a flashing Ad icon, click to display the promo details</li>
+                <li>Links to owners and district open the corresponding owner report, bookmark the friendly URL link or use within discord or messages</li>
+              </ul>
+            </div>
+          </ng-template>
+        </mat-expansion-panel>
 
-        <div style="margin-bottom:3rem">
-          <h3>District Summary [Release 0.12 Beta] (2021_09_14)</h3>
-          <h5>My Portfolio / Owner Report : Pets & Citizens </h5>
-          <img src="./assets/user-guide-cit-eff-sml.png" class="promoImg" style="margin-right:1rem" height="150" />
-          <img src="./assets/user-guide-cit-trait-sml.png" class="promoImg" style="margin-right: 1rem" height="150" />
-          <img src="./assets/user-guide-pet.png" class="promoImg" style="" height="150" />
-          <ul style="margin-top:.6rem">
-            <li>Pet and Citizen Panel showing relevant details on owned assets.</li>
-            <li>Citizen panel supports 2 views: Traits & Efficiency%</li>
-            <li>Use the Citizen panel to evaluate suitibility per building type</li>
-            <li>'Copy to Clipboard' data formatted for import into spreadsheets</li>
-          </ul>
-          <h5>District Report : Tax Change History </h5>
-          <img src="./assets/user_guide_district_tax_change.png" class="promoImg" style="" height="150" />
-          <ul>
-            <li>History of Tax changes, % change, who and when.</li>
-            <li>Use to evaluate stability of a districts Taxes.</li>
-            <li>Note district taxes can only change once per 30 day period</li>
-          </ul>
-        </div>
+        <mat-expansion-panel expanded="false" style="">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>new_releases</mat-icon>
+              <span style="margin-left:.2rem">Release Content [Version 0.7 Beta] (13_MAY_2021)</span>
+            </mat-panel-title>
+            <mat-panel-description>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
 
-        <div>
-          <h3>District Summary [Release 0.12 Beta] (2021_09_14)</h3>
-          <h5>My Portfolio / Owner Report : Pets &Aacute; Citizens </h5>
-          <img src="./assets/user-guide-cit-eff-sml.png" class="promoImg" style="margin-right:1rem" height="150" />
-          <img src="./assets/user-guide-cit-trait-sml.png" class="promoImg" style="margin-right: 1rem" height="150" />
-          <img src="./assets/user-guide-pet.png" class="promoImg" style="" height="150" />
-          <ul style="margin-top:.6rem">
-            <li>Pet and Citizen Panel showing relevant details on owned assets.</li>
-            <li>Citizen panel supports 2 views: Traits & Efficiency%</li>
-            <li>Use the Citizen panel to evaluate suitibility per building type</li>
-            <li>'Copy to Clipboard' data formatted for import into spreadsheets</li>
-          </ul>
-          <h5>District Report : Tax Change History </h5>
-          <img src="./assets/user_guide_district_tax_change.png" class="promoImg" style="" height="150" />
-          <ul style="margin-top:.6rem">
-            <li>History of Tax changes, % change, who and when.</li>
-            <li>Use to evaluate stability of a districts Taxes.</li>
-            <li>Note district taxes can only change once per 30 day period</li>
-          </ul>
-        </div>
+          <ng-template matExpansionPanelContent>
+            <div style="margin-top:50px">
+              <h5>List of All Active Districts:</h5>
+              <img src="./assets/user_guide_district_graphs.png" class="promoImg" style="" height="170" />
+              <img src="./assets/user_guide_district_plots.png" class="promoImg" style="" height="100" />
+              <p>Select a District from the dropdown list to open the District Report</p>
+              <ul>
+                <li>Identify district with lowest tax rate to either build or produce by sorting on tax column</li>
+                <li>Tax rates displayed are from a full nightly data sync of the world</li>
+                <li>District report displays the current Tax Rates and pior months rates, use to identify stable rates and recent changes</li>
+                <li>All data within the district list and reported is synced each night with MCP world, you can find the last sync time by hovering over the district land image</li>
+              </ul>
+              <p>Identify the optimal district to build and produce matching your desired buildout plan, review historic and current taxes and promotions before you commit </p>
+            </div>
+          </ng-template>
+        </mat-expansion-panel>
 
-        <div>
-          <h3>District Summary [Release 0.11 Beta] (2021_07_08)</h3>
-          <h5>My Portfolio / Owner Report : Offer Alerts</h5>
-          <img src="./assets/user_guide_sold_sml.png" class="promoImg" style="" height="150" />
-          <ul style="margin-top:.6rem">
-            <li>Offer panel now includes all sold assets (offer approved).</li>
-            <li>Useful to identify if an owner is active and accepting offers, identify the acceptable price range on similar plots</li>
-            <li>The offer table is the first to support sorting by date, rolling out to other tool tables shortly</li>
-          </ul>
-        </div>
+        <mat-expansion-panel expanded="false" style="">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>new_releases</mat-icon>
+              <span style="margin-left:.2rem">Plot Owner Report - User Guide [Release 0.5 Beta] (10_APR_2021)</span>
+            </mat-panel-title>
+            <mat-panel-description>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
 
-        <div>
-          <h3>District Summary [Release 0.10 Beta] (2021_07_01)</h3>
-          <h5>My Portfolio / Owner Report : Offer & Stamina Alerts</h5>
-          <img src="./assets/user_guide_deal.png" class="promoImg" style="" height="150" />
-          <ul>
-            <li>Alert buttons for Stamina and Offers, when alerts are found the button glows Red, showing the amount of alerts.</li>
-            <li>Alert button Click > Stamina > to show all Plots with Alerts at the top of the plot table (useful with large portfolios)</li>
-            <li>Alert button Click > Offer > to show all Active Offers sent to this owner in a pop up style floating and movable panel.</li>
-            <li>Offer Table, is ordered by newest offer first, support all offer token types, offer amount, and direct link to open the target plot in world.</li>
-            <li>Table is sortable, pagination at the bottom, enabled when more then 5 active offers are found.</li>
-          </ul>
-        </div>
+          <ng-template matExpansionPanelContent>
+            <div style="margin-top:50px">
+              <h5>Production efficiency and history feature:</h5>
+              <img src="./assets/user-guide-production1.png" style="" height="220" />
+              <img src="./assets/user-guide-production2.png" style="" height="220" />
+              <p>Click on the building type link on each row to open the history pop-up.</p>
+              <ul>
+                <li>Lighting fast evaluation of all production run history since ownership of a selected Industry, Energy or Production building.</li>
+                <li>2 types of efficienccy % evaluation : EFF(P), EFF(M) </li>
+                <li>EFF(P) - % based on total production starting zero </li>
+                <li>EFF(M) - % based on Min to Max, removing the base rate from the evaluation, each resouce has a different base, Wood having the larged base and easiest to produce</li>
+                <li>Use the P vs M comparision to identify the resouces where improved cits or applicances would have a bigger impact on production</li>
+                <li>3 colour indicator of efficiency rating per run : red <50%, orange 50% to 80%, green>80%</li>
+                <li>Total runs and breakdown of total production per product since ownership</li>
+                <li>table pagination, sorting</li>
+                <li>Popup can be dragged and moved to optional position on page, new postion is reused on next use</li>
+              </ul>
+              <p>Find the the building lifetime ROI, variance between different product efficiency with same cits and IP, optimal building upgrades and citizen assignment per product type, track how the successful players produce, impact from IP change ... </p>
+            </div>
 
-        <div style="margin-top:50px">
-          <h3>District Summary [Release 0.9 Beta] (2021_06_14)</h3>
-          <h5>District Perks & My Portfolio:</h5>
-          <img src="./assets/user_guide_portfolio_sml.png" class="promoImg" style="" height="150" />
-          <img src="./assets/user_guide_perks_sml.png" class="promoImg" style="" height="150" />
-          <p>My Portfolio links directly to the account report matching the Active TronLink Wallet</p>
-          <ul>
-            <li>Within District List feature - a count of Perks is now shown for each district</li>
-            <li>Within District Report - a new perks panal shows the active perks for that district. This panel is not shown is no perks are active</li>
-            <li>My Portfolio features, are only active if the TronLink is enabled</li>
-            <li>District Report > New Arrivals, now offers filtering by arrivals in the last week or month period</li>
-          </ul>
-        </div>
+            <div style="margin-top:80px">
+              <h5>Stamina Alert feature:</h5>
+              <img src="./assets/user-guide-stamina.png" style="" height="100" />
+              <p>Get the Max output from your buildings! Identify all your building containing low stamina citizens</p>
+              <p>Alert icon displays in right most column when minimum thresholds breached per building. Column is sortable.</p>
+              <p>On all buildings containing 1 or more citizens, icon of citizen with lowest stamina is shown, hover to find value</p>
+              <ul>
+                <li>Background: When stamina falls below a certain threshold building production output reduces for that building.</li>
+                <li>Each Citizen within the building is evaluated, any below threshold will trigger the alert</li>
+                <li>Each building type has a custom minimum stamina threshold:</li>
+                <li>* Residential <=200</li>
+                <li>* Office <=50</li>
+                <li>* Commercial <= 10</li>
+                <li>* Municipal <=20</li>
+                <li>* Industrial <=50</li>
+                <li>* Production <=100</li>
+                <li>* Energy <=30</li>
+                <li>* Any other future new building type <=100  (default until specific threshold set in app)</li>
+              </ul>
+            </div>
 
-        <div style="margin-top:50px">
-          <h3>District Summary [Release 0.8 Beta] (25/05/2021)</h3>
-          <h5>District Fund, Tax and Owner list:</h5>
-          <img src="./assets/user_guide_district_summary_sml.png" class="promoImg" style="" height="294" />
-          <p>Open areas of interest, funds, promotions, tax rate details, owner information</p>
-          <ul>
-            <li>Listing of all district owners and the district plots and building they own</li>
-            <li>District Tax and local funding details (1 year history), interactive chart</li>
-            <li>Identify new arrival owners in the last week (and prior month coming soon)</li>
-            <li>Table support Search and filter by an owner and sorting by column</li>
-            <li>Owner table displaing plots built per Building type, per owner</li>
-            <li>Districts with active promotions a flashing Ad icon, click to display the promo details</li>
-            <li>Links to owners and district open the corresponding owner report, bookmark the friendly URL link or use within discord or messages</li>
-          </ul>
-        </div>
+            <div style="margin-top:80px">
+              <h5>Extensive Portfolio filtering :</h5>
+              <img src="./assets/user-guide-filter1.png" style="" height="180" />
+              <p>Filter by Building Type</p>
+              <p>Fast flexible filtering of plots, just select the bulding type you want to focus on.</p>
+              <ul>
+                <li>9 Building types to filter by</li>
+                <li>Click to active building filter, click again to deactivate or 'Select all', building filter resets on next use of district filter </li>
+                <li>Works in tandem with district filter</li>
+                <li>Showing only filter building types matching buildings found within the current user portfolio</li>
+              </ul>
+            </div>
 
-        <div style="margin-top:50px">
-          <h3>
-            District Features [Release 0.7 Beta] (13/May/2021)
-          </h3>
-          <h5>List of All Active Districts:</h5>
-          <img src="./assets/user_guide_district_graphs.png" class="promoImg" style="" height="170" />
-          <img src="./assets/user_guide_district_plots.png" class="promoImg" style="" height="100" />
-          <p>Select a District from the dropdown list to open the District Report</p>
-          <ul>
-            <li>Identify district with lowest tax rate to either build or produce by sorting on tax column</li>
-            <li>Tax rates displayed are from a full nightly data sync of the world</li>
-            <li>District report displays the current Tax Rates and pior months rates, use to identify stable rates and recent changes</li>
-            <li>All data within the district list and reported is synced each night with MCP world, you can find the last sync time by hovering over the district land image</li>
-          </ul>
-          <p>Identify the optimal district to build and produce matching your desired buildout plan, review historic and current taxes and promotions before you commit </p>
-        </div>
-
-        <div style="margin-top:50px">
-          <h3>Plot Owner Report - User Guide [Release 0.5 Beta] (10/Apr/2021)</h3>
-          <h5>Production efficiency and history feature:</h5>
-          <img src="./assets/user-guide-production1.png" style="" height="220" />
-          <img src="./assets/user-guide-production2.png" style="" height="220" />
-          <p>Click on the building type link on each row to open the history pop-up.</p>
-          <ul>
-            <li>Lighting fast evaluation of all production run history since ownership of a selected Industry, Energy or Production building.</li>
-            <li>2 types of efficienccy % evaluation : EFF(P), EFF(M) </li>
-            <li>EFF(P) - % based on total production starting zero </li>
-            <li>EFF(M) - % based on Min to Max, removing the base rate from the evaluation, each resouce has a different base, Wood having the larged base and easiest to produce</li>
-            <li>Use the P vs M comparision to identify the resouces where improved cits or applicances would have a bigger impact on production</li>
-            <li>3 colour indicator of efficiency rating per run : red <50%, orange 50% to 80%, green>80%</li>
-            <li>Total runs and breakdown of total production per product since ownership</li>
-            <li>table pagination, sorting</li>
-            <li>Popup can be dragged and moved to optional position on page, new postion is reused on next use</li>
-          </ul>
-          <p>Find the the building lifetime ROI, variance between different product efficiency with same cits and IP, optimal building upgrades and citizen assignment per product type, track how the successful players produce, impact from IP change ... </p>
-        </div>
-
-        <div style="margin-top:80px">
-          <h5>Stamina Alert feature:</h5>
-          <img src="./assets/user-guide-stamina.png" style="" height="100" />
-          <p>Get the Max output from your buildings! Identify all your building containing low stamina citizens</p>
-          <p>Alert icon displays in right most column when minimum thresholds breached per building. Column is sortable.</p>
-          <p>On all buildings containing 1 or more citizens, icon of citizen with lowest stamina is shown, hover to find value</p>
-          <ul>
-            <li>Background: When stamina falls below a certain threshold building production output reduces for that building.</li>
-            <li>Each Citizen within the building is evaluated, any below threshold will trigger the alert</li>
-            <li>Each building type has a custom minimum stamina threshold:</li>
-            <li>* Residential <=200</li>
-            <li>* Office <=50</li>
-            <li>* Commercial <= 10</li>
-            <li>* Municipal <=20</li>
-            <li>* Industrial <=50</li>
-            <li>* Production <=100</li>
-            <li>* Energy <=30</li>
-            <li>* Any other future new building type <=100  (default until specific threshold set in app)</li>
-          </ul>
-        </div>
-
-        <div style="margin-top:80px">
-          <h5>Extensive Portfolio filtering :</h5>
-          <img src="./assets/user-guide-filter1.png" style="" height="180" />
-          <p>Filter by Building Type</p>
-          <p>Fast flexible filtering of plots, just select the bulding type you want to focus on.</p>
-          <ul>
-            <li>9 Building types to filter by</li>
-            <li>Click to active building filter, click again to deactivate or 'Select all', building filter resets on next use of district filter </li>
-            <li>Works in tandem with district filter</li>
-            <li>Showing only filter building types matching buildings found within the current user portfolio</li>
-          </ul>
-        </div>
-
-        <div style="margin-top:80px">
-          <h5>Player Activity Info :</h5>
-          <img src="./assets/user-guide-user.png" style="" height="100" />
-          <p>Are they an active Player?</p>
-          <p>Hover over the player avator image to find out</p>
-          <ul>
-            <li>Useful when making offers, dont waste your time and coin with inactive accounts</li>
-            <li>Help identify bogus puppet accounts, bot accounts and more</li>
-          </ul>
-        </div>
+            <div style="margin-top:80px">
+              <h5>Player Activity Info :</h5>
+              <img src="./assets/user-guide-user.png" style="" height="100" />
+              <p>Are they an active Player?</p>
+              <p>Hover over the player avator image to find out</p>
+              <ul>
+                <li>Useful when making offers, dont waste your time and coin with inactive accounts</li>
+                <li>Help identify bogus puppet accounts, bot accounts and more</li>
+              </ul>
+            </div>
+          </ng-template>
+        </mat-expansion-panel>
 
       </ng-template>
 
-      <!--<ng-container *ngTemplateOutlet="matExpansionPanelContent"></ng-container>-->
-
-    </mat-expansion-panel>
+          <!--<ng-container *ngTemplateOutlet="matExpansionPanelContent"></ng-container>-->
+     </mat-expansion-panel>
 
     <mat-expansion-panel expanded="false">
       <mat-expansion-panel-header>
@@ -501,6 +684,6 @@
 
     </mat-expansion-panel>
 
-  </mat-accordion>
+</mat-accordion>
 
 </div>

@@ -33,7 +33,7 @@ export class AlertHistoryComponent {
   }
 
 
-  showHistory() {
+  showHistory(event: Event) {
 
     var params = new HttpParams();
     var that = this;

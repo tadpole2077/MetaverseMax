@@ -70,12 +70,22 @@
   margin-left: -4rem;  
   height: 3rem;
 }
+
+.multiIcon {
+}
 .msgIconMagnify {
   margin-left: -3.8rem;
   height: 2.4rem;
 }
-.supportIcon{
+.smallMatIcon {
+  height: 1.8rem;
+  margin-right: 0;
+  width: 2rem;
+}
+.supportIcon {
   font-size: 1.6rem;
+  vertical-align: top;
+  margin-top: .2rem
 }
 .fa-arrow-up{
   color:green;
@@ -83,6 +93,7 @@
 .fa-arrow-down {
   color: orangered;
 }
+
 
 .controls {
   margin-left: .6rem;
@@ -117,6 +128,7 @@
   font-size: .6rem;
   margin-top: -1.8rem;
   align-self: flex-start;
+  width: 4rem;
 }
 
 
@@ -139,19 +151,29 @@
     font-size: .8rem
   }
 
-  .msgIconMagnify {
-    height: 2rem;
-    margin-left: unset;
-  }
-
-  .supportIcon {
-    font-size: 1.4rem;
-    margin-left: unset;
-  }
 
   .mat-icon, .msgIcon {
     font-size: 1.7rem;
     margin-left: unset;
+  }
+
+  .multiIcon {
+    margin-left: 6px;
+    width: 36px;
+  }
+
+  .msgIconMagnify {
+    height: 2rem;
+    margin-left: unset;
+  }
+  .smallMatIcon {
+    margin-left: unset;
+    padding-top: 3px;
+  }
+
+  .supportIcon {
+    font-size: 1.4rem;
+    margin-left: 3px;
   }
 
   .msgIconStamina {
@@ -159,7 +181,5 @@
     margin-left: unset;
   }
 
-  .multiIcon{
-    margin-left: 8px
-  }
+
 }

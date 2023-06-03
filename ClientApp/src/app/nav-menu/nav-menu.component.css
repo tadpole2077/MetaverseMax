@@ -43,19 +43,36 @@ a {
 
 .alertHistory {
   position: absolute;
-  top: 0.6rem;
-  right: 0.8rem;
+  top: 0.9rem;  
   font-size: 1.6rem;
+  margin-right: 1rem;
+  padding-left: 2.5rem;
+}
+.desktopAlert{
+  display: inline-block;
+}
+.mobileAlert {
+  display: none;
 }
 
 @media only screen and (max-width: 415px) {
+  .mobileAlert{
+    display: inline-block;
+  }
+  .desktopAlert {
+    display: none;
+  }
+
   .world {
   }
 
   .alertHistory {
     position: relative;
-    margin-top: -16px;
+    margin-top: unset;
     margin-left: 10px;
+    padding-left: unset;
+    top: unset;
+
   }
 
 }

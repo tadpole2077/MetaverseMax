@@ -1,4 +1,5 @@
 {
+  "version": 1,
   {
     "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
     "version": 1,
@@ -92,10 +93,10 @@
               },
               "development": { // new from Angular V12
                 "browserTarget": "MetaverseMax:build:development",
-                "proxyConfig": "proxy.config.js"          // development mode uses AspNetCore.SpaProxy to redirect, not used in Production.                
+                "proxyConfig": "proxy.config.js"    // development mode uses AspNetCore.SpaProxy to redirect, not used in Production.                
               }
             },
-            "defaultConfiguration": "development"         // development | production, change to production for optimal performance if not explictly adding opton to ng serve script command
+            "defaultConfiguration": "development"   // development | production, change to production for optimal performance if not explictly adding option to ng serve script command
           },
           "extract-i18n": {
             "builder": "@angular-devkit/build-angular:extract-i18n",
@@ -131,10 +132,10 @@
               "optimization": false
             },
             "configurations": {
-              "dev": {
+              "development": {
                 "optimization": true,
                 "outputHashing": "all",
-                "sourceMap": false,
+                "sourceMap": true,      /* Needed to debug ts components*/
                 "namedChunks": false,
                 "extractLicenses": true
               },

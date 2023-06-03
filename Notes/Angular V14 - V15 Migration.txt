@@ -37,6 +37,7 @@ Actions:
 
 	** RXJS is fine no updated need - using prior verion rxjs@7.5.5	
 
+	npm i @swimlane/ngx-charts@20.3.0 https://www.npmjs.com/package/@swimlane/ngx-charts
 
 
 Potential Code change:
@@ -44,7 +45,8 @@ Potential Code change:
   This means that any TypeScript code that relies on keyframes names no longer works in v15. Update any such instances to: define keyframes programmatically, use global stylesheets, or change the component's view 
   encapsulation. Read further https://angular.io/guide/update-to-version-15#v15-bc-03
 
-> In Angular Material v15, many of the components have been refactored to be based on the official Material Design Components for Web (MDC). 
+> In Angular Material v15
+  Many of the components have been refactored to be based on the official Material Design Components for Web (MDC). 
   This change affected the DOM and CSS classes of many components. Read further https://rc.material.angular.io/guide/mdc-migration
 
 > In your application's tsconfig.json file, remove enableIvy. In v15, Ivy is the only rendering engine so enableIvy is not required.

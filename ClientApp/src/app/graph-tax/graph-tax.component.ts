@@ -20,7 +20,7 @@ export class GraphTaxComponent {
   //graphDataConstruct: any;
   //graphDataProduce: any;
 
-  private multi: any[];
+  public multi: any[];
   view: any[];
 
   // options
