@@ -365,10 +365,15 @@
   display: inline-block;
 }
 
-
+.lastUpdated {
+  margin-bottom: .8rem;
+}
+.mat-mdc-form-field {
+  --mat-mdc-form-field-floating-label-scale: .8;
+}
 
 /*** TABLE ***/
-td.mat-cell {
+td.mat-mdc-cell {
   font-size: .9rem;
   font-weight: 500;
   vertical-align: middle;
@@ -376,7 +381,7 @@ td.mat-cell {
   padding-right: .2em;
 }
 
-  td.mat-cell a {
+  td.mat-mdc-cell a {
     display: inline-block;
     padding: .5rem 0;
   }
@@ -408,7 +413,7 @@ td.mat-column-pos_x{
   line-height: 1rem;
 }
 
-td.mat-cell:last-of-type {
+td.mat-mdc-cell:last-of-type {
   padding-right: 48px
 }
 
@@ -420,7 +425,7 @@ td.mat-cell:last-of-type {
     margin-top: 10px
   }
 
-.mat-table {
+.mat-mdc-table {
   width: 100%;
   display: inline-table;
 }
@@ -438,15 +443,15 @@ table:last-child {
   margin-bottom: 30px;
 }
 
-th.mat-header-cell {
+th.mat-mdc-header-cell {
   font-size: .9rem;
   font-weight: bold;
   vertical-align: middle !important;
 }
 
-  th.mat-header-cell img {
-    margin-right: 2px
-  }
+th.mat-mdc-header-cell img {
+  margin-right: 2px
+}
 
 
 td.boldfield {
@@ -720,7 +725,13 @@ td.mat-column-name {
     color: lightslategray
   }
 
-
+.mdc-data-table__progress-indicator {
+  position: absolute;
+  bottom: -1.3rem;
+  left: -1.5rem;
+  width: 1298px;
+  display:none;
+}
 
 
 
@@ -815,6 +826,7 @@ td.mat-column-name {
   .lastUpdated {
     line-height: .8rem;
     margin-top: .8rem;
+    margin-bottom: .8rem;
   }
 
     .lastUpdated .mat-icon {
@@ -898,7 +910,7 @@ td.mat-column-name {
     width: 3.2rem;
   }
 
-  th.mat-header-cell:first-of-type, td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type {
+  th.mat-mdc-header-cell:first-of-type, td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type {
     padding-left: 1rem;
     padding-right: 0.2rem;
   }
@@ -953,7 +965,7 @@ td.mat-column-name {
       line-height: 1.4rem;
     }
 
-  td.mat-cell a.officeMagify {
+  td.mat-mdc-cell a.officeMagify {
     margin: 0;
     padding: 0;
     text-align: center;
@@ -970,7 +982,7 @@ td.mat-column-name {
   .table-container{
     margin-left: 3px;
   }
-  th.mat-header-cell, td.mat-cell {
+  th.mat-mdc-header-cell, td.mat-mdc-cell {
     font-size: .7rem;
   }
   th .mat-badge-content .mat-badge-active {
@@ -1005,5 +1017,10 @@ td.mat-column-name {
     margin-left: 0;
   }
 
+  .showIPAlertPosition {
+    position: absolute;
+    margin-left: -22px;
+    margin-top: 30px;
+  }
 
 }

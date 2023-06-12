@@ -33,7 +33,7 @@ namespace MetaverseMax.Controllers
             OwnerManage ownerManage = new(_context, common.IdentifyWorld(Request.Path));
             if (ModelState.IsValid)
             {
-                if (Task.Run(() => ownerManage.GetFromLandCoord(parameters.plotX, parameters.plotY)).Result != -1)
+                if (Task.Run(() => ownerManage.GetFromLandCoordMCP(parameters.plotX, parameters.plotY)).Result != -1)
                 {
                     ownerManage.GetOwnerLands(ownerManage.ownerData.owner_matic_key, true, true);
                 }
@@ -51,7 +51,7 @@ namespace MetaverseMax.Controllers
 
             if (ModelState.IsValid)
             {
-                if (Task.Run(() => ownerManage.GetFromMaticKey(parameters.owner_matic_key)).Result != -1)
+                if (Task.Run(() => ownerManage.GetFromMaticKeyMCP(parameters.owner_matic_key)).Result != -1)
                 {
                     ownerManage.GetOwnerLands(ownerManage.ownerData.owner_matic_key, true, true);
                 }

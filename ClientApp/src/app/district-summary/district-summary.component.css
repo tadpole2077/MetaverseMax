@@ -7,7 +7,7 @@
 }
 
 /*@media (min-width: 1200px) {
-  td.mat-cell {
+  td.mat-mdc-cell {
     font-size: .8em;
   }
 }*/
@@ -294,11 +294,11 @@
 
 
 /*** TABLE ***/
-.mat-table {
+.mat-mdc-table {
   width: 100%;
   display: inline-table;
 }
-.mat-header-row {
+.mat-mdc-header-row {
   height: 3.8rem;
 }
 
@@ -314,17 +314,17 @@ table:last-child {
   margin-bottom: 30px;
 }
 
-th.mat-header-cell {
+th.mat-mdc-header-cell {
   font-size: .9rem;
   font-weight: bold;
   vertical-align: middle !important;
-  padding-top:.6rem;
+  padding-top: .6rem;
 }
-  th.mat-header-cell img{
-      margin-right:2px
+  th.mat-mdc-header-cell img {
+    margin-right: 2px
   }
 
-td.mat-cell {
+td.mat-mdc-cell {
   font-size: inherit;
   font-weight: 500;
   vertical-align: middle;
@@ -536,14 +536,14 @@ th.mat-column-owned_plots{
       width:260px;
   }
 
-  th.mat-header-cell {
+  th.mat-mdc-header-cell {
     font-size: .8em;
   }
 
-  td.mat-cell {
+  td.mat-mdc-cell {
     font-size: .9em;
   }
-    td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type, th.mat-header-cell:last-of-type {
+    td.mat-mdc-cell:last-of-type, td.mat-mdc-footer-cell:last-of-type, th.mat-mdc-header-cell:last-of-type {
       padding-right: 0px
     }
 
@@ -674,8 +674,8 @@ th.mat-column-owned_plots{
   .mat-column-owner_name .arrivalIcon, .mat-column-owner_name .arrivalIcon2 {
     position: absolute;
     margin-top: 1.5rem;
-    margin-left: -2.1rem;
-    font-size: 1.3rem;
+    margin-left: -2.3rem;
+    font-size: 1.2rem;
   }
 
   .mat-column-owner_name {

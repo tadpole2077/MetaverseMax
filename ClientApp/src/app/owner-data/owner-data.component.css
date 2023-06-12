@@ -70,6 +70,14 @@ a.mobileView{
   }
 }
 
+.searchComponent {
+  clear: both;
+  float: right;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+
 /* Alert Buttons */
 .alertBtns {
   margin: .5rem 0 .5rem;
@@ -294,14 +302,14 @@ table:last-child {
   margin-bottom: 30px;
 }
 
-th.mat-header-cell {
+th.mat-mdc-header-cell {
   font-size: inherit;
   font-size: .9rem;
   font-weight: bold;
   vertical-align: middle !important;
 }
 
-td.mat-cell {
+td.mat-mdc-cell {
   font-size: inherit;
   vertical-align: middle;
   height: 72px;
@@ -491,7 +499,11 @@ td.mat-column-building_level{
   border-right: none;
 }
 
-
+.packImg {
+  height: 28px;
+  margin-left: -30px;
+  padding-right: 4px;
+}
 
 
 
@@ -503,7 +515,7 @@ td.mat-column-building_level{
 }
 
 @media only screen and (max-width: 1180px) {
-  table.mat-table {
+  table.mat-mdc-table {
     font-size: .8em;
   }
 }
@@ -519,7 +531,10 @@ td.mat-column-building_level{
 
 }
 
+
+
 @media only screen and (max-width: 415px) {
+
   .innerContainer {
     min-height: 14rem
   }
@@ -567,18 +582,25 @@ td.mat-column-building_level{
   }
 
 
-  .plotSearchComponent {
+  .searchWithProfile {
     display: block;
     position: unset;
-    height: 120px;
+    height: 76px;
     box-shadow: 0 0.01rem 0.75rem rgb(0 0 0 / 5%);
-    padding: .3rem .6rem;
+    padding: .6rem .6rem;
     margin-bottom: 1.4rem;
+  }
+  .searchComponent {
+    float: unset;
+    left: unset;
+    position: unset;
+    display: block;
+    margin-top: 0;
   }
 
   .ownerImg {
     height: 130px;
-    margin-top: 140px;
+    margin-top: 84px;
     position: absolute;
     right: 40px;
   }
@@ -628,8 +650,8 @@ td.mat-column-building_level{
 
 
   .offerBtnDiv {
-    display: block;
-    margin-top: .8rem
+    display: inline-block;
+    margin-top: 1rem
   }
 
   .districtHeader {
@@ -653,7 +675,7 @@ td.mat-column-building_level{
   }
 
 
-  .table-container .mat-table {
+  .table-container .mat-mdc-table {
     margin-left: -32px;
     font-size: .64rem;
   }

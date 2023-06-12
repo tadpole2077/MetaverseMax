@@ -11,6 +11,81 @@ th.mat-table-sticky {
   opacity: 1;
 }
 
+/* Angular V15 - Material V3 Style change override to match V14 styles */
+th.mat-mdc-header-cell:first-of-type, td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type {
+  padding-left: 24px;
+}
+
+.mat-typography h3 {
+  font-size: 28px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.mat-typography h6 {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.table .mat-mdc-cell {
+  font-size: 14px;
+  padding: 0;
+  overflow: visible;
+}
+
+.table .mat-mdc-header-cell {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 0;
+  overflow: visible;
+}
+
+th.mat-mdc-header-cell:last-of-type {
+  padding-right: 24px;
+}
+
+.mat-mdc-paginator {
+  font-size: 12px;
+}
+
+.mat-mdc-paginator-container {
+  margin-top: -4px;
+}
+
+/* Input field - revert to legacy white background*/
+.tableFilter .mdc-text-field--outlined {
+  height: 44px;
+}
+
+.tableFilter .mat-mdc-text-field-wrapper.mdc-text-field--outlined .mat-mdc-form-field-infix {
+  padding-top: 10px;
+  padding-bottom: 8px;
+}
+
+.tableFilter .mat-mdc-form-field-icon-suffix {
+  align-self: baseline;
+}
+
+/* top outline label adjustment*/
+.tableFilter .mat-mdc-text-field-wrapper .mat-mdc-form-field-flex .mat-mdc-floating-label {
+  top: 20px;
+}
+
+.tableFilter .mat-mdc-text-field-wrapper .mat-mdc-form-field-flex .mat-mdc-floating-label.mdc-floating-label--float-above {
+  top: 24px;
+  margin-left: -2px;
+  overflow: visible;
+}
+
+.tableFilter .material-icons {
+  vertical-align: bottom;
+}
+
+.mat-mdc-form-field {
+  /*--mat-mdc-form-field-floating-label-scale: 1.2;*/
+}
+
 /* New change in Materials styles V14 flex-basis: 0 , causing wrapping issues.  flex-basis = 0 means same as width:0 which collapxses content to smallest size - first word for example - casuing unwanted wrap  */
 /* flex-basis: auto = allows size to automatic fit content - so full line of text will show on 1 line if it fits */
 /* https://developer.mozilla.org/en-US/docs/Web/CSS/flex-basis */
@@ -27,7 +102,7 @@ a.nav-link, a.nav-link span {
   color: inherit;
 }
 
-.mat-table, .mat-header-cell {
+.mat-mdc-table, .mat-mdc-header-cell {
   vertical-align: middle;
 }
 

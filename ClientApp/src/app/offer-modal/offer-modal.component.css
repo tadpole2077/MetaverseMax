@@ -29,8 +29,8 @@ a {
   padding-top: 20px;
 }
 
-tr.mat-header-row{
-  height:38px
+tr.mat-mdc-header-row {
+  height: 38px
 }
 
 .paginatorContainer {
@@ -168,13 +168,13 @@ td.mat-column-token_district {
     padding-right: 8px;
   }
 
-  td.mat-cell {
+  td.mat-mdc-cell {
     font-size: .74rem;
     font-weight: 500;
   }
 
-  td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type, th.mat-header-cell:last-of-type{
-    padding-right:10px
-  }
+    td.mat-mdc-cell:last-of-type, td.mat-mdc-footer-cell:last-of-type, th.mat-mdc-header-cell:last-of-type {
+      padding-right: 10px
+    }
 
 }

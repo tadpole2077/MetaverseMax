@@ -5,7 +5,7 @@
     <span>Search for an Owner, Enter Plot X and Y position, click Find Owner.</span>
   </div>
 
-  <div [ngClass]="{'blink': searchBlinkOnce }" (animationend)="searchBlinkOnce=false" class="plotSearchComponent">
+  <div [ngClass]="{'blink': searchBlinkOnce }" (animationend)="searchBlinkOnce=false" class="searchWithProfile">
     <img *ngIf="owner.owner_matic_key && owner.owner_matic_key.length > 0" src="{{ owner.owner_url }}" [ngClass]="{'mysteryImg': owner.plot_count == -1 || owner.owner_url=='./images/MysteryOwner.png', 'noOwner': owner.plot_count == -1}" class="ownerImg" height="160" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <div *ngIf="owner.registered_date" class="slideOutLeft">
       <p aria-live="polite">
@@ -17,7 +17,7 @@
         <span>{{ owner.last_visit }}</span>
       </p>
     </div>
-    <app-search-plot (searchPlotEvent)="searchPlot($event)"></app-search-plot>
+    <app-search-plot (searchPlotEvent)="searchPlot($event)" class="searchComponent"></app-search-plot>
   </div>
 
   <h3 *ngIf="owner.last_action" id="tableLabel">Plot Owner Report</h3>
@@ -45,24 +45,35 @@
     <div [hidden]="owner.plot_count == -1">
 
       <div class="alertBtns">
-        <i class="fas fa-ambulance" style=""></i><button #lowStaminaBtn mat-raised-button color="primary" (click)="sortTableStamina()">{{ owner.stamina_alert_count }} X Low Stamina</button>
-
         <div class="offerBtnDiv">
-          <i class="fas fa-comments-dollar" style=""></i><button #offerDetailsBtn mat-raised-button color="primary" (click)="showOffer()">{{ owner.offer_count }} X Active Offers</button>
+          <i class="fas fa-ambulance" style=""></i>
+          <button #lowStaminaBtn mat-raised-button color="primary" (click)="sortTableStamina()">{{ owner.stamina_alert_count }} X Low Stamina</button>
         </div>
 
         <div class="offerBtnDiv">
-          <i class="fas fa-paw" style=""></i><button #petBtn mat-raised-button color="primary" class="smallBtn" (click)="showPet()">{{ owner.pet_count }} X Pets</button>
+          <i class="fas fa-comments-dollar" style=""></i>
+          <button #offerDetailsBtn mat-raised-button color="primary" (click)="showOffer()">{{ owner.offer_count }} X Active Offers</button>
         </div>
 
         <div class="offerBtnDiv">
-          <i class="fas fa-users" style=""></i><button #citizenBtn mat-raised-button color="primary" class="smallBtn" (click)="showCitizen()">{{ owner.citizen_count }} X Citizen</button>
+          <i class="fas fa-paw" style=""></i>
+          <button #petBtn mat-raised-button color="primary" class="smallBtn" (click)="showPet()">{{ owner.pet_count }} X Pets</button>
+        </div>
+
+        <div class="offerBtnDiv">
+          <i class="fas fa-users" style=""></i>
+          <button #citizenBtn mat-raised-button color="primary" class="smallBtn" (click)="showCitizen()">{{ owner.citizen_count }} X Citizen</button>
+        </div>
+
+        <div class="offerBtnDiv">
+          <button #packBtn mat-raised-button color="primary" class="smallBtn" (click)="showPack()"><img src="https://play.mcp3d.com/assets/images/resources/brick.png" class="packImg" referrerpolicy="no-referrer" />{{ owner.pack_count }} X Packs</button>
         </div>
       </div>
 
       <app-offer-modal [hidden]="!this.offerShow" (hideOfferEvent)="hideOffer($event)"></app-offer-modal>
       <app-pet-modal [hidden]="!this.petShow" (hidePetEvent)="hidePet($event)"></app-pet-modal>
       <app-citizen-modal [hidden]="!this.citizenShow" (hideCitizenEvent)="hideCitizen($event)"></app-citizen-modal>
+      <app-pack-modal [hidden]="!this.packShow" (hidePackEvent)="hidePack($event)"></app-pack-modal>
 
       <div class="ownerPlotSection" aria-live="polite">
         <div>

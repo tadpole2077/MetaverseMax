@@ -1,7 +1,7 @@
 import { Component, Inject, ViewChild, EventEmitter, ElementRef } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Router, ActivatedRoute, Params } from '@angular/router';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { AfterViewInit } from '@angular/core';
 import { Globals, WORLD } from '../common/global-var';
@@ -44,7 +44,6 @@ interface District {
 }
 
 
-
 @Component({
   selector: 'district-list-data',
   templateUrl: './district-list.component.html',
@@ -82,19 +81,19 @@ export class DistrictListComponent implements AfterViewInit {
     params = params.append('includeTaxHistory', 'false');
 
     this.httpClient.get<District[]>(this.baseUrl + '/district/get_all', { params: params })
-      .subscribe((result: District[]) => {
+      .subscribe({
+        next: (result) => {
 
-        this.districtList = result;
+          this.districtList = result;
 
-        if (this.districtList) {
-          this.dataSource = new MatTableDataSource<District>(this.districtList);
+          if (this.districtList) {
+            this.dataSource = new MatTableDataSource<District>(this.districtList);
 
-          this.dataSource.sort = this.sort;
-        }
-        //this.removeLinkHighlight();
-        //plotPos.rotateEle.classList.remove("rotate");
-
-      }, error => console.error(error));
+            this.dataSource.sort = this.sort;
+          }
+        },
+        error: (error) => { console.error(error) }
+      });
 
     
     return;

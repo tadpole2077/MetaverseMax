@@ -32,13 +32,14 @@ export class SearchDistrictComponent {
     params = params.append('opened', 'true');
 
     this.httpClient.get<number[]>(this.baseUrl + '/district/getdistrictid_list', { params: params })
-      .subscribe((result: number[]) => {
+      .subscribe({
+        next: (result) => {
 
-        this.districtId_list = result;
-        //this.removeLinkHighlight();
-        //plotPos.rotateEle.classList.remove("rotate");
+          this.districtId_list = result;
 
-      }, error => console.error(error));
+        },
+        error: (error) => { console.error(error) }
+      });
 
 
     return;

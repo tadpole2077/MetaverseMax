@@ -3,6 +3,11 @@ Links:
 https://update.angular.io/?l=2&v=14.0-15.0
 https://angular.io/guide/versions
 
+Node:
+	* (using)NPM V18.10.0					- (cmd)nvm list >> V18.10.0 or higher is latest node version required for V15x Angular,  alt is V16.13.0 or higher within V16.x tier also supported (see guide link for more info)
+	* previously using with V14 Angular : V16.10.0
+
+
 Run Test:
 	cmd: npm start					- works, compiles & loads angular engine and site without issue.
 	MetaveseMax > IIS Express run	- details in angular.docx
@@ -79,3 +84,23 @@ UPDATE src/app/tax-change/tax-change.component.ts (3998 bytes)
 UPDATE src/app/district-list/district-list.component.ts (3504 bytes)
 UPDATE src/app/district-notification/district-notification.component.ts (4289 bytes)
 UPDATE src/app/search-plot/search-plot.component.ts (606 bytes)
+
+
+
+======================================================================================
+Bootstrap 5 components in use:
+1) navbar  :  Main navigation top toolbar + mobile responsiveness  
+2) ngbDropdown : Dropdown lists  >> 
+	District List
+	Account List
+	World List
+
+3) A lot of the base page styles
+4) possibly more - to test drop : angular.json > node_modules/bootstrap/dist/css/bootstrap.min.css
+
+MOVING AWAY:
+If moving away from bootstrap - Start with ngbDropdown, transition to another Material V3 drop down list
+Until then pain points as managing material styles + bootstrap combined.  A lot of extra css to tweak it to work.  
+Centralise those tweaks to allow easiler migration and removal on future release.
+
+======================================================================================

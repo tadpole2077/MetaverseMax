@@ -1,15 +1,17 @@
+/* eslint-disable @typescript-eslint/no-inferrable-types */
 import { Component, Inject, ViewChild, EventEmitter, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Location } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { NavigationEnd, NavigationStart, RouterEvent, Router, ActivatedRoute, Params } from '@angular/router';
 import { interval, Observable, Subscription } from 'rxjs';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, MatSortable, Sort } from '@angular/material/sort';
 import { AfterViewInit } from '@angular/core';
 import { ProdHistoryComponent } from '../production-history/prod-history.component';
 import { OfferModalComponent } from '../offer-modal/offer-modal.component';
 import { PetModalComponent } from '../pet-modal/pet-modal.component';
+import { PackModalComponent } from '../pack-modal/pack-modal.component';
 import { CitizenModalComponent } from '../citizen-modal/citizen-modal.component';
 import { MatLegacyButton as MatButton } from '@angular/material/legacy-button';
 import { OwnerLandData, OwnerData, PlotPosition, BUILDING, FilterCount } from './owner-interface';
@@ -30,13 +32,14 @@ export class OwnerDataComponent implements AfterViewInit {
   readonly BUILDING = BUILDING;
   public owner: OwnerData;
   public filterCount: FilterCount;
-  public filterLandByDistrict: OwnerLandData[] = new Array();
+  public filterLandByDistrict: OwnerLandData[] = [];
   public hideEmptyFilter: boolean = true; hideIndFilter: boolean = true; hideProdFilter: boolean = true; hideEngFilter: boolean = true; hideOffFilter: boolean = true; hideResFilter: boolean = true; hideComFilter: boolean = true; hideMuniFilter: boolean = true; hideAOIFilter: boolean = true;
   private currentDistrictFilter: number = 0;
   public buttonShowAll: boolean = false;
   public historyShow: boolean = false;
   public offerShow: boolean = false;
   public petShow: boolean = false;
+  public packShow: boolean = false;
   public citizenShow: boolean = false;
   private subscriptionRouterEvent: Subscription;
   public notifySubscription: Subscription = null;
@@ -52,6 +55,7 @@ export class OwnerDataComponent implements AfterViewInit {
   @ViewChild(ProdHistoryComponent, { static: true }) prodHistory: ProdHistoryComponent;
   @ViewChild(OfferModalComponent, { static: true }) offerModal: OfferModalComponent;
   @ViewChild(PetModalComponent, { static: true }) petModal: PetModalComponent;
+  @ViewChild(PackModalComponent, { static: true }) packModal: PackModalComponent;
   @ViewChild(CitizenModalComponent, { static: true }) citizenModal: CitizenModalComponent;
   @ViewChild(SearchPlotComponent, { static: false }) searchPlotComponent: SearchPlotComponent;
 
@@ -132,8 +136,8 @@ export class OwnerDataComponent implements AfterViewInit {
     let resetFields: boolean = false;
 
     let requestOwnerMatic = this.route.snapshot.queryParams["matic"];
-    let plotX = this.route.snapshot.queryParams["plotx"];
-    let plotY = this.route.snapshot.queryParams["ploty"];
+    const plotX = this.route.snapshot.queryParams["plotx"];
+    const plotY = this.route.snapshot.queryParams["ploty"];
    
     if (requestOwnerMatic) {
 
@@ -189,7 +193,7 @@ export class OwnerDataComponent implements AfterViewInit {
       // CASE reset the search to empty when moving from MyPortfolio to [default] Owner Report
       this.setInitVar();
       this.dataSource = new MatTableDataSource(null);
-      this.filterLandByDistrict = new Array();
+      this.filterLandByDistrict = [];
       this.currentDistrictFilter = 0;
       this.buttonShowAll = false;
       this.hideBuildingFilter(this.owner.owner_land);
@@ -224,7 +228,10 @@ export class OwnerDataComponent implements AfterViewInit {
       citizen_count: 0,      
       district_plots: null,
       owner_land: null,
-      search_info: null
+      search_info: null,
+      search_token: 0,
+      pack_count: 0,
+      pack: null
     };
   }
 
@@ -247,7 +254,7 @@ export class OwnerDataComponent implements AfterViewInit {
     let params = new HttpParams();
     params = params.append('owner_matic_key', ownerMatic);
 
-    var rotateEle = document.getElementById("searchIcon");
+    const rotateEle = document.getElementById("searchIcon");
     rotateEle.classList.add("rotate");
     
     this.httpClient.get<OwnerData>(this.baseUrl + '/ownerdata/getusingmatic', { params: params })
@@ -267,7 +274,7 @@ export class OwnerDataComponent implements AfterViewInit {
   }
 
   // Single parameter struct containing 2 members, pushed by component search-plot
-  searchPlot(plotPos: PlotPosition, loadBuildingHistory: boolean = false) {
+  searchPlot(plotPos: PlotPosition, loadBuildingHistory:boolean = false) {
 
     let params = new HttpParams();
     params = params.append('plotX', plotPos.plotX);
@@ -297,19 +304,21 @@ export class OwnerDataComponent implements AfterViewInit {
           // Auto load building History if search on specific building by URL parameters
           if (loadBuildingHistory && result && result.owner_land) {
 
-            let x: number = Number(plotPos.plotX);
-            let y: number = Number(plotPos.plotY);
+            const x: number = Number(plotPos.plotX);
+            const y: number = Number(plotPos.plotY);
             let assetId: number = 0;
             let buildingType: number = 0;
 
-            result.owner_land.forEach(land => {
-              if (land.pos_x == x && land.pos_y == y) {
-                assetId = land.token_id;
-                buildingType = land.building_type;
+            for (let index = 0; index < this.owner.owner_land.length; index++) {
+              
+              if (this.owner.owner_land[index].token_id == this.owner.search_token) {
+                assetId = this.owner.owner_land[index].token_id;
+                buildingType = this.owner.owner_land[index].building_type;
+                break;
               }
-            });
+            }
 
-            if (buildingType == BUILDING.ENERGY || buildingType == BUILDING.INDUSTRIAL || buildingType == BUILDING.PRODUCTION) {
+            if (buildingType == BUILDING.ENERGY || buildingType == BUILDING.INDUSTRIAL || buildingType == BUILDING.PRODUCTION || buildingType == BUILDING.OFFICE) {
               this.showHistory(assetId, x, y, buildingType, 0);
             }
           }
@@ -325,7 +334,7 @@ export class OwnerDataComponent implements AfterViewInit {
 
   loadClientData(clientData: OwnerData) {
 
-    var rotateEle = document.getElementById("searchIcon");
+    const rotateEle = document.getElementById("searchIcon");
     this.hideAll();
 
     this.owner = clientData;
@@ -409,7 +418,7 @@ export class OwnerDataComponent implements AfterViewInit {
   // Filter By District, and By Building Type [Storing pior District filter and using if found]
   filterTable(event, filterValue: number, buildingType: number) {
 
-    var filterbyMulti: OwnerLandData[] = new Array();
+    let filterbyMulti: OwnerLandData[] = [];
 
     // Remove ALL Highlights - prior filters when selecting new district
     if (buildingType === BUILDING.NO_FILTER) {
@@ -465,7 +474,7 @@ export class OwnerDataComponent implements AfterViewInit {
     // Reset All Filter - Select All
     else {
       
-      this.filterLandByDistrict = new Array();
+      this.filterLandByDistrict = [];
       this.currentDistrictFilter = 0;
 
       filterbyMulti = this.owner.owner_land;
@@ -486,10 +495,11 @@ export class OwnerDataComponent implements AfterViewInit {
   removeLinkHighlight(matchElement: string) {
 
     // Find all element with highlight - may be both district and building
-    let districtLinkElements = this.elem.nativeElement.querySelectorAll(matchElement);
+    const districtLinkElements = this.elem.nativeElement.querySelectorAll(matchElement);
 
     if (districtLinkElements.length) {
-      for (var index = 0, element; element = districtLinkElements[index]; index++) {
+      for (let index = 0; index < districtLinkElements.length; index++) {
+        let element = districtLinkElements[index];
         element.classList.remove("districtEleActive");
         element.classList.remove("activeFilter");
       }
@@ -513,7 +523,10 @@ export class OwnerDataComponent implements AfterViewInit {
       //  }
       //}
 
-      for (var index = 0, element; element = ownerLand[index]; index++) {
+      for (let index = 0; index < ownerLand.length; index++) {
+
+        let element = ownerLand[index];
+
         switch (element.building_type) {
           case BUILDING.EMPTYPLOT: {
             this.hideEmptyFilter = false;
@@ -632,12 +645,30 @@ export class OwnerDataComponent implements AfterViewInit {
 
   }
 
+  showPack() {
+    this.hideAll();
+
+    if (this.packShow == true) { // || this.owner.offer_count == 0) {
+      this.packShow = false;
+    }
+    else {
+      this.packModal.loadPackList(this.owner.pack);
+      this.packShow = true;
+    }
+
+    return;
+  }
+
   hideOffer(componentVisible: boolean) {
     this.offerShow = !componentVisible;
   }
 
   hidePet(componentVisible: boolean) {
     this.petShow = !componentVisible;
+  }
+
+  hidePack(componentVisible: boolean) {
+    this.packShow = !componentVisible;
   }
 
   hideCitizen(componentVisible: boolean) {

@@ -1,7 +1,7 @@
 import { Component, Inject, ViewChild, EventEmitter, ElementRef } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Router, ActivatedRoute, Params } from '@angular/router';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { AfterViewInit } from '@angular/core';
 import { interval, Observable, Subscription } from 'rxjs';
@@ -80,11 +80,11 @@ export class DistrictNotificationComponent implements AfterViewInit {
       this.notifySubscription = interval(20000).subscribe(x => {
 
         // Animate the Process icon, change rotation direction per process.
-        var originalIcon = document.getElementById("searchIcon");
+        const originalIcon = document.getElementById("searchIcon");
         if (originalIcon.classList.contains("rotate"))
         {
           originalIcon.classList.remove("rotate");
-          var clonedIcon = originalIcon.cloneNode(true) as HTMLElement;
+          const clonedIcon = originalIcon.cloneNode(true) as HTMLElement;
 
           originalIcon.parentNode.insertBefore(clonedIcon, originalIcon);
           originalIcon.remove();
@@ -94,7 +94,7 @@ export class DistrictNotificationComponent implements AfterViewInit {
         else {
        
           originalIcon.classList.remove("rotateReverse");
-          var clonedIcon = originalIcon.cloneNode(true) as HTMLElement;
+          const clonedIcon = originalIcon.cloneNode(true) as HTMLElement;
 
           originalIcon.parentNode.insertBefore(clonedIcon, originalIcon);
           originalIcon.remove();
@@ -125,9 +125,6 @@ export class DistrictNotificationComponent implements AfterViewInit {
     //params = params.append('district_id', district_id);
     params = params.append('id', 'OrdersQuery');
     params = params.append('id', 'OrdersQuery');
-
-    let url = "https://api.opensea.io/graphql/";
-
 
 
     this.httpClient.get<District>(this.baseUrl + '/district/GetMCP', { params: params })

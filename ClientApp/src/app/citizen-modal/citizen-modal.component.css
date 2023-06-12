@@ -35,6 +35,9 @@ a {
   color: white;
 }
 
+td.mat-mdc-cell {
+  /*font-size:14px;*/
+}
 
 /*Sale Sign*/
 .salepos {
@@ -63,7 +66,7 @@ a {
   width: 2rem;
   display: inline-block;
 }
-tr.mat-header-row th.mat-column-current_price, tr td.mat-column-current_price {
+tr.mat-mdc-header-row th.mat-column-current_price, tr td.mat-column-current_price {
   padding-left: 0px;
 }
 
@@ -71,7 +74,7 @@ tr.mat-header-row th.mat-column-current_price, tr td.mat-column-current_price {
   margin: 0px 1em .6em 1em;
 }
 
-tr.mat-header-row {
+tr.mat-mdc-header-row {
   height: 38px
 }
 
@@ -257,7 +260,11 @@ td.mat-column-efficiency_energy_water span {
 }
 
 
+
+
+
 @media only screen and (max-width: 415px) {
+
   .mobileVisible{
     display:inline-block
   }
@@ -300,8 +307,7 @@ td.mat-column-efficiency_energy_water span {
 
 
   .tableHeader {
-    display: inline-block;
-    left: 85vw;
+    left: 82vw;
     position: absolute;
     margin-top: -8px;
   }
@@ -313,17 +319,17 @@ td.mat-column-efficiency_energy_water span {
     padding-left: 2px;
     text-align: center
   }
-  th.mat-header-cell:first-of-type.mat-column-name{
+  th.mat-mdc-header-cell:first-of-type.mat-column-name {
     padding-left: 10px;
     padding-right: 0
   }
 
-  td.mat-cell {
+  td.mat-mdc-cell {
     font-size: .74rem;
     font-weight: 500;
   }
 
-    td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type, th.mat-header-cell:last-of-type {
+    td.mat-mdc-cell:last-of-type, td.mat-mdc-footer-cell:last-of-type, th.mat-mdc-header-cell:last-of-type {
       padding-right: 10px
     }
 

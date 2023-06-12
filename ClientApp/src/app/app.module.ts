@@ -22,6 +22,7 @@ import { GraphFundComponent } from './graph-fund/graph-fund.component';
 import { TaxChangeComponent } from './tax-change/tax-change.component';
 import { NoteModalComponent } from './note-modal/note-modal.component';
 import { PetModalComponent } from './pet-modal/pet-modal.component';
+import { PackModalComponent } from './pack-modal/pack-modal.component';
 import { CitizenModalComponent } from './citizen-modal/citizen-modal.component';
 import { CitizenBuildingTableComponent } from './citizen-building-table/citizen-building-table.component';
 import { OfferModalComponent } from './offer-modal/offer-modal.component';
@@ -32,14 +33,16 @@ import { DistrictSummaryComponent } from './district-summary/district-summary.co
 import { DistrictNotificationComponent } from './district-notification/district-notification.component';
 import { BuildingIPComponent } from './building-ip/building-ip.component';
 import { BuildingFilterComponent } from './building-filter/building-filter.component';
+import { TransferAssetComponent } from './transfer-asset/transfer-asset.component';
 
-import { MatLegacyTableModule as MatTableModule } from '@angular/material/legacy-table';
+import { MatTableModule} from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
-import { MatLegacyPaginatorModule as MatPaginatorModule } from '@angular/material/legacy-paginator';
-import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatFormFieldModule, MAT_FORM_FIELD_DEFAULT_OPTIONS} from '@angular/material/form-field';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatBottomSheetModule } from '@angular/material/bottom-sheet'; 
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { MatInputModule} from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
 import { MatLegacyTabsModule as MatTabsModule } from '@angular/material/legacy-tabs';
@@ -77,6 +80,8 @@ import { Globals } from './common/global-var';
     OwnerDataComponent,
     NoteModalComponent,
     PetModalComponent,
+    PackModalComponent,
+    TransferAssetComponent,
     CitizenModalComponent,
     CitizenBuildingTableComponent,
     OfferModalComponent,
@@ -95,6 +100,7 @@ import { Globals } from './common/global-var';
     MatTableModule,
     MatSortModule,
     MatPaginatorModule,
+    MatProgressBarModule,
     MatFormFieldModule,
     MatInputModule,
     MatExpansionModule,
@@ -144,7 +150,10 @@ import { Globals } from './common/global-var';
     BrowserAnimationsModule,
     ClipboardModule
   ],
-  providers: [ Globals ],
+  providers: [
+    Globals,
+    { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

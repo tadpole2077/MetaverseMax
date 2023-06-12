@@ -73,6 +73,8 @@
     <None Remove="ClientApp\src\app\owner-data\owner-data.component.css" />
     <None Remove="ClientApp\src\app\graph-tax\data-construct.ts" />
     <None Remove="ClientApp\src\app\graph-tax\data-produce.ts" />
+    <None Remove="ClientApp\src\app\pack-modal\pack-modal.component.ts" />
+    <None Remove="ClientApp\src\app\transfer-asset\transfer-asset.component.ts" />
     <None Remove="ClientApp\tsconfig.json" />
   </ItemGroup>
 

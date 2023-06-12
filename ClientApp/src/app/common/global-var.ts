@@ -82,6 +82,7 @@ export class Globals {
   public appComponentInstance: AppComponent = null;
   public alertSub: Subscription;
   public newAlertSheetActive: boolean = false;
+  public alertPendingRefresh: boolean = false;
   public bottomAlertRef: MatBottomSheetRef = null;
 
   // Flag triggers an update on any module that uses the Account Approval component
@@ -387,6 +388,11 @@ export class Globals {
     params = params.append('matic_key', ownerMaticKey);
     params = params.append('pending_alert', PENDING_ALERT.UNREAD);
 
+    // Defencive coding - Dont run double interval
+    if (this.alertSub != null) {
+      return;
+    }
+
     // 3 min interval checking alerts
     this.alertSub = interval(180000)
       .subscribe(
@@ -394,7 +400,7 @@ export class Globals {
 
           console.log("Account Alert Check : " + new Date());
 
-          // Skip interval check if full history is currently open
+          // Skip interval check if full history is currently and manually open
           if (that.bottomAlertRef != null && that.newAlertSheetActive == false) {
             console.log("Alert full History currently Open - skip new alert check : " + new Date());
             return;
@@ -406,18 +412,20 @@ export class Globals {
 
                 alertPendingManager.alert = result.alert;
                 that.ownerAccount.alert_count = result.historyCount;
+                that.alertPendingRefresh = that.newAlertSheetActive == true;     // Previous alert automated check showing, refresh - dont mark as read.
 
-                if (alertPendingManager.alert && alertPendingManager.alert.length > 0) {
-
-                  that.newAlertSheetActive = true;
+                if (alertPendingManager.alert && alertPendingManager.alert.length > 0) {                  
 
                   that.bottomAlertRef = that.alertSheet.open(AlertBottomComponent, {
                     data: alertPendingManager,
                   });
 
+                  that.newAlertSheetActive = true;
+
                 }
                 else {
                   that.newAlertSheetActive = false;
+                  that.alertPendingRefresh = false;
                 }
               },
               error: (error) => {

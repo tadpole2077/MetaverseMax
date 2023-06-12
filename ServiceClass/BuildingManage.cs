@@ -82,6 +82,7 @@ namespace MetaverseMax.ServiceClass
                 BuildingTypeIPDB buildingTypeIPDB = new(_context);
                 DistrictPerkDB districtPerkDB = new(_context);
                 DistrictDB districtDB = new(_context);
+                BuildingRanking buildingRanking = new();
 
                 buildingCollection.show_prediction = Common.showPrediction;
 
@@ -100,19 +101,18 @@ namespace MetaverseMax.ServiceClass
 
 
                     // TEMP CODE - UNTIL MCP FIX IP (influence_info is correct but MCP doesnt use it) BUG
-                    buildingCollection.maxIP = (int)Math.Round(buildingList.Max(x => x.influence * (1 + (x.influence_bonus / 100.0))), 0, MidpointRounding.AwayFromZero);
+                    buildingCollection.maxIP = buildingRanking.CalcMaxIP(buildingList);
 
                     // 2023_05_07 Min IP - Rule only check buildings that have a calcualted influence_info >=0
                     // Case: Energy buildings may have a negative IP, these buildings are not included in max - min IP check.
-                    buildingCollection.minIP = buildingList.Where(x => x.influence_info < 0).Count() == buildingList.Count ? 0 :
-                        (int)Math.Round(buildingList.Where(x => x.influence_info >= 0).Min(x => x.influence * (1 + (x.influence_bonus / 100.0))), 0, MidpointRounding.AwayFromZero);
+                    buildingCollection.minIP = buildingRanking.CalcMinIP(buildingList);                    
 
                     //buildingCollection.minIP = buildingList.Where(x => x.influence <= 0).Count() > 0 ? 0 :
                     //    (int)Math.Round(buildingList.Where(x => x.influence > 0).Min(x => x.influence * (1 + (x.influence_bonus / 100.0))), 0, MidpointRounding.AwayFromZero);
 
                     // Check if influence is negnative then set to 0 for use in average calc.
                     //buildingCollection.avgIP = Math.Round(buildingList.Average(x => (x.influence_info < 0 ? 0 : x.influence_info) * (1 + ((x.influence_bonus) / 100.0))), 0, MidpointRounding.AwayFromZero);
-                    buildingCollection.avgIP = Math.Round(buildingList.Average(x => (x.influence < 0 ? 0 : x.influence) * (1 + ((x.influence_bonus) / 100.0))), 0, MidpointRounding.AwayFromZero);
+                    buildingCollection.avgIP = buildingRanking.CalcAvgIP(buildingList); 
 
                     buildingCollection.rangeIP = buildingCollection.maxIP - buildingCollection.minIP;
 
@@ -182,7 +182,7 @@ namespace MetaverseMax.ServiceClass
                     }
                     else
                     {
-                        buildingList[i].current_influence_rank = (decimal)Math.Round(GetIPEfficiency(buildingList[i].total_ip, buildingCollection.rangeIP, buildingCollection.minIP) * 100, 2);
+                        buildingList[i].current_influence_rank = buildingRanking.GetIPEfficiency(buildingList[i].total_ip, buildingCollection.rangeIP, buildingCollection.minIP, _context);
                     }
 
                     buildingList[i].produce_tax = AssignTaxMatch(districtList.Where(x => x.district_id == buildingList[i].district_id).FirstOrDefault(), buildingType);
@@ -2707,29 +2707,6 @@ namespace MetaverseMax.ServiceClass
             return result;
         }
 
-        // MCP rule: Min IP must be a value >0, impacts energy buildings, shown on newspaper building report.
-        private decimal GetIPEfficiency(int totalIP, int rangeIP, int minIP)
-        {
-            decimal efficiency = 1;
-
-            if (totalIP <= minIP)
-            {
-                efficiency = 0;
-            }
-            else if (rangeIP != 0)
-            {
-                efficiency = (totalIP - minIP) / (decimal)rangeIP;
-            }
-
-            if (efficiency > 1)
-            {
-                _context.LogEvent(String.Concat("BuildingMange::GetIPEfficiency() Unexpected Efficiency >1 : ", efficiency.ToString(), " totalIP: ", totalIP.ToString(), " minIP: ", minIP.ToString()));
-
-            }
-
-            return efficiency;
-        }
-
         // Find Standard Deviation from passed list,  deviation of -1 to 1 = 68.2% of all results.
         // https://www.statisticshowto.com/probability-and-statistics/standard-deviation/
         private double StandardDeviationGet(List<int> elements)
@@ -2762,17 +2739,19 @@ namespace MetaverseMax.ServiceClass
             return (elementVal - mean) / standardDeviation;
         }
 
-        // Partial update - if IP has changed from stored, then ranking needs to be updated.
-        public decimal CheckInfluenceRankChange(int newInfluence, int storedInfluence, int influenceBonus, decimal storedRanking, int buildingLevel, int buildingType)
+        // IP changed from db store, then update ranking (used by Plot Full and Partial updates - as shown in MyPortfolio)
+        public decimal CheckInfluenceRankChange(int newInfluence, int storedInfluence, int influenceBonus, decimal storedRanking, int buildingLevel, int buildingType, int targetBuildingTokenId)
         {
             decimal newRanking = storedRanking;
             int maxRankingIp = 0, minRankingIp = 0, rangeIP = 0, targetBuildingTotalIp = 0;
             List<Plot> buildingPlotList = null;
+            BuildingRanking buildingRanking = new();
 
             // Change detected, evalute ranking.
             if (newInfluence != storedInfluence && (buildingType == (int)BUILDING_TYPE.ENERGY || buildingType == (int)BUILDING_TYPE.INDUSTRIAL || buildingType == (int)BUILDING_TYPE.PRODUCTION))
             {
-                buildingPlotList = _context.plot.Where(x => x.building_level == buildingLevel && x.building_type_id == buildingType).ToList();
+                // dont include current building within the matching ranking building list, as (scenario) its old IP value may have been min and now its latest IP is the max - this would skew the min-max values
+                buildingPlotList = _context.plot.Where(x => x.building_level == buildingLevel && x.building_type_id == buildingType && x.token_id != targetBuildingTokenId).ToList();
 
                 // If first plot for this type and level (and not yet updated on local) then set with max ranking.
                 if (buildingPlotList.Count <= 1)
@@ -2783,18 +2762,15 @@ namespace MetaverseMax.ServiceClass
                 {
                     targetBuildingTotalIp = GetInfluenceTotal(newInfluence, influenceBonus);
 
-                    maxRankingIp = (int)Math.Round((double)buildingPlotList.Max(x => x.influence * (1 + (x.influence_bonus / 100.0))), 0, MidpointRounding.AwayFromZero);
+                    maxRankingIp = buildingRanking.CalcMaxIP(buildingPlotList);
                     maxRankingIp = maxRankingIp < targetBuildingTotalIp ? targetBuildingTotalIp : maxRankingIp;
 
-                    minRankingIp = buildingPlotList.Where(x => x.influence <= 0).Count() > 0 ? 0 :
-                        (int)Math.Round(
-                            (double)buildingPlotList.Where(x => x.influence > 0).Min(x => x.influence * (1 + (x.influence_bonus / 100.0))
-                            ), 0, MidpointRounding.AwayFromZero);
+                    minRankingIp = buildingRanking.CalcMinIP(buildingPlotList);                    
                     minRankingIp = minRankingIp > targetBuildingTotalIp ? targetBuildingTotalIp : minRankingIp;
 
                     rangeIP = maxRankingIp - minRankingIp;
 
-                    newRanking = (decimal)Math.Round(GetIPEfficiency(targetBuildingTotalIp, rangeIP, minRankingIp) * 100, 2);
+                    newRanking = buildingRanking.GetIPEfficiency(targetBuildingTotalIp, rangeIP, minRankingIp, _context);
                 }
             }
 

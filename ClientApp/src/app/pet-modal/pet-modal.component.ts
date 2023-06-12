@@ -1,8 +1,8 @@
 import { Component, Inject, ViewChild, Output, EventEmitter, ChangeDetectorRef, AfterViewInit } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator';
+import { MatPaginator } from '@angular/material/paginator';
 import { DragDrop } from '@angular/cdk/drag-drop';
 import { PortfolioPet, Pet } from '../owner-data/owner-interface';
 import { Clipboard } from '@angular/cdk/clipboard';

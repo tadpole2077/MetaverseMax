@@ -1,12 +1,14 @@
 ﻿using MetaverseMax.ServiceClass;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlTypes;
 using System.Linq;
+using System.Net.Http.Json;
 
 namespace MetaverseMax.Database
 {
@@ -232,14 +234,14 @@ namespace MetaverseMax.Database
             return returnCode;
         }
 
-        public RETURN_CODE UpdateRelatedBuildingPlot(int plotId)
+        public RETURN_CODE UpdateRelatedBuildingPlotSproc(int plotId)
         {
             RETURN_CODE returnCode = RETURN_CODE.ERROR;
             int result;
 
             try
             {
-                result = _context.Database.ExecuteSqlInterpolated($"EXEC dbo.sp_plot_update_building {plotId}");
+                result = _context.Database.ExecuteSqlInterpolated($"EXEC dbo.sp_plot_update_building { plotId }");
 
             }
             catch (Exception ex)
@@ -360,7 +362,7 @@ namespace MetaverseMax.Database
 
                     newInfluence = jsonContent.Value<int?>("influence") ?? 0;
                     plotMatched.influence_bonus = jsonContent.Value<int?>("influence_bonus") ?? 0;
-                    plotMatched.current_influence_rank = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, plotMatched.building_level, plotMatched.building_type_id);
+                    plotMatched.current_influence_rank = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, plotMatched.building_level, plotMatched.building_type_id, plotMatched.token_id);
                     plotMatched.influence = newInfluence;                                   // Placed after ranking check, as both old and new influence needed for check
 
                     plotMatched.influence_poi_bonus = jsonContent.Value<Boolean?>("influence_poi_bonus") ?? false;
@@ -392,7 +394,6 @@ namespace MetaverseMax.Database
 
             return returnPlot;
         }
-
 
         // Special Case : Partial update during day - if building was recently built/upgraded, partial update of plot data found in /user/assets/lands WS calls.
         //  assets/land WS does not return these fields:
@@ -478,7 +479,7 @@ namespace MetaverseMax.Database
                                 posY = ownerLand.Value<int?>("y") ?? 0
                             };
                         }
-                        plotMatched.current_influence_rank = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, buildingLevel, plotMatched.building_type_id);
+                        plotMatched.current_influence_rank = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, buildingLevel, plotMatched.building_type_id, plotMatched.token_id);
                         plotMatched.influence = newInfluence;                                                   // Placed after ranking check, as both old and new influence needed for check                    
 
                         //plotMatched.influence_bonus = ownerLand.Value<int?>("influence_bonus") ?? 0;          // Missing assign bonus per app slot
@@ -522,7 +523,7 @@ namespace MetaverseMax.Database
 
                             if (newRanking == -1)
                             {
-                                newRanking = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, buildingLevel, plotMatched.building_type_id);
+                                newRanking = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, buildingLevel, plotMatched.building_type_id, plotMatched.token_id);
                             }
                             plotMatched.current_influence_rank = newRanking;                                    // Reuse ranking if already identified on prior related plot
                             plotMatched.influence = newInfluence;                                               // Placed after ranking check, as both old and new influence needed for check
@@ -546,6 +547,67 @@ namespace MetaverseMax.Database
             }
 
             return plotFullUpdate;
+        }
+
+        public int UpdateRelatedBuildingPlotLocal(Plot plotMaster)
+        {
+            List<Plot> buildingPlotList = null;
+
+            try {
+                // Find all related plots in this building - excluding master plot (copy the data from master)
+                buildingPlotList = _context.plot.Where(x => x.token_id == plotMaster.token_id && x.plot_id != plotMaster.plot_id).ToList();
+
+                for (int i = 0; i < buildingPlotList.Count; i++)
+                {
+                    buildingPlotList[i].update_type = (int)UPDATE_TYPE.COPY_MASTER;
+                    buildingPlotList[i].last_updated = plotMaster.last_updated;
+
+                    buildingPlotList[i].unclaimed_plot = plotMaster.unclaimed_plot;
+#nullable enable
+                    buildingPlotList[i].owner_nickname = plotMaster.owner_nickname;
+#nullable disable
+                    buildingPlotList[i].owner_matic = plotMaster.owner_matic;
+                    buildingPlotList[i].owner_avatar_id = plotMaster.owner_avatar_id;
+                    buildingPlotList[i].resources = plotMaster.resources;
+                    buildingPlotList[i].building_id = plotMaster.building_id;
+                    buildingPlotList[i].building_level = plotMaster.building_level;
+                    buildingPlotList[i].building_type_id = plotMaster.building_type_id;
+                    buildingPlotList[i].token_id = plotMaster.token_id;
+
+                    buildingPlotList[i].on_sale = plotMaster.on_sale;
+                    buildingPlotList[i].current_price = plotMaster.current_price;
+
+                    buildingPlotList[i].for_rent = plotMaster.for_rent;
+                    buildingPlotList[i].rented = plotMaster.rented;
+                    buildingPlotList[i].abundance = plotMaster.abundance;
+                    buildingPlotList[i].building_abundance = plotMaster.building_abundance;
+                    buildingPlotList[i].condition = plotMaster.condition;
+                    buildingPlotList[i].influence_info = plotMaster.influence_info;
+                    buildingPlotList[i].influence_bonus = plotMaster.influence_bonus;
+                    buildingPlotList[i].current_influence_rank = plotMaster.current_influence_rank;
+                    buildingPlotList[i].influence = plotMaster.influence;
+
+                    buildingPlotList[i].influence_poi_bonus = plotMaster.influence_poi_bonus;
+                    buildingPlotList[i].production_poi_bonus = plotMaster.production_poi_bonus;
+                    buildingPlotList[i].is_perk_activated = plotMaster.is_perk_activated;
+                    buildingPlotList[i].app_4_bonus = plotMaster.app_4_bonus;
+                    buildingPlotList[i].app_5_bonus = plotMaster.app_5_bonus;
+                    buildingPlotList[i].app_123_bonus = plotMaster.app_123_bonus;
+
+                    buildingPlotList[i].citizen_count = plotMaster.citizen_count;
+                    buildingPlotList[i].low_stamina_alert = plotMaster.low_stamina_alert;
+                    buildingPlotList[i].action_id = plotMaster.action_id;
+
+                    buildingPlotList[i].predict_produce = plotMaster.predict_produce;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                logException(ex, String.Concat("PlotDB:UpdateRelatedBuildingPlotLocal() : Error duplicating update for master building plot X:", plotMaster.pos_x, " Y:", plotMaster.pos_y));
+            }
+
+            return buildingPlotList == null ? 0 : buildingPlotList.Count;
         }
 
         private int GetApplicationBonus(int appNumber, JArray extraAppliances, int pos_x, int pos_y)

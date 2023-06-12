@@ -1,7 +1,12 @@
+/* Override typography styles - Angular - Material V3 styles (Must be overridden before mixin calls*/
+/*$mdc-typography-body2-font-size: 16px; /* default 14px */
+
+/*$mdc-typography-body2: ( font-size: 16px );
+*/
+
 @use '@angular/material' as mat;
 @use 'scss/palette_helper' as palette-helper;
 @use "scss/mode_mixin.scss" as mode;
-// Plus imports for other components in your app.
 
 // Include the common styles for Angular Material. We include this here so that you only
 // have to load a single css file for Angular Material in your app.
@@ -15,31 +20,50 @@
 //  you can delete this line and instead use:
 //    `@include mat.legacy-typography-hierarchy(mat.define-legacy-typography-config());`
 @include mat.all-legacy-component-typographies();
-@include mat.legacy-core();
+@include mat.core();
 
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
-// (imported above). For each palette, you can optionally specify a default, lighter, and darker
-// hue. Available color palettes: https://material.io/design/color/
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker hue.
+// Available color palettes: https://material.io/design/color/
 $light-app-primary: mat.define-palette(mat.$blue-palette,800);
 $light-app-accent: mat.define-palette(mat.$blue-palette);
 $light-app-warn: mat.define-palette(mat.$red-palette);
+$light-typography: mat.define-typography-config();
+
 
 // Create the theme object (a Sass map containing all of the palettes).
-$light-app-theme: mat.define-light-theme($light-app-primary, $light-app-accent, $light-app-warn);
+// Angular 15 - Material theme requires typography(font related styles)
+$light-app-theme: mat.define-light-theme((
+    color: (
+      primary: $light-app-primary,
+      accent: $light-app-accent,
+      warn: $light-app-warn,
+    ),
+    typography: $light-typography,
+    density: 0,
+    ));
 
-// Home Page
+// Additional theme styling used for table and light.
+//      secondary-text >> color >> para2 >> used: header font color
+$light-app-theme: palette-helper.mat-set-custom-table($light-app-theme, #343a40);
+
+
+// Emit theme-dependent styles for common features used across multiple components.  TEMP - remove when full upgrade to V3 Material components completed
+@include mat.all-legacy-component-themes($light-app-theme);
+
+//@include mat.all-component-typographies($light-app-theme);
+@include mat.typography-hierarchy($light-typography);
+@include mat.core-theme($light-app-theme);
+@include mat.all-component-themes($light-app-theme);
+
+
+// Home Page & Links
 $app-button-bg: rgba(196, 198, 209, 0.2);
 $app-button-color: mat.get-color-from-palette($light-app-primary);
-
 $app-link-color: mat.get-color-from-palette($light-app-primary);
+
 @include mode.home($app-button-bg, $app-button-color, $app-button-color);
 @include mode.link($app-link-color, #000, mat.get-color-from-palette($light-app-primary));
-
-// Include theme styles for core and each component used in your app.
-// Alternatively, you can import and @include the theme mixins for each component
-// that you are using.
-// Default using light theme set
-$light-app-theme: palette-helper.mat-set-custom-table($light-app-theme, #343a40);
 
 // Icons
 $money-light: #85bb65;
@@ -47,29 +71,12 @@ $money-light: #85bb65;
 // highlight button color
 $light-button-active-glow: mat.get-color-from-palette(mat.define-palette(mat.$blue-palette,600));
 
-@include mat.all-legacy-component-themes($light-app-theme);
-
-
-// Angular 15 - Material theme
-$light-app-theme15: mat.define-light-theme((
-  color: (
-    primary: $light-app-primary,
-    accent: $light-app-accent,
-    warn: $light-app-warn,
-  ),
-  typography: mat.define-typography-config(),
-));
-@include mat.all-component-themes($light-app-theme15);
-
-
-
 
 // *****************************************************************************************************
 // Apply the dark theme only when the `.darkMode` CSS class is applied
 // to an ancestor element of the components (such as `body`).
 $dark-app-primary: mat.define-palette(mat.$blue-palette,800);
 $dark-app-accent: mat.define-palette(mat.$blue-gray-palette);
-// The warn palette is optional (defaults to red).
 $dark-app-warn: mat.define-palette(mat.$red-palette);
 
 $dark-app-button-palette: mat.define-palette(mat.$blue-palette,400);
@@ -81,28 +88,69 @@ $dark-inner-bg: #1A1C27;
 $dark-menu-bg: #303339;
 
 // Create the theme object (a Sass map containing all of the palettes).
-$dark-app-theme: mat.define-dark-theme(( color: ( primary: $dark-app-primary, accent: $dark-app-accent, warn: $dark-app-warn ), typography: mat.define-legacy-typography-config(), density: 0, ));
+$dark-app-theme: mat.define-dark-theme((
+    color: (
+      primary: $dark-app-primary,
+      accent: $dark-app-accent,
+      warn: $dark-app-warn ),
+    typography: mat.define-typography-config(),
+    density: 0,
+    ));
 
 // Also using .mat-app-background class on the root.body tag as not encapsulated within a materials object.
-// mat-set-background, replaces color.background and background with passed color (para#2), returning an updated theme.  This theme is then assigned during dark mode.
+// mat-set-background, replaces color.background and background with passed color (para#2), returning an updated theme.
+// This theme is then assigned during dark mode.
+//  Additional theme properties set via custom mixin call mat-set-background:
+//    card >> color >> [para3] $dark-inner-bg >> used for table background color
+//    raised-button >> color >> [para2] $dark-outer-bg >> used when button selected
+//
+//  Suggest using browser debug to find the actual theme property used by the component for new color mapping - if not pulling from standard set.
+//
 $dark-app-theme: palette-helper.mat-set-background($dark-app-theme, $dark-outer-bg, $dark-inner-bg);
 $foreground: map-get($dark-app-theme, foreground);
 
-// Angular 15 - Material theme
-$dark-app-theme15: mat.define-light-theme((
-  color: (
-    primary: $dark-app-primary,
-    accent: $dark-app-accent,
-    warn: $dark-app-warn,
-  ),
-  typography: mat.define-typography-config(),
-));
 
 .darkMode {
+  // Emit theme-dependent styles for common features used across multiple components.
+  // Use the `-color` mixins to only apply color styles without reapplying the same typography and density styles.
+  // Not using dark mode on all Material components - some use same as light mode.
+  @include mat.core-color($dark-app-theme);
+  @include mat.table-color($dark-app-theme);
+  @include mat.paginator-color($dark-app-theme);
+  @include mat.form-field-color($dark-app-theme);
+  @include mat.input-color($dark-app-theme);
+  // @include mat.button-color($light-theme);
+
+
+  @include mat.all-legacy-component-themes($dark-app-theme);
+  /*@include mat.all-component-themes($dark-app-theme15);*/
+  @include mode.home($dark-app-button-bg, $app-button-hover-bg, $dark-app-button-color);
+  @include mode.link($dark-app-button-color, #FFF, #FFF);
+
+  // dropdown-menu - Alert component
+  .dropdown-menu {
+    background-color: $dark-menu-bg;
+  }
+
+  // Mat-Datatable
+  // Table Search field
+  .tableFilter .material-icons.mdc-text-field__icon {
+    color:rgba(255, 255, 255, 0.6) 
+  }
+
+  .tableFilter .mdc-floating-label--float-above .material-icons{
+    color: $app-link-color
+  }
+
+  // Paginator
+  .mat-mdc-paginator-container {
+    background-color: $dark-inner-bg
+  }
 
   div.accountContainer {
     background-color: inherit;
   }
+
 
   div.promptLink {
     border-color: #1b6ec2;
@@ -226,7 +274,7 @@ $dark-app-theme15: mat.define-light-theme((
     color: var(--bs-gray-500);
   }
 
-  .table-container tr.mat-row:not(.detailRow):hover {
+  .table-container tr.mat-mdc-row:not(.detailRow):hover {
     background: $dark-outer-bg;
   }
 
@@ -285,10 +333,7 @@ $dark-app-theme15: mat.define-light-theme((
   td .activeProduce {
     background-color: $dark-inner-bg;
   }
-  // dropdown-menu - Alert component
-  .dropdown-menu {
-    background-color: $dark-menu-bg;
-  }
+
 
   .dropdown-menu .dropdown-item {
     color: white;
@@ -324,14 +369,6 @@ $dark-app-theme15: mat.define-light-theme((
   .messageItem {
     border-bottom-color: gray;
   }
-
-
-
-  @include mat.all-legacy-component-themes($dark-app-theme);
-  //@include mat.all-component-themes($dark-app-theme15);
-
-  @include mode.home($dark-app-button-bg, $app-button-hover-bg, $dark-app-button-color);
-  @include mode.link($dark-app-button-color, #FFF, #FFF);
 
   .mat-raised-button:hover {
     background-color: $light-button-active-glow;
@@ -381,6 +418,24 @@ $dark-app-theme15: mat.define-light-theme((
 
 
 // Extra color used within materials
+
+// Mat-Datatable
+// Table Search field
+.tableFilter .material-icons {
+}
+.tableFilter .mdc-floating-label--float-above .material-icons {
+  color: $app-link-color
+}
+
+//   Expanded Rows
+tr.mat-mdc-row:not(.detailRow):hover {
+  background: lightblue;
+}
+
+tr.mat-mdc-row:not(.detailRow):active {
+  background: #efefef;
+}
+
 @keyframes glowBtnDoggle {
   from {
     box-shadow: 0 0 1px gray, 0 0 3px gray;
@@ -415,7 +470,7 @@ a.closeframe:hover {
   color: darkslateblue
 }
 
-// Owner-data table tad icons
+// Owner-data table tab icons
 .typeFilter{  
   border-color: #d3d3d3;
 }

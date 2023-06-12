@@ -75,7 +75,7 @@ namespace MetaverseMax.ServiceClass
                 // If plotId is passed, then posX and posY not needed. Indicates plot already exists based on table key
                 if (jsonContent != null)
                 {
-                    plotMatched = plotDB.AddOrUpdatePlot(jsonContent, posX, posY, plotId, saveEvent);
+                    plotMatched = plotDB.AddOrUpdatePlot(jsonContent, posX, posY, plotId, false);       // Save to db as batch at end - due to related building plots
 
                     // Find Citizen token_ids currently assigned to plot - used by features such as ranking.
                     citizenArray = jsonContent.Value<JArray>("citizens") ?? new();
@@ -87,9 +87,15 @@ namespace MetaverseMax.ServiceClass
                 //  MEGA or HUGE distroyed -  all related building plots will be reset to empty, on next nightly sync will be picked up as new buildings (if built)
                 if (plotMatched.building_level == 6 || plotMatched.building_level == 7)
                 {
-                    // Need to first commit any local Entity framework stored records, needed for sproc to apply data to related db plot records.
+                    // Update each related plot for this building - Safer to do this in code vs sproc - due to deadlock/concurrent updates
+                    //    Issue where master plot gets updated first, then another distint action updates the plot details (eg. user load IP Ranking page)  - code creates  more autonomous unit insuring that same set of data is updated for a building.
+                    plotDB.UpdateRelatedBuildingPlotLocal(plotMatched);
+                    //plotDB.UpdateRelatedBuildingPlotSproc(plotMatched.plot_id);
+                }
+
+                if (saveEvent)
+                {                    
                     _context.SaveChanges();
-                    plotDB.UpdateRelatedBuildingPlot(plotMatched.plot_id);
                 }
             }
             catch (Exception ex)
@@ -347,17 +353,15 @@ namespace MetaverseMax.ServiceClass
         public async Task<int> FullUpdateBuildingAsync(List<PlotCord> tokenIdList)
         {
             // Generate a new dbContext as a safety measure - insuring log is recorded.  Service trigged has already ended.
-            using (var _contexJob = new MetaverseMaxDbContext(worldType))
+            using (var _contextJob = new MetaverseMaxDbContext(worldType))
             {
-                PlotManage plotManage = new PlotManage(_contexJob, worldType);
+                PlotManage plotManage = new PlotManage(_contextJob, worldType);
 
                 foreach (PlotCord plotCord in tokenIdList)
                 {
-                    plotManage.AddOrUpdatePlot(plotCord.plotId, plotCord.posX, plotCord.posY, false);
+                    plotManage.AddOrUpdatePlot(plotCord.plotId, plotCord.posX, plotCord.posY, true);        // MUST save to db when making these changes, due to 1 second interval, and impact on ranking league - stale data.
                     await Task.Delay(1000);
                 }
-
-                _contexJob.SaveChanges();
             }
             return 0;
         }

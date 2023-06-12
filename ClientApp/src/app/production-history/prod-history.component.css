@@ -39,7 +39,7 @@ a {
 
 
 .modalFrame {
-  width: 545px;
+  width: 745px;
   height: 400px;
   position: fixed;
   top: 30px; 
@@ -65,8 +65,8 @@ a {
   margin: 6px 6px 10px 10px;
 }
 
-tr.mat-header-row{
-    height:38px
+tr.mat-mdc-header-row {
+  height: 38px
 }
 
 .paginatorContainer {
@@ -159,14 +159,6 @@ td.mat-column-building_ip{
 }
 
 
-tr.mat-row:not(.detailRow):hover {
-  background: lightblue;
-}
-
-tr.mat-row:not(.detailRow):active {
-  background: #efefef;
-}
-
 tr td.mat-column-expandedDetail{
   padding: 0;
 }
@@ -192,10 +184,10 @@ tr.detailRow {
 }
 
 /* Special stripe - every 3rd row stripe, row 2 is hidden */
-tr.mat-row:first-child, tr.mat-row:nth-child(5), tr.mat-row:nth-child(9) {
+tr.mat-mdc-row:first-child, tr.mat-mdc-row:nth-child(5), tr.mat-mdc-row:nth-child(9) {
   background: rgba(0,0,0,.05);
 }
-tr.mat-row:not(.detailRow) {
+tr.mat-mdc-row:not(.detailRow) {
   cursor: pointer;
 }
 
@@ -507,7 +499,7 @@ tr.mat-row:not(.detailRow) {
     left: 90vw;
   }
 
-  td.mat-cell {
+  td.mat-mdc-cell {
     font-size: .74rem;
     font-weight: 500;
     padding-top: .3rem;

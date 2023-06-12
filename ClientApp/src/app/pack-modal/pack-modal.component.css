@@ -1,0 +1,118 @@
+.modalFrame{
+  width: 600px
+}
+
+.count {
+  float: right;
+  color: lightslategray;
+  font-size: .8em;
+  font-weight: 500;
+  margin-right: 50px;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.table-container {
+  margin: 0px 1em .6em 1em;
+}
+
+tr.mat-mdc-header-row {
+  height: 38px
+}
+
+.paginatorContainer {
+  width: 360px;
+  height: 2.2em;
+  margin-top: -8px;
+}
+
+.closeframe {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  color: black;
+  z-index: 1001;
+}
+
+.topBtnDiv {
+  margin: 1rem 1rem .8rem;
+}
+
+.copy {
+  font-size: .74rem;
+  width: 148px;
+  padding-left: 1.7rem;
+}
+
+.topBtnDiv i {
+  font-size: 1rem;
+  margin-left: 8px;
+  margin-top: 9px;
+  position: absolute;
+  color: white;
+  z-index: 1;
+}
+
+.lastUpdated {
+  vertical-align: middle;
+  font-size: .7rem;
+  /*position: absolute;*/
+  margin-left: 1.5rem;
+  margin-top: 1rem;
+  color: gray;
+  margin-bottom: -0.6rem;
+}
+
+  .lastUpdated .mat-icon {
+    font-size: 1.4rem;
+  }
+
+  .lastUpdated span {
+    vertical-align: super;
+  }
+
+.mat-column-product_id span{
+  padding-left: .4rem;
+}
+
+tr td.mat-column-expandedDetail {
+  padding: 0;
+}
+/* DEFAULT: Hide expandeDetail Rows on load*/
+tr.detailRow {
+  height: 0;
+}
+.show {
+  display: block;
+}
+.expandedComponent{
+  height: 80px;
+  overflow: hidden;
+}
+
+tr.mat-mdc-row:not(.detailRow) {
+  cursor: pointer;
+}
+
+
+
+@media only screen and (max-width: 415px) {
+  .modalFrame {
+    left: 1%;
+    bottom: unset;
+  }
+
+  .table-container {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  td.mat-mdc-cell {
+    font-size: .74rem;
+    font-weight: 500;
+  }
+
+    td.mat-mdc-cell:last-of-type, td.mat-mdc-footer-cell:last-of-type, th.mat-mdc-header-cell:last-of-type {
+      padding-right: 10px
+    }
+}

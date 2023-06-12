@@ -1,0 +1,59 @@
+
+<div class="modalFrame" cdkDrag style="display:inline-table;text-align:left;">
+
+  <a class="closeframe" (click)="setHide()"><i class="far fa-window-close fa-2x" role="button"></i></a>
+  <div class="count" *ngIf="pack">Packs : <span>{{pack.length}}</span></div>
+  <div class="topBtnDiv">
+    <i class="fas fa-clipboard" style=""></i><button mat-raised-button color="primary" class="copy" (click)="copyData()">Copy All to Clipboard</button>
+  </div>
+
+  <div class="table-container">
+
+    <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows class="table table-striped mat-elevation-z8" style="display:inline-table">
+      <!--table table-striped-->
+      <ng-container matColumnDef="pack_id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Pack ID </th>
+        <td mat-cell *matCellDef="let row">
+          {{ row.pack_id }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="product_id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
+        <td mat-cell *matCellDef="let row">
+          <img src="./assets/{{ getImageName(row.product_id) }}" height="42" />
+          <span>{{ getProductName(row.product_id) }}</span>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="amount">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Amount </th>
+        <td mat-cell *matCellDef="let row"> {{ row.amount}}</td>
+      </ng-container>
+
+
+      <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+      <ng-container matColumnDef="expandedDetail">
+        <td mat-cell *matCellDef="let row; let i = dataIndex" [attr.colspan]="displayedColumns.length">
+          <div class="expandedComponent" [@detailExpand]="forceClose == false && row == expandedRow ? 'expanded' : 'collapsed'">
+            <span>Container</span>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-row *matRowDef="let row; columns: displayedColumns; let i = dataIndex"
+          [class.expanded-row]="expandedRow === row"
+          (click)="expandedRow = expandedRow === row ? null : row;
+                   expandedRow === row ? showTransfer(row, i) : null ">
+        <!-- Apply class expanded-row to parent row only when expanded, checking var expandedRow is populated on click -->
+      </tr>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detailRow"></tr>
+
+    </table>
+    <mat-paginator [hidden]="hidePaginator" [pageSize]="10" [hidePageSize] [showFirstLastButtons] class="paginatorContainer"></mat-paginator>
+  </div>
+
+  <div class="lastUpdated" style="display:none">
+    <mat-icon>access_time</mat-icon>
+    <span *ngIf="portfolioPet">Last updated GMT</span>
+  </div>
+</div>

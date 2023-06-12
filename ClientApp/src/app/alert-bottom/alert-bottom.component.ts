@@ -36,7 +36,7 @@ export class AlertBottomComponent{
       // On close of New alerts sheet - Mark active alerts as read/seen - dont show in next [New alerts interval check]
       params = params.append('matic_key', this.globals.ownerAccount.matic_key);
 
-      if (this.globals.newAlertSheetActive == true) {
+      if (this.globals.newAlertSheetActive == true && this.globals.alertPendingRefresh == false) {
 
         this.httpClient.get<any>(this.baseUrl + '/OwnerData/UpdateRead', { params: params })
           .subscribe({
@@ -62,12 +62,14 @@ export class AlertBottomComponent{
       .subscribe({
         next: (result) => {
 
-          // Remove element
-          delete this.alertPendingManager.alert[alertIndex];
-          // Reindex array
-          this.alertPendingManager.alert = this.alertPendingManager.alert.filter(_ => true);
+          if (result) {
+            // Remove element
+            delete this.alertPendingManager.alert[alertIndex];
+            // Reindex array
+            this.alertPendingManager.alert = this.alertPendingManager.alert.filter(_ => true);
 
-          this.globals.ownerAccount.alert_count = result.historyCount;
+            this.globals.ownerAccount.alert_count = this.alertPendingManager.alert.length;
+          }
 
           if (this.alertPendingManager.alert && this.alertPendingManager.alert.length == 0) {
             this.bottomSheetRef.dismiss();

@@ -1,8 +1,8 @@
 import { Component, Inject, ViewChild, Output, Input, EventEmitter, ChangeDetectorRef, AfterViewInit, ElementRef } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator';
+import { MatPaginator } from '@angular/material/paginator';
 import { Citizen, BUILDING, PRODUCT } from '../owner-data/owner-interface';
 import { Globals, WORLD } from '../common/global-var';
 

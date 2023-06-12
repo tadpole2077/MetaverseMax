@@ -1,3 +1,12 @@
+.search {
+  display: flex;
+  flex-direction: column;
+}
+.buttonContainer {
+  align-self: end;
+  margin-top: -10px
+}
+
 @keyframes rotation {
   from {
     transform: rotate(0deg);
@@ -23,13 +32,6 @@ a {
   font-size: .96rem
 }
 
-.search {
-  clear: both;
-  float: right;
-  margin-top: 10px;
-  margin-bottom: 6px
-}
-
 .plotx {
   margin-right: 10px;
   width: 60px;
@@ -39,6 +41,9 @@ a {
   width: 60px
 }
 
+.buttonContainer{
+
+}
 .searchIcon {
   font-size: 1.1rem;
   margin-left: 6px;
@@ -67,10 +72,13 @@ a {
 
 @media only screen and (max-width: 415px) {
   .search {
-    margin-top: 0;
-    position: unset;
-    left: 0;
-    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .buttonContainer {
+    align-self: auto;
   }
   
 }

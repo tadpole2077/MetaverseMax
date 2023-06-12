@@ -50,8 +50,16 @@ interface OwnerData
   district_plots: DistrictPlot[];
   owner_land: OwnerLandData[];
   search_info: string;
+  search_token: number;
+  pack_count: number;
+  pack : Pack[]
 }
 
+interface Pack {
+  pack_id: number;
+  amount: number;
+  product_id: number;
+}
 interface Offer
 {
   buyer_matic_key: string;
@@ -166,7 +174,13 @@ const PRODUCT = {
   WATER: 7,
   ENERGY: 8,
   STEEL: 9,
-  CONCRETE: 10 
+  CONCRETE: 10,
+  PLASTIC: 11,
+  GLUE: 12,
+  MIXES: 13,
+  COMPOSITE: 14,
+  PAPER: 15,
+  FACTORY_PRODUCT: 99
 }
 
 
@@ -183,5 +197,6 @@ export
   PortfolioCitizen,
   BUILDING,
   PRODUCT,
-  FilterCount
+  FilterCount,
+  Pack
 }

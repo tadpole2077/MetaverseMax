@@ -183,8 +183,13 @@
 <div class="table-container" [hidden]="!ownerSummary || !ownerSummary.length">
   
   <div fxLayout fxLayoutAlign="center center" style="display:inline-block">
-    <mat-form-field fxFlex="30%" class="tableFilter">
-      <input matInput type="text" (keyup)="applyFilter($event.target.value)" placeholder="Owner Filter">
+    <mat-form-field fxFlex="30%" class="tableFilter" [style.width.rem]=8>
+      <mat-label><i class="material-icons mdc-text-field__icon mdc-text-field__icon--leading" tabindex="0" role="button">search</i>Search</mat-label>
+      <input matInput type="text" (keyup)="applyFilter($event.target.value)" [(ngModel)]="searchTable" />
+      
+      <button *ngIf="searchTable" matSuffix mat-icon-button aria-label="Clear" (click)="searchTable=''">
+        <mat-icon>close</mat-icon>
+      </button>
     </mat-form-field>
   </div>
 

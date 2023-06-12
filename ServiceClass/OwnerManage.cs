@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using SimpleBase;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
@@ -113,6 +114,7 @@ namespace MetaverseMax.ServiceClass
             }
 
             if (accountName == string.Empty) {  
+
                 if (ownerAccount != null)
                 {
                         accountName = ownerAccount.public_key.ToLower();
@@ -428,7 +430,7 @@ namespace MetaverseMax.ServiceClass
                 List<Plot> localPlots = new();
                 Building building = new();
                 CitizenManage citizen = new(_context, worldType);
-                BuildingManage buildingManage = new(_context, worldType);
+                BuildingManage buildingManage = new(_context, worldType);                
 
                 PlotDB plotDB = new(_context, worldType);
                 string landOwner;
@@ -454,7 +456,7 @@ namespace MetaverseMax.ServiceClass
                         ownerData.owner_land = lands.Select(landInstance =>
                         {
                             var plot = localPlots.Where(x => x.token_id == (landInstance.Value<int?>("token_id") ?? 0)).FirstOrDefault();
-
+                         
                             return new OwnerLand
                             {
                                 district_id = landInstance.Value<int?>("region_id") ?? 0,
@@ -482,7 +484,10 @@ namespace MetaverseMax.ServiceClass
                                 condition = landInstance.Value<int?>("condition") ?? 0,
                                 active = 1// buildingManage.CheckBuildingActive((BUILDING_TYPE)(landInstance.Value<int?>("building_type_id") ?? 0), citizen.GetCitizenCount(landInstance.Value<JArray>("citizens")), landInstance.Value<int?>("building_level") ?? 0) == true ? 1 : 0
                             };
+                                
+                         
                         })
+                        .ToArray()
                         .OrderBy(row => row.district_id).ThenBy(row => row.pos_x).ThenBy(row => row.pos_y);
 
 
@@ -551,6 +556,9 @@ namespace MetaverseMax.ServiceClass
                 // Dont update POI/Monument - as addtional evaluation needed on state chanage and ip impact on nearby plots. Nighly sync controls POI/Monument updates of plot.last_updated.
                 if (buildingTypeId != (int)BUILDING_TYPE.POI)
                 {
+                    // ADDITIONAL EVAL NEEDED - As not saving to db until all account is updated - potential here for incorrct IPRanking calc - as prior buildings in set may change max-min for that league table. Not sure if EntityFramework using mix both local (context) and db records
+                    // Set to save to db as a batch later due to increased Performance.
+                    // KNOWN WEAKNESS - Does not update/reeval all other buildings IP Ranking - this building may impact the max-min which would then impact ranking for all other buidlings in that league level (but the performance hit means its not currently worth it - potential solution -  a ranking async task to update ranking changes on all building in respective league - if new min or max change identified)
                     currentPlotFullUpdate = plotDB.UpdatePlotPartial(ownerLandList[i], false);
 
                     if (currentPlotFullUpdate != null)
@@ -579,7 +587,7 @@ namespace MetaverseMax.ServiceClass
             return plot == null ? 0 : plot.current_influence_rank ?? 0;
         }
 
-        public async Task<int> GetFromLandCoord(int posX, int posY)
+        public async Task<int> GetFromLandCoordMCP(int posX, int posY)
         {
             String content = string.Empty;
             int returnCode = 0;
@@ -615,8 +623,9 @@ namespace MetaverseMax.ServiceClass
                 {
                     JObject jsonContent = JObject.Parse(content);
                     ownerData.owner_matic_key = jsonContent.Value<string>("owner") ?? "";
+                    ownerData.search_token = jsonContent.Value<int?>("token_id") ?? 0;          // building token - matching X and Y plot - note multiple plots may comprise a single building/token
 
-                    returnCode = GetFromMaticKey(ownerData.owner_matic_key).Result;
+                    returnCode = GetFromMaticKeyMCP(ownerData.owner_matic_key).Result;
                 }
             }
             catch (Exception ex)
@@ -629,7 +638,7 @@ namespace MetaverseMax.ServiceClass
         }
 
         // See multi Nic IP use with HttpWebRequest https://github.com/dotnet/runtime/issues/23267
-        public async Task<int> GetFromMaticKey(string ownerMaticKey)
+        public async Task<int> GetFromMaticKeyMCP(string ownerMaticKey)
         {
             String content = string.Empty;
             CitizenManage citizen = new(_context, worldType);
@@ -699,6 +708,9 @@ namespace MetaverseMax.ServiceClass
                             ownerData.pet_count = owner.pet_count ?? 0;
                             ownerData.citizen_count = owner.citizen_count ?? 0;
                         }
+                        
+                        ownerData.pack = GetPacksMCP(ownerMaticKey).Result;
+                        ownerData.pack_count = ownerData.pack.Count();
                     }
                 }
             }
@@ -709,6 +721,61 @@ namespace MetaverseMax.ServiceClass
             }
 
             return returnCode;
+        }
+
+        public async Task<List<Pack>> GetPacksMCP(string ownerMaticKey)
+        {
+            string content = string.Empty;
+            JArray packJSON = null;
+            List<Pack> packList = null;
+            serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.USER_PACKS_GET, WORLD_TYPE.BNB => BNB_WS.USER_PACKS_GET, WORLD_TYPE.ETH => ETH_WS.USER_PACKS_GET, _ => TRON_WS.USER_PACKS_GET };
+
+            try
+            {
+
+                if (string.IsNullOrEmpty(ownerMaticKey) || ownerMaticKey.Equals("Not Found"))
+                {
+                    packList = new();
+                }
+                else
+                {
+                    HttpResponseMessage response;
+                    using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
+                    {
+                        StringContent stringContent = new StringContent("{\"address\": \"" + ownerMaticKey + "\",\"filter\": { \"type_id\": 0}}", Encoding.UTF8, "application/json");
+
+                        response = await client.PostAsync(
+                            serviceUrl,
+                            stringContent);
+
+                        response.EnsureSuccessStatusCode(); // throws if not 200-299
+                        content = await response.Content.ReadAsStringAsync();
+                    }
+
+                    if (content.Length > 0)
+                    {
+                        packJSON = JArray.Parse(content);                        
+
+                        packList = packJSON.Select(pack =>
+                        {
+
+                            return new Pack
+                            {
+                                pack_id = pack.Value<int?>("resource_id") ?? 0,
+                                amount = pack.Value<int?>("amount") ?? 0,
+                                product_id = pack.Value<int?>("kind") ?? 0
+                            };
+                        }).ToList();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                DBLogger dbLogger = new(_context, worldType);
+                dbLogger.logException(ex, String.Concat("OwnerMange.GetPacksMCP() : Error on WS calls for owner matic : ", ownerMaticKey));
+            }
+
+            return packList;
         }
 
         private int AssignUnknownOwner(string ownerName = "")

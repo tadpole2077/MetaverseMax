@@ -593,6 +593,7 @@
         public static readonly string MIXES = "/assets/images/resources/mixes.png";
         public static readonly string GLUE = "/assets/images/resources/glue.png";
         public static readonly string COMPOSITE = "/assets/images/resources/composite.png";
+        public static readonly string BRICK = "assets/images/resources/brick.png";
     }
 
     public class MATIC_WS
@@ -606,6 +607,7 @@
         public static readonly string OWNER_LANDS = "https://ws-tron.mcp3d.com/user/assets/lands";
         public static readonly string POI_GET = "https://ws-tron.mcp3d.com/poi/get";
         public static readonly string USER_GET = "https://ws-tron.mcp3d.com/user/get";
+        public static readonly string USER_PACKS_GET = "https://ws-tron.mcp3d.com/user/assets/packs";
         public static readonly string SALES_OFFER = "https://ws-tron.mcp3d.com/sales/offers";
         public static readonly string SALES_INFO = "https://ws-tron.mcp3d.com/sales/info";
         public static readonly string ASSETS_PETS = "https://ws-tron.mcp3d.com/user/assets/pets";
@@ -625,6 +627,7 @@
         public static readonly string OWNER_LANDS = "https://ws-bsc.mcp3d.com/user/assets/lands";
         public static readonly string POI_GET = "https://ws-bsc.mcp3d.com/poi/get";
         public static readonly string USER_GET = "https://ws-bsc.mcp3d.com/user/get";
+        public static readonly string USER_PACKS_GET = "https://ws-bsc.mcp3d.com/user/assets/packs";
         public static readonly string SALES_OFFER = "https://ws-bsc.mcp3d.com/sales/offers";
         public static readonly string SALES_INFO = "https://ws-bsc.mcp3d.com/sales/info";
         public static readonly string ASSETS_PETS = "https://ws-bsc.mcp3d.com/user/assets/pets";
@@ -643,6 +646,7 @@
         public static readonly string OWNER_LANDS = "https://ws.mcp3d.com/user/assets/lands";
         public static readonly string POI_GET = "https://ws.mcp3d.com/poi/get";
         public static readonly string USER_GET = "https://ws.mcp3d.com/user/get";
+        public static readonly string USER_PACKS_GET = "https://ws.mcp3d.com/user/assets/packs";
         public static readonly string SALES_OFFER = "https://ws.mcp3d.com/sales/offers";
         public static readonly string SALES_INFO = "https://ws.mcp3d.com/sales/info";
         public static readonly string ASSETS_PETS = "https://ws.mcp3d.com/user/assets/pets";
@@ -658,6 +662,7 @@
     public enum UPDATE_TYPE
     {
         FULL = 1,
-        PARTIAL = 2
+        PARTIAL = 2,
+        COPY_MASTER = 3,
     }
 }

@@ -172,6 +172,9 @@ h3{
   font-weight: 500
 }
 
+
+
+
 @media only screen and (max-width: 415px) {
   H2 {
     font-size: 1.5rem;
@@ -246,6 +249,14 @@ h3{
   }
   .blockLeft, .blockRight {
     float: unset;
+  }
+
+  .historic .mat-expansion-panel .mat-expansion-panel-header-title {
+    font-size: 12px;
+  }
+  .historic .mat-expansion-panel .mat-icon {
+    width: 40px;
+    margin-right: 0.3rem;
   }
 
 }

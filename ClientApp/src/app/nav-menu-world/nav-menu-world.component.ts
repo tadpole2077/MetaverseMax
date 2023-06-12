@@ -58,9 +58,6 @@ export class NavMenuWorldComponent {
         this.worldNamelist = result.world_name;
 
         this.updateSelectedWorldList(this.selectedWorld);
-        //this.worldDropDown.
-        //this.removeLinkHighlight();
-        //plotPos.rotateEle.classList.remove("rotate");
 
       }, error => console.error(error));
 

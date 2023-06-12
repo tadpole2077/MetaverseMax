@@ -1,9 +1,9 @@
 import { ElementRef, Component, Inject, ViewChild, Output, EventEmitter, ChangeDetectorRef, AfterViewInit, QueryList, ViewChildren } from '@angular/core';
 import { interval, Observable, Subscription } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { MatLegacyPaginator as MatPaginator, LegacyPageEvent as PageEvent } from '@angular/material/legacy-paginator';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { DragDrop } from '@angular/cdk/drag-drop';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { CitizenBuildingTableComponent } from '../citizen-building-table/citizen-building-table.component';
@@ -168,62 +168,65 @@ export class ProdHistoryComponent implements AfterViewInit {
     //this.graphDamage.loadGraph(null);
 
     this.httpClient.get<BuildingHistory>(this.baseUrl + '/assethistory', { params: params })
-      .subscribe((result: BuildingHistory) => {
+      .subscribe({
+        next: (result) => {
 
-        //if (this.progressIcon) {
-        //  this.progressIcon.nativeElement.classList.remove("rotate");
-        //}
+          //if (this.progressIcon) {
+          //  this.progressIcon.nativeElement.classList.remove("rotate");
+          //}
 
-        this.history = result;        
+          this.history = result;        
         
-        if (this.history.detail != null) {
+          if (this.history.detail != null) {
 
-          //OFFICE
-          if (building_type == 6) {
-            this.displayedColumns = this.columnsOffice;
-          }
-          //FACTORY
-          else if (this.history.current_building_id == 10) {
-            this.displayedColumns = this.isMobileView == true ? this.columnsFactoryMobile : this.columnsFactory;
-          }
-          else if (this.isMobileView){
-            this.displayedColumns = this.columnsStandardMobile;
-          }
-          else{
-            this.displayedColumns = this.columnsStandard
-          }
-
-          this.dataSourceHistory = new MatTableDataSource<Detail>(this.history.detail);
-          this.hidePaginator = this.history.detail == null || this.history.detail.length < 5 ? true : false;
-
-          this.dataSourceHistory.paginator = this.paginator;
-          if (this.dataSourceHistory.paginator) {
-            this.dataSourceHistory.paginator.firstPage();
-          }
-
-          this.dataSourceHistory.sort = this.sort;
-
-          // Add custom date column sort
-          this.dataSourceHistory.sortingDataAccessor = (item: Detail, property) => {
-            switch (property) {
-              case 'run_datetime': return item.run_datetime == "" ? new Date(0) : new Date(item.run_datetime);
-              default: return item[property];
+            //OFFICE
+            if (building_type == 6) {
+              this.displayedColumns = this.columnsOffice;
             }
-          };
+            //FACTORY
+            else if (this.history.current_building_id == 10) {
+              this.displayedColumns = this.isMobileView == true ? this.columnsFactoryMobile : this.columnsFactory;
+            }
+            else if (this.isMobileView){
+              this.displayedColumns = this.columnsStandardMobile;
+            }
+            else{
+              this.displayedColumns = this.columnsStandard
+            }
 
-          this.sort.sort({ id: null, start: 'desc', disableClear: false });         // Clear any prior sort - reset sort arrows. best option to reset on each load.
-          //this.sort.sort({ id: 'run_datetime', start: 'desc', disableClear: true });          
+            this.dataSourceHistory = new MatTableDataSource<Detail>(this.history.detail);
+            this.hidePaginator = this.history.detail == null || this.history.detail.length < 5 ? true : false;
+
+            this.dataSourceHistory.paginator = this.paginator;
+            if (this.dataSourceHistory.paginator) {
+              this.dataSourceHistory.paginator.firstPage();
+            }
+
+            this.dataSourceHistory.sort = this.sort;
+
+            // Add custom date column sort
+            this.dataSourceHistory.sortingDataAccessor = (item: Detail, property) => {
+              switch (property) {
+                case 'run_datetime': return item.run_datetime == "" ? new Date(0) : new Date(item.run_datetime);
+                default: return item[property];
+              }
+            };
+
+            this.sort.sort({ id: null, start: 'desc', disableClear: false });         // Clear any prior sort - reset sort arrows. best option to reset on each load.
+            //this.sort.sort({ id: 'run_datetime', start: 'desc', disableClear: true });          
           
-        }
-        else {
-          this.dataSourceHistory = new MatTableDataSource<Detail>(null);
-        }
-        //plotPos.rotateEle.classList.remove("rotate");
-        //this.cdr.markForCheck();
-        //this.cdr.detectChanges();
-        setTimeout(() => this.checkRefresh());
+          }
+          else {
+            this.dataSourceHistory = new MatTableDataSource<Detail>(null);
+          }
+          //plotPos.rotateEle.classList.remove("rotate");
+          //this.cdr.markForCheck();
+          //this.cdr.detectChanges();
+          setTimeout(() => this.checkRefresh());
 
-      }, error => console.error(error));
+        },
+        error: (error) => { console.error(error) }
+      });
 
     return;
   }
