@@ -1,9 +1,10 @@
-import { Component, Inject, ViewChild, Output, EventEmitter, ChangeDetectorRef, AfterViewInit } from '@angular/core';
+import { Component, Inject, ViewChild, Output, EventEmitter, ChangeDetectorRef, AfterViewInit, QueryList, ViewChildren } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, MatSortable, Sort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import { TransferAssetComponent } from "../transfer-asset/transfer-asset.component"
 import { Pack, PRODUCT } from '../owner-data/owner-interface';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Globals, WORLD } from '../common/global-var';
@@ -36,6 +37,9 @@ export class PackModalComponent implements AfterViewInit {
   dataSource = new MatTableDataSource(null);
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
+
+  /* Array of all subtable  TransferAsset components - one per row*/
+  @ViewChildren(TransferAssetComponent) transferAssetList: QueryList<TransferAssetComponent>;
 
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumns: string[] = ['pack_id', 'product_id', 'amount'];
@@ -182,7 +186,12 @@ export class PackModalComponent implements AfterViewInit {
 
   showTransfer(row: Pack, rowIndex: number) {
 
-    this.forceClose = false;    // Reset if previously set to true - due to use of refresh with auto closes
+    this.forceClose = false;    // Reset if previously set to true -  Used with "refresh" feature - to auto closes any opened sub table (remove if not uses refresh)
+
+    // Retrive loaded subtable component - index assigned to component within this components htrml directive on load, and assigned to child component.
+    const transferAsset = this.transferAssetList.filter((element) => element.index === rowIndex)[0];
+
+    transferAsset.loadPlotData(row);
 
     return;
   }

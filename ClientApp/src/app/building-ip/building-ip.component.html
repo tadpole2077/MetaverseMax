@@ -219,54 +219,55 @@
     <span *ngIf="buildingCollection">Last updated {{ buildingCollection.sync_date }} GMT</span>
   </div>
 
-  <div fxLayout fxLayoutAlign="center center" style="display:inline-block">
-    <mat-form-field fxFlex="30%" class="tableFilter" [style.width.rem]=8>
+  <div class="tableControls">
+    <mat-form-field fxFlex="30%" class="tableFilter" [style.width.rem]=8 subscriptSizing="dynamic">
       <mat-label><i class="material-icons mdc-text-field__icon mdc-text-field__icon--leading" tabindex="0" role="button">search</i>Search</mat-label>
       <input matInput type="text" (keyup)="applyFilter($event.target.value)" placeholder="" [(ngModel)]="searchTable" />
-      <button *ngIf="searchTable" matSuffix mat-icon-button aria-label="Clear" (click)="searchTable=''">
+      <button *ngIf="searchTable" matSuffix mat-icon-button aria-label="Clear" (click)="searchTable='';applyFilter('');">
         <mat-icon>close</mat-icon>
       </button>
     </mat-form-field>
-  </div>
-  <div class="filterControls">
-    <div class="activeFilter" fxLayout fxLayoutAlign="center center" [hidden]="buildingType!=5 && buildingType!=3 && buildingType!=7 && buildingType!=6">
-      <div>
-        <mat-checkbox #activeChkbox
-                      fxFlex="30%"
-                      class="activeWeek"
-                      (change)="filterActive($event)">
-          <i class="fas fa-running filterIcon" title="Active production during prior week"></i>Active (Prior Week)
-        </mat-checkbox>
+
+    <div class="filterControls">
+      <div class="activeFilter" fxLayout fxLayoutAlign="center center" [hidden]="buildingType!=5 && buildingType!=3 && buildingType!=7 && buildingType!=6">
+        <div>
+          <mat-checkbox #activeChkbox
+                        fxFlex="30%"
+                        class="activeWeek"
+                        (change)="filterActive($event)">
+            <i class="fas fa-running filterIcon" title="Active production during prior week"></i>Active (Prior Week)
+          </mat-checkbox>
+        </div>
       </div>
-    </div>
-    <div class="activeFilter" fxLayout fxLayoutAlign="center center" [hidden]="buildingType==6">
-      <div>
-        <mat-checkbox #toRentChkbox
-                      fxFlex="30%"
-                      class="activeWeek"
-                      (change)="filterToRent($event)">
-          <i class="fas fa-truck-moving filterIcon" title="Available to rent"></i>To Rent
-        </mat-checkbox>
+      <div class="activeFilter" fxLayout fxLayoutAlign="center center" [hidden]="buildingType==6">
+        <div>
+          <mat-checkbox #toRentChkbox
+                        fxFlex="30%"
+                        class="activeWeek"
+                        (change)="filterToRent($event)">
+            <i class="fas fa-truck-moving filterIcon" title="Available to rent"></i>To Rent
+          </mat-checkbox>
+        </div>
       </div>
-    </div>
-    <div class="activeFilter" fxLayout fxLayoutAlign="center center">
-      <div>
-        <mat-checkbox #forSaleChkbox
-                      fxFlex="30%"
-                      class="activeWeek"
-                      (change)="filterForSale($event)">
-          <i class="fas fa-ad filterIcon" title="Available for sale"></i>For Sale
-        </mat-checkbox>
+      <div class="activeFilter" fxLayout fxLayoutAlign="center center">
+        <div>
+          <mat-checkbox #forSaleChkbox
+                        fxFlex="30%"
+                        class="activeWeek"
+                        (change)="filterForSale($event)">
+            <i class="fas fa-ad filterIcon" title="Available for sale"></i>For Sale
+          </mat-checkbox>
+        </div>
       </div>
-    </div>
-    <div class="activeFilter" fxLayout fxLayoutAlign="center center">
-      <div>
-        <mat-checkbox #forSaleChkbox
-                      fxFlex="30%"
-                      class="activeWeek"
-                      (change)="showAlertChange($event)">
-          <i class="far fa-bell filterIcon" title="Show Alert Column"></i>Show Alerts
-        </mat-checkbox>
+      <div class="activeFilter" fxLayout fxLayoutAlign="center center">
+        <div>
+          <mat-checkbox #forSaleChkbox
+                        fxFlex="30%"
+                        class="activeWeek"
+                        (change)="showAlertChange($event)">
+            <i class="far fa-bell filterIcon" title="Show Alert Column"></i>Show Alerts
+          </mat-checkbox>
+        </div>
       </div>
     </div>
   </div>

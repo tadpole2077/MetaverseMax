@@ -1,5 +1,6 @@
-import { Component, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, Output, Input, EventEmitter, ViewChild } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
+import { Pack, PRODUCT } from '../owner-data/owner-interface';
 
 @Component({
   selector: 'app-transfer-asset',
@@ -8,13 +9,15 @@ import { MatInputModule } from '@angular/material/input';
 })
 export class TransferAssetComponent {
 
+  @Input() index: number;
+
   @Output() searchPlotEvent = new EventEmitter<any>();
   public rotateActive: boolean = false;
 
   constructor() {
   }
 
-  getPlotData(plotPos) {
+  loadPlotData(row: Pack) {
 
     //this.rotateActive = true;
 

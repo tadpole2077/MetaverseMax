@@ -181,37 +181,35 @@
 </div>
 
 <div class="table-container" [hidden]="!ownerSummary || !ownerSummary.length">
-  
-  <div fxLayout fxLayoutAlign="center center" style="display:inline-block">
-    <mat-form-field fxFlex="30%" class="tableFilter" [style.width.rem]=8>
+  <div class="tableControls">
+    <mat-form-field class="tableFilter" [style.width.rem]=8 subscriptSizing="dynamic">
       <mat-label><i class="material-icons mdc-text-field__icon mdc-text-field__icon--leading" tabindex="0" role="button">search</i>Search</mat-label>
       <input matInput type="text" (keyup)="applyFilter($event.target.value)" [(ngModel)]="searchTable" />
-      
-      <button *ngIf="searchTable" matSuffix mat-icon-button aria-label="Clear" (click)="searchTable=''">
+
+      <button *ngIf="searchTable" matSuffix mat-icon-button aria-label="Clear" (click)="searchTable='';applyFilter('');">
         <mat-icon>close</mat-icon>
       </button>
     </mat-form-field>
-  </div>
-
-  <div class="arrivalCheckboxGroup" fxLayout fxLayoutAlign="center center">
-    <div id="arrivalCheckboxWeek">
-      <mat-checkbox #arrivalsWeek
-                    fxFlex="30%"
-                    class="arrivalCheckboxWeek"
-                    (change)="filterArrivalsWeek($event)">        
-        New Arrivals <i class="fas fa-plane-arrival arrivalIcon arrivalIconSml" title="Arrived in Last Week"></i>(Prior Week)
-      </mat-checkbox>
+    
+    <div class="arrivalCheckboxGroup" fxLayout fxLayoutAlign="center center">
+      <div id="arrivalCheckboxWeek">
+        <mat-checkbox #arrivalsWeek
+                      fxFlex="30%"
+                      class="arrivalCheckboxWeek"
+                      (change)="filterArrivalsWeek($event)">
+          New Arrivals <i class="fas fa-plane-arrival arrivalIcon arrivalIconSml" title="Arrived in Last Week"></i>(Prior Week)
+        </mat-checkbox>
+      </div>
+      <div id="arrivalCheckboxMonth">
+        <mat-checkbox #arrivalsMonth
+                      fxFlex="30%"
+                      class="arrivalCheckboxMonth"
+                      (change)="filterArrivalsMonth($event)">
+          New Arrivals <i class="fas fa-plane-arrival arrivalIcon2 arrivalIconSml" title="Arrived in Last Month" style=""></i>(Prior Month)
+        </mat-checkbox>
+      </div>
     </div>
-    <div id="arrivalCheckboxMonth">
-      <mat-checkbox #arrivalsMonth
-                    fxFlex="30%"
-                    class="arrivalCheckboxMonth"
-                    (change)="filterArrivalsMonth($event)">        
-        New Arrivals <i class="fas fa-plane-arrival arrivalIcon2 arrivalIconSml" title="Arrived in Last Month" style=""></i>(Prior Month)
-      </mat-checkbox>
-    </div>
   </div>
-
   <table mat-table [dataSource]="dataSourceOwnerSummary" matSort matSortStart="desc" class="table table-striped mat-elevation-z8" style="width:100%; display:inline-table">
     <!--table table-striped-->
     <ng-container matColumnDef="owner_name">

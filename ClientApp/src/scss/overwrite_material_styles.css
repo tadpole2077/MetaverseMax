@@ -86,6 +86,10 @@ th.mat-mdc-header-cell:last-of-type {
   /*--mat-mdc-form-field-floating-label-scale: 1.2;*/
 }
 
+.notchAdjust .mdc-floating-label--float-above {
+  font-size: 14px;
+}
+
 /* New change in Materials styles V14 flex-basis: 0 , causing wrapping issues.  flex-basis = 0 means same as width:0 which collapxses content to smallest size - first word for example - casuing unwanted wrap  */
 /* flex-basis: auto = allows size to automatic fit content - so full line of text will show on 1 line if it fits */
 /* https://developer.mozilla.org/en-US/docs/Web/CSS/flex-basis */

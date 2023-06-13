@@ -12,6 +12,12 @@
   margin-bottom: 1em;
 }
 
+
+/* Special stripe - every 3rd row stripe, row 2 is hidden */
+tr.mat-mdc-row:first-child, tr.mat-mdc-row:nth-child(5), tr.mat-mdc-row:nth-child(9), tr.mat-mdc-row:nth-child(13), tr.mat-mdc-row:nth-child(17) {
+  background: rgba(0,0,0,.05);
+}
+
 .table-container {
   margin: 0px 1em .6em 1em;
 }
@@ -86,7 +92,7 @@ tr.detailRow {
   display: block;
 }
 .expandedComponent{
-  height: 80px;
+  display:block;
   overflow: hidden;
 }
 

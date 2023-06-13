@@ -103,33 +103,35 @@ export class CitizenBuildingTableComponent {
       }
     }
 
-
     let params = new HttpParams();
     params = params.append('token_id', tokenId.toString());
     params = params.append('production_date', productionDate.toString());
 
     this.httpClient.get<Citizen[]>(this.baseUrl + '/assetHistory/getCitizenHistory', { params: params })
-      .subscribe((result: Citizen[]) => {
+      .subscribe({
+        next: (result) => {
 
-        this.citizenList = result;
+          this.citizenList = result;
 
-        if (this.citizenList.length > 0) {
+          if (this.citizenList.length > 0) {
 
-          this.dataSource = new MatTableDataSource<Citizen>(this.citizenList);
-          this.hidePaginator = this.citizenList.length == 0 || this.citizenList.length < 5 ? true : false;
+            this.dataSource = new MatTableDataSource<Citizen>(this.citizenList);
+            this.hidePaginator = this.citizenList.length == 0 || this.citizenList.length < 5 ? true : false;
 
-          this.dataSource.paginator = this.paginator;
-          if (this.dataSource.paginator) {
-            this.dataSource.paginator.firstPage();
+            this.dataSource.paginator = this.paginator;
+            if (this.dataSource.paginator) {
+              this.dataSource.paginator.firstPage();
+            }
+            this.dataSource.sort = this.sort;
+
           }
-          this.dataSource.sort = this.sort;
+          else {
+            this.dataSource = new MatTableDataSource<Citizen>(null);
+          }       
 
-        }
-        else {
-          this.dataSource = new MatTableDataSource<Citizen>(null);
-        }       
-
-      }, error => console.error(error));
+        },
+        error: (error) => { console.error(error) }
+      });
 
     return;
   }

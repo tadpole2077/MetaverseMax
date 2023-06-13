@@ -267,7 +267,15 @@
 }
 
 
-.arrivalCheckboxGroup{
+.tableControls {
+  display: inline-block;
+  margin: 12px 0;
+}
+.tableFilter{
+  margin-right: 24px;
+}
+
+.arrivalCheckboxGroup {
   margin-left: 1rem;
   display: inline-block;
   font-size: .8rem;
@@ -670,6 +678,13 @@ th.mat-column-owned_plots{
     font-size:.8rem;
   }
 
+  .tableControls {
+    margin-bottom: 18px;
+  }
+
+  .tableFilter {
+    vertical-align:top
+  }
 
   .mat-column-owner_name .arrivalIcon, .mat-column-owner_name .arrivalIcon2 {
     position: absolute;

@@ -428,7 +428,7 @@ $foreground: map-get($dark-app-theme, foreground);
 }
 
 //   Expanded Rows
-tr.mat-mdc-row:not(.detailRow):hover {
+table tr.mat-mdc-row:not(.detailRow):hover {
   background: lightblue;
 }
 

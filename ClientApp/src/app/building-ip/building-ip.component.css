@@ -361,6 +361,10 @@
     position:relative;
   }
 
+.tableControls {
+  display: inline-block;
+  margin: 8px 0
+}
 .filterControls{
   display: inline-block;
 }
@@ -839,6 +843,9 @@ td.mat-column-name {
 
   .filterControls {
     margin-bottom: .8rem;
+  }
+  .tableFilter {
+    margin-bottom: 8px
   }
 
   .activeFilter {

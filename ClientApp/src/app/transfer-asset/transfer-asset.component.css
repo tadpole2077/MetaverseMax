@@ -1,2 +1,38 @@
-﻿body {
+.transfer {
+  display: flex;
+  justify-content: space-evenly;
+  margin: 18px 12px 18px 12px;
+  font-size: 16px;
+}
+
+.transferIcon {
+  font-size: 1rem;
+  margin-left: 8px;
+  margin-top: 9px;
+  position: absolute;
+  color: white;
+  z-index: 1;  
+}
+
+
+.buttonContainer {
+  margin-top: .6rem
+}
+#buttonTransfer{
+  width: 6.3rem;
+}
+
+.buttonEffect {
+  font-size: .96rem;
+  animation: glowBtn 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes glowBtn {
+  from {
+    box-shadow: 0 0 3px #fff, 0 0 6px #fff, 0 0 9px #fff, 0 0 12px #fff;
+  }
+
+  to {
+    box-shadow: 0 0 3px #1b6ec2, 0 0 6px #1b6ec2, 0 0 8px #1b6ec2, 0 0 8px #1b6ec2;
+  }
 }
