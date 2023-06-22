@@ -48,7 +48,7 @@ export class DistrictNotificationComponent implements AfterViewInit {
   httpClient: HttpClient;
   baseUrl: string;
 
-  public loopSwitch: boolean = false;
+  public loopSwitch = false;
   public notifySubscription: Subscription;
   public district: District = null;
 

@@ -12,15 +12,28 @@
   background-color: wheat;
 }
 
+.dropdownContainer {
+  height: 60px;
+  width: 10.6rem;
+  right: 0;
+  left: unset;
+  border: 0;
+  margin: 0;
+  height: 60px;
+  background: none;
+  margin: -2px;
+  right: 2px;
+}
 
-div.dropdown-menu {
+.ownerPanel {
+  display: block;
   padding: 0.6rem;
   font-size: .8rem;
   font-weight: 500;
   left: unset;
   right: 0;
-  margin-top: 0.9rem;
   width: 10.6rem;
+  margin-top: 2px;
 }
 
 .mat-slide-toggle-content {
@@ -30,8 +43,8 @@ div.dropdown-menu {
   padding-left: 0.3rem;
   padding-right: 0.3rem;
 }
-.dropdown-menu .mat-icon{
-  vertical-align:bottom
+.ownerPanel .mat-icon {
+  vertical-align: bottom
 }
 
 @media only screen and (max-width: 415px) {

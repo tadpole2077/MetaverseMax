@@ -120,10 +120,15 @@ th{
   line-height: 1.2rem;
 }
 
+.mat-column-trait_avg span{
+  display: block 
+}
 .fa-paw {
   color: dodgerblue;
   text-indent: initial;
   padding-left: .2rem;
+  position: absolute;
+  margin-top: 6px;
 }
 
 

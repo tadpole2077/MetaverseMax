@@ -36,10 +36,11 @@
           <app-transfer-asset class="expandedComponent"
                               [@detailExpand]="forceClose == false && row == expandedRow ? 'expanded' : 'collapsed'"
                               [index]=i
-                              [productType]="row.pack_id"></app-transfer-asset>
+                              [pack_id]="row.pack_id"></app-transfer-asset>
         </td>
       </ng-container>
 
+      <!--Parent Row-->
       <tr mat-row *matRowDef="let row; columns: displayedColumns; let i = dataIndex"
           [class.expanded-row]="expandedRow === row"
           (click)="expandedRow = expandedRow === row ? null : row;
@@ -47,7 +48,12 @@
         <!-- Apply class expanded-row to parent row only when expanded, checking var expandedRow is populated on click -->
       </tr>
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detailRow"></tr>
+
+      <!--Child Row - subtable -->
+      <tr mat-row *matRowDef="let row; columns: ['expandedDetail']"
+          class="detailRow"
+          [class.expanded-row-expanded]="expandedRow === row">
+      </tr>
 
     </table>
     <mat-paginator [hidden]="hidePaginator" [pageSize]="10" [hidePageSize] [showFirstLastButtons] class="paginatorContainer"></mat-paginator>
@@ -55,6 +61,6 @@
 
   <div class="lastUpdated" style="display:none">
     <mat-icon>access_time</mat-icon>
-    <span *ngIf="portfolioPet">Last updated GMT</span>
+    <span *ngIf="pack">Last updated GMT</span>
   </div>
 </div>

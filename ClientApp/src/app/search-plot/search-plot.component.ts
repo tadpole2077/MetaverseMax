@@ -10,6 +10,8 @@ export class SearchPlotComponent {
 
   @Output() searchPlotEvent = new EventEmitter<any>();
   public rotateActive: boolean = false;
+  public valueY: string;
+  public valueX: string;
 
   constructor() {
   }

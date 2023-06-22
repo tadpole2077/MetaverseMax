@@ -24,13 +24,15 @@ export class NavMenuOwnerComponent {
 
   color: ThemePalette = 'accent';
   checked = false;
+  hoverIcon = false;
+  hoverDropdown = false;
 
   httpClient: HttpClient;
   baseUrl: string;
   public worldNamelist: WorldName[];
   public selectedWorldName: string = "World: Tron";
 
-  @ViewChild(NgbDropdown, { static: true }) worldDropDown: NgbDropdown;
+  @ViewChild(NgbDropdown, { static: true }) ownerDropdown: NgbDropdown;
   @Output() darkModeChangeEvent = new EventEmitter<any>();
 
   constructor(public globals: Globals, public router: Router, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
@@ -74,4 +76,15 @@ export class NavMenuOwnerComponent {
     return;
   }
 
+  onHoverShow(event, controlId: number): void {
+    this.ownerDropdown.open();
+    this.hoverIcon = controlId == 1;
+    this.hoverDropdown = controlId == 2;
+  }
+  onHoverHide(event, callingControl): void {
+
+    if ((this.hoverIcon == false && callingControl == 2) || (this.hoverDropdown == false && callingControl == 1) ) {
+      this.ownerDropdown.close();
+    }
+  }
 }

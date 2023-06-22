@@ -211,6 +211,10 @@ td.mat-column-efficiency_energy_water span {
   text-indent: initial;
 }
 
+.mat-column-trait_avg span {
+  display: block
+}
+
 .fa-paw {
   color: dodgerblue;
   text-indent: initial;
@@ -414,5 +418,10 @@ td.mat-column-efficiency_energy_water span {
     max-height: 40px;
     margin-left: -2px;
   }
-  
+
+  .fa-paw {
+    padding-left: 0.1rem;
+    position: absolute;
+    margin-top: 2px;
+  }
 }

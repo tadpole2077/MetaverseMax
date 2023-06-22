@@ -23,6 +23,7 @@ export class CitizenModalComponent {
   private maticKey: string;
   public isMobileView: boolean = false;
   public notifySubscription: Subscription = null;
+  public showingColumnsTraits: boolean = true;
 
   httpClient: HttpClient;
   baseUrl: string;
@@ -34,7 +35,7 @@ export class CitizenModalComponent {
   @ViewChild('refreshLink', { static: false }) refreshLink: ElementRef;
   @ViewChild('progressFan', { static: false }) progressFanIcon: ElementRef;
 
-  displayedColumnsTraits: string[] = ['current_price','token_id', 'name', 'sex', 'generation', 'breeding', 'trait_agility', 'trait_intelligence', 'trait_charisma', 'trait_endurance', 'trait_luck', 'trait_strength', 'trait_avg'];
+  displayedColumnsTraits: string[] = ['current_price', 'token_id', 'name', 'sex', 'generation', 'breeding', 'trait_agility', 'trait_intelligence', 'trait_charisma', 'trait_endurance', 'trait_luck', 'trait_strength', 'trait_avg'];
   displayedColumnsEfficiency: string[] = ['current_price','token_id', 'name', 'sex', 'trait_avg', 'efficiency_industry', 'efficiency_production', 'efficiency_energy_water', 'efficiency_office', 'efficiency_commercial', 'efficiency_municipal', 'building_level'];
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumns: string[] = this.displayedColumnsTraits;
@@ -83,6 +84,15 @@ export class CitizenModalComponent {
     this.displayedColumns.forEach(function (key, value) {
       parseData += key + "\t";
     });
+    if (this.showingColumnsTraits) {
+      parseData += "trait_agility_with_pet \t";
+      parseData += "trait_intelligence_with_pet \t";
+      parseData += "trait_charisma_with_pet \t";
+      parseData += "trait_endurance_with_pet \t";
+      parseData += "trait_luck_with_pet \t";
+      parseData += "trait_strength_with_pet \t";
+      parseData +=  "trait_avg_with_pet \t";
+    }
     parseData += String.fromCharCode(13) + String.fromCharCode(10);
 
     // Iterate though each table row
@@ -98,14 +108,30 @@ export class CitizenModalComponent {
         }
 
       });
+
+      if (this.showingColumnsTraits) {
+        parseData += this.max10(copyDataset[counter].trait_agility, copyDataset[counter].trait_agility_pet) + "\t";
+        parseData += this.max10(copyDataset[counter].trait_intelligence, copyDataset[counter].trait_intelligence_pet) + "\t";
+        parseData += this.max10(copyDataset[counter].trait_charisma, copyDataset[counter].trait_charisma_pet) + "\t";
+        parseData += this.max10(copyDataset[counter].trait_endurance, copyDataset[counter].trait_endurance_pet) + "\t";
+        parseData += this.max10(copyDataset[counter].trait_luck, copyDataset[counter].trait_luck_pet) + "\t";
+        parseData += this.max10(copyDataset[counter].trait_strength, copyDataset[counter].trait_strength_pet) + "\t";
+        parseData += copyDataset[counter].trait_avg_pet + "\t";
+      }
+
       parseData += String.fromCharCode(13) + String.fromCharCode(10)
     }
+
+
 
     this.clipboard.copy(parseData);
 
     return;
   }
 
+  max10(trait: number, pet: number) {
+    return trait+pet > 10 ? 10 : trait+pet
+  }
   search(maticKey: string, refresh: boolean) {
 
     this.maticKey = maticKey;
@@ -115,34 +141,37 @@ export class CitizenModalComponent {
     params = params.append('requester', this.globals.ownerAccount.matic_key);
 
     this.httpClient.get<PortfolioCitizen>(this.baseUrl + '/ownerdata/getcitizen', { params: params })
-      .subscribe((result: PortfolioCitizen) => {
+      .subscribe({
+        next: (result) => {
 
-        if (this.globals.ownerAccount.pro_tools_enabled && this.refreshLink) {
-          this.refreshLink.nativeElement.classList.remove("hideLink");
-        }
-
-        this.progressIcon.nativeElement.classList.remove("rotate");
-        this.portfolioCitizen = result;
-
-        if (this.portfolioCitizen.citizen.length > 0) {
-
-          this.dataSource = new MatTableDataSource<Citizen>(this.portfolioCitizen.citizen);
-          this.hidePaginator = this.portfolioCitizen.citizen.length == 0 || this.portfolioCitizen.citizen.length < 10 ? true : false;
-
-          this.dataSource.paginator = this.paginator;
-          if (this.dataSource.paginator) {
-            this.dataSource.paginator.firstPage();
+          if (this.globals.ownerAccount.pro_tools_enabled && this.refreshLink) {
+            this.refreshLink.nativeElement.classList.remove("hideLink");
           }
-          this.dataSource.sort = this.sort;
 
-        }
-        else {
-          this.dataSource = new MatTableDataSource<Citizen>(null);
-        }
+          this.progressIcon.nativeElement.classList.remove("rotate");
+          this.portfolioCitizen = result;
 
-        setTimeout(() => this.checkRefresh());
+          if (this.portfolioCitizen.citizen.length > 0) {
 
-      }, error => console.error(error));
+            this.dataSource = new MatTableDataSource<Citizen>(this.portfolioCitizen.citizen);
+            this.hidePaginator = this.portfolioCitizen.citizen.length == 0 || this.portfolioCitizen.citizen.length < 10 ? true : false;
+
+            this.dataSource.paginator = this.paginator;
+            if (this.dataSource.paginator) {
+              this.dataSource.paginator.firstPage();
+            }
+            this.dataSource.sort = this.sort;
+
+          }
+          else {
+            this.dataSource = new MatTableDataSource<Citizen>(null);
+          }
+
+          setTimeout(() => this.checkRefresh());
+
+        },
+        error: (error) => { console.error(error) }
+        })
 
     return;
   }
@@ -155,10 +184,12 @@ export class CitizenModalComponent {
 
     if (viewType == "traits") {
       this.displayedColumns = this.displayedColumnsTraits;
+      this.showingColumnsTraits = true;
       this.tableHeader = "Traits";
     }
     else {
       this.displayedColumns = this.displayedColumnsEfficiency;
+      this.showingColumnsTraits = false;
       this.tableHeader = "Efficiency %";
     }
 

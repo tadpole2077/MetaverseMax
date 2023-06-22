@@ -127,6 +127,7 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ isMobileView?"Avg":"Avg." }}</th>
         <td mat-cell *matCellDef="let citizen">
           <span>{{ citizen.trait_avg }}</span>
+          <span [hidden]="citizen.trait_avg_pet == citizen.trait_avg"> {{ citizen.trait_avg_pet }}<i class="fas fa-paw"></i></span>
         </td>
       </ng-container>
 

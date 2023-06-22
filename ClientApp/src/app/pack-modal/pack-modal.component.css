@@ -1,5 +1,5 @@
 .modalFrame{
-  width: 600px
+  width: 760px
 }
 
 .count {
@@ -87,14 +87,17 @@ tr td.mat-column-expandedDetail {
 /* DEFAULT: Hide expandeDetail Rows on load*/
 tr.detailRow {
   height: 0;
+  display:none;
 }
-.show {
-  display: block;
-}
+  tr.detailRow.expanded-row-expanded {
+    display: table-row;   /* Hide all components including position absolute tags within child subtable until expanded */
+  }
+
 .expandedComponent{
-  display:block;
+  display: block;
   overflow: hidden;
 }
+
 
 tr.mat-mdc-row:not(.detailRow) {
   cursor: pointer;

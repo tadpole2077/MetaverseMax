@@ -44,6 +44,9 @@ Actions:
 
 	npm i @swimlane/ngx-charts@20.3.0 https://www.npmjs.com/package/@swimlane/ngx-charts
 
+	npm i web3@4.0.1
+
+
 
 Potential Code change:
 > (Potential CSS Impact - as in use) In v15, the Angular compiler prefixes @keyframes in CSS with the component's scope. 

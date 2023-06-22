@@ -40,6 +40,7 @@ namespace MetaverseMax.ServiceClass
         public int trait_strength { get; set; }
         public int trait_strength_pet { get; set; }
         public double trait_avg { get; set; }
+        public double trait_avg_pet { get; set; }
         public int max_stamina { get; set; }
         public bool on_sale { get; set; }
         public decimal current_price { get; set; }

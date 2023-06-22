@@ -71,22 +71,29 @@ th.mat-mdc-header-cell:last-of-type{
 }
 /* top outline label adjustment*/
 .tableFilter .mat-mdc-text-field-wrapper .mat-mdc-form-field-flex .mat-mdc-floating-label {
-  top: 20px;
+  top: 22px;
 }
 .tableFilter .mat-mdc-text-field-wrapper .mat-mdc-form-field-flex .mat-mdc-floating-label.mdc-floating-label--float-above {
-  top: 24px;
+  top: 26px;
   margin-left: -2px;
   overflow: visible;
 }
 .tableFilter .material-icons {
   vertical-align: bottom;
+  font-size: 20px;
+  margin-right:2px
 }
 .mat-mdc-form-field {
   /*--mat-mdc-form-field-floating-label-scale: 1.2;*/
 }
 .notchAdjust .mdc-floating-label--float-above {
-  font-size:14px
+  font-size: 16px;
+  overflow: visible;
+  top: 22px;
+  margin-left: -3px;
+  vertical-align: super
 }
+
 
 
 

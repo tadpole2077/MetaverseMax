@@ -499,7 +499,7 @@ export class OwnerDataComponent implements AfterViewInit {
 
     if (districtLinkElements.length) {
       for (let index = 0; index < districtLinkElements.length; index++) {
-        let element = districtLinkElements[index];
+        const element = districtLinkElements[index];
         element.classList.remove("districtEleActive");
         element.classList.remove("activeFilter");
       }
@@ -525,7 +525,7 @@ export class OwnerDataComponent implements AfterViewInit {
 
       for (let index = 0; index < ownerLand.length; index++) {
 
-        let element = ownerLand[index];
+        const element = ownerLand[index];
 
         switch (element.building_type) {
           case BUILDING.EMPTYPLOT: {

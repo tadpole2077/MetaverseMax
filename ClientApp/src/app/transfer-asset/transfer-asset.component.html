@@ -1,14 +1,17 @@
 <div class="transfer">
-  <mat-form-field [style.width.rem]=20 class="notchAdjust" appearance="outline" floatLabel="auto" subscriptSizing="dynamic">
-    <mat-label>Address </mat-label>
-    <input matInput class="plotx" type='text' #address [(ngModel)]="addressText" />
-    <button *ngIf="addressText" matSuffix mat-icon-button aria-label="Clear" (click)="addressText=''">
-      <mat-icon>close</mat-icon>
-    </button>
-  </mat-form-field>
-  
+  <div class="inputSection">
+    <mat-form-field [style.width.rem]=30 class="notchAdjust" appearance="outline" floatLabel="auto" subscriptSizing="dynamic">
+      <mat-label>Address </mat-label>
+      <input matInput class="plotx" type='text' #address [(ngModel)]="addressText" />
+      <button *ngIf="addressText" matSuffix mat-icon-button aria-label="Clear" (click)="addressText=''; progressCaption=''">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+    <mat-label class="progressCaption">{{ progressCaption }}</mat-label>
+  </div>
+
   <div class="buttonContainer">
     <i #transferIcon [ngClass]="{'rotate': rotateActive }" class="fas fa-sync-alt transferIcon" style=""></i>
-    <button mat-raised-button color="primary" id="buttonTransfer" class="buttonEffect" (click)="getPlotData({plotX: plotX.value, plotY: plotY.value})">Send</button>
+    <button mat-raised-button color="primary" id="buttonTransfer" class="buttonEffect" (click)="transferSendMatic(addressText)">Send</button>
   </div>
 </div>

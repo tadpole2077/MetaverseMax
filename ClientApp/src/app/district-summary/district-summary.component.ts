@@ -34,6 +34,7 @@ export class DistrictSummaryComponent implements AfterViewInit {
   public district: District;
   public fundtotal: number;
   public fundDaily: number;
+  public searchTable: string;
 
   public ownerSummary: OwnerSummary[] = new Array();        //Holds Owner Summary collection used by table
   public ownerSummaryNewArrivals_Week: OwnerSummary[] = new Array();

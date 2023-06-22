@@ -238,6 +238,8 @@ namespace MetaverseMax.ServiceClass
                     trait_strength_pet = cit.trait_strength_pet_bonus,
 
                     trait_avg = Math.Round((cit.trait_agility + cit.trait_charisma + cit.trait_endurance + cit.trait_intelligence + cit.trait_luck + cit.trait_strength) / 6.0, 2),
+                    trait_avg_pet = Math.Round((cit.trait_agility + cit.trait_charisma + cit.trait_endurance + cit.trait_intelligence + cit.trait_luck + cit.trait_strength +
+                        cit.trait_agility_pet_bonus + cit.trait_charisma_pet_bonus + cit.trait_endurance_pet_bonus + cit.trait_intelligence_pet_bonus + cit.trait_luck_pet_bonus + cit.trait_strength_pet_bonus) / 6.0, 2),
 
                     building_img = building.GetBuildingImg(cit.building_type_id ?? 0, cit.building_id ?? 0, cit.building_level ?? 0, worldType),
                     building_desc = building.BuildingType(cit.building_type_id ?? 0, cit.building_id ?? 0),

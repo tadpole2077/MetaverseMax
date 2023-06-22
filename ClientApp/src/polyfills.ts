@@ -55,3 +55,9 @@ import 'zone.js';  // Included with Angular CLI.
 /***************************************************************************************************
  * APPLICATION IMPORTS
  */
+
+/* Fix for util.js error using WEB3 - found here https://stackoverflow.com/questions/70177438/angular-utils-util-js-uncaught-referenceerror-process-is-not-defined*/
+/*(window as any).global = window;
+global.Buffer = global.Buffer || require('buffer').Buffer;
+global.process = require('process');
+resolve.fallback: { "process": false }*/

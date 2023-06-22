@@ -96,6 +96,7 @@ export class BuildingIPComponent {
   public selectedType: string = "Select Type";
   public selectedLevel: string = "Level 1";
   public activeTextFilter: string = "";
+  public searchTable: string;
 
 
   public typeList: string[] = ["Residential", "Industry", "Production","Energy", "Office", "Commercial", "Municipal"];

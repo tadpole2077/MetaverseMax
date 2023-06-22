@@ -268,13 +268,16 @@ namespace MetaverseMax.ServiceClass
                     buildingList[i].position = position++;
                 }
 
-                // Store all IP for non evaluated buildings (no history check) OR history_check active but residential, municipals, office type
+                // Update all buildings(residential, municipals, office type) with updated ranking, [these building did not complete a history check)
                 if (IPRank.Count > 0)
                 {
                     foreach (KeyValuePair<int, Decimal> plotRank in IPRank)
                     {
-                        Plot plot = _context.plot.Where(x => x.token_id == plotRank.Key).FirstOrDefault();
-                        plot.current_influence_rank = plotRank.Value;
+                        List<Plot> buildingPlotList = _context.plot.Where(x => x.token_id == plotRank.Key).ToList();
+                        for (int plotIndex = 0; plotIndex < buildingPlotList.Count;  plotIndex++)
+                        {
+                            buildingPlotList[plotIndex].current_influence_rank = plotRank.Value;
+                        }
                     }
                     _context.SaveChanges();
                 }
