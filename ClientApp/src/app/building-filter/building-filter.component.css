@@ -106,7 +106,11 @@
 
 @media only screen and (max-width: 415px) {
 
-  .typeFilter div{
+  .typeFilter {
+    width: 95vw;
+  }
+
+  .typeFilter div {
     margin-right: .5rem;
     margin-bottom: .5rem;
   }

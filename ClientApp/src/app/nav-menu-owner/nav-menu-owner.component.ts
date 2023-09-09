@@ -1,5 +1,5 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Component, Output, EventEmitter, Inject, ViewChild, Input } from '@angular/core';
+import { Component, Output, EventEmitter, Inject, ViewChild, Input, NgZone } from '@angular/core';
 import { NgbDropdown } from '@ng-bootstrap/ng-bootstrap';
 import { Router } from '@angular/router';
 import { Globals, WORLD } from '../common/global-var';
@@ -35,11 +35,18 @@ export class NavMenuOwnerComponent {
   @ViewChild(NgbDropdown, { static: true }) ownerDropdown: NgbDropdown;
   @Output() darkModeChangeEvent = new EventEmitter<any>();
 
-  constructor(public globals: Globals, public router: Router, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
+  constructor(private zone: NgZone, public globals: Globals, public router: Router, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
 
     this.httpClient = http;
     this.baseUrl = rootBaseUrl + "api/" + globals.worldCode;
     
+  }
+
+  // to avoid a "Navigation triggered outside Angular zone" error, due to newly rendered links from wallet site link, need to run navigation within zone.run()
+  navMyPortfolio() {
+    this.zone.run(() => {
+      this.router.navigate(['/', this.globals.worldCode, 'owner-data'], { queryParams: { matic: 'myportfolio' }, });
+    });
   }
 
   darkModeChange(eventSlider: MatSlideToggleChange) {

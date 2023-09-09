@@ -1,4 +1,4 @@
-﻿namespace MetaverseMax.ServiceClass
+﻿namespace MetaverseMax.BaseClass
 {
     public enum ACTIVE_BUILDING
     {
@@ -83,11 +83,13 @@
     }
     public enum ALERT_TYPE
     {
+        NOT_USED = 0,
         INITIAL_LAND_VALUE = 1,
         CONSTRUCTION_TAX = 2,
         PRODUCTION_TAX = 3,
         DISTRIBUTION = 4,
-        RANKING = 5,
+        BUILDING_RANKING = 5,
+        NEW_BUILDING = 6,
     }
 
     public enum ALERT_ICON_TYPE
@@ -97,6 +99,7 @@
         STAMINA = 3,
         NEW_OFFER = 4,
         RANKING = 5,
+        NEW_BUILDING =6,
     }
 
     public enum ALERT_ICON_TYPE_CHANGE
@@ -106,12 +109,18 @@
         DECREASE = 2
     }
 
+    public enum ALERT_TRIGGER_TYPE
+    {
+        AUTOMATIC_NO_TRIGGER = 0,
+    }
+
     public class ALERT_MESSAGE {
         public static readonly string INTRO = "Your alerts are now activated. New alerts will be shown here when identified, and stored in your alert history. Click delete to clear alert from history.";
         public static readonly string LOW_STAMINA = "#CIT_AMOUNT# x Building have low stamina citizens and will stop building activity after next collection cycle.";
         public static readonly string NEW_OFFER = "New offer received from #BIDDER# for your #ASSET#(#ASSET_ID#), offer price #PRICE#.";
         public static readonly string OFFER_ACCEPTED_BY = "Your offer was accepted by #OWNER# for your #ASSET#(#ASSET_ID#), offer price #PRICE#.";
         public static readonly string RANKING_CHANGE = "IP Ranking change on #BUILDING_TYPE# Building level-#LEVEL# (#TOKEN_ID#).\nOld Ranking: #OLD_RANKING#% vs New Ranking: #NEW_RANKING#%.#OWNER#";
+        public static readonly string NEW_BUILDING = "New custom building(#BUILDING_NAME#) in #DISTRICT_ID# district by #OWNER#.";
     }
 
     public enum ALERT_STATE
@@ -194,6 +203,7 @@
         OFFICE = 6,
         PRODUCTION = 7,
         MUNICIPAL = 8,
+        PARCEL = 10,
         POI = 100
     }
 
@@ -275,6 +285,21 @@
         SUBWAY_STATION = 200
     }
 
+    public enum CUSTOM_BUILDING_CATEGORY  
+    {
+        PARCEL = 0,
+        DOWNTOWN = 1,
+        HOUSING = 2,
+        SHOPPING =3,
+        RETREAT = 4,
+        ECO = 5,
+        LUXURY = 6,
+        MIDTOWN = 7,
+        HEADQUARTERS =8,
+        COUNTRYSIDE =9,
+        RURAL = 10,
+        MAIN_TOWER = 100
+    }
 
     public enum ELECTRIC_RESOURCE
     {
@@ -558,20 +583,20 @@
     public enum MIN_PAPER
     {
         LEVEL_1 = 240,
-        LEVEL_2 = 0,
-        LEVEL_3 = 0,
-        LEVEL_4 = 0,
-        LEVEL_5 = 0,
+        LEVEL_2 = 268,
+        LEVEL_3 = 298,
+        LEVEL_4 = 342,
+        LEVEL_5 = 412,
         LEVEL_6 = 696,
         LEVEL_7 = 1042
     }
     public enum MAX_PAPER
     {
         LEVEL_1 = 960,
-        LEVEL_2 = 0,
-        LEVEL_3 = 0,
-        LEVEL_4 = 0,
-        LEVEL_5 = 0,
+        LEVEL_2 = 1074,
+        LEVEL_3 = 1192,
+        LEVEL_4 = 1368,
+        LEVEL_5 = 1652,
         LEVEL_6 = 2784,
         LEVEL_7 = 4166
     }
@@ -604,6 +629,7 @@
     public class TRON_WS
     {
         public static readonly string LAND_GET = "https://ws-tron.mcp3d.com/land/get";
+        public static readonly string PARCEL_GET = "https://ws-tron.mcp3d.com/parcel/get";
         public static readonly string OWNER_LANDS = "https://ws-tron.mcp3d.com/user/assets/lands";
         public static readonly string POI_GET = "https://ws-tron.mcp3d.com/poi/get";
         public static readonly string USER_GET = "https://ws-tron.mcp3d.com/user/get";
@@ -624,6 +650,7 @@
     public class BNB_WS
     {
         public static readonly string LAND_GET = "https://ws-bsc.mcp3d.com/land/get";
+        public static readonly string PARCEL_GET = "https://ws-bsc.mcp3d.com/parcel/get";
         public static readonly string OWNER_LANDS = "https://ws-bsc.mcp3d.com/user/assets/lands";
         public static readonly string POI_GET = "https://ws-bsc.mcp3d.com/poi/get";
         public static readonly string USER_GET = "https://ws-bsc.mcp3d.com/user/get";
@@ -643,6 +670,7 @@
     public class ETH_WS
     {
         public static readonly string LAND_GET = "https://ws.mcp3d.com/land/get";
+        public static readonly string PARCEL_GET = "https://ws.mcp3d.com/parcel/get";
         public static readonly string OWNER_LANDS = "https://ws.mcp3d.com/user/assets/lands";
         public static readonly string POI_GET = "https://ws.mcp3d.com/poi/get";
         public static readonly string USER_GET = "https://ws.mcp3d.com/user/get";

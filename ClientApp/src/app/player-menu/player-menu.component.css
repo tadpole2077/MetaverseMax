@@ -1,0 +1,13 @@
+
+.playerMenu{
+  display: inline-block;
+}
+.ownerImg {
+  border-radius: 50%;
+  margin-left: 6px;
+  position: absolute;
+  border-color: gray;
+  border-width: 1px;
+  border-style: dashed;
+}
+

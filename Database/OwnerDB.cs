@@ -1,5 +1,6 @@
-﻿using MetaverseMax.ServiceClass;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using MetaverseMax.BaseClass;
+using MetaverseMax.ServiceClass;
 
 namespace MetaverseMax.Database
 {
@@ -162,27 +163,41 @@ namespace MetaverseMax.Database
             return returnCode;
         }
 
-        public Owner UpdateOwner(string maticKey, string publicKey)
+        public Owner UpdateOwner(string maticKey, string publicKey, OwnerAccount ownerAccount)
         {
 
             Owner owner = null;
             try
             {
                 owner = _context.owner.Where(o => o.owner_matic_key == maticKey).FirstOrDefault();
-                if (owner.public_key == string.Empty)
-                {
-                    owner.public_key = publicKey;
-                }
-                owner.last_use = DateTime.Now;
-                owner.tool_active = true;
 
-                // Slow down Nightly job process when 1+ user is active via (a)save on each db update (b) increase cycle wait interval to 1 second : avoids user db timeouts (such as opening large Cit collection).
-                if (SyncWorld.syncInProgress == true && SyncWorld.saveDBOverride == false)
+                if (owner == null)
                 {
-                    _ = ResetDataSync(_context);            // Allow aync to process in separate thread - 5 minute slowdown on data sync.
-                }
+                    // TEMP CODE - to trace while a few owners are identified as found in local sore when no matching account in db.
+                    _context.LogEvent(String.Concat("OWNER ISSUE: ", maticKey, " not found in Owner db. But unexpected attempting to update it within code."));
+                    if (ownerAccount != null)
+                    {
+                        _context.LogEvent(String.Concat("OWNER ISSUE: ", "The local store of owners returns a matching account with name: ", ownerAccount.name, " avatar id:", ownerAccount.avatar_id, " matic_key:", ownerAccount.matic_key));
+                    }
 
-                _context.SaveChanges();
+                }
+                else
+                {
+                    if (owner.public_key == string.Empty)
+                    {
+                        owner.public_key = publicKey;
+                    }
+                    owner.last_use = DateTime.Now;
+                    owner.tool_active = true;
+
+                    // Slow down Nightly job process when 1+ user is active via (a)save on each db update (b) increase cycle wait interval to 1 second : avoids user db timeouts (such as opening large Cit collection).
+                    if (SyncWorld.syncInProgress == true && SyncWorld.saveDBOverride == false)
+                    {
+                        _ = ResetDataSync(_context);            // Allow aync to process in separate thread - 5 minute slowdown on data sync.
+                    }
+
+                    _context.SaveChanges();
+                }
 
             }
             catch (Exception ex)

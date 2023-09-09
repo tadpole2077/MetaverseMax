@@ -1,7 +1,8 @@
-﻿using MetaverseMax.Database;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using System.Collections;
+using MetaverseMax.BaseClass;
+using MetaverseMax.Database;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -89,6 +90,30 @@ namespace MetaverseMax.ServiceClass
             return;
         }
 
+        public RETURN_CODE UpdatePlotSyncSingleWorld(string secureToken, int jobInterval)
+        {
+            try
+            {
+                // As this service could be abused as a DDOS a security token is needed.
+                if (!secureToken.Equals("JUST_SIMPLE_CHECK123"))
+                {
+                    return RETURN_CODE.SUCCESS;
+                }
+
+                SyncWorld syncWorld = new(_context, worldType);
+
+                Task.Run(() => syncWorld.SyncRun(jobInterval, worldType));
+
+            }
+            catch (Exception ex)
+            {
+                DBLogger dbLogger = new(worldType);
+                dbLogger.logException(ex, String.Concat("SyncWorld::UpdatePlotSyncSingleWorld() : Error Processing Sync"));
+            }
+
+            return RETURN_CODE.SUCCESS;
+        }
+
         // POI active until only updated by this call, and nightly data-sync should be the only caller. As POI and monument status updates impact many other plots IP and require deeper examination
         // Need to identify - if POI changed since last update and if that change impacts plots IP.
         //      a) (NO CHANGE) active_until was already a future date - just extended.   No change to plot IP's
@@ -103,7 +128,7 @@ namespace MetaverseMax.ServiceClass
             List<int> poiListToken;
             DistrictName targetDistrict;
             OwnerChange targetOwnerChange;
-            LAND_TYPE landType = worldType switch { WORLD_TYPE.TRON => LAND_TYPE.TRON_BUILDABLE_LAND, WORLD_TYPE.BNB => LAND_TYPE.BNB_BUILDABLE_LAND, WORLD_TYPE.ETH => LAND_TYPE.TRON_BUILDABLE_LAND, _ => LAND_TYPE.TRON_BUILDABLE_LAND };
+            LAND_TYPE landType = passedWorldType switch { WORLD_TYPE.TRON => LAND_TYPE.TRON_BUILDABLE_LAND, WORLD_TYPE.BNB => LAND_TYPE.BNB_BUILDABLE_LAND, WORLD_TYPE.ETH => LAND_TYPE.TRON_BUILDABLE_LAND, _ => LAND_TYPE.TRON_BUILDABLE_LAND };
             JToken poiData;
             JArray poiArray;
             DateTime? currentActiveUntil, localStoredActiveUntil, lastUpdated;
@@ -149,8 +174,6 @@ namespace MetaverseMax.ServiceClass
                                     poiBuildingPlot[plotIndex].poi_active_until = common.ConvertDateTimeUTC(poiData.Value<string>("active_until"));
                                 }
                             }
-
-
 
                             // Tag district change
                             if (new[] { (int)BUILDING_SUBTYPE.ENERGY_LANDMARK,
@@ -259,6 +282,7 @@ namespace MetaverseMax.ServiceClass
             int districtId = 0, saveCounter = 1, updateInstance = 0, retryCount = 0;
 
             List<Plot> plotList, districtPlotList;
+            List<int> fullProcessTokenIdList = new();                // Holds plot token ids that should be process in full (not partial),  these might include demolished L6 and L7 buildings.
             LAND_TYPE landType = worldType switch { WORLD_TYPE.TRON => LAND_TYPE.TRON_BUILDABLE_LAND, WORLD_TYPE.BNB => LAND_TYPE.BNB_BUILDABLE_LAND, WORLD_TYPE.ETH => LAND_TYPE.TRON_BUILDABLE_LAND, _ => LAND_TYPE.TRON_BUILDABLE_LAND };
 
             syncInProgress = true;
@@ -318,10 +342,10 @@ namespace MetaverseMax.ServiceClass
 
                 plotList = _customContext.plot.Where(r => r.land_type == (int)LAND_TYPE.BNB_BUILDABLE_LAND || r.land_type == (int)LAND_TYPE.TRON_BUILDABLE_LAND).ToList();
                 unclaimedPlotRemovedCount = plotManage.RemoveDistrictPlots(districtListMCPBasic, plotList);                             // remove all unclaimed plots from districts that have not changed since last sync
-                accountPlotRemovedCount = plotManage.RemoveAccountPlot(jobInterval, ownerChangeList, districtListMCPBasic, plotList);   // removes all empty plots from process list : if owner account has >2 empty plots - then get latest owner lands (1 SW) and remove all currently empty plots from process list                
-                megaHugeplotsRemoved = plotManage.RemoveMegaHugePlot(plotList);                                                         // remove all Mega & Huge plots that comprise a building, having only one plot representing the building.
+                accountPlotRemovedCount = plotManage.RemoveAccountPlot(jobInterval, ownerChangeList, districtListMCPBasic, plotList, fullProcessTokenIdList);   // removes all empty plots from process list : if owner account has >2 empty plots - then get latest owner lands (1 SW) and remove all currently empty plots from process list                
+                megaHugeplotsRemoved = plotManage.RemoveMegaHugePlot(plotList, fullProcessTokenIdList);                                                         // remove all Mega & Huge plots that comprise a building, having only one plot representing the building.
 
-                _customContext.LogEvent(String.Concat("Plot filter:  a) unclaimed Plots: ", unclaimedPlotRemovedCount, " b) claimed Plots: ", accountPlotRemovedCount, "  c) huge+mega plots: ", megaHugeplotsRemoved, "  d) Plots to process: ", plotList.Count));
+                _customContext.LogEvent(String.Concat("Plot filter:  a) unclaimed Plots - active districts: ", unclaimedPlotRemovedCount, " b) claimed Plots: ", accountPlotRemovedCount, "  c) huge+mega plots: ", megaHugeplotsRemoved, " d) force full Process buildings:", fullProcessTokenIdList.Count,  " e) Plots to process (includes inactive district): ", plotList.Count));
 
                 // Iterate each district, update all "buildable plots" within the district then sync district owners, and funds.
                 for (int index = 0; index < districtListMCPBasic.Count; index++)
@@ -500,6 +524,7 @@ namespace MetaverseMax.ServiceClass
             syncInProgress = false;
             if (_customContext != null && _customContext.IsDisposed() == false)
             {
+                _customContext.SaveWithRetry();
                 _customContext.Dispose();
             }
 

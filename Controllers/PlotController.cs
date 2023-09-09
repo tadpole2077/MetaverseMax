@@ -1,10 +1,6 @@
 ﻿using MetaverseMax.Database;
 using MetaverseMax.ServiceClass;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.Controllers
 {
@@ -40,6 +36,60 @@ namespace MetaverseMax.Controllers
             return BadRequest("GetPlotsMCP Failed");       // 400 Error     
         }
 
+        [HttpGet("GetWorldNames")]
+        public IActionResult GetWorldNames()
+        {
+            PlotManage plotManage = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(Task.Run(() => plotManage.GetWorldNames()).Result);
+            }
+
+            return BadRequest("GetWorldNames is invalid");       // 400 Error     
+        }
+
+
+        [HttpGet("GetPoiMCP")]
+        public IActionResult GetPoiMCP([FromQuery] QueryParametersTokenID parameters)
+        {
+            BuildingManage buildingManage = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(Task.Run(() => buildingManage.GetPoiMCP(new List<int> { parameters.token_id })).Result);
+            }
+
+            return BadRequest("GetPoiMCP is invalid");       // 400 Error     
+        }
+
+        [HttpGet("Get_SyncHistory")]
+        public IActionResult Get_SyncHistory()
+        {
+            _context.worldTypeSelected = common.IdentifyWorld(Request.Path);
+            SyncHistoryDB syncHistoryDB = new(_context);
+
+            if (ModelState.IsValid)
+            {
+                return Ok(Task.Run(() => _context.syncHistory.ToArray()).Result);
+            }
+
+            return BadRequest("UnitTest is invalid");       // 400 Error     
+        }
+
+        [HttpGet("Get_WorldParcel")]
+        public IActionResult Get_WorldParcel()
+        {
+            _context.worldTypeSelected = common.IdentifyWorld(Request.Path);
+            PlotManage plotManage = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(Task.Run(() => plotManage.GetWorldParcel()).Result);
+            }
+
+            return BadRequest("UnitTest is invalid");       // 400 Error     
+        }
 
         [HttpGet("UpdatePlotSync")]
         public IActionResult UpdatePlotSync([FromQuery] QueryParametersPlotSync parameters)
@@ -49,6 +99,19 @@ namespace MetaverseMax.Controllers
             if (ModelState.IsValid)
             {
                 return Ok(syncWorld.SyncActiveDistrictPlot(parameters.secure_token, parameters.interval));
+            }
+
+            return BadRequest("Sync Failed");       // 400 Error     
+        }
+
+        [HttpGet("UpdatePlotSyncSingleWorld")]
+        public IActionResult UpdatePlotSyncSingleWorld([FromQuery] QueryParametersPlotSync parameters)
+        {
+            SyncWorld syncWorld = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(syncWorld.UpdatePlotSyncSingleWorld(parameters.secure_token, parameters.interval));
             }
 
             return BadRequest("Sync Failed");       // 400 Error     
@@ -119,46 +182,7 @@ namespace MetaverseMax.Controllers
             return BadRequest("UpdateIPRankingByType is invalid");       // 400 Error     
         }
 
-        [HttpGet("GetWorldNames")]
-        public IActionResult GetWorldNames()
-        {
-            PlotManage plotManage = new(_context, common.IdentifyWorld(Request.Path));
-
-            if (ModelState.IsValid)
-            {
-                return Ok(Task.Run(() => plotManage.GetWorldNames()).Result);
-            }
-
-            return BadRequest("GetWorldNames is invalid");       // 400 Error     
-        }
-
-
-        [HttpGet("GetPoiMCP")]
-        public IActionResult GetPoiMCP([FromQuery] QueryParametersTokenID parameters)
-        {
-            BuildingManage buildingManage = new(_context, common.IdentifyWorld(Request.Path));
-
-            if (ModelState.IsValid)
-            {
-                return Ok(Task.Run(() => buildingManage.GetPoiMCP(new List<int> { parameters.token_id })).Result);
-            }
-
-            return BadRequest("GetPoiMCP is invalid");       // 400 Error     
-        }
-
-        [HttpGet("Get_SyncHistory")]
-        public IActionResult Get_SyncHistory()
-        {
-            _context.worldTypeSelected = common.IdentifyWorld(Request.Path);
-            SyncHistoryDB syncHistoryDB = new(_context);
-
-            if (ModelState.IsValid)
-            {
-                return Ok(Task.Run(() => _context.syncHistory.ToArray()).Result);
-            }
-
-            return BadRequest("UnitTest is invalid");       // 400 Error     
-        }
+       
 
 
 

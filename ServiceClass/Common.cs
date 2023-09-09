@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using MetaverseMax.BaseClass;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -64,7 +65,7 @@ namespace MetaverseMax.ServiceClass
         {
             string timeFormated = string.Empty;
 
-            DateTime? dtConvertedTime = TimeFormatStandardDT("", dtSourceTime);
+            DateTime? dtConvertedTime = TimeFormatStandardFromUTC("", dtSourceTime);
 
             if (dtConvertedTime != null)
             {
@@ -74,7 +75,7 @@ namespace MetaverseMax.ServiceClass
             return timeFormated;
         }
 
-        public string TimeFormatStandard(string sourceTime, DateTime? dtSourceTime)
+        public string LocalTimeFormatStandardFromUTC(string sourceTime, DateTime? dtSourceTime)
         {
             string timeFormated = string.Empty;
             DateTime? dtConvertedTime = null;
@@ -85,7 +86,7 @@ namespace MetaverseMax.ServiceClass
             }
             else
             {
-                dtConvertedTime = TimeFormatStandardDT(sourceTime, dtSourceTime);
+                dtConvertedTime = TimeFormatStandardFromUTC(sourceTime, dtSourceTime);
                 if (dtConvertedTime != null)
                 {
                     timeFormated = ((DateTime)dtConvertedTime).ToString("yyyy/MMM/dd HH:mm:ss");
@@ -107,7 +108,7 @@ namespace MetaverseMax.ServiceClass
             return timeFormated;
         }
 
-        public DateTime? TimeFormatStandardDT(string sourceTime, DateTime? dtSourceTimeUTC)
+        public DateTime? TimeFormatStandardFromUTC(string sourceTime, DateTime? dtSourceTimeUTC)
         {
             DateTime? dateTimeUTC = null;
             DateTime? gmtDateTime = null;
@@ -200,7 +201,7 @@ namespace MetaverseMax.ServiceClass
             if (unixTimeStamp != null)
             {
                 System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
-                dateFormated = TimeFormatStandard("", dtDateTime.AddSeconds((double)unixTimeStamp));
+                dateFormated = LocalTimeFormatStandardFromUTC("", dtDateTime.AddSeconds((double)unixTimeStamp));
 
             }
             else

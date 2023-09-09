@@ -1,8 +1,7 @@
-﻿using MetaverseMax.Database;
+﻿using Microsoft.AspNetCore.Mvc;
+using MetaverseMax.BaseClass;
+using MetaverseMax.Database;
 using MetaverseMax.ServiceClass;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.Controllers
 {

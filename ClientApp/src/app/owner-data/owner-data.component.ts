@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-inferrable-types */
-import { Component, Inject, ViewChild, EventEmitter, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { Component, Inject, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Location } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { NavigationEnd, NavigationStart, RouterEvent, Router, ActivatedRoute, Params } from '@angular/router';
-import { interval, Observable, Subscription } from 'rxjs';
+import { NavigationEnd, RouterEvent, Router, ActivatedRoute } from '@angular/router';
+import { interval, Subscription } from 'rxjs';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, MatSortable, Sort } from '@angular/material/sort';
 import { AfterViewInit } from '@angular/core';
@@ -16,6 +16,7 @@ import { CitizenModalComponent } from '../citizen-modal/citizen-modal.component'
 import { MatLegacyButton as MatButton } from '@angular/material/legacy-button';
 import { OwnerLandData, OwnerData, PlotPosition, BUILDING, FilterCount } from './owner-interface';
 import { Globals, WORLD } from '../common/global-var';
+import { CUSTOM_BUILDING_CATEGORY } from '../common/enum';
 import { SearchPlotComponent } from '../search-plot/search-plot.component';
 
 
@@ -33,7 +34,7 @@ export class OwnerDataComponent implements AfterViewInit {
   public owner: OwnerData;
   public filterCount: FilterCount;
   public filterLandByDistrict: OwnerLandData[] = [];
-  public hideEmptyFilter: boolean = true; hideIndFilter: boolean = true; hideProdFilter: boolean = true; hideEngFilter: boolean = true; hideOffFilter: boolean = true; hideResFilter: boolean = true; hideComFilter: boolean = true; hideMuniFilter: boolean = true; hideAOIFilter: boolean = true;
+  public hideEmptyFilter: boolean = true; hideIndFilter: boolean = true; hideProdFilter: boolean = true; hideEngFilter: boolean = true; hideOffFilter: boolean = true; hideResFilter: boolean = true; hideComFilter: boolean = true; hideMuniFilter: boolean = true; hideAOIFilter: boolean = true;  hideParcelFilter: boolean = true;
   private currentDistrictFilter: number = 0;
   public buttonShowAll: boolean = false;
   public historyShow: boolean = false;
@@ -61,14 +62,6 @@ export class OwnerDataComponent implements AfterViewInit {
 
   // ViewChild used for these elements to provide for rapid element attribute changes without need for scanning DOM and readability.
   @ViewChild('emptyPlotFilter', { static: false}) emptyPlotFilter: ElementRef;
-  @ViewChild('industrialFilter',{ static: false }) industrialFilter: ElementRef;
-  @ViewChild('municipalFilter',{ static: false }) municipalFilter: ElementRef;
-  @ViewChild('productionFilter',{ static: false }) productionFilter: ElementRef;
-  @ViewChild('energyFilter',{ static: false }) energyFilter: ElementRef;
-  @ViewChild('officeFilter',{ static: false }) officeFilter: ElementRef;
-  @ViewChild('residentialFilter', { static: false }) residentialFilter: ElementRef;
-  @ViewChild('commercialFilter', { static: false }) commercialFilter: ElementRef;
-  @ViewChild('aoiFilter', { static: false }) aoiFilter: ElementRef;
 
   @ViewChild('lowStaminaBtn', { static: false }) lowStaminaBtn: MatButton;
   @ViewChild('offerDetailsBtn', { static: false }) offerDetailsBtn: MatButton;
@@ -107,6 +100,9 @@ export class OwnerDataComponent implements AfterViewInit {
         // CASE reset the search to empty when moving from My Portfolio to Owner Report
         if (this.router.url.indexOf("/owner-data?") > -1) {
           this.triggerSearchByMatic();
+        }
+        else {
+          this.reset(true);
         }
 
       }
@@ -189,22 +185,29 @@ export class OwnerDataComponent implements AfterViewInit {
 
 
     if (resetFields) {
-
-      // CASE reset the search to empty when moving from MyPortfolio to [default] Owner Report
-      this.setInitVar();
-      this.dataSource = new MatTableDataSource(null);
-      this.filterLandByDistrict = [];
-      this.currentDistrictFilter = 0;
-      this.buttonShowAll = false;
-      this.hideBuildingFilter(this.owner.owner_land);
-      this.prodHistory.setHide();
-
-      // Corner Case: when owner component load tiggered by Wallet change - a cdf force is required to render page
-      if (forceCDFrefresh) {
-        this.cdf.detectChanges();
-      }
+      this.reset(forceCDFrefresh);
     }
+
   }
+
+  reset(forceCDFrefresh: boolean = false) {
+
+    // CASE reset the search to empty when moving from MyPortfolio to [default] Owner Report
+    this.setInitVar();
+    this.dataSource = new MatTableDataSource(null);
+    this.filterLandByDistrict = [];
+    this.currentDistrictFilter = 0;
+    this.buttonShowAll = false;
+    this.hideBuildingFilter(this.owner.owner_land);
+    this.prodHistory.setHide();
+
+    // Corner Case: when owner component load tiggered by Wallet change - a cdf force is required to render page
+    if (forceCDFrefresh) {
+      this.cdf.detectChanges();
+    }
+
+  }
+
 
   setInitVar() {
 
@@ -245,7 +248,8 @@ export class OwnerDataComponent implements AfterViewInit {
       production: 0,
       empty: 0,
       commercial: 0,
-      poi: 0
+      poi: 0,
+      parcel: 0
     };
   }
 
@@ -515,7 +519,7 @@ export class OwnerDataComponent implements AfterViewInit {
     if (ownerLand !== null && ownerLand.length > 0) {
 
       // Reset all filter to hide - then enable/show applicable filters based on matching buildings/land
-      this.hideEmptyFilter = this.hideIndFilter = this.hideProdFilter = this.hideEngFilter = this.hideOffFilter = this.hideResFilter = this.hideComFilter = this.hideMuniFilter = this.hideAOIFilter = true;      
+      this.hideEmptyFilter = this.hideIndFilter = this.hideProdFilter = this.hideEngFilter = this.hideOffFilter = this.hideResFilter = this.hideComFilter = this.hideMuniFilter = this.hideAOIFilter = this.hideParcelFilter = true;      
       //var buildingFilters = this.elem.nativeElement.querySelectorAll(".typeFilter div");
       //if (buildingFilters.length >0) {
       //  for (var index = 0, element; element = buildingFilters[index]; index++) {
@@ -536,50 +540,47 @@ export class OwnerDataComponent implements AfterViewInit {
           } 
           case BUILDING.INDUSTRIAL: {
             this.hideIndFilter = false;
-            //this.industrialFilter.nativeElement.classList.remove("hideFilter");
             this.filterCount.industry++;
             break;
           }
           case BUILDING.MUNICIPAL: {
             this.hideMuniFilter = false;
-            //this.municipalFilter.nativeElement.classList.remove("hideFilter");
             this.filterCount.municipal++;
             break;
           }
           case BUILDING.PRODUCTION: {
             this.hideProdFilter = false;
-            //this.productionFilter.nativeElement.classList.remove("hideFilter");
             this.filterCount.production++;
             break;
           }
           case BUILDING.ENERGY: {
             this.hideEngFilter = false;
-            //this.energyFilter.nativeElement.classList.remove("hideFilter");
             this.filterCount.energy++;
             break;
           }
           case BUILDING.OFFICE: {
             this.hideOffFilter = false;
-            //this.officeFilter.nativeElement.classList.remove("hideFilter");
             this.filterCount.office++;
             break;
           }
           case BUILDING.RESIDENTIAL: {
             this.hideResFilter = false;
-            //this.residentialFilter.nativeElement.classList.remove("hideFilter");
             this.filterCount.residential++;
             break;
           }
           case BUILDING.COMMERCIAL: {
             this.hideComFilter = false;
-            //this.commercialFilter.nativeElement.classList.remove("hideFilter");
             this.filterCount.commercial++;
             break;
           }
           case BUILDING.AOI: {
             this.hideAOIFilter = false;
-            //this.aoiFilter.nativeElement.classList.remove("hideFilter");
             this.filterCount.poi++;
+            break;
+          }
+          case BUILDING.PARCEL: {
+            this.hideParcelFilter = false;            
+            this.filterCount.parcel++;
             break;
           }
           default: {         
@@ -657,6 +658,9 @@ export class OwnerDataComponent implements AfterViewInit {
     }
 
     return;
+  }
+  getCustomCategoryName(categoryId: number) {
+    return CUSTOM_BUILDING_CATEGORY[categoryId];
   }
 
   hideOffer(componentVisible: boolean) {

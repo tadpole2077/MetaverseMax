@@ -1,5 +1,4 @@
-﻿using MetaverseMax.ServiceClass;
-using System;
+﻿using MetaverseMax.BaseClass;
 
 namespace MetaverseMax.Database
 {

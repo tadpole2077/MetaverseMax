@@ -8,3 +8,9 @@ Used by: New arrival players to District
 2) Material Icon List - full
 https://mui.com/material-ui/material-icons/
 
+
+3) TOOL: Adjust color light and dark % from base color
+https://mdigi.tools/lighten-color/#303339
+
+4) Gradient CSS Lines:
+https://cssgradient.io/

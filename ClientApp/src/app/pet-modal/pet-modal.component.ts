@@ -88,27 +88,30 @@ export class PetModalComponent implements AfterViewInit {
     params = params.append('owner_matic_key', maticKey);
 
     this.httpClient.get<PortfolioPet>(this.baseUrl + '/ownerdata/getpet', { params: params })
-      .subscribe((result: PortfolioPet) => {
+      .subscribe({
+        next: (result) => {
 
-        this.portfolioPet = result;
+          this.portfolioPet = result;
 
-        if (this.portfolioPet.pet_count > 0) {
+          if (this.portfolioPet.pet_count > 0) {
 
-          this.dataSource = new MatTableDataSource<Pet>(this.portfolioPet.pet);          
+            this.dataSource = new MatTableDataSource<Pet>(this.portfolioPet.pet);          
 
-          this.dataSource.paginator = this.paginator;
-          if (this.dataSource.paginator) {
-            this.dataSource.paginator.firstPage();
+            this.dataSource.paginator = this.paginator;
+            if (this.dataSource.paginator) {
+              this.dataSource.paginator.firstPage();
+            }
+
+            this.dataSource.sort = this.sort;
           }
+          else {
+            this.dataSource = new MatTableDataSource<Pet>(null);
+          }
+          this.hidePaginator = this.portfolioPet.pet_count == 0 || this.portfolioPet.pet_count < 5 ? true : false;
 
-          this.dataSource.sort = this.sort;
-        }
-        else {
-          this.dataSource = new MatTableDataSource<Pet>(null);
-        }
-        this.hidePaginator = this.portfolioPet.pet_count == 0 || this.portfolioPet.pet_count < 5 ? true : false;
-
-      }, error => console.error(error));
+        },
+        error: (error) => { console.error(error) }
+      });
 
     return;
   }

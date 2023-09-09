@@ -1,7 +1,8 @@
-﻿using MetaverseMax.Database;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Newtonsoft.Json.Linq;
 using System.Text;
+using MetaverseMax.Database;
+using MetaverseMax.BaseClass;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -77,9 +78,10 @@ namespace MetaverseMax.ServiceClass
                         row => (row.Value<int?>("stamina") ?? 0) <= 20
                         ).Count(),
 
+                    // Industry stanima must be >25 to run.
                     (int)BUILDING_TYPE.INDUSTRIAL =>
                         citizens.Where(
-                        row => (row.Value<int?>("stamina") ?? 0) <= 25
+                        row => (row.Value<int?>("stamina") ?? 0) <= 30
                         ).Count(),
 
                     (int)BUILDING_TYPE.PRODUCTION =>
@@ -169,7 +171,7 @@ namespace MetaverseMax.ServiceClass
                 List<OwnerCitizenExt> ownerCitizens = ownerCitizenExtDB.GetCitizen(ownerMatic);
                 citizenCollection.citizen = PopulateCitizenList(ownerCitizens).ToArray();
 
-                citizenCollection.last_updated = common.TimeFormatStandard(string.Empty, ownerCitizens.Max(x => x.refreshed_last));
+                citizenCollection.last_updated = common.LocalTimeFormatStandardFromUTC(string.Empty, ownerCitizens.Max(x => x.refreshed_last));
 
                 citizenCollection.slowdown = ownerManage.GetSlowDown(requester);
             }
@@ -241,7 +243,7 @@ namespace MetaverseMax.ServiceClass
                     trait_avg_pet = Math.Round((cit.trait_agility + cit.trait_charisma + cit.trait_endurance + cit.trait_intelligence + cit.trait_luck + cit.trait_strength +
                         cit.trait_agility_pet_bonus + cit.trait_charisma_pet_bonus + cit.trait_endurance_pet_bonus + cit.trait_intelligence_pet_bonus + cit.trait_luck_pet_bonus + cit.trait_strength_pet_bonus) / 6.0, 2),
 
-                    building_img = building.GetBuildingImg(cit.building_type_id ?? 0, cit.building_id ?? 0, cit.building_level ?? 0, worldType),
+                    building_img = building.GetBuildingImg((BUILDING_TYPE)(cit.building_type_id ?? 0), cit.building_id ?? 0, cit.building_level ?? 0, worldType),
                     building_desc = building.BuildingType(cit.building_type_id ?? 0, cit.building_id ?? 0),
                     district_id = cit.district_id ?? 0,
                     pos_x = cit.pos_x ?? 0,
@@ -1096,7 +1098,7 @@ namespace MetaverseMax.ServiceClass
                 petList = petDB.GetOwnerPet(ownerMaticKey);
 
                 ownerPet.pet_count = petList.Count;
-                ownerPet.last_updated = common.TimeFormatStandard(string.Empty, _context.ActionTimeGet(ACTION_TYPE.PET));
+                ownerPet.last_updated = common.LocalTimeFormatStandardFromUTC(string.Empty, _context.ActionTimeGet(ACTION_TYPE.PET));
 
                 foreach (Pet pet in petList)
                 {

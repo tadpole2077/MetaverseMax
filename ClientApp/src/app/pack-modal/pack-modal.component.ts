@@ -2,7 +2,7 @@ import { Component, Inject, ViewChild, Output, EventEmitter, ChangeDetectorRef, 
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, MatSortable, Sort } from '@angular/material/sort';
-import { MatPaginator } from '@angular/material/paginator';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { TransferAssetComponent } from "../transfer-asset/transfer-asset.component"
 import { Pack, PRODUCT } from '../owner-data/owner-interface';
@@ -23,7 +23,7 @@ import { PRODUCT_IMG, PRODUCT_NAME } from '../common/enum';
     ]),
   ],
 })
-export class PackModalComponent implements AfterViewInit {
+export class PackModalComponent {
 
   @Output() hidePackEvent = new EventEmitter<boolean>();
 
@@ -51,15 +51,26 @@ export class PackModalComponent implements AfterViewInit {
 
     this.pack = null;
 
-    const copiedData = JSON.stringify(this.dataSource.data);
   }
 
-  // Paginator wont render until loaded in call to ngAfterViewInit, as its a  @ViewChild decalare
-  // AfterViewInit called after the View has been rendered, hook to this method via the implements class hook
-  ngAfterViewInit() {
-    //this.cdr.detectChanges();
-    //this.dataSourceHistory = new MatTableDataSource<Detail>(HISTORY_ASSETS);
-    //this.dataSourceHistory.paginator = this.paginator;
+  // Event trigger by parent table PAGINATION click event - by setting the expandedRow var to null, this triggers the animation [@detailExpand]
+  // whose value will now set to 'collapsed' via the html trigger expression which depends on expandedHistory having a row item  assigned.
+  paginationCloseAllExpanded(pageEvent: PageEvent) {
+
+    this.expandedRow = null;
+
+  }
+
+  refresh() {
+    // Close any open child-table
+    this.forceClose = true;
+    this.expandedRow = null;
+
+    // Show progress and start refresh process
+    //this.progressIcon.nativeElement.classList.add("rotate");
+    //this.searchHistory(this.assetId, this.plot.x, this.plot.y, this.historyBuildingType, true);
+
+    return;
   }
 
   copyData() {
@@ -96,6 +107,7 @@ export class PackModalComponent implements AfterViewInit {
 
   public loadPackList( packList: Pack[]) {
 
+    this.expandedRow = null;      // init as may contain prior expanded row if Pack component show and expanded on prior usage.
     this.pack = packList;
 
     if (this.pack != null || this.pack.length > 0) {
@@ -186,12 +198,12 @@ export class PackModalComponent implements AfterViewInit {
 
   showTransfer(row: Pack, rowIndex: number) {
 
-    this.forceClose = false;    // Reset if previously set to true -  Used with "refresh" feature - to auto closes any opened sub table (remove if not uses refresh)
+    this.forceClose = false;    // Reset if previously set to true -  Used with "refresh" feature - to auto close any opened sub table (remove if not uses refresh)
 
     // Retrive loaded subtable component - index assigned to component within this components htrml directive on load, and assigned to child component.
     const transferAsset = this.transferAssetList.filter((element) => element.index === rowIndex)[0];
 
-    transferAsset.loadPlotData(row);
+    //transferAsset.loadPlotData(row);
 
     return;
   }

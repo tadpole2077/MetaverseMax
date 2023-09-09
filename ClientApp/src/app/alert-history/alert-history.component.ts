@@ -49,8 +49,7 @@ export class AlertHistoryComponent {
 
           if (this.alertPendingManager.alert && this.alertPendingManager.alert.length > 0) {
 
-            this.globals.ownerAccount.alert_count = result.historyCount;
-            this.globals.newAlertSheetActive = false;   // flag that indicates if new alert sheet (checked at set intervals) is active - reset when showing full history
+            this.globals.ownerAccount.alert_count = result.historyCount;            
 
             // Close and remove existing bottom sheet
             if (that.bottomAlertRef != null) {
@@ -60,6 +59,8 @@ export class AlertHistoryComponent {
             that.bottomAlertRef = that.alertSheet.open(AlertBottomComponent, {
               data: this.alertPendingManager,
             });
+
+            this.globals.manualFullActive = true;   // flag that indicates if new alert sheet (checked at set intervals) is active - reset when showing full history
 
           }
         },

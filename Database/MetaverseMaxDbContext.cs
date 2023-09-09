@@ -1,10 +1,8 @@
-﻿using MetaverseMax.ServiceClass;
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.IO;
 using System.Reflection;
+using MetaverseMax.BaseClass;
+using MetaverseMax.ServiceClass;
 
 namespace MetaverseMax.Database
 {
@@ -42,6 +40,7 @@ namespace MetaverseMax.Database
         public virtual DbSet<ServicePerf> servicePerf { get; set; }
         public virtual DbSet<Sync> sync { get; set; }
         public virtual DbSet<SyncHistory> syncHistory { get; set; }
+        public virtual DbSet<Transaction> transaction { get; set; }
 
         // options will be assigned on OnConfiguring()
         public MetaverseMaxDbContext() : base()

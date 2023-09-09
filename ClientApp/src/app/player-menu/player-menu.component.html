@@ -1,0 +1,29 @@
+
+<div ngbDropdown class="playerMenu">
+
+  <mat-form-field class="playerName" [style.width.rem]=24 appearance="outline" floatLabel="auto" subscriptSizing="dynamic">
+    <mat-label>Player Name</mat-label>
+    <input type="text"
+           placeholder="Type and Pick a name"
+           aria-label="Number"
+           matInput
+           [formControl]="playerNameControl"
+           [matAutocomplete]="auto">
+    <button *ngIf="playerNameControl.value" matSuffix mat-icon-button aria-label="Clear" (click)="clearPlayerName();">
+      <mat-icon>close</mat-icon>
+    </button>
+
+    <mat-autocomplete autoActiveFirstOption
+                      #auto="matAutocomplete"
+                      (optionSelected)="updateWalletKey($event)"
+                      [displayWith]="displayFn">
+
+      <mat-option *ngFor="let option of filteredOptions  | async" [value]="option">
+        <span>{{option.name}}</span>
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+  <img *ngIf="selected_player_avatar_id >0" src="{{citizenURL}}" class="ownerImg" height="54" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <img *ngIf="selected_player_avatar_id ==0" src="./images/MysteryOwner.png" class="ownerImg mysteryImg" height="50" style="margin-top:2px" />
+  
+</div>

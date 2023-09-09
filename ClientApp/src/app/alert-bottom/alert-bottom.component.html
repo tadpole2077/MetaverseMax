@@ -8,6 +8,8 @@
         <mat-icon *ngIf="alert.icon_type == ALERT_ICON_TYPE.INFO" class="warningIcon">info</mat-icon>
         <i *ngIf="alert.icon_type == ALERT_ICON_TYPE.NEW_OFFER" class="fas fa-comments-dollar msgIcon moneyIcon"></i>
         <img *ngIf="alert.icon_type == ALERT_ICON_TYPE.STAMINA" src="./assets/OutOfStamina.png" class="msgIconStamina">
+        <img *ngIf="alert.icon_type == ALERT_ICON_TYPE.NEW_BUILDING" [src]="getBuildingImg(alert.alert_id)" class="msgIconBuilding">
+
         <div class="multiIcon">
           <mat-icon *ngIf="alert.icon_type == ALERT_ICON_TYPE.TAX" class="warningIcon smallMatIcon">account_balance</mat-icon>
           <img *ngIf="alert.icon_type == ALERT_ICON_TYPE.RANKING" src="./assets/magnify_history{{ globals.ownerAccount.dark_mode ? '_dark' : '' }}.png" class="msgIconMagnify" />
@@ -18,9 +20,17 @@
       </div>
       <div id="alignfiller"></div>
     </div>
-    <span class="alertText">{{ alert.alert_message }}</span>
+
+    <div class="flexMixCell">
+      <span class="alertText">{{ alert.alert_message }}</span>      
+    </div>
 
     <div class="controls">
+      <a *ngIf="alert.alert_type > 0" class="alertActive" role="button" (click)="alertChange($event, alert)" title="Disable future alerts of this type">        
+          <i [ngClass]="{'far': !alert.trigger_active, 'fas': alert.trigger_active}" class="fa-bell ipAlert"></i>
+          <span [ngClass]="{'shake1': alert.trigger_active}"></span>
+          <span [ngClass]="{'shake2': alert.trigger_active}"></span>        
+      </a>
       <a class="deleteAlert" (click)="markDelete($event, alert.alert_pending_key, alertPendingManager.alert.indexOf(alert))"><i class="far fa-trash-alt"></i>Delete</a>
     </div>
 

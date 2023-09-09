@@ -9,6 +9,7 @@ enum ALERT_TYPE {
   PRODUCTION_TAX = 3,
   DISTRIBUTION = 4,
   BUILDING_RANKING = 5,
+  NEW_BUILDING = 6,
 }
 
 enum ALERT_ICON_TYPE {
@@ -17,6 +18,7 @@ enum ALERT_ICON_TYPE {
   STAMINA = 3,
   NEW_OFFER = 4,
   RANKING = 5,
+  NEW_BUILDING = 6,
 }
 enum ICON_TYPE_CHANGE {
   NONE = 0,
@@ -65,6 +67,38 @@ const PRODUCT_NAME = {
   99: "Factory Product",
 }
 
+const TRANSACTION_STATUS = {
+  PENDING: 1,
+  COMPLETED: 2
+}
+
+const BLOCKCHAIN = {
+  ETHEREUM: 1,
+  TRON: 2,
+  BNB: 3,
+  POLYGON: 4
+}
+
+const TRANSACTION_TYPE = {
+  TRANSFER: 1,
+  DEPOSIT: 2
+}
+
+const CUSTOM_BUILDING_CATEGORY = {
+  0 : "Parcel",
+  1 : "Downtown",
+  2 : "Housing",
+  3 : "Shopping",
+  4 : "Retreat",
+  5 : "Eco",
+  6 : "Luxury",
+  7 : "Midtown",
+  8 : "Headquarters",
+  9 : "Countryside",
+  10: "Rural",
+  100: "Main Tower"
+}
+
 
 export {
   ALERT_TYPE,
@@ -73,5 +107,9 @@ export {
   PENDING_ALERT,
   ALERT_ACTION,
   PRODUCT_IMG,
-  PRODUCT_NAME
+  PRODUCT_NAME,
+  TRANSACTION_STATUS,
+  BLOCKCHAIN,
+  TRANSACTION_TYPE,
+  CUSTOM_BUILDING_CATEGORY
 }

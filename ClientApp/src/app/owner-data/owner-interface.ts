@@ -6,6 +6,7 @@ interface OwnerLandData
   pos_x: number;
   pos_y: number;
   building_type: number;
+  building_category: number;
   building_desc: string;
   building_img: string;
   last_action: string;
@@ -26,6 +27,7 @@ interface OwnerLandData
   current_influence_rank: number;
   condition: number;
   active: number;
+  unit: number;
 }
 
 interface OwnerData
@@ -156,6 +158,7 @@ interface FilterCount {
   commercial: number;
   municipal: number;
   poi: number;
+  parcel: number;
 }
 
 const BUILDING = {
@@ -168,6 +171,7 @@ const BUILDING = {
   OFFICE: 6,
   PRODUCTION: 7,
   MUNICIPAL: 8,
+  PARCEL: 10,
   AOI: 100
 }
 

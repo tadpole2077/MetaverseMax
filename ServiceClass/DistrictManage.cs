@@ -1,6 +1,7 @@
-﻿using MetaverseMax.Database;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using System.Text;
+using MetaverseMax.BaseClass;
+using MetaverseMax.Database;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -155,7 +156,7 @@ namespace MetaverseMax.ServiceClass
                         district.owner_url = citizen.AssignDefaultOwnerImg(districtToken.Value<string>("owner_avatar_id") ?? "");
                         district.owner_matic = districtToken.Value<string>("address") ?? "Not Found";
 
-                        district.active_from = common.TimeFormatStandard(districtToken.Value<string>("active_from") ?? "", null);
+                        district.active_from = common.LocalTimeFormatStandardFromUTC(districtToken.Value<string>("active_from") ?? "", null);
                         district.plots_claimed = districtToken.Value<int?>("claimed_cnt") ?? 0;
                         district.building_count = districtToken.Value<int?>("buildings_cnt") ?? 0;
                         district.land_count = districtToken.Value<int?>("lands") ?? 0;

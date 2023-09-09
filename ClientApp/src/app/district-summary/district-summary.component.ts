@@ -3,9 +3,9 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-/*import { MatInputModule, MatExpansionModule, MatIconModule, MatCheckboxModule, MatCheckboxChange, MatCheckbox } from '@angular/material';*/
-import { MatLegacyCheckbox as MatCheckbox, MatLegacyCheckboxChange as MatCheckboxChange } from '@angular/material/legacy-checkbox';
+import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { AfterViewInit } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { NoteModalComponent } from '../note-modal/note-modal.component';
 import { AlertMenuComponent } from '../alert-menu/alert-menu.component';
 import { GraphTaxComponent } from '../graph-tax/graph-tax.component';
@@ -14,6 +14,7 @@ import { TaxChangeComponent } from '../tax-change/tax-change.component';
 import { OwnerSummary, District } from './data-district-interface';
 import { MatExpansionPanel } from '@angular/material/expansion';
 import { Globals, WORLD } from '../common/global-var';
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -28,13 +29,14 @@ export class DistrictSummaryComponent implements AfterViewInit {
   public worldCode: string;
   districtImgURL: string;
   DistrictInterface: any;
+  subscriptionAccountActive$: Subscription;
 
   public isMobileView: boolean = false;
   public requestDistrictId: number;
   public district: District;
   public fundtotal: number;
   public fundDaily: number;
-  public searchTable: string;
+  searchTable = new FormControl('');
 
   public ownerSummary: OwnerSummary[] = new Array();        //Holds Owner Summary collection used by table
   public ownerSummaryNewArrivals_Week: OwnerSummary[] = new Array();
@@ -118,10 +120,10 @@ export class DistrictSummaryComponent implements AfterViewInit {
     this.districtImgURL = "https://play.mcp3d.com/assets/images/districts/" + globals.worldCode.toUpperCase() + "/" + this.requestDistrictId + ".png";
 
     // Monitor using service - when account status changes - active / inactive.
-    this.globals.accountActive$.subscribe(active => {
+    this.subscriptionAccountActive$ = this.globals.accountActive$.subscribe(active => {
 
       console.log("account status : " + active);
-      if (this.district.district_id != 0) {
+      if (active && this.district.district_id != 0) {
         this.alertMenu.getAlert(this.district.district_id);
       }
 
@@ -132,6 +134,11 @@ export class DistrictSummaryComponent implements AfterViewInit {
   ngAfterViewInit() {
     //this.dataSource.sort = this.sort;
   }
+
+  ngOnDestroy() {
+    this.subscriptionAccountActive$.unsubscribe();
+  }
+
   public get width() {
     return window.innerWidth;
   }

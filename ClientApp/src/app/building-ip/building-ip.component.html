@@ -222,8 +222,8 @@
   <div class="tableControls">
     <mat-form-field fxFlex="30%" class="tableFilter" [style.width.rem]=8 subscriptSizing="dynamic">
       <mat-label><i class="material-icons mdc-text-field__icon mdc-text-field__icon--leading" tabindex="0" role="button">search</i>Search</mat-label>
-      <input matInput type="text" (keyup)="applyFilter($event.target.value)" placeholder="" [(ngModel)]="searchTable" />
-      <button *ngIf="searchTable" matSuffix mat-icon-button aria-label="Clear" (click)="searchTable='';applyFilter('');">
+      <input matInput type="text" (keyup)="applyFilter($event.target.value)" placeholder="" [formControl]="searchTable" />
+      <button *ngIf="searchTable.value" matSuffix mat-icon-button aria-label="Clear" (click)="searchTable.setValue(''); applyFilter('');">
         <mat-icon>close</mat-icon>
       </button>
     </mat-form-field>
@@ -301,7 +301,7 @@
           <img src="./assets/magnify_history{{ globals.ownerAccount.dark_mode ? '_dark' : '' }}.png" class="magnifyHistoryIcon" height="30" />
         </a>
 
-        <a class="showIPAlertPosition" *ngIf="showIPAlert" role="button" (click)="enableRankingAlert(row)">
+        <a class="showIPAlertPosition" *ngIf="showIPAlert" role="button" (click)="enableRankingAlert(row)" [ngClass]="{'fadeInAndOut': searchBlinkOnce }" (animationend)="searchBlinkOnce=false">
           <i *ngIf="showIPAlert" [ngClass]="{'far':row.al==0, 'fas': row.al==1}" class="fa-bell ipAlert"><span [ngClass]="{'shake1': row.al==1}"></span><span [ngClass]="{'shake2': row.al==1}"></span></i>
         </a>
 

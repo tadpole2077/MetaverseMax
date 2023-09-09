@@ -34,36 +34,46 @@ Dispose of dbcontext
 
 
 ===========================================================================
-Performance Enhancements (Nightly Sync):
+Performance Enhancements (Nightly Sync):   [ as of 2023/08/13 ]
 ===========================================================================
-1) Check each recorded player account (SINGLE call to user/assets/lands WS)
-	- if they have >1 empty plot THEN get the Owners full plot list
-	- remove all player empty plots from Sync list -  these plots details have not changed and still owned by player.
-	Enhancment June-2022
+1) Get all BUILDABLE plots from local db
 
-2) Only process OPENED DISTRICTS plots
-
-3) Check each District (regions/list WS) - Remove unclaimed plots from FULL process List (still need partial process due to sale/price_change)
-	- if claimed plot count has not changed since last run then skip check on all unclimed plots for this district
+2) Check each District (regions/list WS) 
+	- if District [claimed plot] count has not changed since last run then skip check on all unclimed plots for this district
+	- Remove ALL unclaimed plots from FULL process List (still need partial process due to sale/price_change)
 	Outcome: 40 to 50% of all plots are unclaimed per district, many districts do not have day to day sales. Major perf improvement.
 	Enhancement Dec-2022
+
+3) Check each recorded player account (SINGLE call to user/assets/lands WS)
+	- if they have >1 empty plot THEN PROCESS - get full plot list for this player matic_key.
+	- remove all player empty plots from Sync list :  these plots details have not changed and still owned by player.
+	Enhancment June-2022
 
 4) Filter out all plots from MEGA and HUGE buildings, leaving only 1 master plot to process during nightly sync.
 	- Results in ~15% reduction in total plots to sync in Tron & Eth world (as of 1-2023)
 	- all related MEGA & HUGE plots are updated to match the master plot sync data (while retaining plot unique data such as abundance, resources, etc)
 
-5) (ENHANCEMENT 2023/01 - 02)
-   Use Partial update process for the following filtered Plots/buildings:
-   FILTER all buildings that have not been sold or transferred since last sync.
-   FILTER all buildings that have not had IP change due to impact of an active/deactivated POI or monument since last data sync.
-   FILTER all buildings that have not had a nearby building built that impacts its IP
-   FILTER all building that has same IP bonus as last sync.
+5) Only process OPENED DISTRICTS plots
 
+
+6) (ENHANCEMENT 2023/01 - 02)
+   Use Partial update process for the following filtered Plots/buildings:
+		NOT sold or transferred since last sync.
+		NO IP change due to impact of an active/deactivated POI or monument SINCE last data sync.
+		NO nearby building built that impacts its IP
+		HAS same IP bonus as last sync.
+
+
+7) Corner Case:  On demolish of L6 or L7 
+	Need to run full check all prior related plots used by L6 and L7
+	Issue is each prior plots will be reassigned new token_id on demolish, and may build new buildings on each.
+	Identify demolish (Level less then current, or building type different)
 
 ===========================================================================
 Nightly Sync - Major Upgrade 2023/01 : Performance Enh
 ===========================================================================
 Using: [user/assets/lands] WS to update Plots && [Land/Get] to update owner account details(avator_id & owner_name)
+
 Issue 1) Owner Account change tracking - cant identify change from [User/Asset/Lands] WS, must use 
 	* [Owner Account] is linked to 1x Avatar, and 1x Avatar name [used by owner account]  
 		[Land/Get] always returns latest avator & name used by account.
@@ -77,7 +87,7 @@ Issue 1) Owner Account change tracking - cant identify change from [User/Asset/L
 		Check List for owner, if not found ADD owner + name + avatar_id used for plot update
 
 
-Issue 2) Empty cliamed plot - needs to get updated.
+Issue 2) Empty cliamed plot - update REQUIRED.
 	* Using [fast] partial updates (user/assets/land) -  plot for sale and price needs to be checked nightly.
 
 
@@ -94,6 +104,8 @@ Issue 3)
 		if it was recorded as active, then can eval current state (active/inactive), and id a change in state.
 		Key Logic: plot.last_updated < plot.poi_active_until then POI/Monument was active on last data sync instance
 		Condition: POI / Monument plot can only have plot.last_updated changed by nightly sync.
+
+
 
 ===========================================================================
 Nightly Sync - Setup/Install Instructions :

@@ -71,6 +71,9 @@ $money-light: #85bb65;
 // highlight button color
 $light-button-active-glow: mat.get-color-from-palette(mat.define-palette(mat.$blue-palette,600));
 
+// Dropdown Menu
+$light-menu-hover-bg: #f5f5f5;
+
 
 // *****************************************************************************************************
 // Apply the dark theme only when the `.darkMode` CSS class is applied
@@ -82,20 +85,14 @@ $dark-app-warn: mat.define-palette(mat.$red-palette);
 $dark-app-button-palette: mat.define-palette(mat.$blue-palette,400);
 $dark-app-button-bg: rgba(196, 198, 209, 0.2);
 $app-button-hover-bg: $app-button-color;
+$dark-menu-bg: #303339;
+$dark-menu-hover-bg: #3b3f46;
 $dark-app-button-color: mat.get-color-from-palette($dark-app-button-palette);
 $dark-outer-bg: #212936;
 $dark-inner-bg: #1A1C27;
-$dark-menu-bg: #303339;
 
 // Create the theme object (a Sass map containing all of the palettes).
-$dark-app-theme: mat.define-dark-theme((
-    color: (
-      primary: $dark-app-primary,
-      accent: $dark-app-accent,
-      warn: $dark-app-warn ),
-    typography: mat.define-typography-config(),
-    density: 0,
-    ));
+$dark-app-theme: mat.define-dark-theme(( color: ( primary: $dark-app-primary, accent: $dark-app-accent, warn: $dark-app-warn ), typography: mat.define-typography-config(), density: 0, ));
 
 // Also using .mat-app-background class on the root.body tag as not encapsulated within a materials object.
 // mat-set-background, replaces color.background and background with passed color (para#2), returning an updated theme.
@@ -119,6 +116,8 @@ $foreground: map-get($dark-app-theme, foreground);
   @include mat.paginator-color($dark-app-theme);
   @include mat.form-field-color($dark-app-theme);
   @include mat.input-color($dark-app-theme);
+  @include mat.checkbox-color($dark-app-theme);
+  @include mat.autocomplete-color($dark-app-theme);
   // @include mat.button-color($light-theme);
 
 
@@ -126,22 +125,26 @@ $foreground: map-get($dark-app-theme, foreground);
   /*@include mat.all-component-themes($dark-app-theme15);*/
   @include mode.home($dark-app-button-bg, $app-button-hover-bg, $dark-app-button-color);
   @include mode.link($dark-app-button-color, #FFF, #FFF);
-
   // dropdown-menu - Alert component
   .dropdown-menu {
     background-color: $dark-menu-bg;
+  }
+  .menuItem:hover {
+    background-color: $dark-menu-hover-bg /*6% lighter then #303339*/
+  }  
+  .gradientBar {
+    background: linear-gradient(270deg, rgb(21, 101, 192) 0%, rgba(140, 180, 224, 0.7) 28%, rgba(227, 237, 247, 0.24) 42%, rgba(26, 28, 39, 0) 100%);
   }
 
   // Mat-Datatable
   // Table Search field
   .tableFilter .material-icons.mdc-text-field__icon {
-    color:rgba(255, 255, 255, 0.6) 
+    color: rgba(255, 255, 255, 0.6)
   }
 
-  .tableFilter .mdc-floating-label--float-above .material-icons{
+  .tableFilter .mdc-floating-label--float-above .material-icons {
     color: $app-link-color
   }
-
   // Paginator
   .mat-mdc-paginator-container {
     background-color: $dark-inner-bg
@@ -179,6 +182,12 @@ $foreground: map-get($dark-app-theme, foreground);
     padding-bottom: 0;
     margin-top: 0;
     min-height: auto;
+    padding-right: 0;
+  }
+
+  .avatarLink {
+    --alpha: .12;
+    --rgb: 255, 255, 255;
   }
 
   .districtNum {
@@ -207,11 +216,11 @@ $foreground: map-get($dark-app-theme, foreground);
     border-radius: 50%;
   }
 
-  .menuContainer .ownerImg:hover {
+  .avatarLink:hover .ownerImg {
     background: #f8f2e4;
   }
 
-  .menuContainer img.mysteryDark:hover {
+  .avatarLink:hover img.mysteryDark {
     background-color: white;
   }
   // Bell and shake effect
@@ -415,9 +424,28 @@ $foreground: map-get($dark-app-theme, foreground);
 
 
 
-
+header .container {
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-top: 0;
+  min-height: auto;
+  padding-right: 0;
+}
+.avatarLink {
+  --alpha: .12;
+  --rgb: 0, 0, 0;
+}
 
 // Extra color used within materials
+
+// Dropdown Menu
+.menuItem:hover {
+  background-color: $light-menu-hover-bg /*4% darger then white*/
+}
+.gradientBar {
+  background: rgb(21,101,192);
+  background: linear-gradient(270deg, rgba(21,101,192,1) 0%, rgba(140,180,224,1) 10%, rgba(227,237,247,.9) 44%, rgba(255,255,255,0) 80%);
+}
 
 // Mat-Datatable
 // Table Search field
@@ -479,10 +507,10 @@ a.closeframe:hover {
   color: #8b0000;
 }
 
-.menuContainer .ownerImg:hover {
+.avatarLink:hover .ownerImg {
   background: #e1f1fd;
 }
-.menuContainer .mysteryLight:hover {
+.avatarLink:hover .mysteryLight {
   background-color: lightsalmon;
 }
 

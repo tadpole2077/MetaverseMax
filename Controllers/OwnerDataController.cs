@@ -1,8 +1,7 @@
-﻿using MetaverseMax.Database;
+﻿using Microsoft.AspNetCore.Mvc;
+using MetaverseMax.Database;
 using MetaverseMax.ServiceClass;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
+using MetaverseMax.BaseClass;
 
 namespace MetaverseMax.Controllers
 {
@@ -198,7 +197,7 @@ namespace MetaverseMax.Controllers
         [HttpGet("UpdateOwnerAlert")]
         public IActionResult UpdateOwnerAlert([FromQuery] QueryParametersAlert parameters)
         {
-            ServiceClass.AlertTrigger alertTrigger = new(_context, common.IdentifyWorld(Request.Path));
+            ServiceClass.AlertTriggerManager alertTrigger = new(_context, common.IdentifyWorld(Request.Path));
 
             if (ModelState.IsValid)
             {
@@ -211,11 +210,24 @@ namespace MetaverseMax.Controllers
         [HttpGet("GetAlert")]
         public IActionResult GetAlert([FromQuery] QueryParametersAlertGet parameters)
         {
-            ServiceClass.AlertTrigger alertTrigger = new(_context, common.IdentifyWorld(Request.Path));
+            ServiceClass.AlertTriggerManager alertTrigger = new(_context, common.IdentifyWorld(Request.Path));
 
             if (ModelState.IsValid)
             {
-                return Ok(alertTrigger.Get(parameters.matic_key, parameters.district_id));
+                return Ok(alertTrigger.GetByDistrict(parameters.matic_key, parameters.district_id));
+            }
+
+            return BadRequest("Call is invalid");       // 400 Error   
+        }
+
+        [HttpGet("GetAlertSingle")]
+        public IActionResult GetAlertSingle([FromQuery] QueryParametersAlertSingleGet parameters)
+        {
+            ServiceClass.AlertTriggerManager alertTrigger = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(alertTrigger.GetByType(parameters.matic_key, (ALERT_TYPE)parameters.alert_type, 0));
             }
 
             return BadRequest("Call is invalid");       // 400 Error   
@@ -258,7 +270,20 @@ namespace MetaverseMax.Controllers
             }
 
             return BadRequest("Call is invalid");       // 400 Error   
-        }        
+        }
+
+        [HttpGet("GetOwnerWithName")]
+        public IActionResult GetOwnerWithName()
+        {
+            OwnerManage ownerManage = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(ownerManage.GetOwnersWithName());
+            }
+
+            return BadRequest("Call is invalid");       // 400 Error   
+        }
 
         [HttpGet("UnitTest_UpdateOwnerName")]
         public IActionResult UnitTest_UpdateOwnerName()
@@ -272,6 +297,49 @@ namespace MetaverseMax.Controllers
                 _context.SaveChanges();
 
                 return Ok(string.Concat("Plots updated :", rowCount));
+            }
+
+            return BadRequest("UnitTest is invalid");       // 400 Error     
+        }
+
+        [HttpGet("UnitTest_AddAlertNewBuilding")]
+        public IActionResult UnitTest_AddAlertNewBuilding()
+        {
+            AlertManage alert = new AlertManage(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                alert.UnitTest_AddAlertNewBuilding();
+                return Ok(string.Concat("Unit test completed"));
+            }
+
+            return BadRequest("UnitTest is invalid");       // 400 Error     
+        }
+
+
+        [HttpGet("UnitTest_AddAlertRankingChange")]
+        public IActionResult UnitTest_AddAlertRankingChange()
+        {
+            AlertManage alert = new AlertManage(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                alert.UnitTest_AddAlertRankingChange();
+                return Ok(string.Concat("Unit test completed"));
+            }
+
+            return BadRequest("UnitTest is invalid");       // 400 Error     
+        }
+
+        [HttpGet("UnitTest_AddAlertTax")]
+        public IActionResult UnitTest_AddAlertTax()
+        {
+            AlertManage alert = new AlertManage(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                alert.UnitTest_AddAlertTax();
+                return Ok(string.Concat("Unit test completed"));
             }
 
             return BadRequest("UnitTest is invalid");       // 400 Error     

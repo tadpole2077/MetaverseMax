@@ -37,11 +37,13 @@ interface AlertCollection {
 }
 interface AlertPending {
   alert_pending_key: number,
-  matic_key: string,
   last_updated: string,
   alert_message: string,
+  alert_type: number,
+  alert_id: number,
   icon_type: number,
-  icon_type_change: number
+  icon_type_change: number,
+  trigger_active: boolean,  
 }
 
 interface AlertPendingManager {
@@ -81,8 +83,8 @@ export class Globals {
   public ownerComponent: OwnerDataComponent = null;
   public appComponentInstance: AppComponent = null;
   public alertSub: Subscription;
-  public newAlertSheetActive: boolean = false;
-  public alertPendingRefresh: boolean = false;
+  public manualFullActive: boolean = false;
+  public autoAlertCheckProcessing: boolean = false;
   public bottomAlertRef: MatBottomSheetRef = null;
 
   // Flag triggers an update on any module that uses the Account Approval component
@@ -109,6 +111,7 @@ export class Globals {
 
   public approvalType: number = APPROVAL_TYPE.NONE;
 
+  // ********** Observables ******************************
   // Service to capture when an account become active - used by components to update/enable account specific features
   private accountActiveSubject = new Subject<boolean>()
   public accountActive$ = this.accountActiveSubject.asObservable()
@@ -144,7 +147,8 @@ export class Globals {
 
     // Clear any prior alert subscription - due to switching worlds.
     if (this.alertSub && !this.alertSub.closed) {
-      this.alertSub.unsubscribe();      
+      this.alertSub.unsubscribe();
+      this.alertSub = null;
     }
 
     this.httpClient.get<OwnerAccount>(baseUrl + '/OwnerData/CheckHasPortfolio', { params: params })
@@ -242,6 +246,7 @@ export class Globals {
     else {
 
       this.appComponentInstance.darkModeChange(false);
+      this.accountActiveSubject.next(false);              // Mark account status as false to any monitors of this observable
 
       this.requestApprove = true;
       this.approvalType = APPROVAL_TYPE.NO_WALLET_ENABLED;
@@ -284,6 +289,7 @@ export class Globals {
         console.log("ChainId = ", chainId);
 
         this.appComponentInstance.darkModeChange(false);
+        this.accountActiveSubject.next(false);              // Mark account status as false to any monitors of this observable
 
         this.requestApprove = true;
         this.requestApproveRefresh();
@@ -401,7 +407,7 @@ export class Globals {
           console.log("Account Alert Check : " + new Date());
 
           // Skip interval check if full history is currently and manually open
-          if (that.bottomAlertRef != null && that.newAlertSheetActive == false) {
+          if (that.bottomAlertRef != null && that.manualFullActive == true) {
             console.log("Alert full History currently Open - skip new alert check : " + new Date());
             return;
           }
@@ -412,20 +418,15 @@ export class Globals {
 
                 alertPendingManager.alert = result.alert;
                 that.ownerAccount.alert_count = result.historyCount;
-                that.alertPendingRefresh = that.newAlertSheetActive == true;     // Previous alert automated check showing, refresh - dont mark as read.
+                that.autoAlertCheckProcessing = true;
 
                 if (alertPendingManager.alert && alertPendingManager.alert.length > 0) {                  
 
-                  that.bottomAlertRef = that.alertSheet.open(AlertBottomComponent, {
-                    data: alertPendingManager,
-                  });
-
-                  that.newAlertSheetActive = true;
-
-                }
-                else {
-                  that.newAlertSheetActive = false;
-                  that.alertPendingRefresh = false;
+                  that.bottomAlertRef = that.alertSheet
+                    .open(AlertBottomComponent, {
+                      data: alertPendingManager,
+                    });
+           
                 }
               },
               error: (error) => {

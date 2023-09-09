@@ -4,7 +4,10 @@ import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSort, MatSortable } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatLegacyCheckbox as MatCheckbox, MatLegacyCheckboxChange as MatCheckboxChange } from '@angular/material/legacy-checkbox';
+import { FormControl } from '@angular/forms';
+import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
+
+import { Alert } from '../common/alert';
 import { ProdHistoryComponent } from '../production-history/prod-history.component';
 import { BuildingFilterComponent } from '../building-filter/building-filter.component';
 import { BUILDING } from '../owner-data/owner-interface';
@@ -96,8 +99,10 @@ export class BuildingIPComponent {
   public selectedType: string = "Select Type";
   public selectedLevel: string = "Level 1";
   public activeTextFilter: string = "";
-  public searchTable: string;
-
+  searchTable = new FormControl('');
+  
+  // UI class flags
+  public searchBlinkOnce: boolean = false;
 
   public typeList: string[] = ["Residential", "Industry", "Production","Energy", "Office", "Commercial", "Municipal"];
   public levelList: string[] = ["Level 1","Level 2","Level 3","Level 4","Level 5","Huge","Mega"];
@@ -123,9 +128,9 @@ export class BuildingIPComponent {
   displayedColumnsPredict: string[] = ['pos', 'rank', 'ip_t', 'ip_b', 'bon', 'name', 'con', 'pre', 'dis', 'pos_x', 'id']
   displayedColumnsOffice: string[] = ['pos', 'ip_t', 'ip_b', 'bon', 'name', 'con', 'dis', 'pos_x', 'id'];
   isLoadingResults: boolean;
-  resultsLength: any;
+  resultsLength: any;  
 
-  constructor(public globals: Globals, private router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
+  constructor(public globals: Globals, private router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string, public alert: Alert) {
 
     this.httpClient = http;
     this.baseUrl = baseUrl + "api/" + globals.worldCode;
@@ -493,9 +498,11 @@ export class BuildingIPComponent {
   showAlertChange(eventCheckbox: MatCheckboxChange) {
     if (eventCheckbox.checked) {
       this.showIPAlert = true;
+      this.searchBlinkOnce = true;
     }
     else {
       this.showIPAlert = false;
+      this.searchBlinkOnce = false;
     }
 
   }
@@ -504,30 +511,8 @@ export class BuildingIPComponent {
 
     row.al = row.al == 1 ? 0 : 1;
 
-    this.updateAlert(this.globals.ownerAccount.matic_key, ALERT_TYPE.BUILDING_RANKING, row.id, row.al == 1 ? ALERT_ACTION.ADD : ALERT_ACTION.REMOVE);
+    this.alert.updateAlert(this.globals.ownerAccount.matic_key, ALERT_TYPE.BUILDING_RANKING, row.id, row.al == 1 ? ALERT_ACTION.ADD : ALERT_ACTION.REMOVE);
 
   }
 
-  updateAlert(maticKey: string, alertType: number, tokenId: number, action: number) {
-
-    let params = new HttpParams();
-    params = params.append('matic_key', maticKey);
-    params = params.append('alert_type', alertType);
-    params = params.append('id', tokenId);
-    params = params.append('action', action);
-
-
-    if (this.globals.ownerAccount.wallet_active_in_world) {
-
-      this.httpClient.get<Object>(this.baseUrl + '/OwnerData/UpdateOwnerAlert', { params: params })
-        .subscribe({
-          next: (result) => {
-          },
-          error: (error) => { console.error(error) }
-        });
-
-    }
-
-    return;
-  }
 }

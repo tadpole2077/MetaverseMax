@@ -1,6 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Component, Output, EventEmitter, Inject, ViewChild, Input } from '@angular/core';
 import { Router } from '@angular/router';
+
+import { Alert } from '../common/alert';
 import { Globals, WORLD } from '../common/global-var';
 import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { ALERT_TYPE, ALERT_ACTION } from '../common/enum'
@@ -30,41 +32,17 @@ export class AlertMenuComponent {
 
   @Input() districtId: number;
 
-  constructor(public globals: Globals, public router: Router, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
+  constructor(public globals: Globals, public router: Router, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string, public alert: Alert) {
 
     this.httpClient = http;
     this.baseUrl = rootBaseUrl + "api/" + globals.worldCode;
   }
 
-
   alertChange(eventSlider: MatSlideToggleChange, alertType:number) {
 
     // update db - WS call    
-    this.updateAlert(this.globals.ownerAccount.matic_key, alertType, this.districtId, eventSlider.checked == true ? ALERT_ACTION.ADD : ALERT_ACTION.REMOVE);
+    this.alert.updateAlert(this.globals.ownerAccount.matic_key, alertType, this.districtId, eventSlider.checked == true ? ALERT_ACTION.ADD : ALERT_ACTION.REMOVE);
 
-  }
-
-  updateAlert(maticKey: string, alertType: number, districtId: number, action: number) {
-
-    let params = new HttpParams();
-    params = params.append('matic_key', maticKey);
-    params = params.append('alert_type', alertType);
-    params = params.append('id', districtId);
-    params = params.append('action', action);
-
-
-    if (this.globals.ownerAccount.wallet_active_in_world) {
-
-      this.httpClient.get<Object>(this.baseUrl + '/OwnerData/UpdateOwnerAlert', { params: params })
-        .subscribe({
-          next: (result) => {
-          },
-          error: (error) => { console.error(error) }
-        });
-
-    }
-
-    return;
   }
 
   getAlert(districtId: number) {

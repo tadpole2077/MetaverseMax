@@ -1,8 +1,7 @@
 ﻿using MetaverseMax.Database;
+using MetaverseMax.BaseClass;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
-using System.ComponentModel;
-using System.Linq;
 using System.Text;
 
 
@@ -74,7 +73,7 @@ namespace MetaverseMax.ServiceClass
             BuildingHistory buildingHistory;
             OwnerManage ownerManage = new(_context, worldType);
             List<Database.AlertTrigger> ownerAlerts = new(), allOwnerAlerts = new();
-            AlertTrigger alertTrigger = new(_context, worldType);
+            AlertTriggerManager alertTrigger = new(_context, worldType);
             AlertManage alert = new(_context, worldType);
 
             try
@@ -122,14 +121,14 @@ namespace MetaverseMax.ServiceClass
 
                     if (!requesterMatic.Contains("SYSTEM") && ownerManage.CheckOwnerExistsByMatic(requesterMatic))
                     {
-                        ownerAlerts = alertTrigger.GetByType(requesterMatic, ALERT_TYPE.RANKING);
+                        ownerAlerts = alertTrigger.GetByType(requesterMatic, ALERT_TYPE.BUILDING_RANKING, 0);
                     }                   
                     // CHECK for any user alert active for this building
-                    allOwnerAlerts = alertTrigger.GetByType("ALL", ALERT_TYPE.RANKING);                    
+                    allOwnerAlerts = alertTrigger.GetByType("ALL", ALERT_TYPE.BUILDING_RANKING, 0);                    
 
                 }
 
-                buildingCollection.sync_date = common.TimeFormatStandard(string.Empty, _context.ActionTimeGet(ACTION_TYPE.PLOT));
+                buildingCollection.sync_date = common.LocalTimeFormatStandardFromUTC(string.Empty, _context.ActionTimeGet(ACTION_TYPE.PLOT));
                 buildingCollection.building_type = GetBuildingTypeDesc(buildingType);
                 buildingCollection.building_lvl = buildingLevel;
                 buildingCollection.buildingIP_impact = (buildingType == (int)BUILDING_TYPE.RESIDENTIAL || buildingType == (int)BUILDING_TYPE.ENERGY) ? 20 : 40;
@@ -139,7 +138,7 @@ namespace MetaverseMax.ServiceClass
                 for (int i = 0; i < buildingList.Count; i++)
                 {
                     decimal ipEfficiencyStored = 0;
-                    buildingList[i].building_img = building.GetBuildingImg(buildingType, buildingList[i].building_id, buildingLevel, worldType)
+                    buildingList[i].building_img = building.GetBuildingImg((BUILDING_TYPE)buildingType, buildingList[i].building_id, buildingLevel, worldType)
                         .Replace(buildingCollection.img_url, "");
                     
                     if (buildingList[i].influence_info != buildingList[i].influence && buildingList[i].influence_info >= 0)
@@ -222,9 +221,9 @@ namespace MetaverseMax.ServiceClass
                     // CHECK for any user alert active for this building - Ranking changed - then add new alert for those accounts.
                     if (ipEfficiencyStored != buildingList[i].current_influence_rank)
                     {
-                        ownerAlerts.Where(x => x.id == buildingList[i].token_id).ToList().ForEach(x =>
+                        allOwnerAlerts.Where(x => x.id == buildingList[i].token_id).ToList().ForEach(x =>
                         {
-                            alert.AddRankingAlert(x.matic_key, buildingList[i].owner_matic, buildingList[i].token_id, ipEfficiencyStored, buildingList[i].current_influence_rank, buildingLevel, building.BuildingType(buildingType, buildingList[i].building_id));
+                            alert.AddRankingAlert(x.matic_key, buildingList[i].owner_matic, buildingList[i].token_id, ipEfficiencyStored, buildingList[i].current_influence_rank, buildingLevel, building.BuildingType(buildingType, buildingList[i].building_id), (ALERT_TYPE)x.key_type);
                         });
                     }
 
@@ -451,13 +450,29 @@ namespace MetaverseMax.ServiceClass
                         _context.SaveChanges();
 
                         buildingPlots = plotDB.GetPlotbyToken(token_id);        // Refresh to get possibly updated IP / IP Bonus due to app change / POI change reactivated etc
+                        targetPlot = buildingPlots[0];
 
                         if (storedIp != GetInfluenceTotal(buildingPlots[0].influence_info ?? 0, buildingPlots[0].influence_bonus ?? 0))
                         {
                             buildingHistory.changes_last_run = AddChangeMessage("REFRESH PAGE - IP change and Ranking Change Identified, all buildings need to be reevaluated", buildingHistory.changes_last_run);
                         }
-                    }
+                    }                    
                 }
+                // 2023/07 : CHECK if INDUSTRY type buildings, and action_id has changed from last run - then run Full Update to confirm product in current cycle.
+                // This check will only occur on NIGHTLY SYNC jobs - passing in a ranking_ip_efficiency% && if building is tagged as recent production completed && last completed run product differs from current stored action_id 
+                // GOAL : update plot.action_id, to better reflect current building production product, this call should also impact a few additional plots a night, which owner frequently changes the product type within Industry buildings.
+                else if (targetPlot.building_type_id == (int)BUILDING_TYPE.INDUSTRIAL && targetPlot.action_id != targetPlot.last_run_produce_id)
+                {
+                    // Update first plot - all related building plots update as well.
+                    mcpPlot = plotManage.AddOrUpdatePlot(buildingPlots[0].plot_id, buildingPlots[0].pos_x, buildingPlots[0].pos_y, false);
+
+                    _context.SaveChanges();
+
+                    buildingPlots = plotDB.GetPlotbyToken(token_id);        // Refresh to get possibly updated IP / IP Bonus due to app change / POI change reactivated etc
+                    targetPlot = buildingPlots[0];
+                }
+
+
 
                 buildingHistory.owner_matic = ownerMatic;
 
@@ -473,6 +488,7 @@ namespace MetaverseMax.ServiceClass
 
                     buildingHistory = null;
                 }
+                // OFFICE - History is processed differently then industry/production/energy
                 else if (targetPlot.building_type_id == (int)BUILDING_TYPE.OFFICE)
                 {
                     // Get dates since citizens assigned and building_type = office
@@ -480,6 +496,7 @@ namespace MetaverseMax.ServiceClass
                     buildingHistory.detail = historyProductionList.OrderByDescending(x => x.run_datetimeDT).ToArray();
 
                 }
+                // ALL OTHER BUILDING TYPES - Industry, Production, Energy
                 else
                 {
                     JArray productionHistory = Task.Run(() => GetBuildingHistoryMCP(token_id)).Result;
@@ -841,7 +858,7 @@ namespace MetaverseMax.ServiceClass
                         eventTimeUTC = historyItem.Value<DateTime?>("event_time");
                         lastRunTime ??= eventTimeUTC;
 
-                        historyProductionDetails.run_datetime = common.DateStandard(common.TimeFormatStandardDT("", historyItem.Value<DateTime?>("event_time")));
+                        historyProductionDetails.run_datetime = common.DateStandard(common.TimeFormatStandardFromUTC("", historyItem.Value<DateTime?>("event_time")));
                         historyProductionDetails.run_datetimeDT = ((DateTime)eventTimeUTC).Ticks;       // Ticks send is in UTC, which may differ from display time in GMT
 
                         JToken historyData = historyItem.Value<JToken>("data");
@@ -2743,12 +2760,12 @@ namespace MetaverseMax.ServiceClass
         }
 
         // IP changed from db store, then update ranking (used by Plot Full and Partial updates - as shown in MyPortfolio)
-        public decimal CheckInfluenceRankChange(int newInfluence, int storedInfluence, int influenceBonus, decimal storedRanking, int buildingLevel, int buildingType, int targetBuildingTokenId)
+        public decimal CheckInfluenceRankChange(int newInfluence, int storedInfluence, int influenceBonus, decimal storedRanking, int buildingLevel, int buildingType, int targetBuildingTokenId, int buildingId, string buidingOwnerMatic)
         {
             decimal newRanking = storedRanking;
             int maxRankingIp = 0, minRankingIp = 0, rangeIP = 0, targetBuildingTotalIp = 0;
             List<Plot> buildingPlotList = null;
-            BuildingRanking buildingRanking = new();
+            BuildingRanking buildingRanking = new();            
 
             // Change detected, evalute ranking.
             if (newInfluence != storedInfluence && (buildingType == (int)BUILDING_TYPE.ENERGY || buildingType == (int)BUILDING_TYPE.INDUSTRIAL || buildingType == (int)BUILDING_TYPE.PRODUCTION))
@@ -2775,11 +2792,31 @@ namespace MetaverseMax.ServiceClass
 
                     newRanking = buildingRanking.GetIPEfficiency(targetBuildingTotalIp, rangeIP, minRankingIp, _context);
                 }
+
+                CheckBuildingAlert(targetBuildingTokenId, buidingOwnerMatic, storedRanking, newRanking, buildingType, buildingLevel, buildingId);
             }
 
             return newRanking;
         }
 
+        public RETURN_CODE CheckBuildingAlert(int tokenId, string ownerMatic, decimal storedRanking, decimal newRanking, int buildingType, int buildingLevel, int buildingId)
+        {
+            List<Database.AlertTrigger> ownerAlerts = new();
+            AlertTriggerManager alertTrigger = new(_context, worldType);
+            AlertManage alertManage = new(_context, worldType);
+            Building building = new();
+
+            ownerAlerts = alertTrigger.GetByType("ALL", ALERT_TYPE.BUILDING_RANKING, tokenId);
+
+            ownerAlerts.ToList().ForEach(x =>
+            {
+                alertManage.AddRankingAlert(x.matic_key, ownerMatic, tokenId, storedRanking, newRanking, buildingLevel, building.BuildingType(buildingType, buildingId), (ALERT_TYPE)x.key_type);
+            });
+
+            return RETURN_CODE.SUCCESS;
+        }
     }
+
+
 
 }

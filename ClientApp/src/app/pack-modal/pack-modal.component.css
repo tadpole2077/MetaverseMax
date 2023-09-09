@@ -23,7 +23,7 @@ tr.mat-mdc-row:first-child, tr.mat-mdc-row:nth-child(5), tr.mat-mdc-row:nth-chil
 }
 
 tr.mat-mdc-header-row {
-  height: 38px
+  /*height: 38px*/
 }
 
 .paginatorContainer {
@@ -87,10 +87,10 @@ tr td.mat-column-expandedDetail {
 /* DEFAULT: Hide expandeDetail Rows on load*/
 tr.detailRow {
   height: 0;
-  display:none;
+  visibility:hidden;
 }
   tr.detailRow.expanded-row-expanded {
-    display: table-row;   /* Hide all components including position absolute tags within child subtable until expanded */
+    visibility:visible;
   }
 
 .expandedComponent{

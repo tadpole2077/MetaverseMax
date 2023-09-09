@@ -20,6 +20,13 @@
   align-items: center;
 }
 
+.playerSelection{
+  margin-top: 12px;
+}
+.playerNameList{
+  margin-left: 8px;
+}
+
 .buttonContainer {
   margin-top: .6rem
 }

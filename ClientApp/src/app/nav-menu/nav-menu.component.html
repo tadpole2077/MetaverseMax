@@ -17,15 +17,16 @@
       <app-alert-history class="alertHistory mobileAlert" *ngIf="globals.ownerAccount.alert_count >0"></app-alert-history>
 
       <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end" [ngClass]="{ show: isExpanded }">
-
+        <div class="gradientBar barTop"></div>
+        <div class="gradientBar barBottom"></div>
         <ul class="navbar-nav flex-grow">
           <li class="nav-item"
               [routerLinkActive]="['link-active']"
               [routerLinkActiveOptions]="{ exact: true }">
             <a class="nav-link lineAnim" [ngClass]="{ 'text-dark':!globals.ownerAccount.dark_mode, 'text-light':globals.ownerAccount.dark_mode}" [routerLink]="['/', globals.worldCode]">Home</a>
           </li>
-          <li #officeFilter *ngIf="globals.ownerAccount.wallet_active_in_world" class="nav-item" [routerLinkActive]="['link-active']">
-            <a class="nav-link lineAnim" [ngClass]="{ 'text-dark':!globals.ownerAccount.dark_mode, 'text-light':globals.ownerAccount.dark_mode}" (click)="navMyPortfolio()">My-Portfolio</a>
+          <li class="nav-item" [routerLinkActive]="['link-active']">
+            <a class="nav-link lineAnim" [ngClass]="{ 'text-dark':!globals.ownerAccount.dark_mode, 'text-light':globals.ownerAccount.dark_mode}" [routerLink]="['/', globals.worldCode, 'world']">World</a>
           </li>
           <li class="nav-item" [routerLinkActive]="['link-active']">
             <a class="nav-link lineAnim" [ngClass]="{ 'text-dark':!globals.ownerAccount.dark_mode, 'text-light':globals.ownerAccount.dark_mode}" [routerLink]="['/', globals.worldCode, 'owner-data']">Plot-Owner</a>

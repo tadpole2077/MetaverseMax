@@ -1,18 +1,19 @@
 ﻿using MetaverseMax.Database;
+using MetaverseMax.BaseClass;
 
 namespace MetaverseMax.ServiceClass
 {
-    public class AlertTrigger : ServiceBase
+    public class AlertTriggerManager : ServiceBase
     {
 
-        public AlertTrigger(MetaverseMaxDbContext _parentContext, WORLD_TYPE worldTypeSelected) : base(_parentContext, worldTypeSelected)
+        public AlertTriggerManager(MetaverseMaxDbContext _parentContext, WORLD_TYPE worldTypeSelected) : base(_parentContext, worldTypeSelected)
         {
             worldType = worldTypeSelected;
             _parentContext.worldTypeSelected = worldType;
         }
 
         // OwnerAlert Management Methods - controls the create/deletion of new alerts.
-        public RETURN_CODE UpdateOwnerAlert(string maticKey, int alertType, int id, ALERT_ACTION_TYPE action)
+        public RETURN_CODE UpdateOwnerAlert(string maticKey, ALERT_TYPE alertType, int id, ALERT_ACTION_TYPE action)
         {
 
             AlertTriggerDB alertDB = new AlertTriggerDB(_context);
@@ -23,14 +24,33 @@ namespace MetaverseMax.ServiceClass
             return returnCode;
         }
 
-        public List<Database.AlertTrigger> Get(string ownerMatic, int districtId)
+        public List<AlertTrigger> GetAll(string ownerMatic)
         {
             AlertTriggerDB alertTriggerDB = new AlertTriggerDB(_context);
-            List<Database.AlertTrigger> alertList = new List<Database.AlertTrigger>();
+            List<AlertTrigger> alertList = new List<AlertTrigger>();
 
             try
             {
-                alertList = alertTriggerDB.Get(ownerMatic, districtId);
+                alertList = alertTriggerDB.GetALL(ownerMatic);
+
+            }
+            catch (Exception ex)
+            {
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("AlertTrigger.GetALL() : Error on WS calls for owner matic : ", ownerMatic));
+            }
+
+            return alertList;
+        }
+
+        public List<AlertTrigger> GetByDistrict(string ownerMatic, int districtId)
+        {
+            AlertTriggerDB alertTriggerDB = new AlertTriggerDB(_context);
+            List<AlertTrigger> alertList = new List<AlertTrigger>();
+
+            try
+            {
+                alertList = alertTriggerDB.GetByDistrict(ownerMatic, districtId);
 
             }
             catch (Exception ex)
@@ -42,14 +62,15 @@ namespace MetaverseMax.ServiceClass
             return alertList;
         }
 
-        public List<Database.AlertTrigger> GetByType(string ownerMatic, ALERT_TYPE alertType)
+
+        public List<AlertTrigger> GetByType(string ownerMatic, ALERT_TYPE alertType, int id)
         {
             AlertTriggerDB alertTriggerDB = new AlertTriggerDB(_context);
-            List<Database.AlertTrigger> alertList = new List<Database.AlertTrigger>();
+            List<AlertTrigger> alertList = new List<AlertTrigger>();
 
             try
             {
-                alertList = alertTriggerDB.GetAlertByType(ownerMatic, alertType);
+                alertList = alertTriggerDB.GetAlertByType(ownerMatic, alertType, id);
 
             }
             catch (Exception ex)
@@ -77,7 +98,7 @@ namespace MetaverseMax.ServiceClass
                 OwnerDB ownerDB = new OwnerDB(_context);
                 ownerDB.UpdateOwnerAlertActivated(maticKey, alertActivated);
 
-                alertDB.Add(maticKey, ALERT_MESSAGE.INTRO, ALERT_ICON_TYPE.INFO, ALERT_ICON_TYPE_CHANGE.NONE);
+                alertDB.Add(maticKey, ALERT_MESSAGE.INTRO, ALERT_ICON_TYPE.INFO, ALERT_ICON_TYPE_CHANGE.NONE, ALERT_TYPE.NOT_USED, 0);
             }
 
             return true;

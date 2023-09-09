@@ -33,10 +33,13 @@
       <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
       <ng-container matColumnDef="expandedDetail">
         <td mat-cell *matCellDef="let row; let i = dataIndex" [attr.colspan]="displayedColumns.length">
-          <app-transfer-asset class="expandedComponent"
-                              [@detailExpand]="forceClose == false && row == expandedRow ? 'expanded' : 'collapsed'"
-                              [index]=i
-                              [pack_id]="row.pack_id"></app-transfer-asset>
+          <app-transfer-asset class="expandedComponent"                             
+                              [@detailExpand]="forceClose == false && row === expandedRow ? 'expanded' : 'collapsed'"
+                              [index]=i                               
+                              [pack_id]="row.pack_id"
+                              [pack_unit_type] ="row.product_id"
+                              [pack_unit_amount]="row.amount"
+                              ></app-transfer-asset>
         </td>
       </ng-container>
 
@@ -56,7 +59,7 @@
       </tr>
 
     </table>
-    <mat-paginator [hidden]="hidePaginator" [pageSize]="10" [hidePageSize] [showFirstLastButtons] class="paginatorContainer"></mat-paginator>
+    <mat-paginator (page)="paginationCloseAllExpanded($event)" [hidden]="hidePaginator" [pageSize]="10" [hidePageSize] [showFirstLastButtons] class="paginatorContainer"></mat-paginator>
   </div>
 
   <div class="lastUpdated" style="display:none">

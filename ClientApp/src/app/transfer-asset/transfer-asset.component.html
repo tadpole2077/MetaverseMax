@@ -2,16 +2,30 @@
   <div class="inputSection">
     <mat-form-field [style.width.rem]=30 class="notchAdjust" appearance="outline" floatLabel="auto" subscriptSizing="dynamic">
       <mat-label>Address </mat-label>
-      <input matInput class="plotx" type='text' #address [(ngModel)]="addressText" />
-      <button *ngIf="addressText" matSuffix mat-icon-button aria-label="Clear" (click)="addressText=''; progressCaption=''">
+
+      <input id="addressKey"
+             matInput
+             class="plotx"
+             [formControl]="addressKeyControl"
+             type='text'
+             #address />
+
+      <button *ngIf="addressKeyControl.value" matSuffix mat-icon-button aria-label="Clear" (click)="addressKeyControl.setValue(''); progressCaption=''; resetPlayerList()">
         <mat-icon>close</mat-icon>
       </button>
     </mat-form-field>
+
+    <div class="playerSelection">
+      <span>Or select by:</span>
+      <app-player-menu class="playerNameList" (selectPlayerEvent)="addressKeyControl.setValue($event)"></app-player-menu>
+    </div>
+
     <mat-label class="progressCaption">{{ progressCaption }}</mat-label>
+    
   </div>
 
   <div class="buttonContainer">
     <i #transferIcon [ngClass]="{'rotate': rotateActive }" class="fas fa-sync-alt transferIcon" style=""></i>
-    <button mat-raised-button color="primary" id="buttonTransfer" class="buttonEffect" (click)="transferSendMatic(addressText)">Send</button>
+    <button mat-raised-button color="primary" id="buttonTransfer" class="buttonEffect" (click)="transferSendMatic(addressKeyControl.value)">Send</button>
   </div>
 </div>

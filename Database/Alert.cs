@@ -29,11 +29,17 @@ namespace MetaverseMax.Database
         [Column("alert_delete")]
         public bool alert_delete{ get; set; }
 
+        [Column("alert_type")]
+        public int alert_type { get; set; }
+
+        [Column("alert_id")]
+        public int alert_id { get; set; }
+
         [Column("icon_type")]
         public short icon_type { get; set; }
 
         [Column("icon_type_change")]
         public short icon_type_change { get; set; }
-        
+
     }
 }

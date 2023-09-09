@@ -6,6 +6,7 @@ namespace MetaverseMax.ServiceClass
         public int pos_x { get; set; }
         public int pos_y { get; set; }
         public int building_type { get; set; }
+        public int building_category { get; set; }
         public string building_desc { get; set; }
         public string building_img { get; set; }
         public int building_level { get; set; }
@@ -27,5 +28,6 @@ namespace MetaverseMax.ServiceClass
         public decimal current_influence_rank { get; set; }
         public int condition { get; set; }
         public int active { get; set; }
+        public int unit { get; set; }
     }
 }

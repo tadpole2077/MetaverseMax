@@ -599,6 +599,36 @@ td.mat-column-name {
     transform: rotate(90deg);
   }
 
+.blink {
+  animation: blinker 3s step-start both;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+.fadeInAndOut {
+  animation: fadeInOut 3s linear 1 forwards;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: .20;
+  }
+
+  33% {
+    opacity: 1;
+  }
+
+  66% {
+    opacity: .40;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
 
 .lastUpdated .mat-icon {
   font-size: 1.4rem;

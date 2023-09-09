@@ -1,8 +1,5 @@
-﻿using MetaverseMax.ServiceClass;
+﻿using MetaverseMax.BaseClass;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MetaverseMax.Database
 {

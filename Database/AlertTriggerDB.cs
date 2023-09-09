@@ -1,7 +1,4 @@
-﻿using MetaverseMax.ServiceClass;
-using System;
-using System.Collections.Generic;
-using static System.Collections.Specialized.BitVector32;
+﻿using MetaverseMax.BaseClass;
 
 namespace MetaverseMax.Database
 {
@@ -11,18 +8,20 @@ namespace MetaverseMax.Database
         {
         }
 
-        public RETURN_CODE UpdateAlert(string maticKey, int alertType, int id, ALERT_ACTION_TYPE action)
+        public RETURN_CODE UpdateAlert(string maticKey, ALERT_TYPE alertType, int id, ALERT_ACTION_TYPE action)
         {
             RETURN_CODE returnCode = RETURN_CODE.ERROR;
             try
             {
-                AlertTrigger ownerAlert = _context.alertTrigger.Where(x => x.matic_key == maticKey && x.key_type == alertType && x.id == id).FirstOrDefault();
+                int triggerId = alertType == ALERT_TYPE.NEW_BUILDING ? 0 : id;          // New Building Alert - store the image id, but the alert trigger used to generate them is generic for all new buildings.
+
+                AlertTrigger ownerAlert = _context.alertTrigger.Where(x => x.matic_key == maticKey && x.key_type == (int)alertType && x.id == triggerId).FirstOrDefault();
                 if (ownerAlert == null && action == ALERT_ACTION_TYPE.ENABLE)
                 {                
                     _context.alertTrigger.Add(new AlertTrigger
                     {
                         matic_key = maticKey,
-                        key_type = alertType,
+                        key_type = (int)alertType,
                         id = id,
                         last_updated = DateTime.UtcNow
                     });
@@ -43,24 +42,46 @@ namespace MetaverseMax.Database
             return returnCode;
         }
 
-        public List<AlertTrigger> Get(string ownerMatic, int id)
+        public List<AlertTrigger> GetALL(string ownerMatic)
         {
 
             List<AlertTrigger> ownerAlertList = null;
             try
             {
-                ownerAlertList = _context.alertTrigger.Where(x => x.matic_key == ownerMatic && x.id == id).ToList();
+                ownerAlertList = _context.alertTrigger.Where(x => x.matic_key == ownerMatic).ToList();
+
+            }
+            catch (Exception ex)
+            {
+                logException(ex, String.Concat("OwnerAlertDB.GetALL() : Error all alert triggers for owner maticKey: ", ownerMatic));
+            }
+
+            return ownerAlertList;
+        }
+
+        public List<AlertTrigger> GetByDistrict(string ownerMatic, int id)
+        {
+
+            List<AlertTrigger> ownerAlertList = null;
+            try
+            {
+                ownerAlertList = _context.alertTrigger.Where(x => 
+                    x.matic_key == ownerMatic && 
+                    x.id == id && 
+                    (x.key_type == (int)ALERT_TYPE.DISTRIBUTION || x.key_type == (int)ALERT_TYPE.INITIAL_LAND_VALUE || x.key_type == (int)ALERT_TYPE.CONSTRUCTION_TAX || x.key_type == (int)ALERT_TYPE.PRODUCTION_TAX)
+                ).ToList();
                 
             }
             catch (Exception ex)
             {
-                logException(ex, String.Concat("OwnerAlertDB.GetAlert() : Error with alert getting alert with id: ", id.ToString(), " maticKey: ", ownerMatic));
+                logException(ex, String.Concat("OwnerAlertDB.GetByDistrict() : Error with alert getting alert with id: ", id.ToString(), " maticKey: ", ownerMatic));
             }
 
             return ownerAlertList;
         }
         
-        public List<AlertTrigger> GetAlertByType(string ownerMatic, ALERT_TYPE alertType)
+        // Get Trigger alerts matching (a) Type (b) key id - eg plot token id (c) owner alert triggers
+        public List<AlertTrigger> GetAlertByType(string ownerMatic, ALERT_TYPE alertType, int tokenId)
         {
 
             List<AlertTrigger> ownerAlertList = null;
@@ -68,7 +89,14 @@ namespace MetaverseMax.Database
             {
                 if (ownerMatic.Equals("ALL"))
                 {
-                    ownerAlertList = _context.alertTrigger.Where(x => x.key_type == (int)alertType).ToList();
+                    if (tokenId == 0)
+                    {
+                        ownerAlertList = _context.alertTrigger.Where(x => x.key_type == (int)alertType).ToList();
+                    }
+                    else
+                    {
+                        ownerAlertList = _context.alertTrigger.Where(x => x.key_type == (int)alertType && x.id == tokenId).ToList();
+                    }
                 }
                 else
                 {

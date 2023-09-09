@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MetaverseMax.Database
@@ -151,6 +149,21 @@ namespace MetaverseMax.Database
         [NotMapped]
         public List<int> citizen { get; set; }
 
+
+        [Column("parcel_id")]
+        public int parcel_id { get; set; }
+
+        [Column("parcel_unit_count")]
+        public int parcel_unit_count { get; set; }
+        
+        [Column("parcel_info_id")]
+        public int parcel_info_id { get; set; }
+
+        [Column("building_name")]
+        public string building_name { get; set; }
+
+        [Column("building_category_id")]
+        public int building_category_id { get; set; }
     }
 
     public class PlotCord

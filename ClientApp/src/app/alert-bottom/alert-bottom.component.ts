@@ -1,8 +1,11 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ViewChild } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { MatBottomSheet, MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
+import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-toggle';
+
+import { Alert } from '../common/alert';
 import { AlertCollection, AlertPending, AlertPendingManager, Globals, WORLD } from '../common/global-var';
-import { ALERT_TYPE, ALERT_ICON_TYPE, ICON_TYPE_CHANGE, PENDING_ALERT } from '../common/enum'
+import { ALERT_TYPE, ALERT_ICON_TYPE, ICON_TYPE_CHANGE, ALERT_ACTION, PENDING_ALERT } from '../common/enum'
 
 @Component({
   selector: 'app-alert-bottom',
@@ -11,6 +14,7 @@ import { ALERT_TYPE, ALERT_ICON_TYPE, ICON_TYPE_CHANGE, PENDING_ALERT } from '..
 })
 export class AlertBottomComponent{
 
+  readonly ALERT_TYPE: typeof ALERT_TYPE = ALERT_TYPE;    // expose enum to view attributes
   readonly ALERT_ICON_TYPE: typeof ALERT_ICON_TYPE = ALERT_ICON_TYPE;
   readonly ICON_TYPE_CHANGE: typeof ICON_TYPE_CHANGE = ICON_TYPE_CHANGE;
   public managerEnabled: boolean = false;
@@ -19,7 +23,7 @@ export class AlertBottomComponent{
   public alertPendingManager: AlertPendingManager;
 
   // only one bottom sheet can be open at a time, use the Ref to close the currently opened sheet
-  constructor(private bottomSheetRef: MatBottomSheetRef<AlertBottomComponent>, @Inject(MAT_BOTTOM_SHEET_DATA) public callerAlertPendingManager: AlertPendingManager, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string, public globals: Globals) {
+  constructor(private bottomSheetRef: MatBottomSheetRef<AlertBottomComponent>, @Inject(MAT_BOTTOM_SHEET_DATA) public callerAlertPendingManager: AlertPendingManager, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string, public globals: Globals, public alert: Alert) {
 
     this.managerEnabled = callerAlertPendingManager.manage;
     this.alertPendingManager = callerAlertPendingManager;
@@ -31,16 +35,19 @@ export class AlertBottomComponent{
     bottomSheetRef.afterDismissed().subscribe(() => {
 
       let params = new HttpParams();
-      this.globals.bottomAlertRef = null;     // Used by alert interval service - to check if alert bottomSheet already open - then either update if new alerts, or leave as is if showing history.
 
       // On close of New alerts sheet - Mark active alerts as read/seen - dont show in next [New alerts interval check]
       params = params.append('matic_key', this.globals.ownerAccount.matic_key);
+      console.log("Alert vars (a) manualFullActive : " + this.globals.manualFullActive + " (b)autoAlertCheckProcessing : " + this.globals.autoAlertCheckProcessing );      
 
-      if (this.globals.newAlertSheetActive == true && this.globals.alertPendingRefresh == false) {
+      if (this.globals.manualFullActive == true || this.globals.autoAlertCheckProcessing == false) {
+
+        this.globals.manualFullActive = false;
 
         this.httpClient.get<any>(this.baseUrl + '/OwnerData/UpdateRead', { params: params })
           .subscribe({
             next: (result) => {
+              console.log("All alerts marked as Viewed/Read");
 
             },
             error: (error) => {
@@ -48,6 +55,8 @@ export class AlertBottomComponent{
             }
           });
       }
+
+      this.globals.autoAlertCheckProcessing = false;      // Flag used to identify a manual close of autocheck alerts - set to true during autocheck process
     });
   }
 
@@ -91,5 +100,31 @@ export class AlertBottomComponent{
   markRead(event: MouseEvent): void {
     this.bottomSheetRef.dismiss();
     event.preventDefault();
+  }
+
+  alertChange(event: MouseEvent, alert: AlertPending) {
+
+    // update db - WS call    
+    this.alert.updateAlert(this.globals.ownerAccount.matic_key, alert.alert_type, alert.alert_id, alert.trigger_active ? ALERT_ACTION.REMOVE : ALERT_ACTION.ADD);
+    alert.trigger_active = !alert.trigger_active;
+
+    this.alertPendingManager.alert.forEach(a => {
+
+      // New Building Alert - store the image id, but the alert trigger used to generate them is generic for all new buildings.
+      if (alert.alert_type == ALERT_TYPE.NEW_BUILDING && a.alert_type == alert.alert_type) {
+        a.trigger_active = alert.trigger_active;
+      }
+      else if (a.alert_type == alert.alert_type && a.alert_id == alert.alert_id) {
+        a.trigger_active = alert.trigger_active;
+      }
+
+    })
+    
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  getBuildingImg(buildingId: number) {
+    return 'https://builder.megaworld.io/preview/' + Math.trunc(buildingId / 100) + '/' + buildingId + '.png';
   }
 }

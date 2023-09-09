@@ -15,7 +15,6 @@
           "build": {
             "builder": "@angular-devkit/build-angular:browser",
             "options": {
-              "allowedCommonJsDependencies": [ "web3" ],
               "progress": false,
               "outputPath": "dist",
               "index": "src/index.html",

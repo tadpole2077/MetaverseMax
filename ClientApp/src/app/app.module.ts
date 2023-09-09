@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -28,13 +28,21 @@ import { CitizenBuildingTableComponent } from './citizen-building-table/citizen-
 import { OfferModalComponent } from './offer-modal/offer-modal.component';
 import { OwnerDataComponent } from './owner-data/owner-data.component';
 import { ProdHistoryComponent } from './production-history/prod-history.component';
+import { PlayerMenuComponent } from './player-menu/player-menu.component';
 import { DistrictListComponent } from './district-list/district-list.component';
 import { DistrictSummaryComponent } from './district-summary/district-summary.component';
 import { DistrictNotificationComponent } from './district-notification/district-notification.component';
 import { BuildingIPComponent } from './building-ip/building-ip.component';
 import { BuildingFilterComponent } from './building-filter/building-filter.component';
 import { TransferAssetComponent } from './transfer-asset/transfer-asset.component';
+import { WorldComponent } from './world/world.component';
 
+import { ClipboardModule } from '@angular/cdk/clipboard';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { NumberDirective } from './numberonly.directive';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatTableModule} from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -44,20 +52,16 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatInputModule} from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatLegacyTabsModule as MatTabsModule } from '@angular/material/legacy-tabs';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatBadgeModule } from '@angular/material/badge';
-import { MatLegacyListModule as MatListModule } from '@angular/material/legacy-list';
-import { DragDropModule } from '@angular/cdk/drag-drop';
-import { NumberDirective } from './numberonly.directive';
-import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
-import { NgxChartsModule } from '@swimlane/ngx-charts';
-import { ClipboardModule } from '@angular/cdk/clipboard';
+import { MatListModule } from '@angular/material/list';
 
 import { Globals } from './common/global-var';
+import { Alert } from './common/alert';
 
 
 @NgModule({
@@ -86,17 +90,21 @@ import { Globals } from './common/global-var';
     CitizenBuildingTableComponent,
     OfferModalComponent,
     ProdHistoryComponent,
+    PlayerMenuComponent,
     DistrictListComponent,
     DistrictSummaryComponent,
     DistrictNotificationComponent,
     BuildingIPComponent,
     BuildingFilterComponent,
+    WorldComponent,
     NumberDirective  
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
     HttpClientModule,
     FormsModule,
+    ReactiveFormsModule,
+    MatAutocompleteModule,
     MatTableModule,
     MatSortModule,
     MatPaginatorModule,
@@ -145,13 +153,19 @@ import { Globals } from './common/global-var';
       { path: 'building-ip', component: BuildingIPComponent },
       { path: 'bnb/building-ip', component: BuildingIPComponent },
       { path: 'trx/building-ip', component: BuildingIPComponent },
-      { path: 'eth/building-ip', component: BuildingIPComponent }
+      { path: 'eth/building-ip', component: BuildingIPComponent },
+
+      { path: 'world', component: WorldComponent },
+      { path: 'bnb/world', component: WorldComponent },
+      { path: 'trx/world', component: WorldComponent },
+      { path: 'eth/world', component: WorldComponent }
     ]),
     BrowserAnimationsModule,
     ClipboardModule
   ],
   providers: [
     Globals,
+    Alert,
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } }
   ],
   bootstrap: [AppComponent]

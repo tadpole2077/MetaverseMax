@@ -59,6 +59,7 @@
     <None Remove="ClientApp\src\app\alert-menu\alert-menu.component.ts" />
     <None Remove="ClientApp\src\app\building-filter\building-filter.component.ts" />
     <None Remove="ClientApp\src\app\building-ip\building-ip.component.ts" />
+    <None Remove="ClientApp\src\app\common\alert.ts" />
     <None Remove="ClientApp\src\app\common\enum.ts" />
     <None Remove="ClientApp\src\app\common\global-var.ts" />
     <None Remove="ClientApp\src\app\common\graph-interface.ts" />
@@ -74,7 +75,9 @@
     <None Remove="ClientApp\src\app\graph-tax\data-construct.ts" />
     <None Remove="ClientApp\src\app\graph-tax\data-produce.ts" />
     <None Remove="ClientApp\src\app\pack-modal\pack-modal.component.ts" />
+    <None Remove="ClientApp\src\app\player-menu\player-menu.component.ts" />
     <None Remove="ClientApp\src\app\transfer-asset\transfer-asset.component.ts" />
+    <None Remove="ClientApp\src\app\world\world.component.ts" />
     <None Remove="ClientApp\tsconfig.json" />
   </ItemGroup>
 

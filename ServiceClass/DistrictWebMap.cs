@@ -1,4 +1,5 @@
 ﻿using MetaverseMax.Database;
+using MetaverseMax.BaseClass;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -93,8 +94,8 @@ namespace MetaverseMax.ServiceClass
             {
                 districtWeb.district_name = districtContent.district_name;
                 districtWeb.promotion = districtContent.district_promotion;
-                districtWeb.promotion_start = common.TimeFormatStandard("", districtContent.district_promotion_start);
-                districtWeb.promotion_end = common.TimeFormatStandard("", districtContent.district_promotion_end);
+                districtWeb.promotion_start = common.LocalTimeFormatStandardFromUTC("", districtContent.district_promotion_start);
+                districtWeb.promotion_end = common.LocalTimeFormatStandardFromUTC("", districtContent.district_promotion_end);
             }
 
             // Distric Tax Current & Historic
@@ -139,14 +140,14 @@ namespace MetaverseMax.ServiceClass
 
             districtWeb.update_instance = district.update_instance;
             districtWeb.last_update = district.last_update;
-            districtWeb.last_updateFormated = common.TimeFormatStandard("", district.last_update);
+            districtWeb.last_updateFormated = common.LocalTimeFormatStandardFromUTC("", district.last_update);
             districtWeb.district_id = district.district_id;
             districtWeb.owner_name = district.owner_name ?? "Not Found";
             districtWeb.owner_avatar_id = district.owner_avatar_id ?? 0;
             districtWeb.owner_url = citizen.AssignDefaultOwnerImg(district.owner_avatar_id.ToString() ?? "0");
             districtWeb.owner_matic = district.owner_matic ?? "Not Found";
 
-            districtWeb.active_from = common.TimeFormatStandard("", district.active_from);
+            districtWeb.active_from = common.LocalTimeFormatStandardFromUTC("", district.active_from);
             districtWeb.plots_claimed = district.plots_claimed;
             districtWeb.building_count = district.building_count;
             districtWeb.land_count = district.land_count;

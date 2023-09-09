@@ -24,17 +24,19 @@ a {
 }
   a:hover {
   }
-
+a.nav-link {
+  line-height: 28px;
+}
 
 .dayExpiry {
   position: absolute;
-  margin-top: 18px;
+  margin-top: 14px;
   margin-left: -22px;
   color: lightcoral;
   font-size: .6rem;
   font-weight: bold;
   text-shadow: -1px -1px 1px #fff, 1px 1px 1px #fff;
-  width:3rem;
+  width: 3rem;
 }
 
 .world{
@@ -46,13 +48,29 @@ a {
   top: 0.9rem;  
   font-size: 1.6rem;
   margin-right: 1rem;
-  padding-left: 2.5rem;
+  padding-left: 10px;
 }
 .desktopAlert{
   display: inline-block;
 }
 .mobileAlert {
   display: none;
+}
+.gradientBar {
+  height: 0.667px;
+  width: 140px;
+  position: absolute;
+  margin-top: -42px;
+  margin-right: 6px;
+  z-index: 1;
+}
+.barTop {
+  position: absolute;
+  margin-top: -43px;
+}
+.barBottom {
+  position: absolute;
+  margin-top: 42px;  
 }
 
 @media only screen and (max-width: 415px) {
@@ -62,8 +80,12 @@ a {
   .desktopAlert {
     display: none;
   }
+  .gradientBar{
+    display:none;
+  }
 
   .world {
+    margin-right: 8px;
   }
 
   .alertHistory {
@@ -74,5 +96,4 @@ a {
     top: unset;
 
   }
-  .accountHover:hover
 }

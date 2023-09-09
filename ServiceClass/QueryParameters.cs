@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using MetaverseMax.BaseClass;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -89,7 +90,7 @@ namespace MetaverseMax.ServiceClass
         public string matic_key { get; set; }
 
         [BindRequired]
-        public int alert_type { get; set; }
+        public ALERT_TYPE alert_type { get; set; }
 
         [BindRequired]
         public int id { get; set; }
@@ -105,6 +106,16 @@ namespace MetaverseMax.ServiceClass
 
         [BindRequired]
         public int district_id { get; set; }
+
+    }
+
+    public class QueryParametersAlertSingleGet
+    {
+        [BindRequired]
+        public string matic_key { get; set; }
+
+        [BindRequired]
+        public int alert_type { get; set; }
 
     }
 
@@ -267,6 +278,39 @@ namespace MetaverseMax.ServiceClass
         [BindRequired]
         public long production_date { get; set; }
 
+    }
+
+    public class QueryParametersTransaction
+    {
+        [BindRequired]
+        public string from_wallet { get; set; }
+
+        [BindRequired]
+        public string to_wallet { get; set; }
+
+        [BindRequired]
+        public int unit_type { get; set; }
+
+        [BindRequired]
+        public int unit_amount { get; set; }
+
+        [BindRequired]
+        public decimal value { get; set; }
+
+        [BindRequired]
+        public string hash { get; set; }
+
+        [BindRequired]
+        public int status { get; set; }
+
+        [BindRequired]
+        public int blockchain { get; set; }
+
+        [BindRequired]
+        public int transaction_type { get; set; }
+
+        [BindRequired]
+        public int token_id { get; set; }
     }
 
 }

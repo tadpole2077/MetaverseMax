@@ -15,25 +15,12 @@ namespace MetaverseMax.Database
         [Column("position")]
         public int position { get; set; }
 
-        [Column("current_influence_rank")]
+        [Column("current_influence_rank", TypeName = "decimal(6, 2)")]
         public decimal current_influence_rank { get; set; }
-
-
-        //[NotMapped]
-        //[Column("ip_efficiency_bonus_bug")]
-        //public decimal ip_efficiency_bonus_bug { get; set; }        
-
-        //[NotMapped]
-        //[Column("z_score")]
-        //public double z_score { get; set; }
 
         [NotMapped]
         [Column("total_ip")]
         public int total_ip { get; set; }
-
-        //[NotMapped]
-        //[Column("total_ip_bonus_bug")]
-        //public int total_ip_bonus_bug { get; set; }
 
         [NotMapped]
         [Column("ip_warning")]

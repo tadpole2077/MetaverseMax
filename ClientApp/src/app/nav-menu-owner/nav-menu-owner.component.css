@@ -1,20 +1,37 @@
 .menuContainer {
-  margin-left: 1rem;
+  margin-left: 1.1rem;  
 }
+
+.avatarLink {
+  display: inline-block;
+  border-width: 1px;
+  border-style: solid;
+  padding: 4px;
+  border-bottom-right-radius: 8px;
+  border-top-right-radius: 8px;
+  width: 43px;
+  text-align: center;
+  border-color: rgba(var(--rgb), var(--alpha));
+  border-right-color: rgba(21,101,192,1);
+  border-bottom-color: rgba(21,101,192,1);
+  border-top-color: rgba(21,101,192,1);
+}
+  .avatarLink:hover {
+    cursor: pointer;
+    /*border-color: rgba(var(--rgb), .3);*/
+  }
 
 .ownerImg {
   border-radius: 50%;
+  height: 34px
 }
-  .ownerImg:hover {
-    cursor: pointer;
-  }
+  
 .mysteryDark {
   background-color: wheat;
 }
 
 .dropdownContainer {
   height: 60px;
-  width: 10.6rem;
   right: 0;
   left: unset;
   border: 0;
@@ -22,22 +39,35 @@
   height: 60px;
   background: none;
   margin: -2px;
-  right: 2px;
 }
+
+.menuItem {
+  height: 35px;
+  padding: 7px;
+  vertical-align: middle;
+  cursor:pointer;
+}
+  .menuItem:hover {
+    border-radius: 5px;
+  }
 
 .ownerPanel {
   display: block;
-  padding: 0.6rem;
+  padding: 6px;
   font-size: .8rem;
   font-weight: 500;
   left: unset;
   right: 0;
-  width: 10.6rem;
+  width: 180px;
   margin-top: 2px;
 }
 
+.menuLink{
+  padding-left: 4.8px;
+  vertical-align: text-bottom;
+}
+
 .mat-slide-toggle-content {
-  vertical-align: bottom;
   display: inline-block;
   line-height: 24px;
   padding-left: 0.3rem;
@@ -47,24 +77,38 @@
   vertical-align: bottom
 }
 
+
 @media only screen and (max-width: 415px) {
 
   .menuContainer {
     margin-left: 0;
   }
 
-  div.dropdown-menu.show {
+  div.dropdown-menu.show2 {
     display: inline-block;
     margin-left: 1rem;
     margin-top: 1.2rem;
   }
-
-  .ownerImg {
-    margin-left: 1rem;
-    margin-bottom: 0.6rem;
-    margin-top: 0.6rem;
-    vertical-align: top;
-    height: 52px
+  .avatarLink {
+    display:none
+  }
+  .dropdownContainer {
+    display: inline-block;
+    margin: 0;
+    height: unset;
+  }
+  .ownerPanel{
+    padding: 0;
+    margin-top: 0;
+    width: unset;
+    border: unset;
+    font-size: unset;
+    font-weight: unset;
+    background: unset;
+  }
+  .menuItem {
+    padding: 8px 0 8px 0;
+    height: unset;
   }
 }
 

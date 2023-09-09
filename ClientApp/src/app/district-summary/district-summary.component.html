@@ -184,9 +184,8 @@
   <div class="tableControls">
     <mat-form-field class="tableFilter" [style.width.rem]=8 subscriptSizing="dynamic">
       <mat-label><i class="material-icons mdc-text-field__icon mdc-text-field__icon--leading" tabindex="0" role="button">search</i>Search</mat-label>
-      <input matInput type="text" (keyup)="applyFilter($event.target.value)" [(ngModel)]="searchTable" />
-
-      <button *ngIf="searchTable" matSuffix mat-icon-button aria-label="Clear" (click)="searchTable='';applyFilter('');">
+      <input matInput type="text" (keyup)="applyFilter($event.target.value)" [formControl]="searchTable" />
+      <button *ngIf="searchTable.value" matSuffix mat-icon-button aria-label="Clear" (click)="searchTable.setValue(''); applyFilter('');">
         <mat-icon>close</mat-icon>
       </button>
     </mat-form-field>

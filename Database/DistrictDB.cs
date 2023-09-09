@@ -130,7 +130,7 @@ namespace MetaverseMax.Database
                 district.owner_avatar_id = districtToken.Value<int?>("owner_avatar_id") ?? 0;
                 district.owner_matic = districtToken.Value<string>("address") ?? "Not Found";
 
-                district.active_from = common.TimeFormatStandardDT(districtToken.Value<string>("active_from") ?? "", null);
+                district.active_from = common.TimeFormatStandardFromUTC(districtToken.Value<string>("active_from") ?? "", null);
                 district.plots_claimed = districtToken.Value<int?>("claimed_cnt") ?? 0;
                 district.building_count = districtToken.Value<int?>("buildings_cnt") ?? 0;
                 district.land_count = districtToken.Value<int?>("lands") ?? 0;

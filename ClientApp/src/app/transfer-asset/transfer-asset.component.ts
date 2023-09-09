@@ -1,12 +1,15 @@
-import { Component, Output, Input, EventEmitter, ViewChild, Inject } from '@angular/core';
+import { Component, Output, Input, EventEmitter, ViewChild, Inject, OnInit } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import Web3 from 'web3';
 import DetectEthereumProvider from '@metamask/detect-provider';
 
-import { MatInputModule } from '@angular/material/input';
+import { PlayerMenuComponent } from '../player-menu/player-menu.component';
 import { Pack, PRODUCT } from '../owner-data/owner-interface';
 import { Globals, WORLD } from '../common/global-var';
+import { TRANSACTION_STATUS, BLOCKCHAIN, TRANSACTION_TYPE } from '../common/enum';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 const ETHEREUM_ID_HEX = '0x4';
 const POLYGON_ID_HEX = '0x89';
@@ -34,33 +37,52 @@ const NETWORKS = {
   templateUrl: './transfer-asset.component.html',
   styleUrls: ['./transfer-asset.component.css']
 })
-export class TransferAssetComponent {
+export class TransferAssetComponent implements OnInit {
 
   @Input() index: number;
   @Input() pack_id: number;
+  @Input() pack_unit_type: number;
+  @Input() pack_unit_amount: number;
+  @ViewChild(PlayerMenuComponent, { static: true }) playerMenu: PlayerMenuComponent;
 
-  @Output() searchPlotEvent = new EventEmitter<any>();
+  //@Output() searchPlotEvent = new EventEmitter<any>();
   public rotateActive: boolean = false;
   public addressText: string;
   public progressCaption: string = "";
+  public debounce: number = 400;
   httpClient: HttpClient;
   baseUrl: string;
+  addressKeyControl = new FormControl('');
   
-
   constructor(public globals: Globals, public router: Router, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
 
     this.httpClient = http;
-    this.baseUrl = rootBaseUrl + "api/" + globals.worldCode;
+    this.baseUrl = rootBaseUrl + "api/" + globals.worldCode;    
 
   }
 
-  loadPlotData(row: Pack) {
+  ngOnInit() {
 
-    //this.rotateActive = true;
+    // On Change of Input 
+    this.addressKeyControl.valueChanges
+      .pipe(debounceTime(this.debounce), distinctUntilChanged())
+      .subscribe(playerKey => {
 
-    //this.searchPlotEvent.emit(plotPos);
+        console.log(playerKey);
+        // Child component - handles wallet key change event - attempting to match a known user account.
+        this.playerMenu.matchKey(playerKey);
+
+      });
+
   }
-  
+
+  selectPlayer(playerPublicKey: string) {
+    const x = playerPublicKey;
+  }
+
+  resetPlayerList() {
+    this.playerMenu.clearPlayerName();
+  }
 
   async transferSendMatic(addressTo: string) {
 
@@ -75,7 +97,7 @@ export class TransferAssetComponent {
       console.log("Current Chain : " + chainIdHex +" - "+ chainIdNumber);
       if (chainIdHex == NETWORKS.ETHEREUM) {
 
-        console.log("Selected chain is matic-polygon");
+        console.log("Selected chain is Ethereum main-net, Request to switch to Polygon.");
         this.progressCaption = "Request to switch to Polygon";
         await this.switchNetwork(NETWORKS.POLYGON);        
         this.progressCaption = "";
@@ -92,7 +114,76 @@ export class TransferAssetComponent {
 
   }
 
+  // Using : transferFrom(address src, address dst, uint256 rawAmount)
+  // Note a 2nd transfer method used by MW : transferSender(address _sender, address _from, address _to, uint256 _tokenId) 
   async transferSendRequest(addressTo: string, addressFrom: string) {
+
+    const provider = await DetectEthereumProvider();
+    const ethereum = (window as any).ethereum;
+    const MCPTransferMethod = "0x23b872dd";
+    const MW_TRANSFER_ADDRESS = "0x4cc0c70a8a72f15bb43edfe252b07d3a4be4c252";
+
+    let web3: Web3 = null;
+
+    if (provider && provider.isMetaMask) {
+
+      console.log('Ethereum successfully detected!');
+      this.rotateActive = true;
+
+      try {
+        web3 = new Web3(ethereum);
+      }
+      catch (error) {
+        console.log("provider error: " + error);
+        web3 = null;
+      }
+
+      if (web3 != null) {
+
+        let from_address = web3.utils.padLeft(addressFrom.toLowerCase(), 64).substring(2);
+        let to_address = web3.utils.padLeft(addressTo.toLowerCase(), 64).substring(2);
+        let token_uint256 = web3.utils.padLeft(web3.utils.toHex(this.pack_id), 64).substring(2);
+        let tranferData = 
+          MCPTransferMethod +
+          from_address +
+          to_address +
+          token_uint256;
+
+        await web3.eth.sendTransaction({
+          from: this.globals.ownerAccount.public_key,
+          to: MW_TRANSFER_ADDRESS,
+          //value: web3.utils.toWei(".01", "ether"),
+          gas: 147100,         // Max gas for transaction
+          data: tranferData
+        })
+          .on('transactionHash', (transactionHash) => {
+            console.log('hash received - transaction not yet completed: ' + transactionHash);
+            this.recordTransaction(from_address, to_address, this.pack_unit_type, this.pack_unit_amount, 0, transactionHash, TRANSACTION_STATUS.PENDING, BLOCKCHAIN.POLYGON, TRANSACTION_TYPE.TRANSFER, this.pack_id)
+          })
+          .on('receipt', (receipt) => {
+            console.log('receipt: ' + receipt);
+          })
+          .then((result) => {
+            console.log('result: ' + result);
+            this.progressCaption = "";
+            this.rotateActive = false;
+          })
+          .catch((error) => {
+            console.log(error);
+            this.progressCaption = "Error occured blocking Transaction";
+            this.rotateActive = false;
+            // If the request fails, the Promise rejects with an error.
+          });
+      }
+
+    }
+
+  }
+
+
+
+
+  async transferSendRequestMatic(addressTo: string, addressFrom: string) {
 
     const provider = await DetectEthereumProvider()
     const ethereum = (window as any).ethereum;
@@ -287,5 +378,31 @@ export class TransferAssetComponent {
       return networkSwitched;
     }
 
+  }
+
+  public recordTransaction(fromKey: string, toKey: string, unitType: number, unitAmt: number, value: number, hash: string, status: number, blockchain: number, transactionType: number, tokenId: number) {
+
+    let params = new HttpParams();
+    params = params.append('from_wallet', fromKey);
+    params = params.append('to_wallet', toKey);
+    params = params.append('unit_type', unitType);
+    params = params.append('unit_amount', unitAmt);
+    params = params.append('value', value);
+    params = params.append('hash', hash);
+    params = params.append('status', status);
+    params = params.append('blockchain', blockchain);
+    params = params.append('transaction_type', transactionType);
+    params = params.append('token_id', tokenId);
+
+
+    this.httpClient.get<number>(this.baseUrl + '/transaction/log', { params: params })
+      .subscribe({
+        next: (result) => {          
+
+        },
+        error: (error) => { console.error(error) }
+      });
+
+    return;
   }
 }

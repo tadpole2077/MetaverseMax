@@ -1,0 +1,50 @@
+﻿Fileset:
+	tsconfig.json			: root compiler setting file
+	tsconfig.app.json		:
+	tsconfig.server.json	: extends tsconfig.json, pointed to by angular.json server section >> "tsConfig": "tsconfig.server.json" 
+							  used by [Universal application with server-side rendering] which is not used by this project. https://angular.io/guide/workspace-config
+	tsconfig.spec.json		:
+	.browserslistrc			: list of compatible browsers
+
+Settings Notes:
+	"target"	: output of your code, compiled code targets a specific language variant
+	"lib"		: output of your code, which language features are available when the compiled code is run
+
+
+
+File used for:  
+	Compiler settings for Typescript and Angular
+	Uses .browserslistrc to identify which browser version compiler should be compatible with. [Add legacy browsers support as needed, but incure target compiler is suitable]
+
+
+List of browsers - compiler is compatible with:
+	CMD >> cd D:\0_Development\2_Applications\GitHub\MetaverseMax\MetaverseMax\ClientApp
+	npx browserslist
+
+
+SETTING CHANGES:
+	(2023/08/31) On V15 Angular upgrade from V14:
+
+	* old >>  "target": "es2020"
+	  new >>  "target": "es2022"
+	  
+	  Reason: 
+		Compiler dom warning : TypeScript compiler options "target" and "useDefineForClassFields" are set to "ES2022" and "false" respectively by the Angular CLI. To control ECMA version and features use the Browerslist configuration. For more information, see https://angular.io/guide/build#configuring-browser-compatibility
+		NOTE: You can set the "target" to "ES2022" in the project's tsconfig to remove this warning.
+	  Ref:
+		https://stackoverflow.com/questions/75047760/typescript-target-warnings-after-angular-15-update
+			"target" specifies the JavaScript version[ECMAScript] your TypeScript code : legacy settings >> 'es3', 'es5', 'es6'
+		https://medium.com/@tommedema/typescript-confusion-tsconfig-json-module-moduleresolution-target-lib-explained-65db2c44b491
+			4 settings used to control javascript version used (project compiled to x): target, module, moduleResolution, lib
+
+	* new >> "useDefineForClassFields": false
+	  
+	  Reason: better to specific for clarity.  Note that typescript doc states its true by default when target is ES2022.
+	  Use: Migration to upcoming standard for class fields within 3.7 typescript.  [Angular V15 is using 4.9.4 trypescript]
+	  Ref:
+		https://www.typescriptlang.org/tsconfig#useDefineForClassFields
+
+	* old >>  "lib": "es2018"
+	  new >>  "lib": "es2022"
+
+	  Resaon: In most scenarios the lib should match target runtime version, EXCEPT if you polyfill the runtime environment.

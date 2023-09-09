@@ -2,22 +2,36 @@
 
 
 <div ngbDropdown class="d-inline-block; menuContainer">
-  <img ngbDropdownToggle  (mouseenter)="onHoverShow($event,1)" (mouseleave)="onHoverHide($event,1)" *ngIf="globals.ownerAccount.avatar_id>0" height="38" crossorigin="anonymous" referrerpolicy="no-referrer" class="ownerImg" src="{{ globals.worldURLPath }}citizen/{{globals.ownerAccount.avatar_id}}">
-  <img ngbDropdownToggle (mouseenter)="onHoverShow($event,1)" (mouseleave)="onHoverHide($event,1)" *ngIf="globals.ownerAccount.avatar_id==0" height="38" src="./images/MysteryOwner.png" class="ownerImg" [ngClass]="{ 'mysteryDark': globals.ownerAccount.dark_mode,  'mysteryLight': !globals.ownerAccount.dark_mode}" />
+  
+  <a class="avatarLink" (mouseenter)="onHoverShow($event,1)" (mouseleave)="onHoverHide($event,1)" (click)="navMyPortfolio()">
+    <img ngbDropdownToggle *ngIf="globals.ownerAccount.avatar_id>0" height="39" crossorigin="anonymous" referrerpolicy="no-referrer" class="ownerImg" src="{{ globals.worldURLPath }}citizen/{{globals.ownerAccount.avatar_id}}">
+    <img ngbDropdownToggle *ngIf="globals.ownerAccount.avatar_id==0" height="39" src="./images/MysteryOwner.png" class="ownerImg" [ngClass]="{ 'mysteryDark': globals.ownerAccount.dark_mode,  'mysteryLight': !globals.ownerAccount.dark_mode}" />
+  </a>
   
   <div ngbDropdownMenu (mouseenter)="onHoverShow($event,2)" (mouseleave)="onHoverHide($event,2)" class="dropdownContainer">
+    
     <div class="ownerPanel dropdown-menu">
-      <!--<mat-icon class="mr-8">brightness_5</mat-icon>-->
-      <mat-icon>bedtime</mat-icon>
-      <mat-label class="mat-slide-toggle-content">Night Mode&nbsp;</mat-label>
 
-      <mat-slide-toggle aria-labelledby="Night Mode"
-                        class="slideNight"
-                        [checked]="globals.ownerAccount.dark_mode"
-                        (change)="darkModeChange($event)">
-        <!-- [color]="primary" -->
-      </mat-slide-toggle>
+      <div *ngIf="globals.ownerAccount.wallet_active_in_world" class="menuItem">
+        <mat-icon>person</mat-icon>
+        <a class="menuLink" [ngClass]="{ 'text-dark':!globals.ownerAccount.dark_mode, 'text-light':globals.ownerAccount.dark_mode}" (click)="navMyPortfolio()">My Portfolio</a>
+      </div>
+
+      <div class="menuItem">
+        <!--<mat-icon class="mr-8">brightness_5</mat-icon>-->
+        <mat-icon>bedtime</mat-icon>
+        <mat-label class="mat-slide-toggle-content">Night Mode&nbsp;</mat-label>
+
+        <mat-slide-toggle aria-labelledby="Night Mode"
+                          class="slideNight"
+                          [checked]="globals.ownerAccount.dark_mode"
+                          (change)="darkModeChange($event)">
+          <!-- [color]="primary" -->
+        </mat-slide-toggle>
+      </div>
+
     </div>
+
   </div>
-  
+
 </div>

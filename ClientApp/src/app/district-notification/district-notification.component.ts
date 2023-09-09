@@ -128,14 +128,17 @@ export class DistrictNotificationComponent implements AfterViewInit {
 
 
     this.httpClient.get<District>(this.baseUrl + '/district/GetMCP', { params: params })
-      .subscribe((result: District) => {
+      .subscribe({
+        next: (result) => {
 
-        this.district = result;
-        if (this.district.active_from != "" || this.district.owner_name != "") {          
-          testNotificationClick();
-        }
+          this.district = result;
+          if (this.district.active_from != "" || this.district.owner_name != "") {
+            testNotificationClick();
 
-      }, error => console.error(error));
+          }
+        },
+        error: (error) => { console.error(error) }
+      });
 
 
     return;
