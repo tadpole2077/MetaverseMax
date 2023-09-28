@@ -193,7 +193,7 @@ namespace MetaverseMax.ServiceClass
             return ascii;
         }
 
-        public string UnixTimeStampUTCToDateTime(double? unixTimeStamp, String noTime)
+        public string UnixTimeStampUTCToDateTimeString(double? unixTimeStamp, String noTime)
         {
             string dateFormated;
 
@@ -207,6 +207,24 @@ namespace MetaverseMax.ServiceClass
             else
             {
                 dateFormated = noTime;
+            }
+            return dateFormated;
+        }
+
+        public DateTime? UnixTimeStampUTCToDateTime(double? unixTimeStamp, DateTime? noTime)
+        {
+            DateTime dateFormated;
+
+            // Unix timestamp is seconds past epoch
+            if (unixTimeStamp != null || unixTimeStamp == 0)
+            {
+                dateFormated = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+                dateFormated = dateFormated.AddSeconds((double)unixTimeStamp);
+
+            }
+            else
+            {
+                dateFormated = noTime ?? DateTime.UtcNow;
             }
             return dateFormated;
         }

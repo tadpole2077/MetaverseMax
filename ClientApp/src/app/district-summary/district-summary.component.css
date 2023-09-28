@@ -119,7 +119,9 @@
 .accountAccordion .mat-expansion-panel {
   z-index: 10;
 }
-
+::ng-deep .mat-expansion-panel-header-title span:first-of-type {
+  margin-left: .2rem
+}
 
 /***District Section***/
 .districtHeader {
@@ -264,6 +266,13 @@
   height: 1.6rem;
   padding-top: .16rem;
   margin-right:.2rem;  
+}
+.customCount{
+  padding-right:6px;
+}
+.landParcelCount{
+  padding-left:18px;
+  padding-right:6px;
 }
 
 
@@ -604,7 +613,7 @@ th.mat-column-owned_plots{
 
 
 
-@media only screen and (max-width: 415px) {
+@media only screen and (max-width: 426px) {
 
   h3 {
     font-size: 1.3rem;
@@ -613,9 +622,11 @@ th.mat-column-owned_plots{
   .searchTop {
     display: block;
   }
+
   .searchBottom {
     display: none;
   }
+
   .searchDistrict {
     position: absolute;
     margin-top: 20px;
@@ -655,7 +666,7 @@ th.mat-column-owned_plots{
     margin-left: -28px !important;
   }
 
-  .taxGraphDistrictConstruct {    
+  .taxGraphDistrictConstruct {
     width: 360px;
   }
 
@@ -663,19 +674,20 @@ th.mat-column-owned_plots{
     width: 360px;
   }
 
-  .fundGraph{
-    margin-left:-20px;
-    width:390px;   
-  }
-  .distributeGraph {
-    margin-top:1.4rem;
+  .fundGraph {
     margin-left: -20px;
     width: 390px;
   }
 
-  .districtInfoBlock{
-    margin-left:-1rem;
-    font-size:.8rem;
+  .distributeGraph {
+    margin-top: 1.4rem;
+    margin-left: -20px;
+    width: 390px;
+  }
+
+  .districtInfoBlock {
+    margin-left: -1rem;
+    font-size: .8rem;
   }
 
   .tableControls {
@@ -683,7 +695,7 @@ th.mat-column-owned_plots{
   }
 
   .tableFilter {
-    vertical-align:top
+    vertical-align: top
   }
 
   .mat-column-owner_name .arrivalIcon, .mat-column-owner_name .arrivalIcon2 {
@@ -696,27 +708,32 @@ th.mat-column-owned_plots{
   .mat-column-owner_name {
     min-width: 4rem;
   }
-    td.mat-column-owner_name {
-      text-align: center;
-    }
-      td.mat-column-owner_name img {
-        margin-top: .4rem;
-      }
-      td.mat-column-owner_name .mysteryImg {
-        margin-left: -8px;
-        height: 38px;
-      }
-      td.mat-column-owner_name a {
-        display: block;
-        padding-right: 0;
-        text-align: left;
-        width: unset;
-        padding-top: .1rem;
-      }
 
-    .mat-column-owner_name a span {
-      width: 3.1rem;
+  td.mat-column-owner_name {
+    text-align: center;
+  }
+
+    td.mat-column-owner_name img {
+      margin-top: .4rem;
     }
+
+    td.mat-column-owner_name .mysteryImg {
+      margin-left: -8px;
+      height: 38px;
+    }
+
+    td.mat-column-owner_name a {
+      display: block;
+      padding-right: 0;
+      text-align: left;
+      width: unset;
+      padding-top: .1rem;
+    }
+
+  .mat-column-owner_name a span {
+    width: 3.1rem;
+  }
+
     .mat-column-owner_name a span.maticLink {
       width: 3.1rem;
     }
@@ -730,16 +747,22 @@ th.mat-column-owned_plots{
     font-size: .8rem;
   }
 
-  .table-container{
+  .table-container {
     margin-top: 1.4rem;
   }
 
   .arrivalCheckboxGroup {
     font-size: .7rem;
   }
-  #arrivalCheckboxMonth{
-    display:block;
-    margin-left:unset;
+
+  #arrivalCheckboxMonth {
+    display: block;
+    margin-left: unset;
   }
+
+  ::ng-deep .customBuilding .mat-expansion-panel-body {
+    padding-left: 12px;
+  }
+  
 
 }

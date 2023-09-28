@@ -24,6 +24,7 @@ export class CitizenModalComponent {
   public isMobileView: boolean = false;
   public notifySubscription: Subscription = null;
   public showingColumnsTraits: boolean = true;
+  showTick: boolean = false;
 
   httpClient: HttpClient;
   baseUrl: string;
@@ -84,6 +85,7 @@ export class CitizenModalComponent {
     this.displayedColumns.forEach(function (key, value) {
       parseData += key + "\t";
     });
+
     if (this.showingColumnsTraits) {
       parseData += "trait_agility_with_pet \t";
       parseData += "trait_intelligence_with_pet \t";
@@ -91,7 +93,10 @@ export class CitizenModalComponent {
       parseData += "trait_endurance_with_pet \t";
       parseData += "trait_luck_with_pet \t";
       parseData += "trait_strength_with_pet \t";
-      parseData +=  "trait_avg_with_pet \t";
+      parseData += "trait_avg_with_pet \t";
+    }
+    else {
+      parseData += "building_type \t";
     }
     parseData += String.fromCharCode(13) + String.fromCharCode(10);
 
@@ -118,6 +123,9 @@ export class CitizenModalComponent {
         parseData += this.max10(copyDataset[counter].trait_strength, copyDataset[counter].trait_strength_pet) + "\t";
         parseData += copyDataset[counter].trait_avg_pet + "\t";
       }
+      else {
+        parseData += copyDataset[counter].building_desc + "\t";
+      }
 
       parseData += String.fromCharCode(13) + String.fromCharCode(10)
     }
@@ -125,6 +133,8 @@ export class CitizenModalComponent {
 
 
     this.clipboard.copy(parseData);
+
+    this.showTick = true;
 
     return;
   }
@@ -177,10 +187,13 @@ export class CitizenModalComponent {
   }
 
   setHide() {
+    this.showTick = false;
     this.hideCitizenEvent.emit(true);
   }
 
-  onTableViewChange(viewType:string) {
+  onTableViewChange(viewType: string) {
+
+    this.showTick = false;
 
     if (viewType == "traits") {
       this.displayedColumns = this.displayedColumnsTraits;
@@ -197,6 +210,7 @@ export class CitizenModalComponent {
 
   refresh() {
 
+    this.showTick = false;
     this.progressIcon.nativeElement.classList.add("rotate");
     this.search(this.maticKey, true);
 

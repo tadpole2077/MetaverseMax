@@ -149,7 +149,7 @@ namespace MetaverseMax.ServiceClass
 
     }
 
-    public class QueryParametersDistrict
+    public class QueryParametersDistrictId
     {
         // Using BingRequired attribute and not Required as it forces a specific use of a parameter name
         [BindRequired]

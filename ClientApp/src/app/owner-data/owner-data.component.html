@@ -165,7 +165,7 @@
             <span class="buildingNum">{{ land.token_id }}</span>
             <img *ngIf="land.building_type == 0" src="{{ land.building_img }}" class="buildingImg" crossorigin="anonymous" referrerpolicy="no-referrer">
             <div *ngIf="land.building_type != 0" [ngClass]="{'buildingZoom': land.building_category == 0}">
-              <img src="{{ land.building_img }}" class="buildingImg">
+              <img src="{{ land.building_img }}" class="buildingImg" SameSite="Lax">
             </div>
           </div>
           <div *ngIf="land.building_type==10" class="buildDescParcel">

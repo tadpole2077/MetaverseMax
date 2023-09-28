@@ -171,7 +171,8 @@
         PET = 5,
         APPLICATION = 6,
         RESOURCE = 7,
-        CAR = 8
+        CAR = 8,
+        PARCEL = 10,
     }
     public enum DISTRICT_PERKS
     {
@@ -630,6 +631,7 @@
     {
         public static readonly string LAND_GET = "https://ws-tron.mcp3d.com/land/get";
         public static readonly string PARCEL_GET = "https://ws-tron.mcp3d.com/parcel/get";
+        public static readonly string BUILDING_UNIT_GET = "https://ws-tron.mcp3d.com/units/parcel/";
         public static readonly string OWNER_LANDS = "https://ws-tron.mcp3d.com/user/assets/lands";
         public static readonly string POI_GET = "https://ws-tron.mcp3d.com/poi/get";
         public static readonly string USER_GET = "https://ws-tron.mcp3d.com/user/get";
@@ -644,6 +646,7 @@
         public static readonly string PERKS_DISTRICT = "https://ws-tron.mcp3d.com/perks/districts";
         public static readonly string DISTRICT_INFO = "https://ws-tron.mcp3d.com/newspaper/district/info";
         public static readonly string BALANCES = "https://ws-tron.mcp3d.com/balances";
+        public static readonly string MISSION = "https://ws-tron.mcp3d.com/missions/land/";
 
     }
 
@@ -651,6 +654,7 @@
     {
         public static readonly string LAND_GET = "https://ws-bsc.mcp3d.com/land/get";
         public static readonly string PARCEL_GET = "https://ws-bsc.mcp3d.com/parcel/get";
+        public static readonly string BUILDING_UNIT_GET = "https://ws-bsc.mcp3d.com/units/parcel/";
         public static readonly string OWNER_LANDS = "https://ws-bsc.mcp3d.com/user/assets/lands";
         public static readonly string POI_GET = "https://ws-bsc.mcp3d.com/poi/get";
         public static readonly string USER_GET = "https://ws-bsc.mcp3d.com/user/get";
@@ -665,12 +669,14 @@
         public static readonly string PERKS_DISTRICT = "https://ws-bsc.mcp3d.com/perks/districts";
         public static readonly string DISTRICT_INFO = "https://ws-bsc.mcp3d.com/newspaper/district/info";
         public static readonly string BALANCES = "https://ws-bsc.mcp3d.com/balances";
+        public static readonly string MISSION = "https://ws-bsc.mcp3d.com/missions/land/";
     }
 
     public class ETH_WS
     {
         public static readonly string LAND_GET = "https://ws.mcp3d.com/land/get";
         public static readonly string PARCEL_GET = "https://ws.mcp3d.com/parcel/get";
+        public static readonly string BUILDING_UNIT_GET = "https://ws.mcp3d.com/units/parcel/";
         public static readonly string OWNER_LANDS = "https://ws.mcp3d.com/user/assets/lands";
         public static readonly string POI_GET = "https://ws.mcp3d.com/poi/get";
         public static readonly string USER_GET = "https://ws.mcp3d.com/user/get";
@@ -685,6 +691,7 @@
         public static readonly string PERKS_DISTRICT = "https://ws.mcp3d.com/perks/districts";
         public static readonly string DISTRICT_INFO = "https://ws.mcp3d.com/newspaper/district/info";
         public static readonly string BALANCES = "https://ws.mcp3d.com/balances";
+        public static readonly string MISSION = "https://ws.mcp3d.com/missions/land/";
     }
 
     public enum UPDATE_TYPE
@@ -692,5 +699,16 @@
         FULL = 1,
         PARTIAL = 2,
         COPY_MASTER = 3,
+    }
+
+    public enum EVENT_TYPE
+    {
+        UNKNOWN = 0,       
+        CREATED = 1,
+        LISTED_ON_MARKET = 2,
+        PURCHASED_ON_MARKET = 3,
+        TRANSFERED_TO_NEW_OWNER = 4,
+        UNITS_MINTED = 5,
+        CUSTOM_BUILD = 6,
     }
 }

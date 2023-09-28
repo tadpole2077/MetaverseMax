@@ -103,7 +103,9 @@ export class DistrictSummaryComponent implements AfterViewInit {
       fundHistory: null,
       distributeHistory: null,
       perkSchema: null,
-      districtPerk: null
+      districtPerk: null,
+      custom_count: 0,
+      parcel_count: 0
     };
 
     // CHECK request Parameter, search by districtId
@@ -176,10 +178,18 @@ export class DistrictSummaryComponent implements AfterViewInit {
           this.arrivalsMonth.checked = false;
 
           if (this.district.district_id != 0) {
-            this.childGraphConstruct.loadGraph(this.district.constructTax);
-            this.childGraphProduce.loadGraph(this.district.produceTax);
-            this.childGraphFund.loadGraph(this.district.fundHistory);
-            this.childGraphDistribute.loadGraph(this.district.distributeHistory);
+            if (this.childGraphConstruct) {
+              this.childGraphConstruct.loadGraph(this.district.constructTax);
+            }
+            if (this.childGraphProduce) {
+              this.childGraphProduce.loadGraph(this.district.produceTax);
+            }
+            if (this.childGraphFund) {
+              this.childGraphFund.loadGraph(this.district.fundHistory);
+            }
+            if (this.childGraphDistribute) {
+              this.childGraphDistribute.loadGraph(this.district.distributeHistory);
+            }
           }
           //plotPos.rotateEle.classList.remove("rotate");
 

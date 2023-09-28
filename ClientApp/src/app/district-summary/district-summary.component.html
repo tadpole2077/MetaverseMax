@@ -53,11 +53,11 @@
 
   <mat-accordion class="example-headers-align accountAccordion" multi>
 
-    <mat-expansion-panel expanded="true">
+    <mat-expansion-panel expanded="{{isMobileView?false:true}}">
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>account_balance</mat-icon>
-          <span style="margin-left:.2rem">District Tax Graphs</span>
+          <span>District Tax Graphs</span>
         </mat-panel-title>
         <mat-panel-description>
         </mat-panel-description>
@@ -78,7 +78,7 @@
         </div>
 
         <mat-accordion id="taxChangeAccordion" class="example-headers-align" multi>
-          
+
           <mat-expansion-panel #taxChangePanel (opened)="loadTaxChange()">
             <mat-expansion-panel-header>
               <mat-panel-title>
@@ -103,7 +103,7 @@
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>cake</mat-icon>
-          <span style="margin-left:.2rem">Local fund and Distribution Graphs</span>
+          <span>Local fund and Distribution Graphs</span>
         </mat-panel-title>
         <mat-panel-description>
         </mat-panel-description>
@@ -130,7 +130,7 @@
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>stars</mat-icon>
-          <span style="margin-left:.2rem">District Perks <span class="perkCount">{{ district.districtPerk ? district.districtPerk.length : 0}}</span></span>
+          <span>District Perks <span class="perkCount">{{ district.districtPerk ? district.districtPerk.length : 0}}</span></span>
         </mat-panel-title>
         <mat-panel-description>
         </mat-panel-description>
@@ -148,11 +148,31 @@
 
     </mat-expansion-panel>
 
+    <mat-expansion-panel expanded="false" class="customBuilding">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>location_city</mat-icon>          
+          <span class="customCount long-text">District Custom Buildings</span>
+          <span class="customCount short-text">Custom Building</span>
+          <span class="perkCount">{{ district.custom_count }}</span>
+          <span class="landParcelCount long-text">Land Parcels</span>
+          <span class="landParcelCount short-text">Parcels</span>
+          <span class="perkCount">{{ district.parcel_count }}</span>          
+        </mat-panel-title>
+        <mat-panel-description>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <ng-template matExpansionPanelContent >        
+          <app-custom-building [districtId]="district.district_id"></app-custom-building>        
+      </ng-template>
+    </mat-expansion-panel>
+
     <mat-expansion-panel expanded="true">
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>home</mat-icon>
-          <span style="margin-left:.2rem">Summary of Owners, Plot types, Claimed Plots..</span>
+          <span>Summary of Owners, Plot types, Claimed Plots..</span>
         </mat-panel-title>
         <mat-panel-description>
         </mat-panel-description>

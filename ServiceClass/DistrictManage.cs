@@ -18,10 +18,11 @@ namespace MetaverseMax.ServiceClass
         }
 
 
-        public DistrictWeb GetDistrict(int district_id)
+        public DistrictWeb GetDistrict(int districtId)
         {
             DistrictWeb districtWeb = new();
             DistrictWebMap districtWebMap = new(_context, worldType);
+            PlotDB plotDB = new(_context, worldType);
 
             District district, districtHistory_1Mth = new();
             DistrictContent districtContent = new();
@@ -33,8 +34,8 @@ namespace MetaverseMax.ServiceClass
 
             try
             {
-                district = districtDB.DistrictGet(district_id);
-                districtHistory_1Mth = districtDB.DistrictGet_History1Mth(district_id, district.last_update);
+                district = districtDB.DistrictGet(districtId);
+                districtHistory_1Mth = districtDB.DistrictGet_History1Mth(districtId, district.last_update);
 
                 if (district.district_id == 0)
                 {
@@ -43,13 +44,15 @@ namespace MetaverseMax.ServiceClass
                 }
                 else
                 {
-                    districtWeb = districtWebMap.MapData_DistrictWeb(district, districtHistory_1Mth, perksDetail, getTaxHistory);
+                    districtWeb = districtWebMap.MapData_DistrictWeb(district, districtHistory_1Mth, perksDetail, getTaxHistory);                    
+                    districtWeb.custom_count = plotDB.GetCustomCountByDistrict(districtId);
+                    districtWeb.parcel_count = plotDB.GetParcelCountByDistrict(districtId) - districtWeb.custom_count;
                 }
             }
             catch (Exception ex)
             {
                 DBLogger dBLogger = new(_context.worldTypeSelected);
-                dBLogger.logException(ex, String.Concat("GetDistrict() : Error District_id: ", district_id.ToString()));
+                dBLogger.logException(ex, String.Concat("GetDistrict() : Error District_id: ", districtId.ToString()));
             }
 
             return districtWeb;

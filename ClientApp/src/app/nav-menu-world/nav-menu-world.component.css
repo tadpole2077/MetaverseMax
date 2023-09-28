@@ -48,7 +48,7 @@ div.dropdown-menu {
   margin-right: 0.4rem;
 }
 
-@media only screen and (max-width: 415px) {
+@media only screen and (max-width: 426px) {
 
   div.dropdown-menu {
     margin-left: -10px;

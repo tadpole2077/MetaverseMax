@@ -63,6 +63,8 @@
     <None Remove="ClientApp\src\app\common\enum.ts" />
     <None Remove="ClientApp\src\app\common\global-var.ts" />
     <None Remove="ClientApp\src\app\common\graph-interface.ts" />
+    <None Remove="ClientApp\src\app\common\interface.ts" />
+    <None Remove="ClientApp\src\app\custom-building\custom-building.component.ts" />
     <None Remove="ClientApp\src\app\district-list\district-list.component.css" />
     <None Remove="ClientApp\src\app\district-notification\district-notification.component.css" />
     <None Remove="ClientApp\src\app\district-summary\data-district-interface.ts" />

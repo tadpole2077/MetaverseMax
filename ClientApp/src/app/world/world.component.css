@@ -180,6 +180,10 @@ td.mat-column-district_id a {
 .mat-column-building_name {
   min-width: 150px;
 }
+.mat-column-unit_forsale_count div:last-of-type{
+  margin-bottom: 6px
+}
+
 .buildDescParcel {
   display: inline-block;
   vertical-align: middle;
@@ -259,6 +263,18 @@ td.mat-column-district_id a {
   margin-left: -70px;
 }
 
+.lastAction {
+  text-align: center;
+  width: 120px;
+  overflow: visible;
+}
+.lastActionType {
+  display: block
+}
+.datePart, .timePart{
+  font-size: 12px;
+}
+
 /*Sale Sign*/
 .salepos {
   position: absolute;
@@ -279,7 +295,22 @@ td.mat-column-district_id a {
     z-index: -1;
     background-color: white
   }
-
+.forsale {
+  background: #E20F1E;
+  border: 4px;
+  padding: 4px;
+  font-weight: 500;
+  font-family: fantasy;
+  letter-spacing: .7px;
+  font-size: 16px;
+  border-radius: 5px;
+  margin-right: 3px;
+  margin-top: 6px;
+  margin-bottom: 5px;
+  display: inline-block;
+  line-height: 18px;
+  color: white;
+}
 /*** Link underline amine ***/
 a {
   position: relative;
@@ -296,6 +327,8 @@ a {
 .timePart {
   display: block;
 }
+
+
 /* @keyframes duration | easing-function | delay | iteration-count | direction | fill-mode | play-state | name */
 .fadeInAndOut {
   animation: fadeInOut 3s linear 1s 8;
@@ -323,7 +356,7 @@ a {
 }
 
 
-@media only screen and (max-width: 415px) {
+@media only screen and (max-width: 426px) {
   h3 {
     font-size: 18px
   }
@@ -460,5 +493,39 @@ a {
   }
   .addMarginTop{
     margin-top: 8px
+  }
+
+  .spacerLine {
+    height: 8px;
+    width: 300px;
+    border: dashed;
+    border-color: darkred;    
+    border-width: 0.6px 0 0 0;
+    margin-top: 14px;
+    margin-bottom: 8px;
+  }
+  .unitSection {
+    position: absolute
+  }
+  .forSaleUnit, .unitPrice {
+    display: inline-block;    
+    vertical-align: middle;
+  }
+  .forsaleUnit {
+    font-size: 14px;
+    font-weight: 600;
+    padding-left: 6px
+  }
+  .unitPrice {
+    margin-left: 24px;
+  }
+  .addMarginBottom {
+    margin-bottom: 80px;
+  }
+  td.addPaddingBottom {
+    padding-bottom: 80px;
+  }
+  .mat-column-owner_name{
+    vertical-align: top
   }
 }

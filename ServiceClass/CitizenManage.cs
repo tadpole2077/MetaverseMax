@@ -1329,6 +1329,7 @@ namespace MetaverseMax.ServiceClass
             return salePrice;
         }
 
+
         // IND	S - Trait #1 @ 1/2  	E - Trait #2 @ 1/3	Trait #3(rest x4)	@ 1/6  = 100%
         private double GetIndustryEfficiency(CitizenTrait citizen)
         {

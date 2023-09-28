@@ -129,13 +129,14 @@ $foreground: map-get($dark-app-theme, foreground);
   .dropdown-menu {
     background-color: $dark-menu-bg;
   }
+
   .menuItem:hover {
     background-color: $dark-menu-hover-bg /*6% lighter then #303339*/
-  }  
+  }
+
   .gradientBar {
     background: linear-gradient(270deg, rgb(21, 101, 192) 0%, rgba(140, 180, 224, 0.7) 28%, rgba(227, 237, 247, 0.24) 42%, rgba(26, 28, 39, 0) 100%);
   }
-
   // Mat-Datatable
   // Table Search field
   .tableFilter .material-icons.mdc-text-field__icon {
@@ -257,14 +258,19 @@ $foreground: map-get($dark-app-theme, foreground);
   .mat-expansion-panel-header, .mat-expansion-panel-header.mat-expanded:focus, .mat-expansion-panel-content {
     background-color: $dark-outer-bg;
   }
+
   // District Summary
   #taxChangeAccordion .mat-expansion-panel, #taxChangeAccordion .mat-expansion-panel-body {
     background-color: $dark-inner-bg;
   }
-
   .adframe {
     color: white;
   }
+  div.buildingZoom, div.buildingInfo {
+    background-color: $dark-inner-bg;
+    color: white;
+  }
+
   // Production History
   span.summaryLabel, .helpTip span, .helpTipNoIcon span {
     color: var(--bs-gray-500);

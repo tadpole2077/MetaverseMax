@@ -1,0 +1,160 @@
+
+<div class="filterControls">
+  <div class="activeFilter" fxLayout fxLayoutAlign="center center">
+    <div>
+      <mat-checkbox #buildingFilter
+                    fxFlex="30%"
+                    (change)="filterBuilding($event)">
+        <img class="buildingImgSml" title="Land Parcels" src="./images/building.png">
+        <span class="filterLabel" matBadge="{{ !districtParcel ? 0 : districtParcel.building_count }}" [ngClass]="{'largeBadge': !districtParcel ? false : districtParcel.building_count > 100 }" matBadgePosition="above after">Buildings</span>
+      </mat-checkbox>
+    </div>
+  </div>
+
+  <div class="activeFilter" fxLayout fxLayoutAlign="center center">
+    <div>
+      <mat-checkbox #parcelFilter
+                    fxFlex="30%"
+                    (change)="filterParcel($event)">
+        <img class="buildingImgSml" title="Land Parcels" src="./images/Parcel.png">
+        <span class="filterLabel" matBadge="{{ !districtParcel ? 0 : districtParcel.parcel_count }}" [ngClass]="{'largeBadge': !districtParcel ? false : districtParcel.parcel_count > 100 }" matBadgePosition="above after">Parcels</span>
+      </mat-checkbox>
+    </div>
+  </div>
+</div>
+
+<div class="buildingList" *ngFor="let row of tableView">
+  <div class="buildingZoom">
+    <img src="{{ row.building_img }}" class="buildingImg">
+    <a class="mapLink lineAnim" target="_blank" title="Open MegaWorld Strategy" href="https://play.mcp3d.com/{{ globals.worldName.toLowerCase() }}/land?x={{ row.pos_x }}&y={{ row.pos_y }}">
+      <mat-icon>language</mat-icon>
+      <span>Strategy</span>
+    </a>
+    <a class="mapLink2 lineAnim" target="_blank" title="Open MegaWorld World Tour" href="https://tour.megaworld.io/?map={{ getWorldNumber(globals.worldName.toLowerCase())}}&start_x={{ row.pos_x }}&start_y={{ row.pos_y }}">
+      <mat-icon>language</mat-icon>
+      <span>World</span>
+    </a>
+  </div>
+  <div class="buildingInfo">
+    <div class="Bar barTop"></div>
+    <span class="salepos" *ngIf="row.forsale_price > 0">{{ row.forsale_price.toLocaleString() }}</span>
+    <div class="buildingData">
+      <div class="pageButton">
+        <a *ngIf="currentPage==1||isMobileView && currentPage==2 && buildingFilter.checked" role="button" (click)="showPage(1)"><span class="arrowDown"></span></a>
+        <a *ngIf="currentPage==2||isMobileView && currentPage==3" role="button" (click)="showPage(-1)"><span class="arrowUp"></span></a>
+      </div>
+      <div class="scroller" [ngClass]="{'page1scroll':currentPage==1, 'page2scroll':currentPage==2,'page3scroll':currentPage==3}">
+
+        <div class="page1">
+          <div>
+            <span class="buildingName"> {{ row.building_name }} </span>
+          </div>
+          <div>
+            <span class="buildingCategory">{{ getCustomCategoryName(row.building_category_id) }}</span>
+            <span class="buildingNum"># {{ row.parcel_id }}</span>
+          </div>
+          <div>
+            <span *ngIf="row.unit_count > 0" class="units"> Units : {{ row.unit_count }} </span>
+          </div>
+          <div>
+            <span> Plot Size : {{ row.plot_count }}</span>
+          </div>
+
+        </div>
+
+        <div class="page2 mobileView" *ngIf="row.unit_count>0">
+          <div *ngIf="row.unit_forsale_count==0" class="noUnit">
+            <span>No units For Sale</span>
+          </div>
+          <div *ngIf="row.unit_forsale_count>0">
+            <div>
+              <span class="forsale">{{isMobileView?'UNIT ':''}}FOR SALE</span>
+              <span>{{ row.unit_forsale_count }}</span>
+            </div>
+            <div *ngIf="row.unit_price_high_mega>0">
+              <span>Mega Price: </span>
+              <span *ngIf="row.unit_price_low_mega>0 && row.unit_price_low_mega != row.unit_price_high_mega">
+                <span>{{ row.unit_price_low_mega }} - {{ row.unit_price_high_mega }}</span>
+              </span>
+              <span *ngIf="row.unit_price_low_mega==row.unit_price_high_mega">{{ row.unit_price_high_mega }}</span>
+            </div>
+            <div *ngIf="row.unit_price_high_coin>0">
+              <span>{{globals.worldCode}} Price: </span>
+              <span *ngIf="row.unit_price_low_coin>0 && row.unit_price_low_coin != row.unit_price_high_coin">
+                <span>{{ row.unit_price_low_coin }} - {{ row.unit_price_high_coin }}</span>
+              </span>
+              <span *ngIf="row.unit_price_low_coin==row.unit_price_high_coin">{{ row.unit_price_high_coin }}</span>
+            </div>
+            <div>
+              <span>Size (m2): </span>
+              <span *ngIf="row.unit_sale_smallest_size>0 && row.unit_sale_smallest_size!=row.unit_sale_largest_size">
+                <span>{{ row.unit_sale_smallest_size }} - {{ row.unit_sale_largest_size }}</span>
+              </span>
+              <span *ngIf="row.unit_sale_smallest_size==row.unit_sale_largest_size">{{ row.unit_sale_largest_size }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div [ngClass]="{'page3': isMobileView, 'page2': !isMobileView}">
+          <span>Owner :</span>
+          <img *ngIf="row.owner_avatar_id>0" src="{{ globals.worldURLPath }}citizen/{{ row.owner_avatar_id }}" class="ownerImgCol" height="60" crossorigin="anonymous" referrerpolicy="no-referrer" />
+          <img *ngIf="row.owner_avatar_id==0" src="./images/MysteryOwner.png" class="mysteryImg" />
+          <div>
+            <a class="lineAnim" [routerLink]="['/', globals.worldCode, 'owner-data']" [queryParams]="{matic: row.owner_matic}" title="{{ row.owner_name }}">
+              <span *ngIf="row.owner_name!=''">{{ row.owner_name }}</span>
+
+              <span class="long-text" *ngIf="row.owner_name==''">{{ row.owner_matic.substring(0,14) }}</span>
+              <span class="short-text" *ngIf="row.owner_name==''">{{ row.owner_matic.substring(0,10) }}</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div *ngIf="!isMobileView && row.unit_count>0" class="buildingInfo unit">
+      <div class="unitTab">UNIT</div>
+      <div class="Bar barTop"></div>
+      <div class="buildingData">
+        <div class="scroller">
+          <div class="page1">
+            <div *ngIf="row.unit_forsale_count==0" class="noUnit">
+              <span>No units For Sale</span>
+            </div>
+            <div *ngIf="row.unit_forsale_count>0">
+              <div>
+                <span class="forsale">FOR SALE</span>
+                <span>{{ row.unit_forsale_count }}</span>
+              </div>
+              <div *ngIf="row.unit_price_high_mega>0">
+                <span>Mega Price: </span>
+                <span *ngIf="row.unit_price_low_mega>0 && row.unit_price_low_mega != row.unit_price_high_mega">
+                  <span>{{ row.unit_price_low_mega }} - {{ row.unit_price_high_mega }}</span>
+                </span>
+                <span *ngIf="row.unit_price_low_mega==row.unit_price_high_mega">{{ row.unit_price_high_mega }}</span>
+              </div>
+              <div *ngIf="row.unit_price_high_coin>0">
+                <span>{{globals.worldCode}} Price: </span>
+                <span *ngIf="row.unit_price_low_coin>0 && row.unit_price_low_coin != row.unit_price_high_coin">
+                  <span>{{ row.unit_price_low_coin }} - {{ row.unit_price_high_coin }}</span>
+                </span>
+                <span *ngIf="row.unit_price_low_coin==row.unit_price_high_coin">{{ row.unit_price_high_coin }}</span>
+              </div>
+              <div>
+                <span>Size (m2): </span>
+                <span *ngIf="row.unit_sale_smallest_size>0 && row.unit_sale_smallest_size!=row.unit_sale_largest_size">
+                  <span>{{ row.unit_sale_smallest_size }} - {{ row.unit_sale_largest_size }}</span>
+                </span>
+                <span *ngIf="row.unit_sale_smallest_size==row.unit_sale_largest_size">{{ row.unit_sale_largest_size }}</span>
+              </div>
+            </div>
+          </div>         
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  
+</div>

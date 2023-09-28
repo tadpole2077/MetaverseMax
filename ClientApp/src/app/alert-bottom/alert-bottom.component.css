@@ -197,7 +197,7 @@
   transform: rotate(90deg);
 }
 
-@media only screen and (max-width: 415px) {
+@media only screen and (max-width: 426px) {
   .messageItem {
     width: unset;
     font-size: .7rem;

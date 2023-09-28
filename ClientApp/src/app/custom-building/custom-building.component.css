@@ -1,0 +1,286 @@
+
+.filterControls {
+  display: inline-block;
+  margin-left: 20px;
+  margin-bottom: 20px;
+}
+
+.activeFilter {
+  display: inline-block;
+  margin-right: 30px;
+  font-size: .9rem;
+}
+
+  .activeFilter .filterLabel {
+    padding-right: 10px;
+  }
+
+  .activeFilter .largeBadge {
+    padding-right: 30px;
+  }
+
+    .activeFilter .largeBadge .mat-badge-content {
+      width: 44px;
+    }
+
+.filterIcon {
+  color: #28a745;
+  font-size: 1.6rem;
+  vertical-align: sub;
+  margin-right: 0.2rem;
+}
+.buildingImgSml {
+  height: 38px;
+  margin-right: 5px;
+  margin-top: -3px;
+}
+.mapLink {  
+  position: absolute;
+  left: 8px;
+  bottom: 4px;
+}
+.mapLink2 {
+  position: absolute;
+  right: 8px;
+  bottom: 4px;
+}
+
+.buildingList {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+.buildingZoom {
+  display: inline-block;
+  border: aliceblue;
+  border-width: thin;
+  border-style: solid;
+  border-radius: 6px;
+  background-color: aliceblue;
+  padding: 16px 18px 20px 18px;
+  position:relative;
+}
+.buildingImg {
+  max-height: 160px;
+}
+
+.buildingInfo {
+  width: 260px;
+  margin-top: 16px;
+  margin-left: -30px;
+  position: relative;
+  display: inline-block;
+  background-color: #fafafa;
+  height: 154px;
+  position: absolute;
+  z-index: 1;
+  border-radius: 6px;
+  border-color: white;
+  border-width: thin;
+  border-style: solid;
+  color: dimgray;
+}
+  .buildingInfo .unit {
+    height: 124px;
+    background-color: beige;
+    margin-left: 4px;
+    width: 220px;
+    color: dimgray;
+  }
+    .buildingInfo .unit .Bar {
+      background-color: dodgerblue;
+    }
+
+.buildingData {
+  display: inline-block;
+  margin-left: 18px;
+  vertical-align: top;
+  margin-top: 16px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.5rem;
+  overflow: hidden;
+  height: 130px;
+  width: 200px
+}
+.unit .buildingData {
+  width: 186px;
+  margin-top: 8px;
+  margin-left: 10px;
+}
+.unitTab {
+  position: absolute;
+  margin-left: 100px;
+  margin-top: -20px;
+  background-color: beige;
+  border-radius: 8px 8px 0 0;
+  padding: 2px 8px;
+  color: darkslategray;
+  font-weight: 600;
+  letter-spacing: .9px;
+}
+.page1, .page2 {
+  height: 130px;
+  overflow: hidden;
+}
+
+.builingInfo span {
+  font-size: 14px;
+}
+.buildingName{
+}
+.ownerData {
+  opacity: 0;
+}
+.noUnit span{
+  margin-top: 40px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+
+.Bar {
+  width: 3px;
+  height: 80%;
+  margin-top: 5%;
+  margin-left: 18px;
+  background-color: red;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.gradientBar2 {
+  background: linear-gradient(270deg, rgb(21, 101, 192) 0%, rgba(140, 180, 224, 0.7) 28%, rgba(227, 237, 247, 0.24) 42%, rgba(26, 28, 39, 0) 100%);
+}
+
+
+.arrowDown, .arrowUp {
+  border-style: solid;
+  border-width: 0 5px 5px 0;
+  content: "";
+  position: absolute;
+  display:none;
+  padding: 6px;
+  transform: rotate(45deg);
+  vertical-align: middle;
+  bottom: 6px;
+  left: 0;
+  display:block;
+}
+.arrowUp {
+  transform: rotate(-135deg);
+}
+.arrowDown {
+  bottom: 14px;
+}
+
+.page1scroll {
+  margin-top: 0;
+}
+.page2scroll {
+  margin-top: -130px
+}
+.page3scroll {
+  margin-top: -260px
+}
+.scroller {
+  overflow: hidden;
+  transition: 2s;
+}
+.pageButton {
+  position: absolute;
+  left: 120px;
+  bottom: 0;
+  z-index: 1
+}
+
+.mysteryImg {
+  height: 50px;
+  margin-top: 0;
+  margin-left: 4px
+}
+
+/*Sale Sign*/
+.salepos {
+  position: absolute;    
+  z-index: 100;  
+  top: -16px;
+  left: 130px;
+}
+
+  .salepos::before {
+    background: url("../../assets/red-for-sale-sign.png") no-repeat;
+    content: "";
+    height: 60px;
+    width: 90px;
+    display: inline-block;
+    background-size: contain;
+    margin-top: -30px;
+    margin-left: -28px;
+    position: absolute;
+    z-index: -1;
+    background-color: white
+  }
+
+.forsale {
+  background: #E20F1E;
+  border: 4px;
+  padding: 4px;
+  font-weight: 500;
+  font-family: fantasy;
+  letter-spacing: .7px;
+  font-size: 16px;
+  border-radius: 5px;
+  margin-right: 3px;
+  margin-bottom: 5px;
+  display: inline-block;
+  line-height: 18px;
+  color: white;
+}
+
+.mobileView {
+  display: none;
+}
+
+@media only screen and (max-width: 426px) {
+  .short-text, .mobileView {
+    display: inline-block !important;
+  }
+
+  .filterControls{
+    margin-left: 0;
+
+  }
+
+  .Bar{
+    margin-left:12px
+  }
+  .buildingData{
+    font-size: 13px;
+    margin-left: 6px
+  }
+  .pageButton {
+    left: 78px;
+  }
+  .arrowUp{
+    margin-left: 34px
+  }
+
+  .buildingImg{
+    max-width:170px;
+  }
+  .buildingImg{
+    min-height: 190px;
+  }
+  .salepos {
+    left: 74px;
+    width: 46px;
+    font-size: 14px;
+    top: -8px;
+  }
+    .salepos::before {
+      height: 42px;
+      width: 62px;
+      margin-top: -18px;
+      right: 0;
+    }
+}

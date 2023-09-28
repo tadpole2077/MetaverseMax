@@ -7,7 +7,9 @@
 
   <div class="topBtnDiv test1">
 
-    <i class="fas fa-clipboard" style=""></i><button mat-raised-button color="primary" class="copy" (click)="copyData()">Copy All to Clipboard</button>
+    <i class="fas fa-clipboard" style=""></i>
+    <button mat-raised-button color="primary" class="copy" (click)="copyData()">Copy All to Clipboard</button>
+    <i [ngClass]="{'showTick':showTick}" class="fas fa-check"></i>
 
     <mat-button-toggle-group name="tableView" aria-label="View" id="tableView">
       <mat-button-toggle value="traits" checked="true" (change)="onTableViewChange($event.value)" matTooltip="View Citizen Traits"><span>Traits</span></mat-button-toggle>

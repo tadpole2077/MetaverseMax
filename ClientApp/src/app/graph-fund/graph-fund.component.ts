@@ -4,6 +4,10 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { graphDataFundTest } from './data-fund-test';
 import { GraphData } from '../common/graph-interface';
 
+// Browser warning in Brave - due to loading this graph type (both Fund & Distributoin period) : Example Eth - district 152
+// The animation trigger "animationState" is attempting to animate the following not animatable properties: strokeDashoffset
+// (to check the list of all animatable properties visit https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_animated_properties)
+
 
 @Component({
   selector: 'app-graph-fund',

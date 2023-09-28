@@ -498,7 +498,8 @@ namespace MetaverseMax.ServiceClass
                                 building_desc = building.BuildingType(landInstance.Value<int?>("building_type_id") ?? 0, landInstance.Value<int?>("building_id") ?? 0),
                                 building_img = building.GetBuildingImg((BUILDING_TYPE)(landInstance.Value<int?>("building_type_id") ?? 0), landInstance.Value<int?>("building_id") ?? 0, landInstance.Value<int?>("building_level") ?? 0, worldType),
                                 last_actionUx = landInstance.Value<double?>("last_action") ?? 0,
-                                last_action = common.UnixTimeStampUTCToDateTime(landInstance.Value<double?>("last_action"), "Empty Plot"),
+                                last_action = common.UnixTimeStampUTCToDateTimeString(landInstance.Value<double?>("last_action"), "Empty Plot"),
+                                action_type = (int)EVENT_TYPE.UNKNOWN,
                                 token_id = landInstance.Value<int?>("token_id") ?? 0,
                                 building_level = landInstance.Value<int?>("building_level") ?? 0,
                                 resource = landInstance.Value<int?>("abundance") ?? 0,
@@ -526,7 +527,7 @@ namespace MetaverseMax.ServiceClass
                             ).Count();
 
                         // Get Last Action across all lands for target player
-                        ownerData.last_action = string.Concat(common.UnixTimeStampUTCToDateTime(ownerData.owner_land.Max(row => row.last_actionUx), "No Lands"), " GMT");
+                        ownerData.last_action = string.Concat(common.UnixTimeStampUTCToDateTimeString(ownerData.owner_land.Max(row => row.last_actionUx), "No Lands"), " GMT");
 
                         ownerData.plots_for_sale = ownerData.owner_land.Where(
                             row => row.forsale_price > 0
@@ -574,17 +575,21 @@ namespace MetaverseMax.ServiceClass
         private RETURN_CODE AddOwnerParcel(string ownerMaticKey, IEnumerable<OwnerLand> ownerBuildingsMCP, List<Plot> storedOwnerPlotList)
         {
             Building building = new();
-            List<int> parcelIdList = storedOwnerPlotList.Where(x => x.parcel_id > 0)
-                .Select(r => r.parcel_id)
-                .DistinctBy(r => ((uint)r))
-                .ToList();
+            BuildingParcelDB buildingParcelDB = new(_context);
+            List<BuildingParcel> buildingParcelList = null;
+            //List<int> parcelIdList = storedOwnerPlotList.Where(x => x.parcel_id > 0)
+            //    .Select(r => r.parcel_id)
+            //     .DistinctBy(r => ((uint)r))
+            //    .ToList();
                 
             // Return only first plot within parcel (building) plot set.
-            if (parcelIdList.Count() > 0)
+            if (storedOwnerPlotList.Where(x => x.parcel_id > 0).Count() > 0)
             {
-                foreach(int parcelId in parcelIdList)
+                buildingParcelList = buildingParcelDB.ParcelGetByAccountMatic(ownerMaticKey);
+
+                foreach (BuildingParcel parcel in buildingParcelList)
                 {
-                    Plot parcel = storedOwnerPlotList.Where(x => x.parcel_id == parcelId).FirstOrDefault();
+                    //Plot parcel = storedOwnerPlotList.Where(x => x.parcel_id == parcelId).FirstOrDefault();
 
                     ownerData.owner_land = ownerData.owner_land.Append(                        
                         new OwnerLand
@@ -592,19 +597,20 @@ namespace MetaverseMax.ServiceClass
                                 district_id = parcel.district_id,
                                 pos_x = parcel.pos_x,
                                 pos_y = parcel.pos_y,
-                                plot_ip = parcel.influence ?? 0,
-                                ip_info = parcel.influence_info ?? 0,
-                                ip_bonus = parcel.influence_bonus ?? 0 / 100,
-                                building_type = parcel.building_type_id,
-                                building_category = parcel.building_category_id,
+                                plot_ip = 0,
+                                ip_info = 0,
+                                ip_bonus = 0,
+                                building_type = (int)BUILDING_TYPE.PARCEL,
+                                building_category = parcel.building_category_id ?? 0,
                                 building_desc = parcel.building_name == string.Empty ? string.Concat("Parcel - ", parcel.parcel_id) : parcel.building_name,
-                                building_img = building.GetBuildingImg(BUILDING_TYPE.PARCEL, parcel.building_id, parcel.building_level, worldType, parcel.parcel_info_id, parcel.parcel_id),
+                                building_img = building.GetBuildingImg(BUILDING_TYPE.PARCEL, 0, 0, worldType, parcel.parcel_info_id ?? 0, parcel.parcel_id),
                                 last_actionUx = ((DateTimeOffset)parcel.last_updated).ToUnixTimeSeconds(),
                                 last_action = common.LocalTimeFormatStandardFromUTC(string.Empty, parcel.last_updated),
-                                token_id = parcel.token_id,
-                                building_level = parcel.building_level,
-                                resource = parcel.abundance ?? 0,
-                                citizen_count = parcel.citizen_count ?? 0,
+                                action_type = parcel.last_action_type,
+                                token_id = storedOwnerPlotList.Where(x => x.parcel_id == parcel.parcel_id).FirstOrDefault().token_id,
+                                building_level = 0,
+                                resource = 0,
+                                citizen_count = 0,
                                 citizen_url = "",
                                 citizen_stamina = 0,
                                 citizen_stamina_alert = false,
@@ -612,9 +618,9 @@ namespace MetaverseMax.ServiceClass
                                 forsale = parcel.on_sale,
                                 rented = false,
                                 current_influence_rank = 0,
-                                condition = parcel.condition ?? 0,
+                                condition = 100,
                                 active = 0,
-                                unit = parcel.parcel_unit_count
+                                unit = parcel.parcel_unit_count ?? 0
                             }
                     );
                 }

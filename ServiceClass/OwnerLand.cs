@@ -12,6 +12,7 @@ namespace MetaverseMax.ServiceClass
         public int building_level { get; set; }
         public int resource { get; set; }
         public string last_action { get; set; }
+        public int action_type { get; set; }                                          
         public double last_actionUx { get; set; }
         public int plot_ip { get; set; }
         public int ip_info { get; set; }

@@ -117,3 +117,14 @@ Issue:
 		Setting: 
 			old >>  "target": "es2020"
 			new >>  "target": "es2022"
+
+=====================================================================================
+Issue (outstanding - none blocking - as of 2023/09/15)
+// Component: district-summary.component >> Graph @swimlane/ngx-charts
+// Browser warning in Brave 
+//	Due to loading this graph type (both Fund & Distributoin period) : Example Eth - district 152
+//	WARNING: 
+//		The animation trigger "animationState" is attempting to animate the following not animatable properties: strokeDashoffset
+//		(to check the list of all animatable properties visit https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_animated_properties)
+//  OBSERVATIONS:
+//		Only occuring on component load,  not reloading the graph with new data - ie changing district

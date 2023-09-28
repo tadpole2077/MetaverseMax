@@ -26,6 +26,12 @@ namespace MetaverseMax.Database
         [Column("pos_y")]
         public int pos_y { get; set; }
 
+        [Column("last_action")]
+        public DateTime? last_action { get; set; }
+
+        [Column("last_action_type")]
+        public int last_action_type { get; set; }
+
         [Column("last_updated")]
         public DateTime? last_updated { get; set; }
 

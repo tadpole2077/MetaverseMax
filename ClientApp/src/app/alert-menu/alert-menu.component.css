@@ -59,7 +59,7 @@ div.dropdown-menu {
   vertical-align: bottom
 }
 
-@media only screen and (max-width: 415px) {
+@media only screen and (max-width: 426px) {
   div.dropdown-menu {
     line-height: 2.2rem;
   }

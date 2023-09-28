@@ -38,7 +38,7 @@ export class CitizenBuildingTableComponent {
     this.citizenList = null;
 
   }
-
+  
   public get width() {
     return window.innerWidth;
   }

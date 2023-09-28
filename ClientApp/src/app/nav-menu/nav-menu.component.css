@@ -64,6 +64,7 @@ a.nav-link {
   margin-right: 6px;
   z-index: 1;
 }
+
 .barTop {
   position: absolute;
   margin-top: -43px;
@@ -73,7 +74,7 @@ a.nav-link {
   margin-top: 42px;  
 }
 
-@media only screen and (max-width: 415px) {
+@media only screen and (max-width: 426px) {
   .mobileAlert{
     display: inline-block;
   }

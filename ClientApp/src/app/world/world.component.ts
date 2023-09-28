@@ -8,33 +8,12 @@ import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-toggle';
 
 import { Globals, WORLD } from '../common/global-var';
+import { Parcel, ParcelCollection } from '../common/interface';
 import { Alert } from '../common/alert';
-import { CUSTOM_BUILDING_CATEGORY, ALERT_TYPE, ALERT_ACTION } from '../common/enum';
+import { CUSTOM_BUILDING_CATEGORY, ALERT_TYPE, ALERT_ACTION, EVENT_TYPE } from '../common/enum';
 import { Subscription } from 'rxjs';
 
-interface WorldParcel {
-  parcel_count: number;
-  building_count: number;
-  parcel_list: Parcel[];
-}
-interface Parcel {
-  parcel_id: number;
-  pos_x: number;
-  pos_y: number;
-  district_id: number;
-  unit_count: number;
-  owner_matic: string;
-  owner_name: string;
-  owner_avatar_id: number;
-  forsale: boolean;
-  forsale_price: number;
-  last_action: string;
-  last_actionUx: number;
-  building_img: string;
-  building_name: string;
-  plot_count: number;
-  building_category_id: number;
-}
+
 
 @Component({
   selector: 'app-world',
@@ -51,7 +30,7 @@ export class WorldComponent {
   private tableView: Parcel[] = null;
   httpClient: HttpClient;
   baseUrl: string;
-  worldParcel: WorldParcel; 
+  worldParcel: ParcelCollection; 
   activeTextFilter: string = "";
   searchTable = new FormControl('');
   isMobileView: boolean = false;
@@ -64,7 +43,7 @@ export class WorldComponent {
   @ViewChild("alertSlide", { static: true } as any) alertSlide: MatSlideToggle;
 
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
-  displayedColumns: string[] = ['district_id', 'building_name', 'owner_name', 'plot_count', 'building_category_id', 'last_action', 'pos_x', 'pos_y'];
+  displayedColumns: string[] = ['district_id', 'building_name', 'owner_name', 'plot_count', 'building_category_id', 'unit_forsale_count', 'last_action', 'pos_x', 'pos_y'];
   displayedColumnsMobile: string[] = ['district_id', 'building_name', 'owner_name', 'pos_x'];
 
   constructor(public globals: Globals, public alert: Alert,  public router: Router, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
@@ -92,6 +71,10 @@ export class WorldComponent {
 
     })
 
+    if (this.globals.ownerAccount.wallet_active_in_world) {
+      this.alert.getAlertSingle(0, ALERT_TYPE.NEW_BUILDING, this.alertSlide);
+    }
+
   }
 
   ngOnDestroy() {
@@ -107,7 +90,7 @@ export class WorldComponent {
     let params = new HttpParams();
     //params = params.append('opened', 'true');
 
-    this.httpClient.get<WorldParcel>(this.baseUrl + '/plot/get_worldparcel', { params: params })
+    this.httpClient.get<ParcelCollection>(this.baseUrl + '/plot/get_worldparcel', { params: params })
       .subscribe({
         next: (result) => {
           
@@ -228,6 +211,10 @@ export class WorldComponent {
   getCustomCategoryName(categoryId: number) {
     return CUSTOM_BUILDING_CATEGORY[categoryId];
   }
+  getLastActionType(lastActionType: number) {
+    return EVENT_TYPE[lastActionType];
+  }
+
 
   alertChange(eventSlider: MatSlideToggleChange, alertType: number) {
 

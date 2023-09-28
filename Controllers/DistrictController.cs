@@ -26,7 +26,7 @@ namespace MetaverseMax.Controllers
         }
 
         [HttpGet("GetTaxChange")]
-        public IActionResult GetTaxChange([FromQuery] QueryParametersDistrict parameters)
+        public IActionResult GetTaxChange([FromQuery] QueryParametersDistrictId parameters)
         {
             DistrictWebMap districtWebMap = new(_context, common.IdentifyWorld(Request.Path));
             if (ModelState.IsValid)
@@ -48,7 +48,7 @@ namespace MetaverseMax.Controllers
         }
 
         [HttpGet]
-        public IActionResult Get([FromQuery] QueryParametersDistrict parameters)
+        public IActionResult Get([FromQuery] QueryParametersDistrictId parameters)
         {
             DistrictManage districtManage = new(_context, common.IdentifyWorld(Request.Path));
             if (ModelState.IsValid)
@@ -59,7 +59,7 @@ namespace MetaverseMax.Controllers
         }
 
         [HttpGet("GetMCP")]
-        public IActionResult GetMCP([FromQuery] QueryParametersDistrict parameters)
+        public IActionResult GetMCP([FromQuery] QueryParametersDistrictId parameters)
         {
             DistrictManage districtManage = new(_context, common.IdentifyWorld(Request.Path));
             if (ModelState.IsValid)
@@ -93,7 +93,7 @@ namespace MetaverseMax.Controllers
         }
 
         [HttpGet("UpdateDistrict")]
-        public IActionResult UpdateDistrict([FromQuery] QueryParametersDistrict parameters)
+        public IActionResult UpdateDistrict([FromQuery] QueryParametersDistrictId parameters)
         {
             DistrictManage districtManage = new(_context, common.IdentifyWorld(Request.Path));
             if (ModelState.IsValid)

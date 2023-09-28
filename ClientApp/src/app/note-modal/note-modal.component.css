@@ -58,7 +58,7 @@ a {
     line-height: 1.8em;
   }
 
-@media only screen and (max-width: 415px) {
+@media only screen and (max-width: 426px) {
   .adframe{
       left:0;
       width:98%;      

@@ -103,7 +103,7 @@ Issue 3)
 		Need to know what the prior sync monument actual state active/inactive at that specific time.
 		if it was recorded as active, then can eval current state (active/inactive), and id a change in state.
 		Key Logic: plot.last_updated < plot.poi_active_until then POI/Monument was active on last data sync instance
-		Condition: POI / Monument plot can only have plot.last_updated changed by nightly sync.
+		Condition: [POI / Monument plot] can only have plot.last_updated changed by nightly sync.
 
 
 

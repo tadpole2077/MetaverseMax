@@ -117,7 +117,7 @@ tr.mat-mdc-header-row {
   }
 
 
-@media only screen and (max-width: 415px) {
+@media only screen and (max-width: 426px) {
   .modalFrame {
     left: 1%;
     bottom: unset;

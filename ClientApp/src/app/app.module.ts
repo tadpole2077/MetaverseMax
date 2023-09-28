@@ -36,6 +36,7 @@ import { BuildingIPComponent } from './building-ip/building-ip.component';
 import { BuildingFilterComponent } from './building-filter/building-filter.component';
 import { TransferAssetComponent } from './transfer-asset/transfer-asset.component';
 import { WorldComponent } from './world/world.component';
+import { CustomBuildingComponent } from './custom-building/custom-building.component';
 
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { DragDropModule } from '@angular/cdk/drag-drop';
@@ -97,6 +98,7 @@ import { Alert } from './common/alert';
     BuildingIPComponent,
     BuildingFilterComponent,
     WorldComponent,
+    CustomBuildingComponent,
     NumberDirective  
   ],
   imports: [

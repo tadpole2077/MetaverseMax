@@ -3,8 +3,7 @@ using System.Collections;
 using System.Text;
 using MetaverseMax.BaseClass;
 using MetaverseMax.Database;
-using static Azure.Core.HttpHeader;
-using System.Linq;
+using System.Net.Http.Json;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -72,10 +71,10 @@ namespace MetaverseMax.ServiceClass
         {
             Plot plotMatched = null;
             PlotDB plotDB = new(_context);
-            JObject jsonContent, jsonContentParcel = null;
+            JObject jsonContent, jsonContentParcel = null;            
             List<int> citizenList = new();
-            JArray citizenArray;
-            int plotCount = 0, parcelId = 0;
+            JArray citizenArray, jsonContentBuildingUnit = null;
+            int plotCount = 0, parcelId = 0, parcelInfoId = 0;
 
             try
             {
@@ -88,10 +87,20 @@ namespace MetaverseMax.ServiceClass
                     if (parcelId > 0)
                     {
                         // NOTE : Parcal plots have owner_avatar_id=0 and owner_nickname = ''  [Rule Handled in OwnerManage sproc's and code]
-                        jsonContentParcel = Task.Run(() => GetParcelMCP(parcelId)).Result;                        
+                        jsonContentParcel = Task.Run(() => GetParcelMCP(parcelId)).Result;
+
+                        JObject parcelInfo = jsonContentParcel.Value<JObject>("info");
+                        parcelInfoId = parcelInfo == null ? 0 : parcelInfo.Value<int?>("id") ?? 0;          // Used to retrieve the custom building image
                     }
 
-                    plotMatched = plotDB.AddOrUpdatePlot(jsonContent, jsonContentParcel, posX, posY, plotId, false);       // Save to db as batch at end - due to related building plots
+                    plotMatched = AddOrUpdatePlotData(jsonContent, jsonContentParcel, posX, posY, plotId, false);       // Save to db as batch at end - due to related building plots
+
+                    if (parcelInfoId > 0)
+                    {
+                        jsonContentBuildingUnit = Task.Run(() => GetBuildingUnitMCP(parcelId)).Result;
+
+                        AddOrUpdateCustomBuilding(parcelInfoId, jsonContentParcel, jsonContentBuildingUnit);
+                    }
 
                     // Find Citizen token_ids currently assigned to plot - used by features such as ranking.  plotMatched is returned by method.
                     citizenArray = jsonContent.Value<JArray>("citizens") ?? new();
@@ -110,26 +119,361 @@ namespace MetaverseMax.ServiceClass
                     //plotDB.UpdateRelatedBuildingPlotSproc(plotMatched.plot_id);
 
                     // CORNER CASE: Not all matching plots found and updated. POSSIBLE new token and huge/mega built on same day
-                    if ((plotCount != 1 && plotMatched.building_level == 6) || (plotCount != 3 && plotMatched.building_level == 7)){
+                    if ((plotCount != 1 && plotMatched.building_level == 6) || (plotCount != 3 && plotMatched.building_level == 7)) {
                         _context.LogEvent(String.Concat("PlotManage::AddOrUpdatePlot() : Anomoly found - Building ", plotMatched.token_id, ", building does not have correct amount of plots assigned."));
                     }
                 }
 
                 if (saveEvent)
-                {                    
+                {
                     _context.SaveChanges();
                 }
             }
             catch (Exception ex)
             {
-                if (_context != null)
-                {
-                    DBLogger dbLogger = new(_context, worldType);
-                    dbLogger.logException(ex, String.Concat("PlotManage:AddOrUpdatePlot() : Error MCP WS get Plot X:", posX, " Y:", posY));
-                }
+                DBLogger dbLogger = new(_context, worldType);
+                dbLogger.logException(ex, String.Concat("PlotManage:AddOrUpdatePlot() : Error MCP WS get Plot X:", posX, " Y:", posY));                
             }
 
             return plotMatched;
+        }
+
+        public RETURN_CODE AddOrUpdateCustomBuilding(int parcelInfoId, JObject jsonContentParcel, JArray jsonContentBuildingUnit)
+        {
+            Building building = new();
+            CustomBuildingDB customBuildingDB = new(_context, worldType);
+            JObject parcelInfo = jsonContentParcel.Value<JObject>("info");
+            
+            int buildingCategoryId = 0;
+            string buildingName = string.Empty;
+            int unitOnSaleCount = 0, largeSize = 0, smallSize = 0;
+            decimal highCoin = 0, lowCoin = 0, highMega = 0, lowMega = 0, megaPrice = 0, coinPrice = 0;
+
+            CustomBuilding customBuilding = customBuildingDB.GetBuildingByInfoId(parcelInfoId);
+
+
+#nullable enable
+            buildingName = parcelInfo == null ? string.Empty : parcelInfo.Value<string?>("name") ?? "";
+#nullable disable
+
+            buildingCategoryId = parcelInfo == null ? 0 : parcelInfo.Value<int?>("categoryId") ?? 0;
+            // Special Case : Main tower shops - null categoryId assigned - using placeholder of 100
+            if (buildingCategoryId == 0 && parcelInfo != null && buildingName == "Main Tower")
+            {
+                buildingCategoryId = 100;
+            }
+            
+            foreach(JObject unit in jsonContentBuildingUnit)
+            {
+                if (unit.Value<bool?>("on_sale") ?? false)
+                {
+                    unitOnSaleCount++;
+                    int size = unit.Value<int?>("area") ?? 0;
+                    largeSize = largeSize > size ? largeSize : size;
+                    smallSize = smallSize < size && smallSize != 0 ? smallSize : size;
+
+
+                    JObject saleData = unit.Value<JObject>("sale_data") ?? null;
+                    megaPrice = (saleData.Value<decimal?>("sellMegaPrice") ?? 0) / 1000000000000000000;      // 18 decimal place source reduction
+                    coinPrice = building.GetSalePrice(saleData.Value<decimal?>("sellPrice") ?? 0, worldType);
+
+                    highCoin = highCoin > coinPrice ? highCoin : coinPrice;
+                    lowCoin = lowCoin < coinPrice && lowCoin != 0 ? lowCoin : coinPrice;
+                    highMega = highMega > megaPrice ? highMega : megaPrice;
+                    lowMega = lowMega < megaPrice && lowMega != 0? lowMega : megaPrice;
+                }
+            }
+            
+            if (customBuilding == null)
+            {
+                customBuildingDB.Add(new()
+                {
+                    parcel_info_id = parcelInfoId,
+                    parcel_unit_count = parcelInfo == null ? 0 : parcelInfo.Value<int?>("unitsCount") ?? 0,
+                    building_category_id = buildingCategoryId,
+                    building_name = buildingName,
+                    floor_count = parcelInfo == null ? 0 : parcelInfo.Value<int?>("floors") ?? 0,
+                    unit_forsale_count = unitOnSaleCount,
+                    unit_price_high_coin = highCoin,
+                    unit_price_low_coin = lowCoin,
+                    unit_price_high_mega = highMega,
+                    unit_price_low_mega = lowMega,
+                    unit_sale_largest_size = largeSize,
+                    unit_sale_smallest_size = smallSize,
+                });
+            }
+            else
+            {
+                customBuilding.parcel_unit_count = parcelInfo == null ? 0 : parcelInfo.Value<int?>("unitsCount") ?? 0;
+                customBuilding.building_category_id = buildingCategoryId;
+                customBuilding.building_name = buildingName;
+                customBuilding.floor_count = parcelInfo == null ? 0 : parcelInfo.Value<int?>("floors") ?? 0;
+                customBuilding.unit_forsale_count = unitOnSaleCount;
+                customBuilding.unit_price_high_coin = highCoin;
+                customBuilding.unit_price_low_coin = lowCoin;
+                customBuilding.unit_price_high_mega = highMega;
+                customBuilding.unit_price_low_mega = lowMega;
+                customBuilding.unit_sale_largest_size = largeSize;
+                customBuilding.unit_sale_smallest_size = smallSize;
+
+                customBuildingDB.Update(customBuilding);
+            }
+
+            return RETURN_CODE.SUCCESS;
+        }
+
+        public Plot AddOrUpdatePlotData(JObject jsonContent, JObject jsonContentParcel, int posX, int posY, int plotId, bool saveEvent)
+        {
+            PlotDB plotDB = new(_context, worldType);
+            ServiceClass.Common common = new();
+            Plot plotMatched = null;
+            CitizenManage citizen = new(_context, worldType);
+            BuildingManage buildingManage = new(_context, worldType);
+            Building building = new();
+            EVENT_TYPE lastActionType = EVENT_TYPE.UNKNOWN;
+            int newInfluence = 0;
+            int parcelId = 0, parcelTypeId = 0, parcelInfoId = 0, parcelUnitCount = 0, building_category_id = 0, parcelOwnerAvatarId = 0;
+            bool parcelOnSale = false;
+            decimal parcelPrice = 0;
+            string parcelOwner = string.Empty, buildingName = string.Empty, parcelOwnerNickname = string.Empty;
+            DateTime? parcelLastAction = null;
+
+            try
+            {
+                // Based on the callers passed plotId, either add a new plot or update an existing plot record.
+                if (plotId == 0)
+                {
+                    // Defensive check Plot may already exist - error occured during initial world sync - plot dropped.
+                    plotMatched = plotDB.GetPlotbyPosXPosY(posX, posY);
+
+                    if (plotMatched != null)
+                    {
+                        _context.LogEvent(String.Concat("PlotDB:AddOrUpdatePlot() : Existing plot was found for X:", posX, " Y:", posY, ". This maybe unexpected! Call was to create new plot at these XY coord. Existing Plot will be updated"));
+                    }
+                }
+                // Existing claimed plot
+                else
+                {
+                    plotMatched = _context.plot.Find(plotId);
+
+                }
+
+
+                // Parcel owner,nickname,avatarId are not stored with plot dataset (nickname and avatorId also not found with unbuild parcel) : as of 2023-08
+                if (jsonContentParcel != null)
+                {
+                    OwnerManage ownerManage = new OwnerManage(_context, worldType);
+                    parcelId = jsonContentParcel.Value<int>("id");
+
+                    parcelTypeId = jsonContentParcel.Value<int?>("token_type") ?? 0;
+                    parcelOnSale = jsonContentParcel.Value<bool?>("on_sale") ?? false;
+                    parcelPrice = parcelOnSale ? building.convertPrice(jsonContentParcel.Value<decimal?>("price") ?? 0, worldType) : 0;
+
+                    parcelOwner = jsonContentParcel.Value<string>("address");
+                    OwnerAccount ownerAccount = ownerManage.FindOwnerByMatic(parcelOwner);
+                    parcelOwnerNickname = ownerAccount != null ? ownerAccount.name : "TBA";
+                    parcelOwnerAvatarId = ownerAccount != null ? ownerAccount.avatar_id : 0;
+
+                    JObject parcelInfo = jsonContentParcel.Value<JObject>("info");
+                    parcelInfoId = parcelInfo == null ? 0 : parcelInfo.Value<int?>("id") ?? 0;          // Used to retrieve the custom building image
+                    parcelUnitCount = parcelInfo == null ? 0 : parcelInfo.Value<int?>("unitsCount") ?? 0;
+                    building_category_id = parcelInfo == null ? 0 : parcelInfo.Value<int?>("categoryId") ?? 0;
+#nullable enable
+                    buildingName = parcelInfo == null ? string.Empty : parcelInfo.Value<string?>("name") ?? "";
+#nullable disable
+                    // Special Case : Main tower shops - null categoryId assigned - using placeholder of 100
+                    if (building_category_id == 0 && parcelInfo != null && buildingName == "Main Tower")
+                    {
+                        building_category_id = 100;
+                    }
+
+                    parcelLastAction = parcelInfo != null ? parcelInfo.Value<DateTime?>("updatedAt") ?? null : null;  //TimeFormatStandardFromUTC(sourceTime, dtSourceTime)
+                    TokenHistory tokenHistory = new(_context, worldType);
+                    TokenLastAction tokenLastAction = tokenHistory.GetLastAction(parcelId, TOKEN_TYPE.PARCEL);
+
+                    lastActionType = tokenLastAction.eventType;
+                    parcelLastAction = tokenLastAction.eventTime;
+
+                }
+
+
+                // Based on the callers passed plotId, either add a new plot or update an existing plot record.
+                if (plotId == 0 && plotMatched == null)
+                {
+                    plotMatched = plotDB.AddPlot(new Plot()
+                    {
+                        update_type = (int)UPDATE_TYPE.FULL,
+                        pos_x = posX,
+                        pos_y = posY,
+                        cell_id = jsonContent.Value<int?>("cell_id") ?? 0,
+                        district_id = jsonContent.Value<int?>("region_id") ?? 0,
+                        land_type = jsonContent.Value<int?>("land_type") ?? 0,
+
+                        last_action_type = (int)lastActionType,
+                        last_action = parcelLastAction ?? common.UnixTimeStampUTCToDateTime(jsonContent.Value<int?>("last_action") ?? 0, null),
+                        last_updated = DateTime.UtcNow,
+                        unclaimed_plot = string.IsNullOrEmpty(jsonContent.Value<string>("owner")),
+
+#nullable enable
+                        owner_nickname = parcelId == 0 ? jsonContent.Value<string?>("owner_nickname") ?? "" : parcelOwnerNickname,
+#nullable disable
+                        owner_matic = parcelId == 0 ? jsonContent.Value<string>("owner") : parcelOwner,            // parcelOwner must be used if assigned, as when a parcel - plot.owner is a system owner.
+                        owner_avatar_id = parcelId == 0 ? jsonContent.Value<int>("owner_avatar_id") : parcelOwnerAvatarId,
+
+                        on_sale = parcelId == 0 ?
+                            jsonContent.Value<bool?>("on_sale") ?? false : parcelOnSale,
+                        current_price = parcelId == 0 ?
+                            jsonContent.Value<bool?>("on_sale") ?? false ? building.GetSalePrice(jsonContent.Value<JToken>("sale_data"), worldType) : 0 : parcelPrice,
+
+                        resources = jsonContent.Value<int?>("resources") ?? 0,
+                        building_id = jsonContent.Value<int?>("building_id") ?? 0,
+                        building_level = jsonContent.Value<int?>("building_level") ?? 0,
+                        building_type_id = parcelTypeId > 0 ? parcelTypeId : jsonContent.Value<int?>("building_type_id") ?? 0,
+                        token_id = jsonContent.Value<int?>("token_id") ?? 0,
+
+                        for_rent = (jsonContent.Value<int?>("for_rent") ?? 0) > 0 ? building.GetRentPrice(jsonContent.Value<JToken>("rent_info"), worldType) : 0,
+                        rented = jsonContent.Value<string>("renter") != null,
+                        abundance = jsonContent.Value<int?>("abundance") ?? 0,
+                        building_abundance = 0,
+                        condition = parcelId == 0 ? jsonContent.Value<int?>("condition") ?? 0 : 100,
+
+                        influence_info = plotDB.GetInfluenceInfoTotal(jsonContent.Value<JToken>("influence_info"), jsonContent.Value<Boolean?>("influence_poi_bonus") ?? false, posX, posY, jsonContent.Value<int?>("building_type_id") ?? 0),
+                        influence = jsonContent.Value<int?>("influence") ?? 0,
+                        influence_bonus = jsonContent.Value<int?>("influence_bonus") ?? 0,
+                        influence_poi_bonus = jsonContent.Value<Boolean?>("influence_poi_bonus") ?? false,
+                        production_poi_bonus = jsonContent.Value<decimal?>("production_poi_bonus") ?? 0.0m,
+                        is_perk_activated = jsonContent.Value<Boolean?>("is_perk_activated") ?? false,
+                        app_4_bonus = plotDB.GetApplicationBonus(4, jsonContent.Value<JArray>("extra_appliances"), posX, posY),
+                        app_5_bonus = plotDB.GetApplicationBonus(5, jsonContent.Value<JArray>("extra_appliances"), posX, posY),
+                        app_123_bonus = plotDB.GetApplicationBonus(5, jsonContent.Value<JArray>("extra_appliances"), posX, posY),
+                        current_influence_rank = buildingManage.CheckInfluenceRankChange(jsonContent.Value<int?>("influence") ?? 0, 0, jsonContent.Value<int?>("influence_bonus") ?? 0, 0, jsonContent.Value<int?>("building_level") ?? 0, jsonContent.Value<int?>("building_type_id") ?? 0, jsonContent.Value<int?>("token_id") ?? 0, jsonContent.Value<int?>("building_id") ?? 0, jsonContent.Value<string>("owner")),
+
+                        citizen_count = jsonContent.Value<JArray>("citizens") == null ? 0 : jsonContent.Value<JArray>("citizens").Count,
+                        low_stamina_alert = citizen.CheckCitizenStamina(jsonContent.Value<JArray>("citizens"), jsonContent.Value<int?>("building_type_id") ?? 0),
+                        action_id = jsonContent.Value<int?>("action_id") ?? 0,
+
+                        predict_produce = 0,
+                        last_run_produce_id = 0,
+                        last_run_produce_predict = false,
+
+                        parcel_id = parcelId,
+                        parcel_unit_count = parcelUnitCount,
+                        parcel_info_id = parcelInfoId,
+                        building_name = buildingName,
+                        building_category_id = building_category_id
+
+                    });
+                }
+
+
+                // Existing claimed plot - found by plotId OR posx - posy coordinates
+                else if (plotMatched != null)
+                {
+                    plotMatched.update_type = (int)UPDATE_TYPE.FULL;
+                    plotMatched.last_updated = DateTime.UtcNow;
+                    plotMatched.last_action_type = (int)lastActionType;
+
+                    plotMatched.unclaimed_plot = string.IsNullOrEmpty(jsonContent.Value<string>("owner"));
+
+                    // parcelOwner Matic key must be used if assigned, when a plot is part of a parcel THEN plot.owner is a system owner.
+                    if (parcelId == 0)
+                    {
+#nullable enable
+                        plotMatched.owner_nickname = jsonContent.Value<string?>("owner_nickname") ?? "";
+#nullable disable                    
+                        plotMatched.owner_matic = jsonContent.Value<string>("owner");
+                        plotMatched.owner_avatar_id = jsonContent.Value<int>("owner_avatar_id");
+
+                        plotMatched.on_sale = jsonContent.Value<bool?>("on_sale") ?? false;
+                        plotMatched.current_price = plotMatched.on_sale ? building.GetSalePrice(jsonContent.Value<JToken>("sale_data"), worldType) : 0;
+                        plotMatched.building_type_id = jsonContent.Value<int?>("building_type_id") ?? 0;
+                        plotMatched.condition = jsonContent.Value<int?>("condition") ?? 0;
+                        plotMatched.last_action = common.UnixTimeStampUTCToDateTime(jsonContent.Value<int?>("last_action") ?? 0, null);
+                    }
+                    else
+                    {
+                        plotMatched.owner_matic = parcelOwner;
+                        plotMatched.owner_nickname = parcelOwnerNickname;
+                        plotMatched.owner_avatar_id = parcelOwnerAvatarId;
+
+                        plotMatched.on_sale = parcelOnSale;
+                        plotMatched.current_price = parcelPrice;
+                        plotMatched.building_type_id = parcelTypeId;
+                        plotMatched.condition = 100;
+                        plotMatched.last_action = parcelLastAction;
+                    }
+
+                    plotMatched.resources = jsonContent.Value<int?>("resources") ?? 0;
+                    plotMatched.building_id = jsonContent.Value<int?>("building_id") ?? 0;
+                    plotMatched.building_level = jsonContent.Value<int?>("building_level") ?? 0;
+                    plotMatched.token_id = jsonContent.Value<int?>("token_id") ?? 0;
+
+                    plotMatched.for_rent = (jsonContent.Value<int?>("for_rent") ?? 0) > 0 ? building.GetRentPrice(jsonContent.Value<JToken>("rent_info"), worldType) : 0;
+                    plotMatched.rented = jsonContent.Value<string>("renter") != null;
+                    plotMatched.abundance = jsonContent.Value<int?>("abundance") ?? 0;
+                    plotMatched.building_abundance = plotMatched.building_abundance;        // only update from BuildingManage class calc
+
+
+                    plotMatched.influence_info = plotDB.GetInfluenceInfoTotal(jsonContent.Value<JToken>("influence_info"), jsonContent.Value<Boolean?>("influence_poi_bonus") ?? false, posX, posY, jsonContent.Value<int?>("building_type_id") ?? 0);
+
+                    newInfluence = jsonContent.Value<int?>("influence") ?? 0;
+                    plotMatched.influence_bonus = jsonContent.Value<int?>("influence_bonus") ?? 0;
+                    plotMatched.current_influence_rank = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, plotMatched.building_level, plotMatched.building_type_id, plotMatched.token_id, plotMatched.building_id, plotMatched.owner_matic);
+                    plotMatched.influence = newInfluence;                                   // Placed after ranking check, as both old and new influence needed for check
+
+                    plotMatched.influence_poi_bonus = jsonContent.Value<Boolean?>("influence_poi_bonus") ?? false;
+                    plotMatched.production_poi_bonus = jsonContent.Value<decimal?>("production_poi_bonus") ?? 0.0m;
+                    plotMatched.is_perk_activated = jsonContent.Value<Boolean?>("is_perk_activated") ?? false;
+                    plotMatched.app_4_bonus = plotDB.GetApplicationBonus(4, jsonContent.Value<JArray>("extra_appliances"), posX, posY);
+                    plotMatched.app_5_bonus = plotDB.GetApplicationBonus(5, jsonContent.Value<JArray>("extra_appliances"), posX, posY);
+                    plotMatched.app_123_bonus = plotDB.GetApplication123Bonus(jsonContent.Value<JToken>("appliances"), posX, posY);
+
+                    plotMatched.citizen_count = jsonContent.Value<JArray>("citizens") == null ? 0 : jsonContent.Value<JArray>("citizens").Count;
+                    plotMatched.low_stamina_alert = citizen.CheckCitizenStamina(jsonContent.Value<JArray>("citizens"), plotMatched.building_type_id);
+                    plotMatched.action_id = jsonContent.Value<int?>("action_id") ?? 0;
+
+                    plotMatched.predict_produce = plotMatched.predict_produce == null ? 0 : plotMatched.predict_produce;
+                    plotMatched.parcel_id = parcelId;
+                    plotMatched.parcel_info_id = parcelInfoId;
+                    plotMatched.parcel_unit_count = parcelUnitCount;
+                    plotMatched.building_name = buildingName;
+                    plotMatched.building_category_id = building_category_id;
+                }
+
+                // New Custom Building - Add alert
+                if (parcelInfoId > 0 && plotMatched.parcel_info_id != parcelInfoId)
+                {
+                    AddNewBuildingAlert(parcelOwnerNickname, parcelOwner, plotMatched.token_id, plotMatched.district_id, parcelInfoId, buildingName);
+                }
+
+
+                if (saveEvent)
+                {
+                    _context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                DBLogger dBLogger = new(_context, _context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("PlotDB:AddOrUpdatePlot() : Error Adding/update Plot X:", posX, " Y:", posY));
+            }
+
+            return plotMatched;
+        }
+
+        public RETURN_CODE AddNewBuildingAlert(string parcelOwnerNickname, string parcelOwner, int tokenId, int districtId, int parcelInfoId, string buildingName)
+        {
+            AlertTriggerManager alertTrigger = new(_context, worldType);
+            AlertManage alert = new(_context, worldType);
+            List<AlertTrigger> allOwnerAlerts = new();
+            allOwnerAlerts = alertTrigger.GetByType("ALL", ALERT_TYPE.NEW_BUILDING, 0);
+
+            allOwnerAlerts.ForEach(x =>
+            {
+                alert.AddNewBuildingAlert(x.matic_key, parcelOwnerNickname == string.Empty ? parcelOwner : parcelOwnerNickname, tokenId, districtId, parcelInfoId, buildingName);
+            });
+
+            return RETURN_CODE.SUCCESS;
         }
 
         public async Task<JObject> GetPlotMCP(int posX, int posY)
@@ -182,6 +526,59 @@ namespace MetaverseMax.ServiceClass
                 if (_context != null)
                 {
                     _context.LogEvent(String.Concat("PlotManage::GetPlotMCP() : retry successful - no ", retryCount));
+                }
+            }
+
+            return jsonContent;
+        }
+
+        public async Task<JArray> GetBuildingUnitMCP(int parcelId)
+        {
+            string content = string.Empty;
+            JArray jsonContent = null;
+            int retryCount = 0;
+            RETURN_CODE returnCode = RETURN_CODE.ERROR;
+
+            while (returnCode == RETURN_CODE.ERROR && retryCount < 5)
+            {
+                try
+                {
+                    retryCount++;
+                    serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.BUILDING_UNIT_GET, WORLD_TYPE.BNB => BNB_WS.BUILDING_UNIT_GET, WORLD_TYPE.ETH => ETH_WS.BUILDING_UNIT_GET, _ => TRON_WS.BUILDING_UNIT_GET };
+
+                    // POST REST WS
+                    HttpResponseMessage response;
+                    using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
+                    {
+
+                        response = await client.GetAsync(string.Concat(serviceUrl, parcelId.ToString()));
+
+                        response.EnsureSuccessStatusCode(); // throws if not 200-299
+                        content = await response.Content.ReadAsStringAsync();
+
+                    }
+                    watch.Stop();
+                    servicePerfDB.AddServiceEntry(serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, string.Concat(" id:", parcelId));
+
+                    if (content.Length != 0)
+                    {
+                        jsonContent = JArray.Parse(content);
+                    }
+
+                    returnCode = RETURN_CODE.SUCCESS;
+                }
+                catch (Exception ex)
+                {
+                    DBLogger dBLogger = new(_context.worldTypeSelected);
+                    dBLogger.logException(ex, String.Concat("PlotManage::GetBuildingUnitMCP() : Error MCP WS get Parcel:", parcelId));
+                }
+            }
+
+            if (retryCount > 1 && returnCode == RETURN_CODE.SUCCESS)
+            {
+                if (_context != null)
+                {
+                    _context.LogEvent(String.Concat("PlotManage::GetBuildingUnitMCP() : retry successful - no ", retryCount));
                 }
             }
 
@@ -587,22 +984,18 @@ namespace MetaverseMax.ServiceClass
             return pollingPlot;
         }
 
-        public WorldParcelWeb GetWorldParcel()
+        public WorldParcelWeb GetParcel(int districtId)
         {
-            PlotDB plotDB;
-            List<Plot> parcelList = new List<Plot>(), parcelPlotList = new List<Plot>();
+            BuildingParcelDB buildingParcelDB;
+            List<BuildingParcel> parcelList = new();
             WorldParcelWeb worldParcel = new WorldParcelWeb();
             Common common = new();
             Building building = new();
 
             try
             {
-                plotDB = new(_context);
-
-                // group the plot table by parcel_id AND use the first row from each group where only parcel_id is distinct.
-                parcelPlotList = _context.plot.Where(x => x.parcel_id > 0).ToList();
-
-                parcelList = parcelPlotList.DistinctBy(x => x.parcel_id).ToList();
+                buildingParcelDB = new(_context);
+                parcelList = buildingParcelDB.ParcelGet(districtId);
 
                 worldParcel.parcel_list = parcelList.Select(land => {
                     return new ParcelWeb
@@ -611,20 +1004,29 @@ namespace MetaverseMax.ServiceClass
                         pos_x = land.pos_x,
                         pos_y = land.pos_y,
                         district_id = land.district_id,
-                        building_img = building.GetBuildingImg(BUILDING_TYPE.PARCEL, land.building_id, land.building_level, worldType, land.parcel_info_id, land.parcel_id),
+                        building_img = building.GetBuildingImg(BUILDING_TYPE.PARCEL, 0, 0, worldType, land.parcel_info_id ?? 0, land.parcel_id),
                         building_name = land.building_name,
-                        unit_count = land.parcel_unit_count,
+                        unit_count = land.parcel_unit_count ?? 0,
                         owner_matic = land.owner_matic,
                         owner_name = land.owner_nickname,
                         owner_avatar_id = land.owner_avatar_id,
                         forsale = land.on_sale,
                         forsale_price = land.current_price,
-                        last_actionUx = ((DateTimeOffset)land.last_updated).ToUnixTimeSeconds(),
-                        last_action = common.LocalTimeFormatStandardFromUTC(string.Empty, land.last_updated),
-                        plot_count = parcelPlotList.Where(x => x.parcel_id == land.parcel_id).Count(),
-                        building_category_id = land.building_category_id,
+                        last_actionUx = ((DateTimeOffset)(land.last_action ?? land.last_updated)).ToUnixTimeSeconds(),
+                        last_action = common.LocalTimeFormatStandardFromUTC(string.Empty, land.last_action ?? land.last_updated),
+                        action_type = land.last_action_type,
+                        plot_count = land.plot_count,
+                        building_category_id = land.building_category_id ?? 0,
+                        floor_count = land.floor_count ?? 0,
+                        unit_forsale_count = land.unit_forsale_count ?? 0,
+                        unit_price_high_coin = land.unit_price_high_coin ?? 0,
+                        unit_price_low_coin = land.unit_price_low_coin ?? 0,
+                        unit_price_high_mega = land.unit_price_high_mega ?? 0,
+                        unit_price_low_mega = land.unit_price_low_mega ?? 0,
+                        unit_sale_largest_size  = land.unit_sale_largest_size ?? 0,
+                        unit_sale_smallest_size = land.unit_sale_smallest_size ?? 0
                     };
-                });
+                }).OrderByDescending(x => x.plot_count);
 
                 worldParcel.parcel_count = worldParcel.parcel_list.Count(x => x.building_category_id == 0);
                 worldParcel.building_count = worldParcel.parcel_list.Count() - worldParcel.parcel_count;
@@ -633,11 +1035,51 @@ namespace MetaverseMax.ServiceClass
             catch (Exception ex)
             {
                 DBLogger dBLogger = new(_context.worldTypeSelected);
-                dBLogger.logException(ex, String.Concat("PlotManage::GetWorldParcel() : Error occured"));
+                dBLogger.logException(ex, String.Concat("PlotManage::GetParcel() : Error occured using district_id : ", districtId));
             }
 
             return worldParcel;
-        }
+        }        
 
+        private async Task<JObject> GetSaleInfo(int tokenId, int tokenType)
+        {
+            string content = string.Empty;
+            JObject jsonContent = null;
+
+            try
+            {
+               serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.SALES_INFO, WORLD_TYPE.BNB => BNB_WS.SALES_INFO, WORLD_TYPE.ETH => ETH_WS.SALES_INFO, _ => TRON_WS.SALES_INFO };
+
+                // POST REST WS
+                HttpResponseMessage response;
+                using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
+                {
+                    StringContent stringContent = new StringContent("{\"token_id\": \"" + tokenId + "\", \"token_type\": \"" + tokenType + "\" }", Encoding.UTF8, "application/json");
+
+                    response = await client.PostAsync(
+                        serviceUrl,
+                        stringContent);
+
+                    response.EnsureSuccessStatusCode(); // throws if not 200-299
+                    content = await response.Content.ReadAsStringAsync();
+                }
+
+                watch.Stop();
+                servicePerfDB.AddServiceEntry(serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, tokenId.ToString());
+
+                if (content.Length > 0)
+                {
+                    jsonContent = JObject.Parse(content);                    
+                }
+                        
+            }
+            catch (Exception ex)
+            {
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("PlotManage.GetSaleInfo() : Error on WS calls for token_id : ", tokenId));
+            }
+
+            return jsonContent;
+        }
     }
 }

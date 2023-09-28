@@ -16,8 +16,11 @@ namespace MetaverseMax.Database
         public WORLD_TYPE worldTypeSelected { get; set; }
 
         public virtual DbSet<BuildingTypeIP> buildingTypeIP { get; set; }
-        public virtual DbSet<Plot> plot { get; set; }
+        public virtual DbSet<Plot> plot { get; set; }        
         public virtual DbSet<PlotIP> plotIP { get; set; }
+        public virtual DbSet<CustomBuilding> customBuilding { get; set; }
+        public virtual DbSet<BuildingParcel> buildingParcel { get; set; }
+
         public virtual DbSet<District> district { get; set; }
         public virtual DbSet<DistrictFund> districtFund { get; set; }
         public virtual DbSet<DistrictPerk> districtPerk { get; set; }

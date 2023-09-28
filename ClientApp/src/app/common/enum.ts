@@ -99,10 +99,21 @@ const CUSTOM_BUILDING_CATEGORY = {
   100: "Main Tower"
 }
 
+const EVENT_TYPE =
+{
+  0: "Unknown event",       
+  1: "Created",
+  2: "Listed On Market",
+  3: "Purchased On Market", 
+  4: "New Owner Transfer",
+  5: "Minted Units",
+  6: "Custom Built",
+}
 
 export {
   ALERT_TYPE,
   ALERT_ICON_TYPE,
+  EVENT_TYPE,
   ICON_TYPE_CHANGE,
   PENDING_ALERT,
   ALERT_ACTION,

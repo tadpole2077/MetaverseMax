@@ -499,7 +499,8 @@ namespace MetaverseMax.ServiceClass
                 // ALL OTHER BUILDING TYPES - Industry, Production, Energy
                 else
                 {
-                    JArray productionHistory = Task.Run(() => GetBuildingHistoryMCP(token_id)).Result;
+                    TokenHistory tokenHistory = new(_context, worldType);
+                    JArray productionHistory = Task.Run(() => tokenHistory.GetMCP(token_id, TOKEN_TYPE.PLOT)).Result;
 
                     if (productionHistory != null && productionHistory.Count > 0)
                     {
@@ -792,43 +793,7 @@ namespace MetaverseMax.ServiceClass
             }
 
             return officeGlobal;
-        }
-
-        public async Task<JArray> GetBuildingHistoryMCP(int tokenId)
-        {
-            JArray plotHistory = null;
-            HttpResponseMessage response;
-            string content = string.Empty;
-            serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.ASSETS_HISTORY, WORLD_TYPE.BNB => BNB_WS.ASSETS_HISTORY, WORLD_TYPE.ETH => ETH_WS.ASSETS_HISTORY, _ => TRON_WS.ASSETS_HISTORY };
-
-            try
-            {
-                using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
-                {
-                    StringContent stringContent = new StringContent("{\"token_id\": " + tokenId + ",\"token_type\": 1}", Encoding.UTF8, "application/json");
-
-                    response = await client.PostAsync(
-                        serviceUrl,
-                        stringContent);
-
-                    response.EnsureSuccessStatusCode(); // throws if not 200-299
-                    content = await response.Content.ReadAsStringAsync();
-
-                }
-                watch.Stop();
-                servicePerfDB.AddServiceEntry("Building - " + serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, tokenId.ToString());
-
-                plotHistory = JArray.Parse(content);
-
-            }
-            catch (Exception ex)
-            {
-                DBLogger dbLogger = new(_context, worldType);
-                dbLogger.logException(ex, String.Concat("BuildingManage.GetPlotHistoryMCP() : Error on WS calls for asset id : ", tokenId));
-            }
-
-            return plotHistory;
-        }
+        }      
 
         public List<HistoryProduction> EvalProductionHistory(BuildingHistory buildingHistory, int tokenId, JArray historyRunList, List<ResourceTotal> resourceTotal, bool lastProductionOnly, List<OwnerCitizenExt> ownerCitizenExt)
         {
@@ -2574,6 +2539,7 @@ namespace MetaverseMax.ServiceClass
             {
                 (int)APPLICATION_ID.RED_SAT => "Red Sat",    // Red Sat (7) = 10% bonus
                 (int)APPLICATION_ID.WHITE_SAT => "White Sat",     // White Sat
+                (int)APPLICATION_ID.RED_AIR_CON => "Red Air Con",     // White Air con
                 (int)APPLICATION_ID.GREEN_AIR_CON => "Green Air Con",     // Green Air con
                 (int)APPLICATION_ID.WHITE_AIR_CON => "White Air Con",     // White Air con
                 (int)APPLICATION_ID.CCTV_RED => "CCTV Red",     // CCTV RED 

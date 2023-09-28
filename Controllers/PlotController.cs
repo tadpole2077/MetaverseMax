@@ -46,7 +46,7 @@ namespace MetaverseMax.Controllers
                 return Ok(Task.Run(() => plotManage.GetWorldNames()).Result);
             }
 
-            return BadRequest("GetWorldNames is invalid");       // 400 Error     
+            return BadRequest("GetWorldNames failed");       // 400 Error     
         }
 
 
@@ -60,7 +60,7 @@ namespace MetaverseMax.Controllers
                 return Ok(Task.Run(() => buildingManage.GetPoiMCP(new List<int> { parameters.token_id })).Result);
             }
 
-            return BadRequest("GetPoiMCP is invalid");       // 400 Error     
+            return BadRequest("GetPoiMCP failed");       // 400 Error     
         }
 
         [HttpGet("Get_SyncHistory")]
@@ -74,7 +74,7 @@ namespace MetaverseMax.Controllers
                 return Ok(Task.Run(() => _context.syncHistory.ToArray()).Result);
             }
 
-            return BadRequest("UnitTest is invalid");       // 400 Error     
+            return BadRequest("Get_SyncHistory failed");       // 400 Error     
         }
 
         [HttpGet("Get_WorldParcel")]
@@ -85,10 +85,24 @@ namespace MetaverseMax.Controllers
 
             if (ModelState.IsValid)
             {
-                return Ok(Task.Run(() => plotManage.GetWorldParcel()).Result);
+                return Ok(Task.Run(() => plotManage.GetParcel(0)).Result);
             }
 
-            return BadRequest("UnitTest is invalid");       // 400 Error     
+            return BadRequest("Get_WorldParcel failed");       // 400 Error     
+        }
+        
+        [HttpGet("Get_DistrictParcel")]
+        public IActionResult Get_DistrictParcel([FromQuery] QueryParametersDistrictId parameters)
+        {
+            _context.worldTypeSelected = common.IdentifyWorld(Request.Path);
+            PlotManage plotManage = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(Task.Run(() => plotManage.GetParcel(parameters.district_id)).Result);
+            }
+
+            return BadRequest("Get_DistrictParcel failed");       // 400 Error     
         }
 
         [HttpGet("UpdatePlotSync")]
@@ -127,7 +141,7 @@ namespace MetaverseMax.Controllers
                 return Ok(plotManage.AddOrUpdatePlot(parameters.plot_id, parameters.posX, parameters.posY, true));
             }
 
-            return BadRequest("AddUpdatePlotSingle is invalid");       // 400 Error     
+            return BadRequest("AddUpdatePlotSingle failed");       // 400 Error     
         }
 
         [HttpGet("BuildingIPbyTypeGet")]
@@ -140,7 +154,7 @@ namespace MetaverseMax.Controllers
                 return Ok(Task.Run(() => buildingManage.BuildingIPbyTypeGet(parameters.type, parameters.level, false, 50, true, parameters.requester_matic)).Result);
             }
 
-            return BadRequest("GetBuildingByType is invalid");       // 400 Error     
+            return BadRequest("GetBuildingByType failed");       // 400 Error     
         }
 
         [HttpGet("OfficeGlobalSummary")]
@@ -153,7 +167,7 @@ namespace MetaverseMax.Controllers
                 return Ok(buildingManage.OfficeGlobalSummaryGet());
             }
 
-            return BadRequest("GetBuildingByType is invalid");       // 400 Error     
+            return BadRequest("GetBuildingByType failed");       // 400 Error     
         }
 
         [HttpGet("UpdateIPRanking")]
@@ -166,7 +180,7 @@ namespace MetaverseMax.Controllers
                 return Ok(Task.Run(() => buildingManage.UpdateIPRanking()).Result);
             }
 
-            return BadRequest("UpdateIPRanking is invalid");       // 400 Error     
+            return BadRequest("UpdateIPRanking failed");       // 400 Error     
         }
 
         [HttpGet("UpdateIPRankingByType")]
@@ -179,7 +193,7 @@ namespace MetaverseMax.Controllers
                 return Ok(Task.Run(() => buildingManage.UpdateIPRankingByType(parameters.type, parameters.level, 100, true, parameters.requester_matic)).Result);
             }
 
-            return BadRequest("UpdateIPRankingByType is invalid");       // 400 Error     
+            return BadRequest("UpdateIPRankingByType failed");       // 400 Error     
         }
 
        

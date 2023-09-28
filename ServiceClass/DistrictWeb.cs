@@ -54,5 +54,9 @@ namespace MetaverseMax.ServiceClass
         public IEnumerable<Perk> perkSchema { get; set; }
         public IEnumerable<DistrictPerk> districtPerk { get; set; }
 
+        public int custom_count { get; set; }
+        public int parcel_count { get; set; }
+
+
     }
 }

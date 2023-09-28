@@ -58,6 +58,8 @@ interface District {
 
   perkSchema: PerkSchema[];
   districtPerk: DistrictPerk[];
+  custom_count: number;
+  parcel_count: number;
 }
 
 interface PerkSchema {
