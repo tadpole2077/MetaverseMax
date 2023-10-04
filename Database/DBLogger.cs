@@ -32,29 +32,14 @@ namespace MetaverseMax.Database
             log = log.Substring(0, log.Length > 500 ? 500 : log.Length);
             primaryLogEntry = primaryLogEntry.Substring(0, primaryLogEntry.Length > 500 ? 500 : primaryLogEntry.Length);
 
-            //CHECK if current db context is an active db connection.
-            if (_context == null || _context.IsDisposed())
+            // Always create a new context, existing context and may have an blocking issue [such as an error due to adding duplicate row] which would prevent the adding the exception record.
+            // Generate a new dbContext as a safety measure - insuring log is recorded.
+            using (var _contextEvent = new MetaverseMaxDbContext(worldType))
             {
-                // Generate a new dbContext as a safety measure - insuring log is recorded.
-                using (var _contextEvent = new MetaverseMaxDbContext(worldType))
-                {
-                    // Additional log entry if context was pased but found to be disposed already
-                    if (noContextPassed == false)
-                    {
-                        _contextEvent.eventLog.Add(new EventLog() { detail = ("DBLogger::logException() : WARNING - DB Context lost & Recreated"), recorded_time = DateTime.UtcNow });
-                    }
+                _contextEvent.eventLog.Add(new EventLog() { detail = primaryLogEntry, recorded_time = DateTime.UtcNow });
+                _contextEvent.eventLog.Add(new EventLog() { detail = log, recorded_time = DateTime.UtcNow });
 
-                    _contextEvent.eventLog.Add(new EventLog() { detail = primaryLogEntry, recorded_time = DateTime.UtcNow });
-                    _contextEvent.eventLog.Add(new EventLog() { detail = log, recorded_time = DateTime.UtcNow });
-
-                    _contextEvent.SaveChanges();
-                }
-            }
-            else
-            {
-                _context.eventLog.Add(new EventLog() { detail = primaryLogEntry, recorded_time = DateTime.UtcNow });
-                _context.eventLog.Add(new EventLog() { detail = log, recorded_time = DateTime.UtcNow });
-                _context.SaveChanges();
+                _contextEvent.SaveChanges();
             }
 
             return 0;

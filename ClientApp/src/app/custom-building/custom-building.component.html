@@ -79,7 +79,7 @@
               <span *ngIf="row.unit_price_low_mega==row.unit_price_high_mega">{{ row.unit_price_high_mega }}</span>
             </div>
             <div *ngIf="row.unit_price_high_coin>0">
-              <span>{{globals.worldCode}} Price: </span>
+              <span>{{globals.worldCode.toUpperCase() }} Price: </span>
               <span *ngIf="row.unit_price_low_coin>0 && row.unit_price_low_coin != row.unit_price_high_coin">
                 <span>{{ row.unit_price_low_coin }} - {{ row.unit_price_high_coin }}</span>
               </span>
@@ -135,7 +135,7 @@
                 <span *ngIf="row.unit_price_low_mega==row.unit_price_high_mega">{{ row.unit_price_high_mega }}</span>
               </div>
               <div *ngIf="row.unit_price_high_coin>0">
-                <span>{{globals.worldCode}} Price: </span>
+                <span>{{globals.worldCode.toUpperCase() }} Price: </span>
                 <span *ngIf="row.unit_price_low_coin>0 && row.unit_price_low_coin != row.unit_price_high_coin">
                   <span>{{ row.unit_price_low_coin }} - {{ row.unit_price_high_coin }}</span>
                 </span>

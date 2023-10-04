@@ -51,7 +51,19 @@
 
 </div>
 <p *ngIf="!worldParcel" class="fadeInAndOut loading"><em>Loading...</em></p>
-<div class="table-container" [hidden]="!worldParcel || !worldParcel.parcel_list.length">
+
+<mat-tab-group  (selectedTabChange)="changeTab($event, 1)" selectedIndex="1">
+
+  <mat-tab label="Mission Desk">
+    <div style="font-weight:600; margin:12px">Coming Soon....</div>
+  </mat-tab>
+
+  <mat-tab label="Custom Buildings">    
+  </mat-tab>  
+</mat-tab-group>
+
+
+<div class="customBuilding table-container" [hidden]="!worldParcel || !worldParcel.parcel_list.length" [ngClass]="{'showCustom': showCustom}">
 
   <table mat-table [dataSource]="dataSource" matSort matSortStart="desc" class="table table-striped mat-elevation-z8" style="width:100%; display:inline-table">
     <!--table table-striped-->
@@ -71,7 +83,7 @@
 
     <ng-container matColumnDef="building_name">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
-      <td mat-cell *matCellDef="let row">        
+      <td mat-cell *matCellDef="let row">
 
         <div class="buildingContain">
           <span class="buildingNum"># {{ row.parcel_id }}</span>
@@ -104,10 +116,10 @@
                   <span *ngIf="row.unit_price_low_mega>0 && row.unit_price_low_mega != row.unit_price_high_mega">
                     <span>{{ row.unit_price_low_mega }} - {{ row.unit_price_high_mega }}</span>
                   </span>
-                  <span *ngIf="row.unit_price_low_mega==row.unit_price_high_mega">{{ row.unit_price_high_mega }}</span>                  
+                  <span *ngIf="row.unit_price_low_mega==row.unit_price_high_mega">{{ row.unit_price_high_mega }}</span>
                 </div>
                 <div *ngIf="row.unit_price_high_coin>0 && row.unit_price_low_coin != row.unit_price_high_coin">
-                  <span>{{ globals.worldCode }} Price: </span>
+                  <span>{{ globals.worldCode.toUpperCase()  }} Price: </span>
                   <span *ngIf="row.unit_price_low_coin>0">
                     <span>{{ row.unit_price_low_coin }} - {{ row.unit_price_high_coin }}</span>
                   </span>
@@ -181,17 +193,18 @@
           <div *ngIf="row.unit_price_high_mega>0">
             <span>Mega Price: </span>
             <span *ngIf="row.unit_price_low_mega>0 && row.unit_price_low_mega != row.unit_price_high_mega">
-              <span>{{ row.unit_price_low_mega }} - {{ row.unit_price_high_mega }}</span>              
+              <span>{{ row.unit_price_low_mega }} - {{ row.unit_price_high_mega }}</span>
             </span>
             <span *ngIf="row.unit_price_low_mega==row.unit_price_high_mega">{{ row.unit_price_high_mega }}</span>
           </div>
           <div *ngIf="row.unit_price_high_coin>0">
-            <span>{{ globals.worldCode }} Price: </span>
+            <span>{{ globals.worldCode.toUpperCase() }} Price: </span>
             <span *ngIf="row.unit_price_low_coin>0 && row.unit_price_low_coin != row.unit_price_high_coin">
-              <span>{{ row.unit_price_low_coin }} - {{ row.unit_price_high_coin }}
-            </span>              
+              <span>
+                {{ row.unit_price_low_coin }} - {{ row.unit_price_high_coin }}
+              </span>
             </span>
-            <span *ngIf="row.row.unit_price_low_coin == row.unit_price_high_coin">{{ row.unit_price_high_coin }}</span>
+            <span *ngIf="row.unit_price_low_coin == row.unit_price_high_coin">{{ row.unit_price_high_coin }}</span>
           </div>
           <div>
             <span>Size (m2): </span>

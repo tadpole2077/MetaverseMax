@@ -98,7 +98,7 @@ namespace MetaverseMax.ServiceClass
                 OwnerDB ownerDB = new OwnerDB(_context);
                 ownerDB.UpdateOwnerAlertActivated(maticKey, alertActivated);
 
-                alertDB.Add(maticKey, ALERT_MESSAGE.INTRO, ALERT_ICON_TYPE.INFO, ALERT_ICON_TYPE_CHANGE.NONE, ALERT_TYPE.NOT_USED, 0);
+                alertDB.Add(maticKey, ALERT_MESSAGE.INTRO, ALERT_ICON_TYPE.INFO, ALERT_ICON_TYPE_CHANGE.NONE, ALERT_TYPE.NOT_USED, 0, true);
             }
 
             return true;

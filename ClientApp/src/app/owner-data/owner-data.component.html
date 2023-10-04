@@ -169,8 +169,12 @@
             </div>
           </div>
           <div *ngIf="land.building_type==10" class="buildDescParcel">
-            <span> {{ land.building_desc }} </span>
-            <span *ngIf="land.unit>0" class="units"> Units: {{ land.unit }} </span>
+            <div class="flexVertCenter"> <!-- complex align styling needs containers to valign within valign depending on content-->
+              <div>
+                <span> {{ land.building_desc }} </span>
+                <span *ngIf="land.unit>0" class="units"> Units: {{ land.unit }} </span>
+              </div>
+            </div>
           </div>
           <div *ngIf="land.building_type!=6 && land.building_type!=5 && land.building_type!=3 && land.building_type!=7 && land.building_type!=10" class="buildDesc">
             <span> {{ land.building_desc }} </span>

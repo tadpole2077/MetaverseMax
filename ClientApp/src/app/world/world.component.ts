@@ -6,6 +6,7 @@ import { MatSort } from '@angular/material/sort';
 import { FormControl } from '@angular/forms';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { MatTabChangeEvent } from '@angular/material/tabs';
 
 import { Globals, WORLD } from '../common/global-var';
 import { Parcel, ParcelCollection } from '../common/interface';
@@ -35,6 +36,7 @@ export class WorldComponent {
   searchTable = new FormControl('');
   isMobileView: boolean = false;
   subscriptionAccountActive$: Subscription;
+  showCustom: boolean = true;
 
   dataSource = new MatTableDataSource(null);
   @ViewChild(MatSort, { static: true }) sort: MatSort;
@@ -221,5 +223,15 @@ export class WorldComponent {
     // update db - WS call    
     this.alert.updateAlert(this.globals.ownerAccount.matic_key, alertType, 0, eventSlider.checked == true ? ALERT_ACTION.ADD : ALERT_ACTION.REMOVE);
 
+  }
+
+  changeTab(eventTab: MatTabChangeEvent, tabNo: number) {
+    
+    if (eventTab.index == 1) {
+      this.showCustom = true;
+    }
+    else {
+      this.showCustom = false;
+    }
   }
 }

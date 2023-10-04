@@ -91,15 +91,14 @@ namespace MetaverseMax.ServiceClass
 
         }
 
-        public bool AddLowStaminaAlert(string maticKey, int citizenCount)
+        public bool AddLowStaminaAlert(string maticKey, int citizenCount, bool saveEvent)
         {
 
             AlertDB alertDB = new(_context);
 
-            alertDB.DeleteByType(maticKey, ALERT_ICON_TYPE.STAMINA);
+            alertDB.DeleteByType(maticKey, ALERT_ICON_TYPE.STAMINA, saveEvent);
 
-            alertDB.Add(maticKey, ALERT_MESSAGE.LOW_STAMINA.Replace("#CIT_AMOUNT#", citizenCount.ToString()), ALERT_ICON_TYPE.STAMINA, ALERT_ICON_TYPE_CHANGE.NONE, ALERT_TYPE.NOT_USED, 0);
-
+            alertDB.Add(maticKey, ALERT_MESSAGE.LOW_STAMINA.Replace("#CIT_AMOUNT#", citizenCount.ToString()), ALERT_ICON_TYPE.STAMINA, ALERT_ICON_TYPE_CHANGE.NONE, ALERT_TYPE.NOT_USED, 0, saveEvent);
 
             return true;
         }
@@ -117,7 +116,7 @@ namespace MetaverseMax.ServiceClass
                 .Replace("#PRICE#", price.ToString() + " " + worldType switch { WORLD_TYPE.ETH => "ETH", WORLD_TYPE.BNB => "BNB", _ or WORLD_TYPE.TRON => "TRX" });
 
 
-            alertDB.Add(ownerMaticKey, message, ALERT_ICON_TYPE.NEW_OFFER, ALERT_ICON_TYPE_CHANGE.NONE, ALERT_TYPE.NOT_USED, 0);
+            alertDB.Add(ownerMaticKey, message, ALERT_ICON_TYPE.NEW_OFFER, ALERT_ICON_TYPE_CHANGE.NONE, ALERT_TYPE.NOT_USED, 0, true);
 
             return true;
         }
@@ -135,7 +134,7 @@ namespace MetaverseMax.ServiceClass
                 .Replace("#PRICE#", price.ToString() + " " + worldType switch { WORLD_TYPE.ETH => "ETH", WORLD_TYPE.BNB => "BNB", _ or WORLD_TYPE.TRON => "TRX" });
 
 
-            alertDB.Add(bidderMaticKey, message, ALERT_ICON_TYPE.NEW_OFFER, ALERT_ICON_TYPE_CHANGE.NONE, ALERT_TYPE.NOT_USED, 0);
+            alertDB.Add(bidderMaticKey, message, ALERT_ICON_TYPE.NEW_OFFER, ALERT_ICON_TYPE_CHANGE.NONE, ALERT_TYPE.NOT_USED, 0, true);
 
             return true;
         }
@@ -157,7 +156,7 @@ namespace MetaverseMax.ServiceClass
                 .Replace("#OWNER#", ownerName != string.Empty ? "\nOwner: " + ownerName : "");
 
 
-            alertDB.Add(alertMaticKey, message, ALERT_ICON_TYPE.RANKING, newRanking > oldRanking ? ALERT_ICON_TYPE_CHANGE.INCREASE : ALERT_ICON_TYPE_CHANGE.DECREASE, alertType, plotTokenId);
+            alertDB.Add(alertMaticKey, message, ALERT_ICON_TYPE.RANKING, newRanking > oldRanking ? ALERT_ICON_TYPE_CHANGE.INCREASE : ALERT_ICON_TYPE_CHANGE.DECREASE, alertType, plotTokenId, true);
 
             return true;
         }
@@ -177,7 +176,7 @@ namespace MetaverseMax.ServiceClass
                 .Replace("#BUILDING_NAME#", buildingName)
                 .Replace("#DISTRICT_ID#", districtId.ToString());
 
-            alertDB.Add(alertAccountMaticKey, message, ALERT_ICON_TYPE.NEW_BUILDING, ALERT_ICON_TYPE_CHANGE.NONE, ALERT_TYPE.NEW_BUILDING, parcelInfoId);
+            alertDB.Add(alertAccountMaticKey, message, ALERT_ICON_TYPE.NEW_BUILDING, ALERT_ICON_TYPE_CHANGE.NONE, ALERT_TYPE.NEW_BUILDING, parcelInfoId, true);
 
             return true;
         }

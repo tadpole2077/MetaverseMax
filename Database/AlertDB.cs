@@ -10,7 +10,7 @@ namespace MetaverseMax.Database
         }
 
         // alertTriggerKey = 0, means alert can not be disabled - its automatically generated for all accounts
-        public RETURN_CODE Add(string maticKey, string message, ALERT_ICON_TYPE iconType, ALERT_ICON_TYPE_CHANGE iconTypeChange, ALERT_TYPE alertType, int alertId)
+        public RETURN_CODE Add(string maticKey, string message, ALERT_ICON_TYPE iconType, ALERT_ICON_TYPE_CHANGE iconTypeChange, ALERT_TYPE alertType, int alertId, bool saveEvent)
         {
             RETURN_CODE returnCode = RETURN_CODE.ERROR;
             Alert alert = null;
@@ -41,7 +41,11 @@ namespace MetaverseMax.Database
 
                     _context.alert.Add(alert);
 
-                    _context.SaveChanges();
+
+                    if (saveEvent)
+                    {
+                        _context.SaveChanges();
+                    }
                 }
                 returnCode = RETURN_CODE.SUCCESS;
             }
@@ -115,7 +119,7 @@ namespace MetaverseMax.Database
             return returnCode;
         }
 
-        public RETURN_CODE DeleteByType(string ownerMatic, ALERT_ICON_TYPE alertType)
+        public RETURN_CODE DeleteByType(string ownerMatic, ALERT_ICON_TYPE alertType, bool saveEvent)
         {
             Alert alert = null;
             RETURN_CODE returnCode = RETURN_CODE.ERROR;
@@ -125,8 +129,12 @@ namespace MetaverseMax.Database
                 if (alert != null)
                 {
                     _context.alert.Remove(alert);
+                }
+
+                if (saveEvent)
+                {
                     _context.SaveChanges();
-                }                                
+                }
 
                 returnCode = RETURN_CODE.SUCCESS;
             }

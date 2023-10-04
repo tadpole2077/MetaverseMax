@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System.Collections;
 using MetaverseMax.BaseClass;
 using MetaverseMax.Database;
+using System.Diagnostics.Metrics;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -19,6 +20,71 @@ namespace MetaverseMax.ServiceClass
             worldType = worldTypeSelected;
             _parentContext.worldTypeSelected = worldType;
         }
+
+        // Hourly sync of custom buildings & units - also planned for sync of missions.  Disabled during nightly sync and backup 11:50GMT - 7:00GMT
+        public string SyncCustomAndMission(string secureToken, int interval)
+        {
+            // As this service could be abused as a DDOS a security token is needed.
+            if (!secureToken.Equals("JUST_SIMPLE_CHECK123"))
+            {
+                return "";
+            }
+
+            jobInterval = interval;
+
+            Task.Run(() => SyncCustomAndMissionRun(worldType));      // start the sync dont wait for result.
+
+            return string.Concat("Custom Building Sync Started at : ", DateTime.Now.ToShortTimeString());
+        }
+
+        public async Task<RETURN_CODE> SyncCustomAndMissionRun(WORLD_TYPE worldType)
+        {
+            RETURN_CODE response = RETURN_CODE.ERROR;
+            DateTime startTime;
+
+            if (!syncInProgress)
+            {
+                try
+                {                  
+
+                    MetaverseMaxDbContext _context = new MetaverseMaxDbContext(worldType);
+                    SyncWorld syncWorld = new(_context, worldType);
+
+                    SyncDB syncDB = new(_context);
+                    List<Sync> syncJobs = syncDB.Get(true);
+                    _context.Dispose();
+
+                    syncInProgress = true;
+                    
+                    for (int counter = 0; counter < syncJobs.Count; counter++)
+                    {
+                        startTime = DateTime.Now;
+
+                        response = await syncWorld.SyncCustomBuilding_PerWorld((WORLD_TYPE)syncJobs[counter].world);
+
+                        response = await syncWorld.SyncMission_PerWorld((WORLD_TYPE)syncJobs[counter].world);
+
+                        using (MetaverseMaxDbContext _contextWold = new MetaverseMaxDbContext((WORLD_TYPE)syncJobs[counter].world))
+                        {
+                            _contextWold.LogEvent(String.Concat("SyncCustomAndMissionRun :  runtime : ", (DateTime.Now - startTime).ToString(@"hh\:mm\:ss")));
+                            //    SyncHistoryDB syncHistoryDB = new(_context);
+                            //    syncHistoryDB.Add(syncJobs[counter].world, startTime, DateTime.Now);
+                        }
+                    }
+                                                           
+                    syncInProgress = false;
+                    response = RETURN_CODE.SUCCESS;
+                }
+                catch (Exception ex)
+                {
+                    DBLogger dbLogger = new(worldType);
+                    dbLogger.logException(ex, String.Concat("SyncWorld::SyncCustomAndMissionRun() : Error Processing Sync"));
+                }                
+            }
+
+            return response;
+        }
+
 
         // Nightly Data Sync of all Open District plots that are buildable. Iterates through all districts, and 2nd tier of all plots within district
         public string SyncActiveDistrictPlot(string secureToken, int interval)
@@ -71,7 +137,7 @@ namespace MetaverseMax.ServiceClass
                 for (int counter = 0; counter < syncJobs.Count; counter++)
                 {
                     startTime = DateTime.Now;
-                    response = Task.Run(() => syncWorld.SyncRun(jobInterval, (WORLD_TYPE)syncJobs[counter].world)).Result;
+                    response = Task.Run(() => syncWorld.SyncRun((WORLD_TYPE)syncJobs[counter].world)).Result;
 
                     using (_context = new MetaverseMaxDbContext(worldType))
                     {
@@ -90,7 +156,7 @@ namespace MetaverseMax.ServiceClass
             return;
         }
 
-        public RETURN_CODE UpdatePlotSyncSingleWorld(string secureToken, int jobInterval)
+        public RETURN_CODE UpdatePlotSyncSingleWorld(string secureToken, int interval)
         {
             try
             {
@@ -101,8 +167,9 @@ namespace MetaverseMax.ServiceClass
                 }
 
                 SyncWorld syncWorld = new(_context, worldType);
+                jobInterval = interval;
 
-                Task.Run(() => syncWorld.SyncRun(jobInterval, worldType));
+                Task.Run(() => syncWorld.SyncRun(worldType));
 
             }
             catch (Exception ex)
@@ -255,7 +322,7 @@ namespace MetaverseMax.ServiceClass
             return districtChangeCount;
         }
 
-        public async Task<RETURN_CODE> SyncRun(int jobInterval, WORLD_TYPE worldType)
+        public async Task<RETURN_CODE> SyncRun(WORLD_TYPE worldType)
         {
             MetaverseMaxDbContext _customContext = null;
             PlotDB plotDB;
@@ -370,7 +437,7 @@ namespace MetaverseMax.ServiceClass
                         // Update Plot + Store owner change details extracted from plot
                         plotUpdated = plotManage.AddOrUpdatePlot(districtPlotList[plotIndex].plot_id, districtPlotList[plotIndex].pos_x, districtPlotList[plotIndex].pos_y, false);
 
-                        // Track current MCP owner avator and id (only need 1 update per account - MCP displays latet on each plot of owner account)
+                        // Track current MCP owner avator and id (only need 1 update per account - MCP displays latest on each plot of owner account)
                         // Purpose to update all owner account to curret name and avator [after all plots processed]
                         if (ownerChangeList != null)
                         {
@@ -542,6 +609,98 @@ namespace MetaverseMax.ServiceClass
             districtChangeCount = UpdatePoiBuildings(districtListMCPBasic, ownerChangesList, _context, worldType);
 
             return string.Concat("District with POI changed count: ", districtChangeCount);
+        }
+
+
+        public async Task<RETURN_CODE> SyncCustomBuilding_PerWorld(WORLD_TYPE worldType)
+        {
+            MetaverseMaxDbContext _customContext = null;
+            LAND_TYPE landType = worldType switch { WORLD_TYPE.TRON => LAND_TYPE.TRON_BUILDABLE_LAND, WORLD_TYPE.BNB => LAND_TYPE.BNB_BUILDABLE_LAND, WORLD_TYPE.ETH => LAND_TYPE.TRON_BUILDABLE_LAND, _ => LAND_TYPE.TRON_BUILDABLE_LAND };
+
+            syncInProgress = true;
+
+            try
+            {
+                _customContext = new MetaverseMaxDbContext(worldType);
+                CustomBuildingDB customBuildingDB = new(_customContext, worldType);
+                PlotManage plotManage = new(_customContext, worldType);
+
+                // Retrive 2 key fields - having district data on combined fields.
+                List<ParcelIDInfoIdPair> parcelKeyList = _customContext.plot.Where(x => x.parcel_info_id > 0)
+                        .Select(x => new ParcelIDInfoIdPair { parcel_id = x.parcel_id, parcel_info_id = x.parcel_info_id })
+                        .Distinct().ToList();
+
+                for (int index = 0; index < parcelKeyList.Count(); index++)
+                {
+
+                    JArray jsonContentBuildingUnit = await plotManage.GetBuildingUnitMCP(parcelKeyList[index].parcel_id);
+
+                    // NOTE : Parcal plots have owner_avatar_id=0 and owner_nickname = ''  [Rule Handled in OwnerManage sproc's and code]
+                    JObject jsonContentParcel = await plotManage.GetParcelMCP(parcelKeyList[index].parcel_id);
+
+                    plotManage.AddOrUpdateCustomBuilding(parcelKeyList[index].parcel_info_id,  jsonContentParcel, jsonContentBuildingUnit);
+
+                    await Task.Delay(jobInterval);
+                }
+
+
+                if (_customContext != null && _customContext.IsDisposed() == false)
+                {
+                    _customContext.SaveWithRetry();
+                    _customContext.Dispose();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                DBLogger dbLogger = new(_customContext, worldType);
+                dbLogger.logException(ex, String.Concat("SyncWorld::SyncCustomBuildingRun_PerWorld() : Error Processing Sync"));
+            }
+
+            return RETURN_CODE.SUCCESS;
+        }
+
+        public async Task<RETURN_CODE> SyncMission_PerWorld(WORLD_TYPE worldType)
+        {
+            MetaverseMaxDbContext _customContext = null;
+            LAND_TYPE landType = worldType switch { WORLD_TYPE.TRON => LAND_TYPE.TRON_BUILDABLE_LAND, WORLD_TYPE.BNB => LAND_TYPE.BNB_BUILDABLE_LAND, WORLD_TYPE.ETH => LAND_TYPE.TRON_BUILDABLE_LAND, _ => LAND_TYPE.TRON_BUILDABLE_LAND };
+
+
+            try
+            {
+                _customContext = new MetaverseMaxDbContext(worldType);
+                CustomBuildingDB customBuildingDB = new(_customContext, worldType);
+                PlotManage plotManage = new(_customContext, worldType);
+                MissionDB missionDB = new(_customContext, worldType);
+
+                // Retrive 2 key fields - having district data on combined fields.
+                List<Mission> missionList = _customContext.mission.Where(x => x.balance > 0 && x.available == true).ToList();
+                List<int> missionTokenIdList = missionList.Select(x => x.token_id).ToList();
+                List<Plot> plotList = _customContext.plot.Where(x => missionTokenIdList.Contains(x.token_id)).ToList();
+                Plot lastBuildingPlot = null;
+
+                // AddOrUpdatePlot includes mission check.
+                // Can't use foreach as it uses an 'active reader' meaning still has connection to db, preventing any save event which could occur due to add and save of service log  (at 30 row intervals)
+                for(int index=0; index < plotList.Count; index++)
+                {                    
+                    lastBuildingPlot = plotManage.AddOrUpdatePlot(plotList[index].plot_id, plotList[index].pos_x, plotList[index].pos_y, false);
+                    await Task.Delay(jobInterval);
+                }
+
+                if (_customContext != null && _customContext.IsDisposed() == false)
+                {
+                    _customContext.SaveWithRetry();
+                    _customContext.Dispose();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                DBLogger dbLogger = new(_customContext, worldType);
+                dbLogger.logException(ex, String.Concat("SyncWorld::SyncMission_PerWorld() : Error Processing Sync"));
+            }                        
+
+            return RETURN_CODE.SUCCESS;
         }
     }
 }

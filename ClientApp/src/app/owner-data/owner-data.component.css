@@ -344,15 +344,15 @@ td.mat-column-building_type div{
   min-width: 40px;
 }
 .buildingZoom {
-  margin-top: -20px;
-  margin-left: -20px;
+  margin-top: -16px;
+  margin-left: -10px;
   margin-bottom: -20px;
   max-width: 80px;
   overflow: hidden;
 }
   .buildingZoom .buildingImg {
-    max-width: 90px;
-    max-height: 80px;
+    max-width: 100px;
+    max-height: 90px;
   }
 
 .buildingNum {
@@ -377,10 +377,16 @@ td.mat-column-building_type div{
   width: 90px;
 }
 .buildDescParcel {
-  display: inline-block;
-  vertical-align: middle;
   width: 130px;
+  height: 100%;
+  vertical-align:top;
 }
+td.mat-column-building_type .buildDescParcel .flexVertCenter {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
 .buildingMaglink {
   width: 90px;
   white-space: normal;

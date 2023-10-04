@@ -602,7 +602,7 @@ namespace MetaverseMax.ServiceClass
                                 ip_bonus = 0,
                                 building_type = (int)BUILDING_TYPE.PARCEL,
                                 building_category = parcel.building_category_id ?? 0,
-                                building_desc = parcel.building_name == string.Empty ? string.Concat("Parcel - ", parcel.parcel_id) : parcel.building_name,
+                                building_desc = parcel.building_name == string.Empty || parcel.building_name == null ? string.Concat("Parcel - ", parcel.parcel_id) : parcel.building_name,
                                 building_img = building.GetBuildingImg(BUILDING_TYPE.PARCEL, 0, 0, worldType, parcel.parcel_info_id ?? 0, parcel.parcel_id),
                                 last_actionUx = ((DateTimeOffset)parcel.last_updated).ToUnixTimeSeconds(),
                                 last_action = common.LocalTimeFormatStandardFromUTC(string.Empty, parcel.last_updated),
@@ -642,6 +642,7 @@ namespace MetaverseMax.ServiceClass
             PlotManage plotManage = new PlotManage(_context, worldType);
             List<PlotCord> plotFullUpdateList = new();
             PlotCord currentPlotFullUpdate = null;
+            bool refreshMission = false;
 
             for (int i = 0; i < ownerLandList.Count; i++)
             {
@@ -653,7 +654,7 @@ namespace MetaverseMax.ServiceClass
                     // ADDITIONAL EVAL NEEDED - As not saving to db until all account is updated - potential here for incorrct IPRanking calc - as prior buildings in set may change max-min for that league table. Not sure if EntityFramework using mix both local (context) and db records
                     // Set to save to db as a batch later due to increased Performance.
                     // KNOWN WEAKNESS - Does not update/reEval all other buildings IP Ranking - this building may impact the max-min which would then impact ranking for all other buidlings in that league level (but the performance hit means its not currently worth it - potential solution -  a ranking async task to update ranking changes on all building in respective league - if new min or max change identified)
-                    currentPlotFullUpdate = plotDB.UpdatePlotPartial(ownerLandList[i], false);
+                    currentPlotFullUpdate = plotManage.UpdatePlotPartial(ownerLandList[i], false, refreshMission);
 
                     if (currentPlotFullUpdate != null)
                     {

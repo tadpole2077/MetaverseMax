@@ -170,6 +170,7 @@ namespace MetaverseMax.Database
 
         [Column("building_category_id")]
         public int building_category_id { get; set; }
+
     }
 
     public class PlotCord

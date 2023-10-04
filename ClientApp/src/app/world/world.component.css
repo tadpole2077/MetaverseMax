@@ -9,6 +9,19 @@
   font-size: 17px;
 }
 
+.customBuilding {
+  overflow: hidden; /* Hide the element content, while height = 0 */
+  height: 0;
+  opacity: 0;
+  transition: height 0ms 400ms, opacity 400ms 0ms;
+}
+.showCustom {
+  overflow: unset;  /* show all content due to sticky header spec*/
+  height: 100%;
+  opacity: 1;
+  transition: height 0ms 0ms, opacity 1000ms 0ms;
+}
+
 .searchBlock {
   float: right;
   width: 160px;
@@ -59,7 +72,9 @@
   margin-top:12px
 }
 
-
+.mat-mdc-tab-group{
+  clear:both;
+}
 
 /*** TABLE ***/
 .mat-mdc-table {
@@ -192,7 +207,6 @@ td.mat-column-district_id a {
 
 .units {
   font-size: .8rem;
-  width: 60px;
   display: block;
 }
 
@@ -212,14 +226,14 @@ td.mat-column-district_id a {
 }
 .buildingZoom {
   margin-top: -20px;
-  margin-left: -20px;
+  margin-left: -10px;
   margin-bottom: -20px;
   max-width: 80px;
   overflow: hidden;
 }
 .buildingZoom .buildingImg {
-  max-width: 90px;
-  max-height: 80px;
+  max-width: 100px;
+  max-height: 90px;
 }
 .buildingNum {
   position: absolute;
@@ -418,8 +432,12 @@ a {
   .buildDescParcel {
     width: 120px
   }
+
   .mat-column-owner_name {
     min-width: 130px
+  }
+  td.mat-column-owner_name a{
+    vertical-align:bottom
   }
   td.mat-column-owner_name a span {
     max-width: 80px;
@@ -443,11 +461,16 @@ a {
     display: inline-block;
     margin-left: 4px;
   }
+
   th.mat-column-pos_x{
     min-width: 70px;
   }
   td.mat-column-pos_x {
     text-align: center;
+    padding-top: 18px;
+  }
+  .mapLink {
+    padding-top: 16px;
   }
 
   .salepos2 {
@@ -455,7 +478,7 @@ a {
     margin-left: -40px;
   }
   .salepos {
-    margin-top: -24px;
+    margin-top: -32px;
     margin-left: -20px;
     position: absolute;
     width: 60px;
@@ -464,8 +487,9 @@ a {
     .salepos::before {
       height: 37.4px;
       width: 56px;
-      margin-top: -16px;
-      right: 9px;
+      margin-top: -18px;
+      margin-left: 0px;
+      left: 2px;
     }
   .rented {
     margin-top: 0;
@@ -528,4 +552,6 @@ a {
   .mat-column-owner_name{
     vertical-align: top
   }
+  
+
 }

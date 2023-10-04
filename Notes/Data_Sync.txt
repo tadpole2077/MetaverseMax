@@ -78,8 +78,9 @@ Issue 1) Owner Account change tracking - cant identify change from [User/Asset/L
 	* [Owner Account] is linked to 1x Avatar, and 1x Avatar name [used by owner account]  
 		[Land/Get] always returns latest avator & name used by account.
 	* Enhancement:
-		* Retreive at least 1 plot (using WS Land/Get) per night / per account. to confirm/update current account name and avator 
+		* Retreive at least 1 plot (using WS Land/Get) per night / per account. NEEDED to confirm/update current account name and avator.
 		* If name/avator has changed compared to saved then update all plots for that account with same avatar/name pair.
+		* Note:  MCP only updates (full) plot with updated avatar/name after an event/action occurs on that plot
 		* [Future possible enhancement] Remove avator_id and nickname from plot - use table Owner and OwnerName to store/get single source of these properties.
 	* Tech Solution:
 		Within  plotManage.CheckEmptyPlot(), leave at least one plot for owner, if owner account contains only empty unbuild plots - leave 1 plot in process list.
@@ -152,3 +153,18 @@ Nightly Sync - Setup/Install Instructions :
 
 
 		
+===========================================================================
+Missions (Nightly Sync):   [ as of 2023/10/03 ]
+===========================================================================
+
+New Mission (per building) are found during nightly sync [Plot.RemoveAccountPlot()  >> UpdatePlotPartial(lands[landIndex], false, refreshMission) >> refreshMssion = true]
+	* New missions are not identified on manual load of an accounts data - due to processing time requird at this time :  100 missions = 4 seconds - each mission refresh is a separate MCP call (This may improve as MCP release new WS)
+New Customs:
+	* New CUSTOM buildings are handled by nightly sync, and may *in a few cases* be identified by manual account load (such as new purchased plot converted to custom, influance change, transfer owner)
+
+Refresh Mission data:
+	* Sync job >> hourly scheduled job : SyncWorld.SyncMission_PerWorld()
+		* This job only updateds EXISTING missions - does not identify any new mission generated during the day - as this would required processing All accounts.    This may be improved as new WS are released by MCP
+		* This job also updates CUSTOM buildings - unit details, which units are available forSale and prices.
+	* Plot Full Refresh >> will also update any mission related that building
+		*  This may get triggered by a account load - but its a backend async task that does not delay the portfolio feature - account loading process

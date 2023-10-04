@@ -169,18 +169,17 @@ namespace MetaverseMax.ServiceClass
                 {
                     unitOnSaleCount++;
                     int size = unit.Value<int?>("area") ?? 0;
-                    largeSize = largeSize > size ? largeSize : size;
-                    smallSize = smallSize < size && smallSize != 0 ? smallSize : size;
-
+                    largeSize = size > largeSize ? size: largeSize;
+                    smallSize = (size < smallSize && size !=0) || smallSize == 0 ? size : smallSize;
 
                     JObject saleData = unit.Value<JObject>("sale_data") ?? null;
                     megaPrice = (saleData.Value<decimal?>("sellMegaPrice") ?? 0) / 1000000000000000000;      // 18 decimal place source reduction
-                    coinPrice = building.GetSalePrice(saleData.Value<decimal?>("sellPrice") ?? 0, worldType);
+                    coinPrice = building.convertPrice(saleData.Value<decimal?>("sellPrice") ?? 0, worldType);
 
-                    highCoin = highCoin > coinPrice ? highCoin : coinPrice;
-                    lowCoin = lowCoin < coinPrice && lowCoin != 0 ? lowCoin : coinPrice;
-                    highMega = highMega > megaPrice ? highMega : megaPrice;
-                    lowMega = lowMega < megaPrice && lowMega != 0? lowMega : megaPrice;
+                    highCoin = coinPrice > highCoin ? coinPrice : highCoin;
+                    lowCoin = (coinPrice < lowCoin && coinPrice != 0 )|| lowCoin == 0 ? coinPrice : lowCoin;
+                    highMega = megaPrice > highMega ? megaPrice : highMega;
+                    lowMega = (megaPrice < lowMega && megaPrice != 0 )|| lowMega == 0? megaPrice : lowMega;
                 }
             }
             
@@ -195,11 +194,11 @@ namespace MetaverseMax.ServiceClass
                     floor_count = parcelInfo == null ? 0 : parcelInfo.Value<int?>("floors") ?? 0,
                     unit_forsale_count = unitOnSaleCount,
                     unit_price_high_coin = highCoin,
-                    unit_price_low_coin = lowCoin,
+                    unit_price_low_coin = lowCoin == 0 ? highCoin : lowCoin,
                     unit_price_high_mega = highMega,
-                    unit_price_low_mega = lowMega,
+                    unit_price_low_mega = lowMega == 0 ? highMega : lowMega,
                     unit_sale_largest_size = largeSize,
-                    unit_sale_smallest_size = smallSize,
+                    unit_sale_smallest_size = smallSize == 0 ? largeSize : smallSize,
                 });
             }
             else
@@ -210,11 +209,11 @@ namespace MetaverseMax.ServiceClass
                 customBuilding.floor_count = parcelInfo == null ? 0 : parcelInfo.Value<int?>("floors") ?? 0;
                 customBuilding.unit_forsale_count = unitOnSaleCount;
                 customBuilding.unit_price_high_coin = highCoin;
-                customBuilding.unit_price_low_coin = lowCoin;
+                customBuilding.unit_price_low_coin = lowCoin == 0 ? highCoin : lowCoin;
                 customBuilding.unit_price_high_mega = highMega;
-                customBuilding.unit_price_low_mega = lowMega;
+                customBuilding.unit_price_low_mega = lowMega == 0 ? highMega : lowMega;
                 customBuilding.unit_sale_largest_size = largeSize;
-                customBuilding.unit_sale_smallest_size = smallSize;
+                customBuilding.unit_sale_smallest_size = smallSize == 0 ? largeSize : smallSize;
 
                 customBuildingDB.Update(customBuilding);
             }
@@ -237,6 +236,7 @@ namespace MetaverseMax.ServiceClass
             decimal parcelPrice = 0;
             string parcelOwner = string.Empty, buildingName = string.Empty, parcelOwnerNickname = string.Empty;
             DateTime? parcelLastAction = null;
+            decimal balance = 0;
 
             try
             {
@@ -254,8 +254,7 @@ namespace MetaverseMax.ServiceClass
                 // Existing claimed plot
                 else
                 {
-                    plotMatched = _context.plot.Find(plotId);
-
+                    plotMatched = _context.plot.Find(plotId);                    
                 }
 
 
@@ -438,6 +437,16 @@ namespace MetaverseMax.ServiceClass
                     plotMatched.parcel_unit_count = parcelUnitCount;
                     plotMatched.building_name = buildingName;
                     plotMatched.building_category_id = building_category_id;
+
+                    
+                    balance = building.convertPriceMega(jsonContent.Value<decimal?>("balance") ?? 0);                    
+                    if (balance > 0)
+                    {
+                        //Plot building has a Mission balance - worth checking mission to update.
+                        JObject buildingMission = Task.Run(() => GetBuildingMissionMCP(plotMatched.token_id)).Result;
+                        MissionDB missionDB = new(_context, worldType);
+                        missionDB.AddOrUpdate(buildingMission, plotMatched.token_id, balance);
+                    }
                 }
 
                 // New Custom Building - Add alert
@@ -585,6 +594,58 @@ namespace MetaverseMax.ServiceClass
             return jsonContent;
         }
 
+        public async Task<JObject> GetBuildingMissionMCP(int tokenId)
+        {
+            string content = string.Empty;
+            JObject jsonContent = null;
+            int retryCount = 0;
+            RETURN_CODE returnCode = RETURN_CODE.ERROR;
+
+            while (returnCode == RETURN_CODE.ERROR && retryCount < 5)
+            {
+                try
+                {
+                    retryCount++;
+                    serviceUrl = worldType switch { WORLD_TYPE.TRON => TRON_WS.MISSION, WORLD_TYPE.BNB => BNB_WS.MISSION, WORLD_TYPE.ETH => ETH_WS.MISSION, _ => TRON_WS.MISSION };
+
+                    // POST REST WS
+                    HttpResponseMessage response;
+                    using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
+                    {
+
+                        response = await client.GetAsync(string.Concat(serviceUrl, tokenId.ToString()));
+
+                        response.EnsureSuccessStatusCode(); // throws if not 200-299
+                        content = await response.Content.ReadAsStringAsync();
+
+                    }
+                    watch.Stop();
+                    servicePerfDB.AddServiceEntry(serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, string.Concat(" id:", tokenId));
+
+                    if (content.Length != 0)
+                    {
+                        jsonContent = JObject.Parse(content);
+                    }
+
+                    returnCode = RETURN_CODE.SUCCESS;
+                }
+                catch (Exception ex)
+                {
+                    DBLogger dBLogger = new(_context.worldTypeSelected);
+                    dBLogger.logException(ex, String.Concat("PlotManage::GetBuildingMissionMCP() : Error MCP WS get Parcel:", tokenId));
+                }
+            }
+
+            if (retryCount > 1 && returnCode == RETURN_CODE.SUCCESS)
+            {
+                if (_context != null)
+                {
+                    _context.LogEvent(String.Concat("PlotManage::GetBuildingUnitMCP() : retry successful - no ", retryCount));
+                }
+            }
+
+            return jsonContent;
+        }
         public async Task<JObject> GetParcelMCP(int parcelId)
         {
             string content = string.Empty;
@@ -727,6 +788,7 @@ namespace MetaverseMax.ServiceClass
             bool ownerMonumentStateChanged = false, districtPOIStateChanged = false;
             PlotDB plotDB = new PlotDB(_context, worldType);
             CitizenManage citizen = new(_context, worldType);
+            bool refreshMission = true;
 
             int buildingTypeId = 0, districtId = 0, tokenId = 0, buildingLevel = 0, storedInfluenceBonus = 0, influenceBonus = 0, storedInfluence = 0, influence = 0, staminaAlertCount =0 , citizenAssignedCount = 0, actionId = 0;
             int buildingUpdatedCount = 0, emptyPlotsUpdatedCount = 0;
@@ -775,7 +837,7 @@ namespace MetaverseMax.ServiceClass
                         // Check if that single land has low-stamina alert.
                         if (citizen.CheckCitizenStamina(lands[0].Value<JArray>("citizens"), lands[0].Value<int?>("building_type_id") ?? 0))
                         {
-                            alert.AddLowStaminaAlert(accountWithMin2Plot[i], 1);
+                            alert.AddLowStaminaAlert(accountWithMin2Plot[i], 1, false);
                         }
                     }
 
@@ -821,7 +883,7 @@ namespace MetaverseMax.ServiceClass
                         else if ((buildingTypeId == (int)BUILDING_TYPE.EMPTY_LAND || buildingTypeId == (int)BUILDING_TYPE.POI)
                             && influence == 0 && influenceBonus == 0 && storedInfluenceInfo == 0)
                         {
-                            plotDB.UpdatePlotPartial(lands[landIndex], false);
+                            UpdatePlotPartial(lands[landIndex], false, refreshMission);
                             emptyPlotsUpdatedCount++;
 
                             totalPlotsRemoved += plotList.RemoveAll(x =>
@@ -843,7 +905,7 @@ namespace MetaverseMax.ServiceClass
                             && influenceBonus == (storedApp123bonus + storedApp4 + storedApp5)                            
                             )
                         {                            
-                            plotDB.UpdatePlotPartial(lands[landIndex], false);
+                            UpdatePlotPartial(lands[landIndex], false, refreshMission);
                             buildingUpdatedCount++;
 
                             // Newly purchased will be handled correctly in UpdatePlotPartial triggering a full plot process. Any sold plots wont get filtered.
@@ -853,19 +915,30 @@ namespace MetaverseMax.ServiceClass
                         }
 
 
-                        staminaAlertCount = citizen.CheckCitizenStamina(lands[landIndex].Value<JArray>("citizens"), lands[landIndex].Value<int?>("building_type_id") ?? 0) ? ++staminaAlertCount : staminaAlertCount;
+                        staminaAlertCount = citizen.CheckCitizenStamina(lands[landIndex].Value<JArray>("citizens"), lands[landIndex].Value<int?>("building_type_id") ?? 0) ? ++staminaAlertCount : staminaAlertCount;                        
                     }
 
                     // Add Owner Alert if any lands have citizens with low stamina
                     if (staminaAlertCount > 0)
                     {
-                        alert.AddLowStaminaAlert(accountWithMin2Plot[i], staminaAlertCount);
+                        alert.AddLowStaminaAlert(accountWithMin2Plot[i], staminaAlertCount, false);
+                    }
+
+                    // Save after each user account processed.
+                    try
+                    {
+                        _context.SaveWithRetry();
+                    }
+                    catch (Exception ex)
+                    {
+                        DBLogger dBLogger = new(_context.worldTypeSelected);
+                        dBLogger.logException(ex, String.Concat("PlotManage:RemoveEmptyPlot() :   Error processing plot - failed on plot token_id : ", tokenId));
                     }
                 }
 
             }
 
-            _context.LogEvent(String.Concat("PlotManage:RemoveEmptyPlot() :  Empty Plots updated : ", emptyPlotsUpdatedCount, ",  Buildings updated : ", buildingUpdatedCount));
+            _context.LogEvent(String.Concat("PlotManage:RemoveEmptyPlot() :  Empty Plots updated : ", emptyPlotsUpdatedCount, ",  Buildings updated : ", buildingUpdatedCount));            
 
             return totalPlotsRemoved;
         }
@@ -984,6 +1057,24 @@ namespace MetaverseMax.ServiceClass
             return pollingPlot;
         }
 
+        public IEnumerable<MissionActive> GetMissionActive()
+        {
+            MissionDB missionDB = new(_context, worldType);
+            IEnumerable<MissionActive> missionActive = null;
+            try
+            {
+                missionActive = missionDB.MissionActiveGet();
+            }
+            catch (Exception ex)
+            {
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("PlotManage::GetMissionActive() : Error getting missions "));
+            }
+
+            return missionActive;
+
+        }
+
         public WorldParcelWeb GetParcel(int districtId)
         {
             BuildingParcelDB buildingParcelDB;
@@ -1081,5 +1172,179 @@ namespace MetaverseMax.ServiceClass
 
             return jsonContent;
         }
+
+        // Special Case : Partial update during day - if building was recently built/upgraded, partial update of plot data found in /user/assets/lands WS calls.
+        //  assets/land WS does not return these fields:
+        //      owner_nickname
+        //      owner_avatar_id
+        //      resources
+        //      influence_info
+        //      influence_poi_bonus
+        //      production_poi_bonus
+        //      is_perk_activated
+        //      app_4_bonus
+        //      app_5_bonus
+        //      app_123_bonus
+        //      action_id     >>> Industry buildings (type=5),  action_id indicates what the current production type is as industry building can run 2 different production type runs - needed for Ranking prediction eval.
+        //      for_rent      >>> bool flag is not provided, BUT can infer if plot is currently rented by renter (matic) field and if not currently rented - if a rent price is assigned (0 =  not available for rent)
+        public PlotCord UpdatePlotPartial(JToken ownerLand, bool saveEvent, bool refreshMission)
+        {
+            Plot plotMatched = null;
+            List<Plot> buildingPlotList = null;
+            CitizenManage citizen = new(_context, worldType);
+            BuildingManage buildingManage = new(_context, worldType);
+            Building building = new();
+            int tokenId = 0, buildingLevel = 0;
+            int newInfluence = 0;
+            decimal newRanking = -1;
+            PlotCord plotFullUpdate = null;
+            bool hasMission = false;
+            decimal balance = 0;
+
+            try
+            {
+
+                tokenId = ownerLand.Value<int?>("token_id") ?? 0;
+                buildingPlotList = _context.plot.Where(x => x.token_id == tokenId).ToList();
+
+                // CHECK local db shows unclaimed.
+                if (buildingPlotList.Count == 0)
+                {
+                    // Newly claimed plot in last 24 hrs - get(WS land/get) full plot details and update db.
+                    plotMatched = AddOrUpdatePlot(0, ownerLand.Value<int?>("x") ?? 0, ownerLand.Value<int?>("y") ?? 0, saveEvent);                    
+                    _context.LogEvent(String.Concat("New plot token_id found - Get full plot details and store : X: ", ownerLand.Value<int?>("x") ?? 0, "  Y:", ownerLand.Value<int?>("y") ?? 0));
+                }
+                else
+                {
+                    plotMatched = buildingPlotList[0];
+                    buildingLevel = ownerLand.Value<int?>("building_level") ?? 0;
+
+                    // CHECK if owner changed == plot was transfered or sold since last sync, as owner_nickname and owner_avatar_id are not provided with this service call - need to get them
+                    if (plotMatched.owner_matic.ToLower() != ownerLand.Value<string>("owner").ToLower())
+                    {
+                        // Newly claimed/transfer/sold plot in last 24 hrs - get(WS land/get) full plot details and update db.
+                        // NOTE: This call will also update all related plots in building (MEGA / HUGE)
+                        plotMatched = AddOrUpdatePlot(plotMatched.plot_id, ownerLand.Value<int?>("x") ?? 0, ownerLand.Value<int?>("y") ?? 0, saveEvent);
+                        _context.LogEvent(String.Concat("Plot sold/transfer - Get full plot details and store - due to change of owner_matic, avatar, name.  Plot tokenID - ", tokenId));
+
+                    }
+                    else if (buildingPlotList.Count == 1 && buildingLevel < (int)BUILDING_SIZE.HUGE)
+                    {
+                        // Update 1 plot or multiple plots depending on building level, only one record returned per building with this lands WS call.
+                        // Notes: for_rent is not populated by this WS call, unknown if rental data is valid.  Dont change last_updated as not all fields are updated - specifically the influance_info field is not updated which used in ranking module to allow another refresh.
+                        plotMatched.update_type = (int)UPDATE_TYPE.PARTIAL;
+                        plotMatched.last_updated = DateTime.UtcNow;
+                        plotMatched.unclaimed_plot = string.IsNullOrEmpty(ownerLand.Value<string>("owner"));
+                        plotMatched.owner_matic = ownerLand.Value<string>("owner");
+
+                        plotMatched.building_id = ownerLand.Value<int?>("building_id") ?? 0;
+                        plotMatched.building_level = buildingLevel;
+                        plotMatched.building_type_id = ownerLand.Value<int?>("building_type_id") ?? 0;
+                        plotMatched.token_id = tokenId;
+                        plotMatched.on_sale = ownerLand.Value<bool?>("on_sale") ?? false;
+                        plotMatched.current_price = plotMatched.on_sale ? building.GetSalePrice(ownerLand.Value<JToken>("sale_data"), worldType) : 0;
+                        plotMatched.rented = ownerLand.Value<string>("renter") != null;
+                        plotMatched.for_rent = plotMatched.rented == false ? building.GetRentPrice(ownerLand.Value<JToken>("rent_info"), worldType) : 0;    // Only get rent price if not currently rented
+                        plotMatched.abundance = ownerLand.Value<int?>("abundance") ?? 0;
+                        plotMatched.condition = ownerLand.Value<int?>("condition") ?? 0;
+                        balance = building.convertPriceMega(ownerLand.Value<decimal?>("balance") ?? 0);
+
+                        newInfluence = ownerLand.Value<int?>("influence") ?? 0;                                 // MCP calulated total IP with any POI & Monument included and ALWAYS active[using this WS]
+
+                        // Store plot data for later full update (if enabled)
+                        if (newInfluence != plotMatched.influence)
+                        {
+                            plotFullUpdate = new()
+                            {
+                                plotId = plotMatched.plot_id,
+                                posX = ownerLand.Value<int?>("x") ?? 0,
+                                posY = ownerLand.Value<int?>("y") ?? 0
+                            };
+                        }
+
+                        plotMatched.current_influence_rank = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, buildingLevel, plotMatched.building_type_id, plotMatched.token_id, plotMatched.building_id, plotMatched.owner_matic);
+                        plotMatched.influence = newInfluence;                                                   // Placed after ranking check, as both old and new influence needed for check                    
+
+                        //plotMatched.influence_bonus = ownerLand.Value<int?>("influence_bonus") ?? 0;          // Missing assign bonus per app slot
+
+                        plotMatched.citizen_count = ownerLand.Value<JArray>("citizens") == null ? 0 : ownerLand.Value<JArray>("citizens").Count;
+                        plotMatched.low_stamina_alert = citizen.CheckCitizenStamina(ownerLand.Value<JArray>("citizens"), plotMatched.building_type_id);
+
+                        hasMission = ownerLand.Value<bool?>("has_mission") ?? false;
+
+                    }
+                    else if ((ownerLand.Value<int?>("building_level") == (int)BUILDING_SIZE.HUGE || ownerLand.Value<int?>("building_level") == (int)BUILDING_SIZE.MEGA) || buildingPlotList.Count > 1)
+                    {
+                        // On Influence change - tag token for full update.
+                        newInfluence = ownerLand.Value<int?>("influence") ?? 0;
+                        if (buildingPlotList.Count > 0 && newInfluence != buildingPlotList[0].influence)
+                        {
+                            plotFullUpdate = new()
+                            {
+                                plotId = plotMatched.plot_id,
+                                posX = ownerLand.Value<int?>("x") ?? 0,
+                                posY = ownerLand.Value<int?>("y") ?? 0
+                            };
+                        }
+
+                        for (int i = 0; i < buildingPlotList.Count; i++)
+                        {
+                            plotMatched = buildingPlotList[i];
+
+                            plotMatched.update_type = (int)UPDATE_TYPE.PARTIAL;
+                            plotMatched.last_updated = DateTime.UtcNow;
+                            plotMatched.unclaimed_plot = string.IsNullOrEmpty(ownerLand.Value<string>("owner"));
+                            plotMatched.owner_matic = ownerLand.Value<string>("owner");
+
+                            plotMatched.building_id = ownerLand.Value<int?>("building_id") ?? 0;
+                            plotMatched.building_level = buildingLevel;
+                            plotMatched.building_type_id = ownerLand.Value<int?>("building_type_id") ?? 0;
+                            plotMatched.token_id = ownerLand.Value<int?>("token_id") ?? 0;
+                            plotMatched.on_sale = ownerLand.Value<bool?>("on_sale") ?? false;
+                            plotMatched.current_price = plotMatched.on_sale ? building.GetSalePrice(ownerLand.Value<JToken>("sale_data"), worldType) : 0;
+                            plotMatched.rented = ownerLand.Value<string>("renter") != null;
+                            plotMatched.for_rent = plotMatched.rented == false ? building.GetRentPrice(ownerLand.Value<JToken>("rent_info"), worldType) : 0;
+                            //plotMatched.abundance = ownerLand.Value<int?>("abundance") ?? 0;                  // dont update abundance for related building plots - each plot can have own abundance
+                            plotMatched.condition = ownerLand.Value<int?>("condition") ?? 0;
+
+                            // Only apply ranking calc on first plot of multiplot building
+                            if (newRanking == -1)
+                            {
+                                newRanking = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, buildingLevel, plotMatched.building_type_id, plotMatched.token_id, plotMatched.building_id, plotMatched.owner_matic);
+                            }
+                            plotMatched.current_influence_rank = newRanking;                                    // Reuse ranking if already identified on prior related plot
+                            plotMatched.influence = newInfluence;                                               // Placed after ranking check, as both old and new influence needed for check
+
+                            //plotMatched.influence_bonus = ownerLand.Value<int?>("influence_bonus") ?? 0;      // MCP calulated total IP with any POI & Monument included and ALWAYS active
+
+                            plotMatched.citizen_count = ownerLand.Value<JArray>("citizens") == null ? 0 : ownerLand.Value<JArray>("citizens").Count;
+                            plotMatched.low_stamina_alert = citizen.CheckCitizenStamina(ownerLand.Value<JArray>("citizens"), plotMatched.building_type_id);
+                        }
+                        hasMission = ownerLand.Value<bool?>("has_mission") ?? false;
+                        balance = building.convertPriceMega(ownerLand.Value<decimal?>("balance") ?? 0);
+                    }
+                }
+
+                if (hasMission && refreshMission)
+                {
+                    JObject buildingMission = Task.Run(() => GetBuildingMissionMCP(tokenId)).Result;
+                    MissionDB missionDB = new(_context, worldType);
+                    missionDB.AddOrUpdate(buildingMission, tokenId, balance);
+                }
+
+                if (saveEvent)
+                {
+                    _context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("PlotDB:UpdatePlotPartial() : Error Adding/update Plot token_id: ", tokenId));
+            }
+
+            return plotFullUpdate;
+        }
     }
+
 }

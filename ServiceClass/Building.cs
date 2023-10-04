@@ -50,6 +50,12 @@ namespace MetaverseMax.ServiceClass
             };
         }
 
+        public decimal convertPriceMega(decimal priceLarge)
+        {
+
+            return priceLarge / 1000000000000000000;       // 18 places back
+        }
+
 
         // Create an array of districts with summary data matching plots owned by player
         public IEnumerable<DistrictPlot> DistrictPlots(IEnumerable<OwnerLand> ownerLands)

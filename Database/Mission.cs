@@ -24,6 +24,12 @@ namespace MetaverseMax.Database
         public decimal reward_owner { get; set; }
 
         [Column("last_updated")]
-        public DateTime? last_updated { get; set; }
+        public DateTime last_updated { get; set; }
+
+        [Column("available")]
+        public bool available { get; set; }
+
+        [Column("balance", TypeName = "decimal(10, 4)")]
+        public decimal balance { get; set; }
     }
 }

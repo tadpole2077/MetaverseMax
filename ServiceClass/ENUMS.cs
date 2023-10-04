@@ -711,4 +711,9 @@
         UNITS_MINTED = 5,
         CUSTOM_BUILD = 6,
     }
+
+    public enum BALANCE
+    {
+        SKIP = -1
+    }
 }
