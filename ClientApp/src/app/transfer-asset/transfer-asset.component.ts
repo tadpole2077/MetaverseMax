@@ -6,7 +6,7 @@ import Web3 from 'web3';
 import DetectEthereumProvider from '@metamask/detect-provider';
 
 import { PlayerMenuComponent } from '../player-menu/player-menu.component';
-import { Pack, PRODUCT } from '../owner-data/owner-interface';
+import { IPack, PRODUCT } from '../owner-data/owner-interface';
 import { Globals, WORLD } from '../common/global-var';
 import { TRANSACTION_STATUS, BLOCKCHAIN, TRANSACTION_TYPE } from '../common/enum';
 import { debounceTime, distinctUntilChanged } from 'rxjs';

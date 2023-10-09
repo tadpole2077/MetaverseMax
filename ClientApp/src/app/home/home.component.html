@@ -3,7 +3,7 @@
   <p>Get the Max value from your Metaverse:</p>
   <div>
     <div class="discordButton">
-      <a class="widgetLogo-6zH6Nv" href="https://discord.gg/CYmCtBjs9v" target="_blank"></a>
+      <a class="widgetLogo-6zH6Nv" href="https://discord.gg/FdtTJqmZ8W" target="_blank"></a>
     </div>
 
     <a style="display:none" href="https://twitter.com/MetaverseMax?ref_src=twsrc%5Etfw" target="_blank" class="twitter-follow-button" data-size="large" data-show-count="false">Follow @MetaverseMax</a>
@@ -11,6 +11,12 @@
   <img src="./assets/circle-cropped.png" class="logoImg" height="100" />
 
   <div class="actionPanel" style="--card-margin-bottom: var(--spacing-3xl); ">
+    <a class="action" [routerLink]="['/', worldCode, 'world']">
+      <i class="fas fa-globe"></i>
+      <span>World</span>
+      <!--<i class="fa-solid fa-tower-control"></i>-->
+    </a>
+
     <a [hidden]="globals.ownerAccount.matic_key == 'Not Found'" [routerLink]="['/', worldCode, 'owner-data']" [queryParams]="{matic: 'myportfolio'}" class="action">
       <i class="fas fa-city"></i>
       <span>My Portfolio</span>
@@ -36,7 +42,7 @@
 
   <div id="introBlock">
     <ul class="introList">
-      <li>Version 1.4.15 (04.Oct.2023)</li>
+      <li>Version 1.5.1 (09.Oct.2023)</li>
       <li>Our tools currently support 3x "MEGA WORLD" metaverse environments: <a target="_blank" href="https://play.mcp3d.com/ethereum">Eth</a> / <a target="_blank" href="https://play.mcp3d.com/bsc">BSC</a> / <a target="_blank" href="https://play.mcp3d.com/tron">Tron</a>.</li>
       <li>Notice will be given within our discord channel before any scheduled outage-deployment occurance. Please report any bugs within our discord channel</li>
       <li style="display:none">
@@ -50,7 +56,7 @@
           <button class="btn btn-primary" (click)="copyMessage('TWpDTFNtM7qQr9vKNJBxhsed7TTwZsyCPu')" title="click to copy">TWpDTFNtM7qQr9vKNJBxhsed7TTwZsyCPu</button>
         </span>
       </li>
-      <li>Please report any bugs, issues and suggestions at our new discord channel @ <a target="_blank" href="https://discord.gg/CYmCtBjs9v">Discord Metaverse</a></li>
+      <li>Please report any bugs, issues and suggestions at our new discord channel @ <a target="_blank" href="https://discord.gg/FdtTJqmZ8W">Discord Metaverse</a></li>
     </ul>
   </div>
 
@@ -60,7 +66,7 @@
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>new_releases</mat-icon>
-          <span style="margin-left:.2rem">Release Notes (Latest)</span>
+          <span style="margin-left:.2rem">V1.5.0 Release Notes (Latest)</span>
         </mat-panel-title>
         <mat-panel-description>
         </mat-panel-description>
@@ -69,83 +75,35 @@
 
         <div class="infoSection">
           <div class="infoBlockImg blockRight">
-            <img src="./assets/custom_buildings.png" class="promoImg" height="300" />
+            <img src="./assets/mission_desk.png" class="promoImg" height="300" />
           </div>
           <div class="infoBlock blockLeft">
-            <h3>World : Custom Buildings &amp; Parcels</h3>
-            View details all world custom buildings and parcels
+            <h3>World : Mission Desk</h3>
+            View, evaluate, filter all world active missions
             <ul style="margin-top:.6rem">
-              <li>Search on a specific building type, where to find it, link to strategy world</li>
-              <li>Including details on Who owns the building, its plot size, and units within</li>
-              <li>To view parcels click the checkbox on table top</li>
-              <li>Parcel show image of the plot collection - showing shape and size</li>
-              <li>Alerts: enable 'New buidlings' alerts to receive an alert when a new custom building is built</li>
+              <li>Filter by Reward amount - showing only rewards above X Mega</li>
+              <li>Find top districts with most high value rewards to plan your next session</li>
+              <li>Search on any keyword</li>
+              <li>Find easiest lower level building missions with best reward</li>
+              <li>All Rewards and Custom Building updated every hour, 'Refresh mins' showing last mission info update time</li>
             </ul>
           </div>
         </div>
 
         <div class="infoSection">
           <div class="infoBlockImg blockLeft">
-            <img src="./assets/custom_buildings_mobile.png" class="promoImg" height="300" />
+            <img src="./assets/mission_desk_mobile.png" class="promoImg" height="300" />
           </div>
           <div class="infoBlock blockRight">
             <h3>World : Custom Building Mobile</h3>
-            Contains all the data shown in desktop mode
+            Contains all key data from desktop mode
             <ul style="margin-top:.6rem">
-              <li>Data is reformated to fit mobile is optimal responsive design model</li>
-              <li>No required for user scroll right to view addtional table info, scoll up and down to view enlarged rows.</li>
-              <li>This type of optimised elongated format will be applied to other legacy features for mobile use in future releases</li>
+              <li>Owner and building position removed to improve readability</li>
+              <li>Reward and search filters support, plus top mission districts</li>
+              <li>Sticky table header also active</li>
             </ul>
           </div>
         </div>
-
-        <div class="infoSection">
-          <div class="infoBlockImg blockRight">
-            <img src="./assets/alert_custom_buildings.png" class="promoImg" height="260" />
-          </div>
-          <div class="infoBlock blockLeft">
-            <h3>New Custom Building Alerts</h3>
-            Alerts generated when new custom building is generated.
-            <ul style="margin-top:.6rem">
-              <li>Includes details of owner, building image, district</li>
-              <li>Ability to disable an alert category is now supported within each new alert (category: district tax type, new building, each ranking watch building, etc)</li>
-              <li>Click a ringing alarm bell to disable, click again to reenable category for future alerts of this type.</li>
-            </ul>
-          </div>
-        </div>
-
-
-        <div class="infoSection">
-          <div class="infoBlockImg blockLeft">
-            <img src="./assets/my_portfolio_custom_buildings.png" class="promoImg" height="260" />
-            top_menu_mobile_1_4.PNG
-          </div>
-          <div class="infoBlock blockRight">
-            <h3>My Portfolio : Custom Buildings &amp; Parcels</h3>
-            New parcel tab filter added
-            <ul style="margin-top:.6rem">
-              <li>When selected, filters all custom buildings and parcels within table view.</li>
-              <li>Details regarding name, type, units of custom building shown</li>
-              <li>Parcel/building sale price also shown, if for-sale</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="infoSection">
-          <div class="infoBlockImg blockRight">
-            <img src="./assets/top_menu_1_4.png" class="promoImg" height="180" />
-            <img src="./assets/top_menu_mobile_1_4.png" class="promoImg" height="240" style="margin-top:20px" />
-          </div>
-          <div class="infoBlock blockLeft">
-            <h3>Enhanced Main Manu - desktop &amp; mobile</h3>
-            'My Portfolio' now show under profile popup menu with mouse hover over owner avator image. 
-            <ul style="margin-top:.6rem">
-              <li>World link shown in main menu link</li>
-              <li>Improved interactions and styling of avator menu button</li>
-              <li>On click of avator button My-Portfolio loads</li>
-            </ul>
-          </div>
-        </div>        
 
         <div class="infoSection">
           <div class="infoBlockImg blockRight">
@@ -154,13 +112,15 @@
             <h3>More...</h3>
             Full List of enhancements and fixed defects found over on MetaverseMax Discord Group
             <ul style="margin-top:.6rem">
-              <li>Discord link : <div class="discordButton"><a class="widgetLogo-6zH6Nv" href="https://discord.gg/CYmCtBjs9v" target="_blank"></a></div></li>
+              <li>Discord link : <div class="discordButton"><a class="widgetLogo-6zH6Nv" href="https://discord.gg/FdtTJqmZ8W" target="_blank"></a></div></li>
               <li>Go to the Release-Note channel</li>
             </ul>
           </div>
         </div>
       </ng-template>
     </mat-expansion-panel>
+
+
 
     <mat-expansion-panel expanded="false" class="historic">
       <mat-expansion-panel-header>
@@ -173,6 +133,114 @@
       </mat-expansion-panel-header>
 
       <ng-template matExpansionPanelContent>
+
+        <mat-expansion-panel expanded="false" style="">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>new_releases</mat-icon>
+              <span style="margin-left:.2rem">Release Content [Version 1.4.0] (09_AUG_2023)</span>
+            </mat-panel-title>
+            <mat-panel-description>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <ng-template matExpansionPanelContent>
+
+            <div class="infoSection">
+              <div class="infoBlockImg blockRight">
+                <img src="./assets/custom_buildings.png" class="promoImg" height="300" />
+              </div>
+              <div class="infoBlock blockLeft">
+                <h3>World : Custom Buildings &amp; Parcels</h3>
+                View details all world custom buildings and parcels
+                <ul style="margin-top:.6rem">
+                  <li>Search on a specific building type, where to find it, link to strategy world</li>
+                  <li>Including details on Who owns the building, its plot size, and units within</li>
+                  <li>To view parcels click the checkbox on table top</li>
+                  <li>Parcel show image of the plot collection - showing shape and size</li>
+                  <li>Alerts: enable 'New buidlings' alerts to receive an alert when a new custom building is built</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="infoSection">
+              <div class="infoBlockImg blockLeft">
+                <img src="./assets/custom_buildings_mobile.png" class="promoImg" height="300" />
+              </div>
+              <div class="infoBlock blockRight">
+                <h3>World : Custom Building Mobile</h3>
+                Contains all the data shown in desktop mode
+                <ul style="margin-top:.6rem">
+                  <li>Data is reformated to fit mobile is optimal responsive design model</li>
+                  <li>No required for user scroll right to view addtional table info, scoll up and down to view enlarged rows.</li>
+                  <li>This type of optimised elongated format will be applied to other legacy features for mobile use in future releases</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="infoSection">
+              <div class="infoBlockImg blockRight">
+                <img src="./assets/alert_custom_buildings.png" class="promoImg" height="260" />
+              </div>
+              <div class="infoBlock blockLeft">
+                <h3>New Custom Building Alerts</h3>
+                Alerts generated when new custom building is generated.
+                <ul style="margin-top:.6rem">
+                  <li>Includes details of owner, building image, district</li>
+                  <li>Ability to disable an alert category is now supported within each new alert (category: district tax type, new building, each ranking watch building, etc)</li>
+                  <li>Click a ringing alarm bell to disable, click again to reenable category for future alerts of this type.</li>
+                </ul>
+              </div>
+            </div>
+
+
+            <div class="infoSection">
+              <div class="infoBlockImg blockLeft">
+                <img src="./assets/my_portfolio_custom_buildings.png" class="promoImg" height="260" />
+                top_menu_mobile_1_4.PNG
+              </div>
+              <div class="infoBlock blockRight">
+                <h3>My Portfolio : Custom Buildings &amp; Parcels</h3>
+                New parcel tab filter added
+                <ul style="margin-top:.6rem">
+                  <li>When selected, filters all custom buildings and parcels within table view.</li>
+                  <li>Details regarding name, type, units of custom building shown</li>
+                  <li>Parcel/building sale price also shown, if for-sale</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="infoSection">
+              <div class="infoBlockImg blockRight">
+                <img src="./assets/top_menu_1_4.png" class="promoImg" height="180" />
+                <img src="./assets/top_menu_mobile_1_4.png" class="promoImg" height="240" style="margin-top:20px" />
+              </div>
+              <div class="infoBlock blockLeft">
+                <h3>Enhanced Main Manu - desktop &amp; mobile</h3>
+                'My Portfolio' now show under profile popup menu with mouse hover over owner avator image.
+                <ul style="margin-top:.6rem">
+                  <li>World link shown in main menu link</li>
+                  <li>Improved interactions and styling of avator menu button</li>
+                  <li>On click of avator button My-Portfolio loads</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="infoSection">
+              <div class="infoBlockImg blockRight">
+              </div>
+              <div class="infoBlock blockLeft">
+                <h3>More...</h3>
+                Full List of enhancements and fixed defects found over on MetaverseMax Discord Group
+                <ul style="margin-top:.6rem">
+                  <li>Discord link : <div class="discordButton"><a class="widgetLogo-6zH6Nv" href="https://discord.gg/FdtTJqmZ8W" target="_blank"></a></div></li>
+                  <li>Go to the Release-Note channel</li>
+                </ul>
+              </div>
+            </div>
+          </ng-template>
+        </mat-expansion-panel>
+
 
         <mat-expansion-panel expanded="false" style="">
           <mat-expansion-panel-header>
@@ -260,7 +328,7 @@
                 <h3>More...</h3>
                 Full List of enhancements and fixed defects found over on MetaverseMax Discord Group
                 <ul style="margin-top:.6rem">
-                  <li>Discord link : <div class="discordButton"><a class="widgetLogo-6zH6Nv" href="https://discord.gg/CYmCtBjs9v" target="_blank"></a></div></li>
+                  <li>Discord link : <div class="discordButton"><a class="widgetLogo-6zH6Nv" href="https://discord.gg/FdtTJqmZ8W" target="_blank"></a></div></li>
                   <li>Go to the Release-Note channel</li>
                 </ul>
               </div>
@@ -323,7 +391,7 @@
                   <h3>More...</h3>
                   Full List of enhancements and fixed defects found over on MetaverseMax Discord Group
                   <ul style="margin-top:.6rem">
-                    <li>Discord link : <div class="discordButton"><a class="widgetLogo-6zH6Nv" href="https://discord.gg/CYmCtBjs9v" target="_blank"></a></div></li>
+                    <li>Discord link : <div class="discordButton"><a class="widgetLogo-6zH6Nv" href="https://discord.gg/FdtTJqmZ8W" target="_blank"></a></div></li>
                     <li>Go to the Release-Note channel</li>
                   </ul>
                 </div>
@@ -459,10 +527,12 @@
                 <li>Click on a Run row to View citizens used per run, including pet usage.</li>
                 <li>New column: Eff(Cit) : citizen efficiency % for all citizens assigned to this building during each run.</li>
                 <li>If building supports a max of 2 citizens, but only 1 is assigned, then EFF(Cit) % is limited to a max of 50%.</li>
-                <li>Citizen traits and specific Citizen efficiency rating shown matching the building type (industry, production, 
-                  
-                  
-                  )</li>
+                <li>
+                  Citizen traits and specific Citizen efficiency rating shown matching the building type (industry, production,
+
+
+                  )
+                </li>
                 <li>Mobile view redesigned for optimal responsive and usability, secondary columns either combined or removed compared to desktop mode. </li>
               </ul>
               <h5> Citizen module - enhanced</h5>
@@ -784,12 +854,14 @@
       </mat-expansion-panel-header>
 
       <div>
+
+        <a class="partnerLink library" href="https://medium.com/@megacryptopolis" target="_blank">
+          <mat-icon>local_library</mat-icon>
+          <span>Official News</span>
+        </a>
+
         <a class="partnerLink" href="https://mcphq.io/" target="_blank"><img src="./assets/MCPHQ_LOGO.png" height="40" /></a>
 
-        <a class="partnerLink library" href="https://mcp.tips/" target="_blank">
-          <mat-icon>local_library</mat-icon>
-          <span>Wiki</span>
-        </a>
       </div>
 
     </mat-expansion-panel>

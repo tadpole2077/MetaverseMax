@@ -346,6 +346,7 @@ $foreground: map-get($dark-app-theme, foreground);
   }
 
   div.districtEle {
+    background-color: unset;
     border-color: mat.get-color-from-palette($foreground, divider); //rgba(255, 255, 255, 0.12)
   }
 
@@ -517,7 +518,11 @@ a.closeframe:hover {
   color: darkslateblue
 }
 
-// Owner-data table tab icons
+// Owner-data Feature
+div.districtEle {
+  background-color: white;
+}
+//table tab icons
 .typeFilter{  
   border-color: #d3d3d3;
 }

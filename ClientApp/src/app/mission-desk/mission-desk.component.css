@@ -1,0 +1,315 @@
+.noMissions{
+  margin-top:16px;
+  margin-left: 16px;
+}
+
+/*** TABLE ***/
+.mat-mdc-table {
+  width: 100%;
+  display: inline-table;
+}
+
+.table-container {
+  position: relative;
+  clear: both;
+  /* or height: calc(100vh - 155px);
+    depending on your need change overflow: auto;*/
+}
+
+th.mat-mdc-header-cell {
+  font-size: .9rem;
+  font-weight: bold;
+  vertical-align: middle !important;
+}
+
+  th.mat-mdc-header-cell img {
+    margin-right: 2px
+  }
+
+td.mat-mdc-cell {
+  font-size: .9rem;
+  font-weight: 500;
+  vertical-align: middle;
+  height: 72px;
+  padding-right: .2em;
+}
+
+td.boldfield {
+  font-weight: bold;
+}
+
+th.mat-sort-header-sorted {
+  color: black;
+}
+
+
+
+.mat-column-district_id {
+  width: 9%
+}
+th.mat-column-district_id span {
+  margin-left: -10px;
+  margin-right: 10px
+}
+td.mat-column-district_id a {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+
+
+
+.mega {
+  width: 18px;
+  margin-top: -2px;
+}
+.reward {
+  font-weight: 600;
+  border-radius: 20px;
+  border-width: thin;
+  display: inline-block;
+  border-color: orange;
+  border-style: dashed;
+  padding: 10px;
+}
+
+
+td.mat-column-max{
+  width: 150px;
+}
+
+
+.buildDesc {
+  position: relative;
+  margin-bottom: 6px;
+  margin-top: 6px;
+}
+.buildingLvl {
+  font-weight: 500;
+}
+.buildingImg {
+  max-width: 90px;
+  max-height: 80px;
+  margin-top: 6px;
+  margin-bottom: 3px;
+  min-width: 40px;
+  overflow: hidden;
+}
+.buildingNum {
+  position: absolute;
+  bottom: 0;
+  color: lightcoral;
+  font-size: .6rem;
+  font-weight: bold;
+  text-shadow: -1px -1px 1px #fff, 1px 1px 1px #fff;
+}
+.buildingCategory {
+  position: absolute;
+  top: 2px;
+  color: lightcoral;
+  font-size: .6rem;
+  font-weight: bold;
+  text-shadow: -1px -1px 1px #fff, 1px 1px 1px #fff;
+}
+
+
+
+
+.mat-column-owner_name {
+  flex: 0 0 360px;
+  min-width: 10rem;
+}
+  .mat-column-owner_name a {
+    padding-right: .4rem
+  }
+
+td .mat-column-owner_name {
+  padding-right: .4rem;
+}
+  td.mat-column-owner_name a {
+    display: inline-block;
+    padding-right: 0;
+    vertical-align: middle;
+    padding-left: 6px;
+  }
+    td.mat-column-owner_name a span {
+      display: inline-block;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      max-width: 150px;
+    }
+      td.mat-column-owner_name a span:hover {
+        white-space: unset;
+        text-overflow: unset;
+      }
+  td.mat-column-owner_name img {
+    display: inline-block;
+    margin-top: -12px;
+  }
+  td.mat-column-owner_name .mysteryImg {
+    height: 50px;
+    margin-top: 0;
+    margin-left: -5px
+  }
+
+
+
+
+.mapLink {
+  display: inline-block;
+  vertical-align: middle;
+  padding-bottom: 3px;
+  padding-top: 3px;
+}
+
+  .mapLink .mat-icon {
+    vertical-align: bottom;
+    margin-right: 3px;
+  }
+
+  .mapLink span {
+    display: inline-block;
+    margin-bottom: 1px
+  }
+
+
+
+/*** Link underline amine ***/
+a {
+  position: relative;
+  text-decoration: none;
+}
+
+/*** Hide short text by default (resolution > 1200px) ***/
+.short-text {
+  display: none !important;
+}
+
+.mobileView {
+  display: none;
+}
+
+.timePart {
+  display: block;
+}
+
+
+
+
+@media only screen and (max-width: 426px) {
+
+  .long-text {
+    display: none !important;
+  }
+
+  .short-text, .mobileView {
+    display: inline-block !important;
+  }
+
+  .table-container .mat-mdc-table {
+    margin-left: -12px;
+    width: 100vw;
+  }
+
+  th.mat-mdc-header-cell:first-of-type, th.mat-mdc-header-cell:last-of-type {
+    padding-left: 14px
+  }
+
+  td.mat-mdc-cell:first-of-type {
+    padding-left: 10px;
+  }
+
+  th.mat-mdc-header-cell {
+    font-size: 13px
+  }
+
+  td.mat-mdc-cell {
+    font-size: 12px;
+    font-weight: 500;
+    padding-top: 6px;
+    padding-bottom: 4px;
+  }
+
+  th.mat-column-district_id span {
+    margin: 0;
+    width: 48px;
+    font-size: 14px;
+  }
+
+  td.mat-column-district_id {
+    text-align: center
+  }
+
+    td.mat-column-district_id a {
+      font-size: 14px
+    }
+
+
+  td.mat-column-max {
+    width: 110px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    line-height: 24px;
+  }
+  td.mat-column-max div span:last-child{
+    font-weight:600
+  }
+
+
+
+
+  td.mat-column-building_type_id {
+    padding-top: 0;
+    position: relative;
+    width: 160px;
+  }
+  .buildingImg {
+    max-width: 34px;
+    min-width: unset;
+  }
+  .buildDesc {
+    margin-bottom: 0;
+    margin-top: 0;
+  }
+  .buildingNum{
+    font-size: 6px;
+  }
+  .mysteryImg {
+    margin-left: 4px;
+    height: 24px;
+    margin-top: 6px;
+  }
+  .owner a span {
+    max-width: 60px;
+    margin-left: 8px;
+    vertical-align: bottom;
+    padding-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display:inline-block;
+  }
+  .ownerImg {
+    margin-right: 0;
+    margin-left: 4px;
+    margin-top: 0;
+    height: 32px;
+  }
+  .mapMobile {
+    right: 8px;
+    margin-top: -76px;
+    position:absolute
+  }
+  .mapLink {
+    padding-top: 16px;
+  }
+  .position {
+    display: block;
+    font-size: 6px;
+    text-align: right;
+    margin-top: -4px;
+  }
+
+
+}

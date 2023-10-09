@@ -90,7 +90,21 @@ namespace MetaverseMax.Controllers
 
             return BadRequest("Get_WorldParcel failed");       // 400 Error     
         }
-        
+
+        [HttpGet("Get_WorldMission")]
+        public IActionResult Get_WorldMission()
+        {
+            _context.worldTypeSelected = common.IdentifyWorld(Request.Path);
+            PlotManage plotManage = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(Task.Run(() => plotManage.GetMissionActive()).Result);
+            }
+
+            return BadRequest("Get_WorldParcel failed");       // 400 Error     
+        }
+
         [HttpGet("Get_DistrictParcel")]
         public IActionResult Get_DistrictParcel([FromQuery] QueryParametersDistrictId parameters)
         {

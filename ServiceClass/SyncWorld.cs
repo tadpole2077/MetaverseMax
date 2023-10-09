@@ -664,7 +664,7 @@ namespace MetaverseMax.ServiceClass
         {
             MetaverseMaxDbContext _customContext = null;
             LAND_TYPE landType = worldType switch { WORLD_TYPE.TRON => LAND_TYPE.TRON_BUILDABLE_LAND, WORLD_TYPE.BNB => LAND_TYPE.BNB_BUILDABLE_LAND, WORLD_TYPE.ETH => LAND_TYPE.TRON_BUILDABLE_LAND, _ => LAND_TYPE.TRON_BUILDABLE_LAND };
-
+            bool forceMissionCheck = true;
 
             try
             {
@@ -674,7 +674,7 @@ namespace MetaverseMax.ServiceClass
                 MissionDB missionDB = new(_customContext, worldType);
 
                 // Retrive 2 key fields - having district data on combined fields.
-                List<Mission> missionList = _customContext.mission.Where(x => x.balance > 0 && x.available == true).ToList();
+                List<Mission> missionList = _customContext.mission.Where(x => x.balance > 0 && x.reward > 0 && x.available == true).ToList();
                 List<int> missionTokenIdList = missionList.Select(x => x.token_id).ToList();
                 List<Plot> plotList = _customContext.plot.Where(x => missionTokenIdList.Contains(x.token_id)).ToList();
                 Plot lastBuildingPlot = null;
@@ -683,7 +683,7 @@ namespace MetaverseMax.ServiceClass
                 // Can't use foreach as it uses an 'active reader' meaning still has connection to db, preventing any save event which could occur due to add and save of service log  (at 30 row intervals)
                 for(int index=0; index < plotList.Count; index++)
                 {                    
-                    lastBuildingPlot = plotManage.AddOrUpdatePlot(plotList[index].plot_id, plotList[index].pos_x, plotList[index].pos_y, false);
+                    lastBuildingPlot = plotManage.AddOrUpdatePlot(plotList[index].plot_id, plotList[index].pos_x, plotList[index].pos_y, false, forceMissionCheck);
                     await Task.Delay(jobInterval);
                 }
 

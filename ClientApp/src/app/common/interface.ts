@@ -32,7 +32,40 @@ interface ParcelCollection {
   parcel_list: Parcel[];
 }
 
+
+interface Mission {
+  token_id: number;
+  pos_x: number;
+  pos_y: number;
+  district_id: number;
+  owner_matic: string;
+  owner_name: string;
+  owner_avatar_id: number;
+  building_id: number;
+  building_level: number;
+  building_type_id: number;
+  building_img: string;
+
+  completed: number;
+  max: number;
+  reward: number;
+  reward_owner: number;
+  last_updated: string;
+  available: boolean;
+  balance: number;
+
+  last_refresh: number;
+}
+
+interface MissionCollection {
+  mission_list: Mission[];
+  mission_count: number;
+  mission_reward: number;
+}
+
 export {
   Parcel,
-  ParcelCollection
+  ParcelCollection,
+  Mission,
+  MissionCollection
 }

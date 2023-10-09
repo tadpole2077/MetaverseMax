@@ -64,6 +64,7 @@
     <None Remove="ClientApp\src\app\common\global-var.ts" />
     <None Remove="ClientApp\src\app\common\graph-interface.ts" />
     <None Remove="ClientApp\src\app\common\interface.ts" />
+    <None Remove="ClientApp\src\app\custom-building-table\custom-building-table.component.ts" />
     <None Remove="ClientApp\src\app\custom-building\custom-building.component.ts" />
     <None Remove="ClientApp\src\app\district-list\district-list.component.css" />
     <None Remove="ClientApp\src\app\district-notification\district-notification.component.css" />
@@ -72,6 +73,7 @@
     <None Remove="ClientApp\src\app\graph-damage\data-damage-test.ts" />
     <None Remove="ClientApp\src\app\graph-damage\graph-damage.component.ts" />
     <None Remove="ClientApp\src\app\graph-fund\data-fund-test.ts" />
+    <None Remove="ClientApp\src\app\mission-desk\mission-desk.component.ts" />
     <None Remove="ClientApp\src\app\numberonly.directive.ts" />
     <None Remove="ClientApp\src\app\owner-data\owner-data.component.css" />
     <None Remove="ClientApp\src\app\graph-tax\data-construct.ts" />
@@ -87,6 +89,7 @@
     <TypeScriptCompile Remove="ClientApp\src\app\account-approve\account-approve.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\citizen-building-table\citizen-building-table.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\citizen-modal\citizen-modal.component.ts" />
+    <TypeScriptCompile Remove="ClientApp\src\app\directive\number-decimal-only.directive.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\district-list\district-list.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\district-notification\district-notification.component.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\district-summary\district-summary.component.ts" />
@@ -1826,10 +1829,6 @@
     <None Include="ClientApp\node_modules\%40fortawesome\fontawesome-free\webfonts\fa-solid-900.woff2" />
     <None Include="compilerconfig.json" />
     <None Include="wwwroot\images\POI.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <TypeScriptCompile Include="ClientApp\src\app\numberonly.directive.ts" />
   </ItemGroup>
 
   <ItemGroup>

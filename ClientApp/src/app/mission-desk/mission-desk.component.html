@@ -1,0 +1,131 @@
+<div class="noMissions" [hidden]="!worldMission || missionCount>0">
+  <span> No Missions Found </span>
+</div>
+<div class="table-container" [hidden]="!worldMission || !worldMission.mission_list.length">
+  
+  <table mat-table [dataSource]="dataSource" matSort matSortStart="desc" class="table table-striped mat-elevation-z8">
+    <!--table table-striped-->
+    <ng-container matColumnDef="district_id">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>
+        <span class="long-text">District #</span>
+        <span class="short-text">District</span>
+      </th>
+      <td mat-cell *matCellDef="let row">
+        <a class="lineAnim" [routerLink]="['/', globals.worldCode, 'district-summary']" [queryParams]="{district_id: row.district_id}" title="{{ row.district_id }}">
+          <span>{{ row.district_id }}</span>
+        </a>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="reward">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Reward </th>
+      <td mat-cell *matCellDef="let row">
+        <span class="reward">{{ row.reward }}<img class="mega" src="./images/coin-m.png" /></span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="max">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Missions </th>
+      <td mat-cell *matCellDef="let row">
+        <div>
+          <span>Available: </span>
+          <span>{{ row.max - row.completed }}</span>
+        </div>
+        <div>
+          <span>Completed: </span>
+          <span>{{ row.completed }}</span>
+        </div>
+        <div>
+          <span>Total: </span>
+          <span>{{ row.max }}</span>
+        </div>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="building_type_id">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
+      <td mat-cell *matCellDef="let row">
+        <div class="buildDesc">
+          <span class="buildingNum">{{ row.token_id }}</span>
+          <img src="{{ row.building_img }}" class="buildingImg" SameSite="Lax">
+          <span> {{ getBuildingType(row.building_type_id) }}</span>
+          <span class="buildingLvl"> Lvl {{ row.building_level}}</span>
+        </div>
+        <!--<div class="mobileView owner">
+          <img *ngIf="row.owner_avatar_id>0" src="{{ globals.worldURLPath }}citizen/{{ row.owner_avatar_id }}" class="ownerImg" height="60" crossorigin="anonymous" referrerpolicy="no-referrer" />
+          <img *ngIf="row.owner_avatar_id==0" src="./images/MysteryOwner.png" class="mysteryImg" />
+
+          <a class="lineAnim maticLinkCol" [routerLink]="['/', globals.worldCode, 'owner-data']" [queryParams]="{matic: row.owner_matic}" title="{{ row.owner_name }}">
+            <span *ngIf="row.owner_name!=''">{{ row.owner_name }}</span>
+            <span class="short-text" *ngIf="row.owner_name==''">{{ row.owner_matic.substring(0,10) }}</span>
+          </a>
+        </div>-->
+        <div class="mobileView mapMobile" style="display:none">
+          <a class="lineAnim mapLink" target="_blank" href="https://play.mcp3d.com/{{ globals.worldName.toLowerCase() }}/land?x={{ row.pos_x }}&y={{ row.pos_y }}">
+            <mat-icon>language</mat-icon>
+            <span>Map</span>
+          </a>
+          <!--<span style="display:none" class="position">X:{{ row.pos_x}} Y:{{ row.pos_y }}</span>-->
+        </div>
+      </td>
+    </ng-container>
+
+
+    <ng-container matColumnDef="owner_name">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Owner </th><!-- start="asc"-->
+      <td mat-cell *matCellDef="let row" [ngClass]="{'addPaddingBottom': row.unit_count > 0 && isMobileView}">
+        <img *ngIf="row.owner_avatar_id>0" src="{{ globals.worldURLPath }}citizen/{{ row.owner_avatar_id }}" class="ownerImgCol" height="60" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <img *ngIf="row.owner_avatar_id==0" src="./images/MysteryOwner.png" class="mysteryImg" />
+
+        <a class="lineAnim maticLinkCol" [routerLink]="['/', globals.worldCode, 'owner-data']" [queryParams]="{matic: row.owner_matic}" title="{{ row.owner_name }}">
+          <span *ngIf="row.owner_name!=''">{{ row.owner_name }}</span>
+
+          <span class="long-text" *ngIf="row.owner_name==''">{{ row.owner_matic.substring(0,14) }}</span>
+          <span class="short-text" *ngIf="row.owner_name==''">{{ row.owner_matic.substring(0,10) }}</span>
+        </a>
+        <div class="mobileView lastAction">
+          <mat-icon>update</mat-icon>
+          <div>
+            <span class="timePart">{{ row.last_updated.substring(row.last_updated.length - 8) }}</span>
+          </div>
+        </div>
+      </td>
+    </ng-container>
+
+
+    <ng-container matColumnDef="last_refresh">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Last Refresh Mins </th>
+      <td mat-cell *matCellDef="let row">
+        <div class="lastAction">
+          <span>{{ row.last_refresh }} mins</span>
+        </div>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="pos_x">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Pos </th>
+      <td mat-cell *matCellDef="let row" [ngClass]="{'addPaddingBottom': row.unit_count > 0 && isMobileView}">
+        <span>X:{{ row.pos_x}} Y:{{ row.pos_y }}</span>       
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="pos_y">
+      <th mat-header-cell *matHeaderCellDef disabled> Link </th>
+      <td mat-cell *matCellDef="let row">
+        <a class="lineAnim mapLink" target="_blank" href="https://play.mcp3d.com/{{ globals.worldName.toLowerCase() }}/land?x={{ row.pos_x }}&y={{ row.pos_y }}">
+          <mat-icon>language</mat-icon>
+          <span>Map</span>
+        </a>
+      </td>
+    </ng-container>
+
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+  <mat-paginator [hidden]="hidePaginator" [pageSize]="1000" [hidePageSize] [showFirstLastButtons] class="paginatorContainer"></mat-paginator>
+
+</div>
+
+
+

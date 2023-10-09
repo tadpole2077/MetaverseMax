@@ -31,6 +31,19 @@ enum PENDING_ALERT {
   UNREAD = 2,
 }
 
+const BUILDING_TYPE = {
+  1: "Empty Plot",
+  2: "Residential",
+  3: "Energy",
+  4: "Commercial",
+  5: "Industry",
+  6: "Office",
+  7: "Production",
+  8: "Municipal",
+  10: "Parcel",
+  100: "AOI"
+}
+
 enum PRODUCT_IMG {
   WOOD = "wood.png",
   SAND = "sand.png",
@@ -48,6 +61,7 @@ enum PRODUCT_IMG {
   COMPOSITE = "composite.png",
   PAPER = "paper.png",
 }
+
 const PRODUCT_NAME = {
   1: "Wood",
   2: "Sand",
@@ -122,5 +136,6 @@ export {
   TRANSACTION_STATUS,
   BLOCKCHAIN,
   TRANSACTION_TYPE,
-  CUSTOM_BUILDING_CATEGORY
+  CUSTOM_BUILDING_CATEGORY,
+  BUILDING_TYPE
 }

@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
-import { Citizen, BUILDING, PRODUCT } from '../owner-data/owner-interface';
+import { ICitizen, BUILDING, PRODUCT } from '../owner-data/owner-interface';
 import { Globals, WORLD } from '../common/global-var';
 
 
@@ -19,7 +19,7 @@ export class CitizenBuildingTableComponent {
   @Input() buildingType: number;
   @Input() productType: number;
 
-  public citizenList: Citizen[];
+  public citizenList: ICitizen[];
   public hidePaginator: boolean;
 
   httpClient: HttpClient;
@@ -107,7 +107,7 @@ export class CitizenBuildingTableComponent {
     params = params.append('token_id', tokenId.toString());
     params = params.append('production_date', productionDate.toString());
 
-    this.httpClient.get<Citizen[]>(this.baseUrl + '/assetHistory/getCitizenHistory', { params: params })
+    this.httpClient.get<ICitizen[]>(this.baseUrl + '/assetHistory/getCitizenHistory', { params: params })
       .subscribe({
         next: (result) => {
 
@@ -115,7 +115,7 @@ export class CitizenBuildingTableComponent {
 
           if (this.citizenList.length > 0) {
 
-            this.dataSource = new MatTableDataSource<Citizen>(this.citizenList);
+            this.dataSource = new MatTableDataSource<ICitizen>(this.citizenList);
             this.hidePaginator = this.citizenList.length == 0 || this.citizenList.length < 5 ? true : false;
 
             this.dataSource.paginator = this.paginator;
@@ -126,7 +126,7 @@ export class CitizenBuildingTableComponent {
 
           }
           else {
-            this.dataSource = new MatTableDataSource<Citizen>(null);
+            this.dataSource = new MatTableDataSource<ICitizen>(null);
           }       
 
         },

@@ -1,0 +1,470 @@
+/*** TABLE ***/
+.mat-mdc-table {
+  width: 100%;
+  display: inline-table;
+}
+
+.table-container {
+  position: relative;
+  clear: both;
+  /* or height: calc(100vh - 155px);
+    depending on your need change overflow: auto;*/
+}
+
+th.mat-mdc-header-cell {
+  font-size: .9rem;
+  font-weight: bold;
+  vertical-align: middle !important;
+}
+
+  th.mat-mdc-header-cell img {
+    margin-right: 2px
+  }
+
+td.mat-mdc-cell {
+  font-size: .9rem;
+  font-weight: 500;
+  vertical-align: middle;
+  height: 72px;
+  padding-right: .2em;
+}
+
+td.boldfield {
+  font-weight: bold;
+}
+
+.tableWrapline {
+  display: inline-block;
+  margin-left: 4px;
+  vertical-align: middle;
+  width: 76px;
+}
+
+.linkCol {
+  margin-left: 1em;
+}
+
+th.mat-sort-header-sorted {
+  color: black;
+}
+
+
+
+
+.mat-column-owner_name {
+  min-width: 10rem;
+}
+
+td .mat-column-owner_name {
+  padding-right: .4rem;
+}
+
+  td.mat-column-owner_name a {
+    display: inline-block;
+    padding-right: 0;
+    vertical-align: middle;
+    padding-left: 6px;
+  }
+
+    td.mat-column-owner_name a span {
+      display: inline-block;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      max-width: 150px;
+    }
+
+      td.mat-column-owner_name a span:hover {
+        white-space: unset;
+        text-overflow: unset;
+      }
+
+
+  td.mat-column-owner_name img {
+    display: inline-block;
+    margin-top: -12px;
+  }
+
+  td.mat-column-owner_name .mysteryImg {
+    height: 50px;
+    margin-top: 0;
+    margin-left: -5px
+  }
+
+
+/*** Table Flex columns ***/
+.mat-column-owner_name {
+  flex: 0 0 360px;
+}
+
+  .mat-column-owner_name a {
+    padding-right: .4rem
+  }
+
+th.mat-column-district_id span {
+  margin-left: -10px;
+  margin-right: 10px
+}
+
+td.mat-column-district_id a {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.mat-column-district_id {
+  width: 9%
+}
+
+.mat-column-building_name {
+  min-width: 150px;
+}
+
+.mat-column-unit_forsale_count div:last-of-type {
+  margin-bottom: 6px
+}
+
+.buildDescParcel {
+  display: inline-block;
+  vertical-align: middle;
+  width: 130px;
+}
+
+.units {
+  font-size: .8rem;
+  display: block;
+}
+
+.buildingContain {
+  max-width: 90px;
+  min-width: 72px;
+  margin-right: 8px;
+  position: relative;
+  display: inline-block;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.buildingImg {
+  max-width: 90px;
+  max-height: 80px;
+  margin-bottom: 3px;
+  min-width: 40px;
+  overflow: hidden;
+}
+
+.buildingZoom {
+  margin-top: -20px;
+  margin-left: -10px;
+  margin-bottom: -20px;
+  max-width: 100px;
+  overflow: hidden;
+}
+
+  .buildingZoom .buildingImg {
+    margin-top:6px;
+    max-width: 110px;
+    max-height: 100px;
+  }
+
+.buildingNum {
+  position: absolute;
+  bottom: 0;
+  color: lightcoral;
+  font-size: .6rem;
+  font-weight: bold;
+  text-shadow: -1px -1px 1px #fff, 1px 1px 1px #fff;
+}
+
+.buildingCategory {
+  position: absolute;
+  top: 2px;
+  color: lightcoral;
+  font-size: .6rem;
+  font-weight: bold;
+  text-shadow: -1px -1px 1px #fff, 1px 1px 1px #fff;
+}
+
+.mapLink {
+  display: inline-block;
+  vertical-align: middle;
+  padding-bottom: 3px;
+  padding-top: 3px;
+}
+
+  .mapLink .mat-icon {
+    vertical-align: bottom;
+    margin-right: 3px;
+  }
+
+  .mapLink span {
+    display: inline-block;
+    margin-bottom: 1px
+  }
+
+.rented {
+  position: absolute;
+  margin-left: -66px;
+  z-index: 100;
+  width: 70px;
+  margin-top: -20px;
+  margin-left: -70px;
+}
+
+.lastAction {
+  text-align: center;
+  width: 120px;
+  overflow: visible;
+}
+
+.lastActionType {
+  display: block
+}
+
+.datePart, .timePart {
+  font-size: 12px;
+}
+
+/*Sale Sign*/
+.salepos {
+  position: absolute;
+  margin-left: -66px;
+  z-index: 100;
+}
+
+  .salepos::before {
+    background: url("../../assets/red-for-sale-sign.png") no-repeat;
+    content: "";
+    height: 60px;
+    width: 90px;
+    display: inline-block;
+    background-size: contain;
+    margin-top: -30px;
+    margin-left: -28px;
+    position: absolute;
+    z-index: -1;
+    background-color: white
+  }
+
+.forsale {
+  background: #E20F1E;
+  border: 4px;
+  padding: 4px;
+  font-weight: 500;
+  font-family: fantasy;
+  letter-spacing: .7px;
+  font-size: 16px;
+  border-radius: 5px;
+  margin-right: 3px;
+  margin-top: 6px;
+  margin-bottom: 5px;
+  display: inline-block;
+  line-height: 18px;
+  color: white;
+}
+/*** Link underline amine ***/
+a {
+  position: relative;
+  text-decoration: none;
+}
+
+/*** Hide short text by default (resolution > 1200px) ***/
+.short-text {
+  display: none !important;
+}
+
+.mobileView {
+  display: none;
+}
+
+.timePart {
+  display: block;
+}
+
+
+@media only screen and (max-width: 426px) {
+ 
+  .long-text {
+    display: none !important;
+  }
+
+  .short-text, .mobileView {
+    display: inline-block !important;
+  }
+
+  .table-container .mat-mdc-table {
+    margin-left: -12px;
+    width: 100vw;
+  }
+
+  th.mat-mdc-header-cell:first-of-type, th.mat-mdc-header-cell:last-of-type {
+    padding-left: 14px
+  }
+
+  td.mat-mdc-cell:first-of-type {
+    padding-left: 10px;
+  }
+
+  th.mat-mdc-header-cell {
+    font-size: 13px
+  }
+
+  td.mat-mdc-cell {
+    font-size: 12px;
+    font-weight: 500;
+    padding-top: 6px;
+    padding-bottom: 4px;
+  }
+
+  th.mat-column-district_id span {
+    margin: 0;
+    width: 48px;
+    font-size: 14px;
+  }
+
+  td.mat-column-district_id {
+    text-align: center
+  }
+
+    td.mat-column-district_id a {
+      font-size: 14px
+    }
+
+  .mat-column-building_name {
+    min-width: 120px;
+  }
+
+  .buildDescParcel {
+    width: 120px
+  }
+
+  .mat-column-owner_name {
+    min-width: 130px
+  }
+
+  td.mat-column-owner_name a {
+    vertical-align: bottom
+  }
+
+    td.mat-column-owner_name a span {
+      max-width: 80px;
+    }
+
+  td.mat-column-owner_name .mysteryImg {
+    margin-left: 0;
+    height: 38px;
+  }
+
+  td.mat-column-owner_name img {
+    margin-right: 0;
+    margin-top: 0;
+    height: 40px;
+  }
+
+  .lastAction {
+    margin-top: 8px
+  }
+
+    .lastAction span {
+      vertical-align: top
+    }
+
+    .lastAction div {
+      display: inline-block;
+      margin-left: 4px;
+    }
+
+  th.mat-column-pos_x {
+    min-width: 70px;
+  }
+
+  td.mat-column-pos_x {
+    text-align: center;
+    padding-top: 18px;
+  }
+
+  .mapLink {
+    padding-top: 16px;
+  }
+
+  .salepos2 {
+    font-size: .7rem;
+    margin-left: -40px;
+  }
+
+  .salepos {
+    margin-top: -32px;
+    margin-left: -20px;
+    position: absolute;
+    width: 60px;
+    text-align: center
+  }
+
+    .salepos::before {
+      height: 37.4px;
+      width: 56px;
+      margin-top: -18px;
+      margin-left: 0px;
+      left: 2px;
+    }
+
+  .rented {
+    margin-top: 0;
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    margin-right: 6px;
+    margin-left: 0px;
+  }
+
+
+  .addMarginTop {
+    margin-top: 8px
+  }
+
+  .spacerLine {
+    height: 8px;
+    width: 300px;
+    border: dashed;
+    border-color: darkred;
+    border-width: 0.6px 0 0 0;
+    margin-top: 14px;
+    margin-bottom: 8px;
+  }
+
+  .unitSection {
+    position: absolute
+  }
+
+  .forSaleUnit, .unitPrice {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .forsaleUnit {
+    font-size: 14px;
+    font-weight: 600;
+    padding-left: 6px
+  }
+
+  .unitPrice {
+    margin-left: 24px;
+  }
+
+  .addMarginBottom {
+    margin-bottom: 80px;
+  }
+
+  td.addPaddingBottom {
+    padding-bottom: 80px;
+  }
+
+  .mat-column-owner_name {
+    vertical-align: top
+  }
+
+  .buildingContain {   
+    margin-top: 0px;
+    margin-bottom: 0px;
+  }
+}
+

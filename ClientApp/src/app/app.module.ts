@@ -37,10 +37,13 @@ import { BuildingFilterComponent } from './building-filter/building-filter.compo
 import { TransferAssetComponent } from './transfer-asset/transfer-asset.component';
 import { WorldComponent } from './world/world.component';
 import { CustomBuildingComponent } from './custom-building/custom-building.component';
+import { CustomBuildingTableComponent } from './custom-building-table/custom-building-table.component';
+import { MissionDeskComponent } from './mission-desk/mission-desk.component';
 
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { NumberDirective } from './numberonly.directive';
+import { NumberDirective } from './directive/numberonly.directive';
+import { NumberDecimalDirective } from './directive/number-decimal-only.directive';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -99,7 +102,10 @@ import { Alert } from './common/alert';
     BuildingFilterComponent,
     WorldComponent,
     CustomBuildingComponent,
-    NumberDirective  
+    CustomBuildingTableComponent,
+    MissionDeskComponent,
+    NumberDirective,
+    NumberDecimalDirective,
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

@@ -1,6 +1,6 @@
 
 // Service Interfaces
-interface OwnerLandData
+interface IOwnerLandData
 {
   district_id: number;
   pos_x: number;
@@ -30,7 +30,7 @@ interface OwnerLandData
   unit: number;
 }
 
-interface OwnerData
+interface IOwnerData
 {
   owner_name: string;
   owner_url: string;
@@ -44,25 +44,25 @@ interface OwnerData
   stamina_alert_count: number;
   offer_count: number;
   offer_sold_count: number;
-  owner_offer: Offer[];
-  owner_offer_sold: Offer[];
+  owner_offer: IOffer[];
+  owner_offer_sold: IOffer[];
   offer_last_updated: string;
   pet_count: number;
   citizen_count: number;
-  district_plots: DistrictPlot[];
-  owner_land: OwnerLandData[];
+  district_plots: IDistrictPlot[];
+  owner_land: IOwnerLandData[];
   search_info: string;
   search_token: number;
   pack_count: number;
-  pack : Pack[]
+  pack : IPack[]
 }
 
-interface Pack {
+interface IPack {
   pack_id: number;
   amount: number;
   product_id: number;
 }
-interface Offer
+interface IOffer
 {
   buyer_matic_key: string;
   buyer_owner_name: string;
@@ -78,31 +78,31 @@ interface Offer
 }
 
 
-interface PlotPosition
+interface IPlotPosition
 {
   plotX: string,
   plotY: string,
 }
 
-interface DistrictPlot
+interface IDistrictPlot
 {
   district: number[];
 }
 
-interface Pet {
+interface IPet {
   token_id: number;
   name: string;
   trait: string;
   level: number;  
 }
 
-interface PortfolioPet {
+interface IPortfolioPet {
   pet_count: number;
   last_updated: string;
-  pet: Pet[];
+  pet: IPet[];
 }
 
-interface Citizen {
+interface ICitizen {
   token_id: number;
   name: string;
   generation: number;
@@ -142,13 +142,13 @@ interface Citizen {
   building: string;
 }
 
-interface PortfolioCitizen {
+interface IPortfolioCitizen {
   last_updated: string;
   slowdown: number;
-  citizen: Citizen[];
+  citizen: ICitizen[];
 }
 
-interface FilterCount {
+interface IFilterCount {
   empty: number;
   industry: number;
   production: number;
@@ -197,17 +197,17 @@ const PRODUCT = {
 
 export
 {
-  OwnerLandData,
-  OwnerData,
-  Offer,
-  PlotPosition,
-  DistrictPlot,
-  Pet,
-  PortfolioPet,
-  Citizen,
-  PortfolioCitizen,
+  IOwnerLandData,
+  IOwnerData,
+  IOffer,
+  IPlotPosition,
+  IDistrictPlot,
+  IPet,
+  IPortfolioPet,
+  ICitizen,
+  IPortfolioCitizen,
   BUILDING,
   PRODUCT,
-  FilterCount,
-  Pack
+  IFilterCount,
+  IPack
 }

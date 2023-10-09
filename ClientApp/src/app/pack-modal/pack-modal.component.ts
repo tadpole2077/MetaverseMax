@@ -5,7 +5,7 @@ import { MatSort, MatSortable, Sort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { TransferAssetComponent } from "../transfer-asset/transfer-asset.component"
-import { Pack, PRODUCT } from '../owner-data/owner-interface';
+import { IPack, PRODUCT } from '../owner-data/owner-interface';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Globals, WORLD } from '../common/global-var';
 import { PRODUCT_IMG, PRODUCT_NAME } from '../common/enum';
@@ -27,10 +27,10 @@ export class PackModalComponent {
 
   @Output() hidePackEvent = new EventEmitter<boolean>();
 
-  public pack: Pack[];
+  public pack: IPack[];
   public hidePaginator: boolean;
   public forceClose: boolean = false;
-  public expandedRow: Pack;
+  public expandedRow: IPack;
 
   httpClient: HttpClient;
   baseUrl: string;
@@ -105,14 +105,14 @@ export class PackModalComponent {
     return;
   }
 
-  public loadPackList( packList: Pack[]) {
+  public loadPackList( packList: IPack[]) {
 
     this.expandedRow = null;      // init as may contain prior expanded row if Pack component show and expanded on prior usage.
     this.pack = packList;
 
     if (this.pack != null || this.pack.length > 0) {
 
-      this.dataSource = new MatTableDataSource<Pack>(this.pack);
+      this.dataSource = new MatTableDataSource<IPack>(this.pack);
 
       this.dataSource.paginator = this.paginator;
       if (this.dataSource.paginator) {
@@ -123,7 +123,7 @@ export class PackModalComponent {
       this.sort.sort(({ id: 'product_id', start: 'asc' }) as MatSortable);        // Default sort order on date
     }
     else {
-      this.dataSource = new MatTableDataSource<Pack>(null);
+      this.dataSource = new MatTableDataSource<IPack>(null);
     }
 
     this.hidePaginator = this.pack.length == 0 || this.pack.length < 5 ? true : false;
@@ -196,7 +196,7 @@ export class PackModalComponent {
     this.hidePackEvent.emit(true);
   }
 
-  showTransfer(row: Pack, rowIndex: number) {
+  showTransfer(row: IPack, rowIndex: number) {
 
     this.forceClose = false;    // Reset if previously set to true -  Used with "refresh" feature - to auto close any opened sub table (remove if not uses refresh)
 

@@ -355,10 +355,7 @@ namespace MetaverseMax.Database
                     buildingPlotList[i].predict_produce = plotMaster.predict_produce;
 
                     buildingPlotList[i].parcel_id = plotMaster.parcel_id;
-                    buildingPlotList[i].building_name = plotMaster.building_name;
-                    buildingPlotList[i].parcel_unit_count = plotMaster.parcel_unit_count;
                     buildingPlotList[i].parcel_info_id = plotMaster.parcel_info_id;
-                    buildingPlotList[i].building_category_id = plotMaster.parcel_info_id;
 
                 }
 

@@ -1,26 +1,26 @@
 <div class="searchBlock">
   <img src="{{ globals.worldURLPath }}citizen/{{ globals.firstCitizen }}" class="defaultAvatorImg" height="160" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </div>
-<h3 id="tableLabel">{{globals.worldName}} World - Custom Buildings &amp; Parcels</h3>
+<h3 id="tableLabel">{{globals.worldName}} World - Missions &amp; Custom Buildings</h3>
 
-<h6>View and evaluate custom buildings and parcels.</h6>
+<h6>View and evaluate missions and custom buidlings.</h6>
 
-<p *ngIf="!worldParcel" class="fadeInAndOut loading"><em>Loading...</em></p>
+<!--<p *ngIf="!customComponent || !customComponent.tableView" class="fadeInAndOut loading"><em>Loading...</em></p>-->
 
-<div [hidden]="!globals.ownerAccount.wallet_active_in_world" class="newBuildingSlider">
-  <mat-slide-toggle #alertSlide aria-labelledby="New Building Alert"
-                    (change)="alertChange($event, ALERT_TYPE.NEW_BUILDING)"
-                    [checked]="false">
-  </mat-slide-toggle>
-  <mat-label class="mat-slide-toggle-content">New Building Alert</mat-label>
-</div>
+<div class="tableControls" [ngClass]="{'showCustom': showCustom}">
 
-<div class="tableControls">
+  <div [hidden]="!globals.ownerAccount.wallet_active_in_world" class="newBuildingSlider">
+    <mat-slide-toggle #alertSlide aria-labelledby="New Building Alert"
+                      (change)="alertChange($event, ALERT_TYPE.NEW_BUILDING)"
+                      [checked]="false">
+    </mat-slide-toggle>
+    <mat-label class="mat-slide-toggle-content">New Building Alert</mat-label>
+  </div>
 
   <mat-form-field fxFlex="30%" class="tableFilter" [style.width.rem]=8 subscriptSizing="dynamic">
     <mat-label><i class="material-icons mdc-text-field__icon mdc-text-field__icon--leading" tabindex="0" role="button">search</i>Search</mat-label>
-    <input matInput type="text" (keyup)="applyFilter($event.target.value)" placeholder="" [formControl]="searchTable" />
-    <button *ngIf="searchTable.value" matSuffix mat-icon-button aria-label="Clear" (click)="searchTable.setValue(''); applyFilter('');">
+    <input matInput type="text" (keyup)="applyFilterCustom($event.target.value)" placeholder="" [formControl]="searchCustomTable" />
+    <button *ngIf="searchCustomTable.value" matSuffix mat-icon-button aria-label="Clear" (click)="searchCustomTable.setValue(''); applyFilterCustom('');">
       <mat-icon>close</mat-icon>
     </button>
   </mat-form-field>
@@ -32,7 +32,7 @@
                       fxFlex="30%"
                       (change)="filterBuilding($event)">
           <img class="buildingImgSml" title="Land Parcels" src="./images/building.png">
-          <span class="filterLabel" matBadge="{{ !worldParcel ? 0 : worldParcel.building_count }}" [ngClass]="{'largeBadge': !worldParcel ? false : worldParcel.building_count > 100 }" matBadgePosition="above after">Buildings</span>
+          <span class="filterLabel" matBadge="{{ !customComponent ? 0 : customComponent.buildingCount }}" [ngClass]="{'largeBadge': !customComponent ? false : customComponent.buildingCount > 100 }" matBadgePosition="above after">Buildings</span>
         </mat-checkbox>
       </div>
     </div>
@@ -43,215 +43,80 @@
                       fxFlex="30%"
                       (change)="filterParcel($event)">
           <img class="buildingImgSml" title="Land Parcels" src="./images/Parcel.png">
-          <span class="filterLabel" matBadge="{{ !worldParcel ? 0 : worldParcel.parcel_count }}" [ngClass]="{'largeBadge': !worldParcel ? false : worldParcel.parcel_count > 100 }" matBadgePosition="above after">Parcels</span>
+          <span class="filterLabel" matBadge="{{ !customComponent ? 0 : customComponent.parcelCount }}" [ngClass]="{'largeBadge': !customComponent ? false : customComponent.parcelCount > 100 }" matBadgePosition="above after">Parcels</span>
         </mat-checkbox>
       </div>
     </div>
   </div>
 
 </div>
-<p *ngIf="!worldParcel" class="fadeInAndOut loading"><em>Loading...</em></p>
 
-<mat-tab-group  (selectedTabChange)="changeTab($event, 1)" selectedIndex="1">
+<div class="missionControls tableControls" [ngClass]="{'showMission': showMission}">
 
-  <mat-tab label="Mission Desk">
-    <div style="font-weight:600; margin:12px">Coming Soon....</div>
+  <mat-form-field fxFlex="30%" class="missionTable tableFilter" [style.width.rem]=8 subscriptSizing="dynamic">
+    <mat-label><i class="material-icons mdc-text-field__icon mdc-text-field__icon--leading" tabindex="0" role="button">search</i>Search</mat-label>
+    <input matInput type="text" (keyup)="applyFilterMission($event.target.value)" placeholder="" [formControl]="searchMissionTable" />
+    <button *ngIf="searchMissionTable.value" matSuffix mat-icon-button aria-label="Clear" (click)="searchMissionTable.setValue(''); applyFilterMission('');">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-form-field>
+
+
+  <div class="missionSummary">
+    <div>
+      <span class="summaryTitle">Missions : </span>
+      <span class="missionCount">{{ !missionComponent ? 0 : missionComponent.missionCount }}</span>
+    </div>
+    <div>
+      <span class="summaryTitle">Rewards : </span>
+      <span>{{ !missionComponent ? 0 : missionComponent.missionReward }}<img class="mega" src="./images/coin-m.png" /></span>
+    </div>
+  </div>
+
+  <mat-form-field fxFlex="30%" [style.width.rem]=12 subscriptSizing="dynamic" class="rewardFilter tableFilter">
+    <mat-label>Hide Rewards < </mat-label>
+    <input matInput numbersDecimalOnly (keyup)="applyFilterMissionRewardByKey($event.target.value)" (click)="applyFilterMissionReward($event.target.value)" placeholder="1" [formControl]="filterMissionByReward"/>
+    <button *ngIf="filterMissionByReward.value" matSuffix mat-icon-button aria-label="Clear"  (click)="filterMissionByReward.setValue('');removeRewardFilterMission()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-form-field>
+
+  <div class="topDistrict" *ngIf="missionComponent && missionComponent.districtList">
+    <span class="topDistrictLabal">Top Districts:</span>
+    <div class="districtGroup">
+      <div class="districtEle" *ngFor="let district of missionComponent.districtList;  index as districtIndex">
+        <span class="districtNum">#{{district.id}}:</span>
+        <span class="districtCount"> {{district.total}}</span>        
+      </div>
+    </div>
+  </div>
+</div>
+
+<p *ngIf="!missionComponent || !missionComponent.worldMission" class="fadeInAndOut loading"><em>Loading...</em></p>
+
+<mat-tab-group (selectedTabChange)="changeTab($event)" selectedIndex="0" [ngClass]="{'extendTabMarginMobile': showMission}">
+
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <mat-icon class="runningMan">directions_run</mat-icon>
+      <span>Mission Desk</span>
+    </ng-template>
   </mat-tab>
 
-  <mat-tab label="Custom Buildings">    
-  </mat-tab>  
+  <mat-tab>
+    <ng-template mat-tab-label>
+      <img class="buildingImgSml" title="Land Parcels" src="./images/building.png">
+      <span>Custom Building</span>
+    </ng-template>
+  </mat-tab>
 </mat-tab-group>
 
+<div class="tabContent">
+  <div class="missionDesk" [ngClass]="{'showMission': showMission}">
+    <app-mission-desk class="" (parcelFilterChange)="parcelFilterChange($event)" (buildingFilterChange)="buildingFilterChange($event)"></app-mission-desk>
+  </div>
 
-<div class="customBuilding table-container" [hidden]="!worldParcel || !worldParcel.parcel_list.length" [ngClass]="{'showCustom': showCustom}">
-
-  <table mat-table [dataSource]="dataSource" matSort matSortStart="desc" class="table table-striped mat-elevation-z8" style="width:100%; display:inline-table">
-    <!--table table-striped-->
-    <ng-container matColumnDef="district_id">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>
-        <span class="long-text">District #</span>
-        <span class="short-text">District</span>
-      </th>
-      <td mat-cell *matCellDef="let row">
-        <span class="salepos" *ngIf="row.forsale_price > 0">{{ row.forsale_price.toLocaleString() }}</span>
-        <img class="rented" *ngIf="row.rented==true" src="./images/rented.png" />
-        <a class="lineAnim" [routerLink]="['/', globals.worldCode, 'district-summary']" [queryParams]="{district_id: row.district_id}" title="{{ row.district_id }}">
-          <span>{{ row.district_id }}</span>
-        </a>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="building_name">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
-      <td mat-cell *matCellDef="let row">
-
-        <div class="buildingContain">
-          <span class="buildingNum"># {{ row.parcel_id }}</span>
-          <span class="buildingCategory mobileView">{{ getCustomCategoryName(row.building_category_id) }}</span>
-          <div [ngClass]="{'buildingZoom': row.building_category_id == 0 }">
-            <img src="{{ row.building_img }}" class="buildingImg">
-          </div>
-        </div>
-
-        <div class="buildDescParcel">
-          <span> {{ row.building_name }} </span>
-          <span *ngIf="row.unit_count > 0" class="units"> Units: {{ row.unit_count }} </span>
-          <span [ngClass]="{'addMarginTop': row.building_category_id == 0 }" class="mobileView"> Plots: {{ row.plot_count }}</span>
-        </div>
-
-        <div *ngIf="row.unit_count>0" [ngClass]="{'addMarginBottom': row.unit_count > 0 && isMobileView}">
-          <div class="mobileView unitSection">
-            <div class="spacerLine"></div>
-            <div *ngIf="row.unit_forsale_count==0">
-              <span>No units For Sale</span>
-            </div>
-            <div *ngIf="row.unit_forsale_count>0">
-              <div class="forSaleUnit">
-                <span class="forsale">UNIT FOR SALE</span>
-                <span class="forsaleUnit">{{ row.unit_forsale_count }}</span>
-              </div>
-              <div class="unitPrice">
-                <div *ngIf="row.unit_price_high_mega>0">
-                  <span>Mega Price: </span>
-                  <span *ngIf="row.unit_price_low_mega>0 && row.unit_price_low_mega != row.unit_price_high_mega">
-                    <span>{{ row.unit_price_low_mega }} - {{ row.unit_price_high_mega }}</span>
-                  </span>
-                  <span *ngIf="row.unit_price_low_mega==row.unit_price_high_mega">{{ row.unit_price_high_mega }}</span>
-                </div>
-                <div *ngIf="row.unit_price_high_coin>0 && row.unit_price_low_coin != row.unit_price_high_coin">
-                  <span>{{ globals.worldCode.toUpperCase()  }} Price: </span>
-                  <span *ngIf="row.unit_price_low_coin>0">
-                    <span>{{ row.unit_price_low_coin }} - {{ row.unit_price_high_coin }}</span>
-                  </span>
-                  <span *ngIf="row.unit_price_low_coin==row.unit_price_high_coin">{{ row.unit_price_high_coin }}</span>
-                </div>
-                <div>
-                  <span>Size (m2): </span>
-                  <span *ngIf="row.unit_sale_smallest_size >0 && row.unit_sale_smallest_size != row.unit_sale_largest_size">
-                    <span>{{ row.unit_sale_smallest_size }} - {{ row.unit_sale_largest_size }}</span>
-                  </span>
-                  <span *ngIf="row.unit_sale_smallest_size==row.unit_sale_largest_size">{{ row.unit_sale_largest_size }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="owner_name">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Owner </th><!-- start="asc"-->
-      <td mat-cell *matCellDef="let row" [ngClass]="{'addPaddingBottom': row.unit_count > 0 && isMobileView}">
-        <img *ngIf="row.owner_avatar_id>0" src="{{ globals.worldURLPath }}citizen/{{ row.owner_avatar_id }}" class="ownerImgCol" height="60" crossorigin="anonymous" referrerpolicy="no-referrer" />
-        <img *ngIf="row.owner_avatar_id==0" src="./images/MysteryOwner.png" class="mysteryImg" />
-
-        <a class="lineAnim maticLinkCol" [routerLink]="['/', globals.worldCode, 'owner-data']" [queryParams]="{matic: row.owner_matic}" title="{{ row.owner_name }}">
-          <span *ngIf="row.owner_name!=''">{{ row.owner_name }}</span>
-
-          <span class="long-text" *ngIf="row.owner_name==''">{{ row.owner_matic.substring(0,14) }}</span>
-          <span class="short-text" *ngIf="row.owner_name==''">{{ row.owner_matic.substring(0,10) }}</span>
-        </a>
-        <div class="mobileView lastAction">
-          <mat-icon>update</mat-icon>
-          <div>
-            <span>{{ row.last_action.substring(0, row.last_action.length - 8) }}</span>
-            <span class="timePart">{{ row.last_action.substring(row.last_action.length - 8) }}</span>
-          </div>
-        </div>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="plot_count">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Plot # </th>
-      <td mat-cell *matCellDef="let row">
-        <div>
-          <span>{{ row.plot_count }}</span>
-        </div>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="building_category_id">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Category </th>
-      <td mat-cell *matCellDef="let row">
-        <div>
-          <span>{{ getCustomCategoryName(row.building_category_id) }}</span>
-        </div>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="unit_forsale_count">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Units </th>
-      <td mat-cell *matCellDef="let row">
-        <div *ngIf="row.unit_forsale_count==0">
-          <span>No units For Sale</span>
-        </div>
-        <div *ngIf="row.unit_forsale_count>0">
-          <div>
-            <span class="forsale">FOR SALE</span>
-            <span>{{ row.unit_forsale_count }}</span>
-          </div>
-          <div *ngIf="row.unit_price_high_mega>0">
-            <span>Mega Price: </span>
-            <span *ngIf="row.unit_price_low_mega>0 && row.unit_price_low_mega != row.unit_price_high_mega">
-              <span>{{ row.unit_price_low_mega }} - {{ row.unit_price_high_mega }}</span>
-            </span>
-            <span *ngIf="row.unit_price_low_mega==row.unit_price_high_mega">{{ row.unit_price_high_mega }}</span>
-          </div>
-          <div *ngIf="row.unit_price_high_coin>0">
-            <span>{{ globals.worldCode.toUpperCase() }} Price: </span>
-            <span *ngIf="row.unit_price_low_coin>0 && row.unit_price_low_coin != row.unit_price_high_coin">
-              <span>
-                {{ row.unit_price_low_coin }} - {{ row.unit_price_high_coin }}
-              </span>
-            </span>
-            <span *ngIf="row.unit_price_low_coin == row.unit_price_high_coin">{{ row.unit_price_high_coin }}</span>
-          </div>
-          <div>
-            <span>Size (m2): </span>
-            <span *ngIf="row.unit_sale_smallest_size >0 && row.unit_sale_smallest_size != row.unit_sale_largest_size">
-              <span>{{ row.unit_sale_smallest_size }} - {{ row.unit_sale_largest_size }}</span>
-            </span>
-            <span *ngIf="row.unit_sale_smallest_size==row.unit_sale_largest_size">{{ row.unit_sale_largest_size }}</span>
-          </div>
-        </div>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="last_action">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Last Action GMT </th>
-      <td mat-cell *matCellDef="let row">
-        <div class="lastAction" *ngIf="row.last_action !=='Empty Plot'">
-          <span class="lastActionType">{{ getLastActionType(row.action_type) }}</span>
-          <span class="datePart">{{ row.last_action.substring(0, row.last_action.length - 8) }}</span>
-          <span class="timePart">{{ row.last_action.substring(row.last_action.length - 8) }}</span>
-        </div>
-        <span *ngIf="row.last_action =='Empty Plot'">{{ row.last_action }}</span>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="pos_x">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Pos </th>
-      <td mat-cell *matCellDef="let row" [ngClass]="{'addPaddingBottom': row.unit_count > 0 && isMobileView}">
-        <span>X:{{ row.pos_x}} Y:{{ row.pos_y }}</span>
-        <a class="lineAnim mapLink mobileView" target="_blank" href="https://play.mcp3d.com/{{ globals.worldName.toLowerCase() }}/land?x={{ row.pos_x }}&y={{ row.pos_y }}">
-          <mat-icon>language</mat-icon>
-          <span>Map</span>
-        </a>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="pos_y">
-      <th mat-header-cell *matHeaderCellDef disabled> Link </th>
-      <td mat-cell *matCellDef="let row">
-        <a class="lineAnim mapLink" target="_blank" href="https://play.mcp3d.com/{{ globals.worldName.toLowerCase() }}/land?x={{ row.pos_x }}&y={{ row.pos_y }}">
-          <mat-icon>language</mat-icon>
-          <span>Map</span>
-        </a>
-      </td>
-    </ng-container>
-
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>
-  <mat-paginator [hidden]="hidePaginator" [pageSize]="1000" [hidePageSize] [showFirstLastButtons] class="paginatorContainer"></mat-paginator>
+  <div class="customBuilding" [ngClass]="{'showCustom': showCustom}">
+    <app-custom-building-table class="" (parcelFilterChange)="parcelFilterChange($event)" (buildingFilterChange)="buildingFilterChange($event)"></app-custom-building-table>
+  </div>
 </div>

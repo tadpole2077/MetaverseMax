@@ -14,7 +14,7 @@ import { PetModalComponent } from '../pet-modal/pet-modal.component';
 import { PackModalComponent } from '../pack-modal/pack-modal.component';
 import { CitizenModalComponent } from '../citizen-modal/citizen-modal.component';
 import { MatLegacyButton as MatButton } from '@angular/material/legacy-button';
-import { OwnerLandData, OwnerData, PlotPosition, BUILDING, FilterCount } from './owner-interface';
+import { IOwnerLandData, IOwnerData, IPlotPosition, BUILDING, IFilterCount } from './owner-interface';
 import { Globals, WORLD } from '../common/global-var';
 import { CUSTOM_BUILDING_CATEGORY } from '../common/enum';
 import { SearchPlotComponent } from '../search-plot/search-plot.component';
@@ -31,9 +31,9 @@ export class OwnerDataComponent implements AfterViewInit {
   baseUrl: string;
 
   readonly BUILDING = BUILDING;
-  public owner: OwnerData;
-  public filterCount: FilterCount;
-  public filterLandByDistrict: OwnerLandData[] = [];
+  public owner: IOwnerData;
+  public filterCount: IFilterCount;
+  public filterLandByDistrict: IOwnerLandData[] = [];
   public hideEmptyFilter: boolean = true; hideIndFilter: boolean = true; hideProdFilter: boolean = true; hideEngFilter: boolean = true; hideOffFilter: boolean = true; hideResFilter: boolean = true; hideComFilter: boolean = true; hideMuniFilter: boolean = true; hideAOIFilter: boolean = true;  hideParcelFilter: boolean = true;
   private currentDistrictFilter: number = 0;
   public buttonShowAll: boolean = false;
@@ -261,7 +261,7 @@ export class OwnerDataComponent implements AfterViewInit {
     const rotateEle = document.getElementById("searchIcon");
     rotateEle.classList.add("rotate");
     
-    this.httpClient.get<OwnerData>(this.baseUrl + '/ownerdata/getusingmatic', { params: params })
+    this.httpClient.get<IOwnerData>(this.baseUrl + '/ownerdata/getusingmatic', { params: params })
       .subscribe({
         next: (result) => {
 
@@ -278,7 +278,7 @@ export class OwnerDataComponent implements AfterViewInit {
   }
 
   // Single parameter struct containing 2 members, pushed by component search-plot
-  searchPlot(plotPos: PlotPosition, loadBuildingHistory:boolean = false) {
+  searchPlot(plotPos: IPlotPosition, loadBuildingHistory:boolean = false) {
 
     let params = new HttpParams();
     params = params.append('plotX', plotPos.plotX);
@@ -294,7 +294,7 @@ export class OwnerDataComponent implements AfterViewInit {
     }
 
     //this.httpClient.get<OwnerData>(this.baseUrl + 'ownerdata/Get?plotX=' + encodeURIComponent(plotPos.plotX) + '&plotY=' + encodeURIComponent(plotPos.plotY))
-    this.httpClient.get<OwnerData>(this.baseUrl + '/OwnerData', { params: params })
+    this.httpClient.get<IOwnerData>(this.baseUrl + '/OwnerData', { params: params })
       .subscribe({
         next: (result) => {
 
@@ -336,7 +336,7 @@ export class OwnerDataComponent implements AfterViewInit {
     return;
   }
 
-  loadClientData(clientData: OwnerData) {
+  loadClientData(clientData: IOwnerData) {
 
     const rotateEle = document.getElementById("searchIcon");
     this.hideAll();
@@ -354,7 +354,7 @@ export class OwnerDataComponent implements AfterViewInit {
 
     if (this.owner.owner_land) {
 
-      this.dataSource = new MatTableDataSource<OwnerLandData>(this.owner.owner_land);
+      this.dataSource = new MatTableDataSource<IOwnerLandData>(this.owner.owner_land);
 
       this.dataSource.sort = this.sort;
 
@@ -394,7 +394,7 @@ export class OwnerDataComponent implements AfterViewInit {
 
   applySortDataAsccessor(targetDataSource: any) {
     // Add custom date column sort
-    targetDataSource.sortingDataAccessor = (item: OwnerLandData, property) => {
+    targetDataSource.sortingDataAccessor = (item: IOwnerLandData, property) => {
       switch (property) {
         case 'last_action': return item.last_action == "Empty Plot" ? new Date(0) : new Date(item.last_action);
         case 'building_type': return item.building_type * 10 + item.resource;
@@ -422,7 +422,7 @@ export class OwnerDataComponent implements AfterViewInit {
   // Filter By District, and By Building Type [Storing pior District filter and using if found]
   filterTable(event, filterValue: number, buildingType: number) {
 
-    let filterbyMulti: OwnerLandData[] = [];
+    let filterbyMulti: IOwnerLandData[] = [];
 
     // Remove ALL Highlights - prior filters when selecting new district
     if (buildingType === BUILDING.NO_FILTER) {
@@ -463,7 +463,7 @@ export class OwnerDataComponent implements AfterViewInit {
       this.removeLinkHighlight(".activeFilter");
 
       // Filter by Building Type      
-      let filterbyType : OwnerLandData[] = null;
+      let filterbyType : IOwnerLandData[] = null;
       filterbyType = this.filterLandByDistrict.length == 0 ? this.owner.owner_land : this.filterLandByDistrict;
 
       filterbyType.forEach(land => {
@@ -488,7 +488,7 @@ export class OwnerDataComponent implements AfterViewInit {
     }
         
     // Assign filtered dataset
-    this.dataSource = new MatTableDataSource<OwnerLandData>(filterbyMulti);
+    this.dataSource = new MatTableDataSource<IOwnerLandData>(filterbyMulti);
     this.dataSource.sort = this.sort;
     this.applySortDataAsccessor(this.dataSource);
     this.sort.sortChange.emit(this.sort);   // Apply current sort order (last used)    
@@ -512,7 +512,7 @@ export class OwnerDataComponent implements AfterViewInit {
   }
 
   // Called to reset the building filter buttons to match the current search - typically called on a new search instance.
-  hideBuildingFilter(ownerLand: OwnerLandData[]) {
+  hideBuildingFilter(ownerLand: IOwnerLandData[]) {
 
     this.initFilterCount();
     

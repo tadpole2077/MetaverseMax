@@ -196,7 +196,8 @@ namespace MetaverseMax.ServiceClass
                 {
                     allOwnerAlerts.ForEach(x =>
                     {
-                        alert.AddNewBuildingAlert(x.matic_key, p.owner_nickname == string.Empty ? p.owner_matic : p.owner_nickname, p.token_id, p.district_id, p.parcel_info_id, p.building_name);
+                        CustomBuilding customBuilding = _context.customBuilding.Where(x => x.parcel_info_id == p.parcel_info_id).FirstOrDefault();
+                        alert.AddNewBuildingAlert(x.matic_key, p.owner_nickname == string.Empty ? p.owner_matic : p.owner_nickname, p.token_id, p.district_id, p.parcel_info_id, customBuilding.building_name);
                     });
                 });
             }

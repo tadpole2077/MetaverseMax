@@ -5,7 +5,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatLegacyTabGroup as MatTabGroup } from '@angular/material/legacy-tabs';
 import { DragDrop } from '@angular/cdk/drag-drop';
-import { Offer } from '../owner-data/owner-interface';
+import { IOffer } from '../owner-data/owner-interface';
 import { Globals, WORLD } from '../common/global-var';
 
 @Component({
@@ -17,8 +17,8 @@ export class OfferModalComponent implements AfterViewInit {
 
   @Output() hideOfferEvent = new EventEmitter<boolean>();
 
-  public offers: Offer[];
-  public offersSold: Offer[];
+  public offers: IOffer[];
+  public offersSold: IOffer[];
   public hidePaginator: boolean;
   public hidePaginatorSold: boolean;
   public lastUpdated: string = null;
@@ -52,7 +52,7 @@ export class OfferModalComponent implements AfterViewInit {
     
   }
 
-  public loadTable(offerList: Offer[], offerSoldList: Offer[], lastUpdated: string) {
+  public loadTable(offerList: IOffer[], offerSoldList: IOffer[], lastUpdated: string) {
 
     
     this.lastUpdated = lastUpdated;
@@ -61,8 +61,8 @@ export class OfferModalComponent implements AfterViewInit {
 
     if (this.offers != null) {
 
-      this.dataSource = new MatTableDataSource<Offer>(this.offers);
-      this.dataSourceSold = new MatTableDataSource<Offer>(this.offersSold);
+      this.dataSource = new MatTableDataSource<IOffer>(this.offers);
+      this.dataSourceSold = new MatTableDataSource<IOffer>(this.offersSold);
 
       this.hidePaginator = this.offers == null || this.offers.length < 5 ? true : false;
       this.hidePaginatorSold = this.offersSold == null || this.offersSold.length < 5 ? true : false;
@@ -84,18 +84,18 @@ export class OfferModalComponent implements AfterViewInit {
 
     }
     else {
-      this.dataSource = new MatTableDataSource<Offer>(null);
-      this.dataSourceSold = new MatTableDataSource<Offer>(null);
+      this.dataSource = new MatTableDataSource<IOffer>(null);
+      this.dataSourceSold = new MatTableDataSource<IOffer>(null);
     }        
 
-    this.dataSource.sortingDataAccessor = (item: Offer, property) => {
+    this.dataSource.sortingDataAccessor = (item: IOffer, property) => {
       switch (property) {
         case 'offer_date': return new Date(item.offer_date);
         default: return item[property];
       }
     };
 
-    this.dataSourceSold.sortingDataAccessor = (item: Offer, property) => {
+    this.dataSourceSold.sortingDataAccessor = (item: IOffer, property) => {
       switch (property) {
         case 'offer_date': return new Date(item.offer_date);
         default: return item[property];

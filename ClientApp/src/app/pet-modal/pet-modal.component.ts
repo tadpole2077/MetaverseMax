@@ -4,7 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { DragDrop } from '@angular/cdk/drag-drop';
-import { PortfolioPet, Pet } from '../owner-data/owner-interface';
+import { IPortfolioPet, IPet } from '../owner-data/owner-interface';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Globals, WORLD } from '../common/global-var';
 
@@ -20,7 +20,7 @@ export class PetModalComponent implements AfterViewInit {
 
   @Output() hidePetEvent = new EventEmitter<boolean>();
 
-  public portfolioPet: PortfolioPet;
+  public portfolioPet: IPortfolioPet;
   public hidePaginator: boolean;
 
   httpClient: HttpClient;
@@ -87,7 +87,7 @@ export class PetModalComponent implements AfterViewInit {
     let params = new HttpParams();
     params = params.append('owner_matic_key', maticKey);
 
-    this.httpClient.get<PortfolioPet>(this.baseUrl + '/ownerdata/getpet', { params: params })
+    this.httpClient.get<IPortfolioPet>(this.baseUrl + '/ownerdata/getpet', { params: params })
       .subscribe({
         next: (result) => {
 
@@ -95,7 +95,7 @@ export class PetModalComponent implements AfterViewInit {
 
           if (this.portfolioPet.pet_count > 0) {
 
-            this.dataSource = new MatTableDataSource<Pet>(this.portfolioPet.pet);          
+            this.dataSource = new MatTableDataSource<IPet>(this.portfolioPet.pet);          
 
             this.dataSource.paginator = this.paginator;
             if (this.dataSource.paginator) {
@@ -105,7 +105,7 @@ export class PetModalComponent implements AfterViewInit {
             this.dataSource.sort = this.sort;
           }
           else {
-            this.dataSource = new MatTableDataSource<Pet>(null);
+            this.dataSource = new MatTableDataSource<IPet>(null);
           }
           this.hidePaginator = this.portfolioPet.pet_count == 0 || this.portfolioPet.pet_count < 5 ? true : false;
 

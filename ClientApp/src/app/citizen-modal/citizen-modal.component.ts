@@ -4,7 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { DragDrop } from '@angular/cdk/drag-drop';
-import { Citizen, PortfolioCitizen } from '../owner-data/owner-interface';
+import { ICitizen, IPortfolioCitizen } from '../owner-data/owner-interface';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Globals, WORLD } from '../common/global-var';
 import { interval, Subscription } from 'rxjs';
@@ -18,7 +18,7 @@ export class CitizenModalComponent {
 
   @Output() hideCitizenEvent = new EventEmitter<boolean>();
 
-  public portfolioCitizen: PortfolioCitizen;
+  public portfolioCitizen: IPortfolioCitizen;
   public hidePaginator: boolean;
   private maticKey: string;
   public isMobileView: boolean = false;
@@ -150,7 +150,7 @@ export class CitizenModalComponent {
     params = params.append('refresh', refresh == true ? "true" : "false");
     params = params.append('requester', this.globals.ownerAccount.matic_key);
 
-    this.httpClient.get<PortfolioCitizen>(this.baseUrl + '/ownerdata/getcitizen', { params: params })
+    this.httpClient.get<IPortfolioCitizen>(this.baseUrl + '/ownerdata/getcitizen', { params: params })
       .subscribe({
         next: (result) => {
 
@@ -163,7 +163,7 @@ export class CitizenModalComponent {
 
           if (this.portfolioCitizen.citizen.length > 0) {
 
-            this.dataSource = new MatTableDataSource<Citizen>(this.portfolioCitizen.citizen);
+            this.dataSource = new MatTableDataSource<ICitizen>(this.portfolioCitizen.citizen);
             this.hidePaginator = this.portfolioCitizen.citizen.length == 0 || this.portfolioCitizen.citizen.length < 10 ? true : false;
 
             this.dataSource.paginator = this.paginator;
@@ -174,7 +174,7 @@ export class CitizenModalComponent {
 
           }
           else {
-            this.dataSource = new MatTableDataSource<Citizen>(null);
+            this.dataSource = new MatTableDataSource<ICitizen>(null);
           }
 
           setTimeout(() => this.checkRefresh());

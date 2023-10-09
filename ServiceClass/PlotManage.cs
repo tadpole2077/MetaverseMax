@@ -4,6 +4,7 @@ using System.Text;
 using MetaverseMax.BaseClass;
 using MetaverseMax.Database;
 using System.Net.Http.Json;
+using static Azure.Core.HttpHeader;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -67,7 +68,7 @@ namespace MetaverseMax.ServiceClass
         //            Solution needed to handle this scenario.
         // PARCELS  : parcel plots are not included within MCP land WS  (building collection per owner matic) - but parcel plots are procesed during ALL nightly sync's
         //
-        public Plot AddOrUpdatePlot(int plotId, int posX, int posY, bool saveEvent)
+        public Plot AddOrUpdatePlot(int plotId, int posX, int posY, bool saveEvent, bool forceMissionCheck = false)
         {
             Plot plotMatched = null;
             PlotDB plotDB = new(_context);
@@ -93,13 +94,15 @@ namespace MetaverseMax.ServiceClass
                         parcelInfoId = parcelInfo == null ? 0 : parcelInfo.Value<int?>("id") ?? 0;          // Used to retrieve the custom building image
                     }
 
-                    plotMatched = AddOrUpdatePlotData(jsonContent, jsonContentParcel, posX, posY, plotId, false);       // Save to db as batch at end - due to related building plots
+                    plotMatched = AddOrUpdatePlotData(jsonContent, jsonContentParcel, posX, posY, plotId, false, forceMissionCheck);       // Save to db as batch at end - due to related building plots
 
                     if (parcelInfoId > 0)
                     {
                         jsonContentBuildingUnit = Task.Run(() => GetBuildingUnitMCP(parcelId)).Result;
 
+                        // WARNING MUST Save changes (commit to db) after each add/update of custom, as multi plot custom may cause ' instance with the same key value is already been tracked issue'
                         AddOrUpdateCustomBuilding(parcelInfoId, jsonContentParcel, jsonContentBuildingUnit);
+                        _context.SaveChanges();
                     }
 
                     // Find Citizen token_ids currently assigned to plot - used by features such as ranking.  plotMatched is returned by method.
@@ -221,7 +224,7 @@ namespace MetaverseMax.ServiceClass
             return RETURN_CODE.SUCCESS;
         }
 
-        public Plot AddOrUpdatePlotData(JObject jsonContent, JObject jsonContentParcel, int posX, int posY, int plotId, bool saveEvent)
+        public Plot AddOrUpdatePlotData(JObject jsonContent, JObject jsonContentParcel, int posX, int posY, int plotId, bool saveEvent, bool forceMissionCheck)
         {
             PlotDB plotDB = new(_context, worldType);
             ServiceClass.Common common = new();
@@ -231,7 +234,7 @@ namespace MetaverseMax.ServiceClass
             Building building = new();
             EVENT_TYPE lastActionType = EVENT_TYPE.UNKNOWN;
             int newInfluence = 0;
-            int parcelId = 0, parcelTypeId = 0, parcelInfoId = 0, parcelUnitCount = 0, building_category_id = 0, parcelOwnerAvatarId = 0;
+            int parcelId = 0, parcelTypeId = 0, parcelInfoIdNew = 0, parcelInfoIdOld = 0, parcelUnitCount = 0, building_category_id = 0, parcelOwnerAvatarId = 0;
             bool parcelOnSale = false;
             decimal parcelPrice = 0;
             string parcelOwner = string.Empty, buildingName = string.Empty, parcelOwnerNickname = string.Empty;
@@ -274,7 +277,7 @@ namespace MetaverseMax.ServiceClass
                     parcelOwnerAvatarId = ownerAccount != null ? ownerAccount.avatar_id : 0;
 
                     JObject parcelInfo = jsonContentParcel.Value<JObject>("info");
-                    parcelInfoId = parcelInfo == null ? 0 : parcelInfo.Value<int?>("id") ?? 0;          // Used to retrieve the custom building image
+                    parcelInfoIdNew = parcelInfo == null ? 0 : parcelInfo.Value<int?>("id") ?? 0;          // Used to retrieve the custom building image
                     parcelUnitCount = parcelInfo == null ? 0 : parcelInfo.Value<int?>("unitsCount") ?? 0;
                     building_category_id = parcelInfo == null ? 0 : parcelInfo.Value<int?>("categoryId") ?? 0;
 #nullable enable
@@ -356,10 +359,7 @@ namespace MetaverseMax.ServiceClass
                         last_run_produce_predict = false,
 
                         parcel_id = parcelId,
-                        parcel_unit_count = parcelUnitCount,
-                        parcel_info_id = parcelInfoId,
-                        building_name = buildingName,
-                        building_category_id = building_category_id
+                        parcel_info_id = parcelInfoIdNew,
 
                     });
                 }
@@ -432,15 +432,13 @@ namespace MetaverseMax.ServiceClass
                     plotMatched.action_id = jsonContent.Value<int?>("action_id") ?? 0;
 
                     plotMatched.predict_produce = plotMatched.predict_produce == null ? 0 : plotMatched.predict_produce;
-                    plotMatched.parcel_id = parcelId;
-                    plotMatched.parcel_info_id = parcelInfoId;
-                    plotMatched.parcel_unit_count = parcelUnitCount;
-                    plotMatched.building_name = buildingName;
-                    plotMatched.building_category_id = building_category_id;
 
+                    plotMatched.parcel_id = parcelId;
+                    parcelInfoIdOld = plotMatched.parcel_info_id;
+                    plotMatched.parcel_info_id = parcelInfoIdNew;
                     
                     balance = building.convertPriceMega(jsonContent.Value<decimal?>("balance") ?? 0);                    
-                    if (balance > 0)
+                    if (balance > 0 || forceMissionCheck)
                     {
                         //Plot building has a Mission balance - worth checking mission to update.
                         JObject buildingMission = Task.Run(() => GetBuildingMissionMCP(plotMatched.token_id)).Result;
@@ -450,9 +448,9 @@ namespace MetaverseMax.ServiceClass
                 }
 
                 // New Custom Building - Add alert
-                if (parcelInfoId > 0 && plotMatched.parcel_info_id != parcelInfoId)
+                if (parcelInfoIdNew > 0 && plotMatched.parcel_info_id != parcelInfoIdNew)
                 {
-                    AddNewBuildingAlert(parcelOwnerNickname, parcelOwner, plotMatched.token_id, plotMatched.district_id, parcelInfoId, buildingName);
+                    AddNewBuildingAlert(parcelOwnerNickname, parcelOwner, plotMatched.token_id, plotMatched.district_id, parcelInfoIdNew, buildingName);
                 }
 
 
@@ -892,8 +890,10 @@ namespace MetaverseMax.ServiceClass
                         }
                         else if (buildingTypeId == (int)BUILDING_TYPE.INDUSTRIAL && actionId == 0 && citizenAssignedCount > 0)
                         {
+                            
                             // Do FULL plot update on this building, to find current product being produced for industry (assigned to actionId)
                             // This scenario can occur if (a) plot industry is build but no cits assigned (b) nightly run occurs assigning action_id=0  (c) citizens then assigned to plot and active production run starts.
+
                         }
                         // CHECK: if no Plot IP change (due to POI or Monument state change)
                         //  AND no IP bonus change - or anomoly found with stored_app_bonus components vs influenceBonus,
@@ -1057,13 +1057,50 @@ namespace MetaverseMax.ServiceClass
             return pollingPlot;
         }
 
-        public IEnumerable<MissionActive> GetMissionActive()
+        public WorldMissionWeb GetMissionActive()
         {
             MissionDB missionDB = new(_context, worldType);
             IEnumerable<MissionActive> missionActive = null;
+            WorldMissionWeb worldMission = new();
+            Common common = new();
+            Building building = new();
+
             try
             {
                 missionActive = missionDB.MissionActiveGet();
+
+                worldMission.mission_list = missionActive.Select(mission => {
+                    return new MissionWeb
+                    {
+                        token_id = mission.token_id,
+                        pos_x = mission.pos_x,
+                        pos_y = mission.pos_y,
+                        district_id = mission.district_id,                 
+                        owner_matic = mission.owner_matic,
+                        owner_name = mission.owner_nickname,
+                        owner_avatar_id = mission.owner_avatar_id,
+                        building_id = mission.building_id,
+                        building_level = mission.building_level,
+                        building_type_id  = mission.building_type_id,
+                        building_img = building.GetBuildingImg((BUILDING_TYPE)mission.building_type_id, mission.building_id, mission.building_level, worldType),
+
+                        last_refresh = (int)TimeSpan.FromTicks(DateTime.UtcNow.Ticks - mission.last_updated.Ticks).TotalMinutes,
+                        last_updatedUx = ((DateTimeOffset)(mission.last_updated)).ToUnixTimeSeconds(),
+                        last_updated = common.LocalTimeFormatStandardFromUTC(string.Empty, mission.last_updated),
+
+                        completed = mission.completed,
+                        max = mission.max,
+                        reward = mission.reward,
+                        reward_owner = mission.reward_owner,
+                        available = mission.available,
+                        balance = mission.balance,
+
+                        
+                    };
+                }).OrderByDescending(x => x.reward);
+
+                worldMission.mission_count = worldMission.mission_list.Count();
+                worldMission.mission_reward = Math.Round(worldMission.mission_list.Sum(x=>x.reward), 2);
             }
             catch (Exception ex)
             {
@@ -1071,7 +1108,7 @@ namespace MetaverseMax.ServiceClass
                 dBLogger.logException(ex, String.Concat("PlotManage::GetMissionActive() : Error getting missions "));
             }
 
-            return missionActive;
+            return worldMission;
 
         }
 
@@ -1187,6 +1224,10 @@ namespace MetaverseMax.ServiceClass
         //      app_123_bonus
         //      action_id     >>> Industry buildings (type=5),  action_id indicates what the current production type is as industry building can run 2 different production type runs - needed for Ranking prediction eval.
         //      for_rent      >>> bool flag is not provided, BUT can infer if plot is currently rented by renter (matic) field and if not currently rented - if a rent price is assigned (0 =  not available for rent)
+        //
+        //  Custom Buildings >> parcel_id attribte is not included within Owner>>Lands WS MCP call, as such Custom Building is not identified or updated here (only within FULL Plot sync calls)
+        //  Building Mission >> Find and Update Bilding Mission is Optional (Nightly Sync checks for missions, MyPortfolio loading does not for optimal perf)
+        //  
         public PlotCord UpdatePlotPartial(JToken ownerLand, bool saveEvent, bool refreshMission)
         {
             Plot plotMatched = null;

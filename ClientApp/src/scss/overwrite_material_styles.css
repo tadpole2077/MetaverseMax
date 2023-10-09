@@ -145,3 +145,9 @@ div .mat-bottom-sheet-container {
   height: 36px;
   vertical-align: top;
 }
+
+@media only screen and (max-width: 426px) {
+  .container {
+    padding-right: 0;
+  }
+}

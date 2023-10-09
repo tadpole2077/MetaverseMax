@@ -159,17 +159,8 @@ namespace MetaverseMax.Database
         [Column("parcel_id")]
         public int parcel_id { get; set; }
 
-        [Column("parcel_unit_count")]
-        public int parcel_unit_count { get; set; }
-        
         [Column("parcel_info_id")]
         public int parcel_info_id { get; set; }
-
-        [Column("building_name")]
-        public string building_name { get; set; }
-
-        [Column("building_category_id")]
-        public int building_category_id { get; set; }
 
     }
 
