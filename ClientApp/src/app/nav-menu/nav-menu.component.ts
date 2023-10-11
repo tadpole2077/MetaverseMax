@@ -110,7 +110,10 @@ export class NavMenuComponent {
     this.router.navigate([navigateTo], { queryParams: routeTree.queryParams });
 
     // Clear Account and reset check on wallet link
+    let priorDarkModeStatus = this.globals.ownerAccount.dark_mode;      // retain existing mode
     this.globals.initAccount();
+    this.globals.ownerAccount.dark_mode = priorDarkModeStatus;
+
     this.assignGlobalVar(worldCode);
     this.registerOwnerKey();    
 
@@ -223,7 +226,10 @@ export class NavMenuComponent {
   private ethAccountsChanged = (accounts) => {
     console.log("Ethereum Account Changed");
 
+    let priorDarkModeStatus = this.globals.ownerAccount.dark_mode;      // retain existing mode
     this.globals.initAccount();
+    this.globals.ownerAccount.dark_mode = priorDarkModeStatus;
+
     this.globals.getEthereumAccounts(this.baseUrl, true);
 
   };
@@ -241,7 +247,10 @@ export class NavMenuComponent {
       console.log("Tron accountsChanged event", e.data.message);
       console.log("Tron current address:", e.data.message.data.address);
 
+      let priorDarkModeStatus = this.globals.ownerAccount.dark_mode;      // retain existing mode
       this.globals.initAccount();
+      this.globals.ownerAccount.dark_mode = priorDarkModeStatus;
+
       this.globals.checkTronAccountKey(this.baseUrl, true);
     }
 

@@ -67,19 +67,23 @@ export class AccountApproveComponent {
       if (this.globals.approvalType == APPROVAL_TYPE.NO_WALLET_ENABLED) {
         this.showTronLinkNoPlotsFlag = false;
         this.showTronLinkLoginFlag = true;
+        this.showEthApproveFlag = false;
       }
       else if (this.globals.approvalType == APPROVAL_TYPE.ACCOUNT_WITH_NO_PLOTS) {
         this.showTronLinkLoginFlag = false;
         this.showTronLinkNoPlotsFlag = true;
+        this.showEthApproveFlag = false;
       }
       else {  //Default
         this.showTronLinkLoginFlag = true;
         this.showTronLinkNoPlotsFlag = false;
+        this.showEthApproveFlag = false;
       }
 
     }
     else if (this.globals.selectedWorld == WORLD.BNB || this.globals.selectedWorld == WORLD.ETH) {
       this.showEthApproveFlag = true;
+      this.showTronLinkLoginFlag = false;
     }
 
   }

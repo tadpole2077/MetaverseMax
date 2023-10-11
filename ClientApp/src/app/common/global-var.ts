@@ -245,7 +245,7 @@ export class Globals {
     }
     else {
 
-      this.appComponentInstance.darkModeChange(false);
+      //this.appComponentInstance.darkModeChange(false);
       this.accountActiveSubject.next(false);              // Mark account status as false to any monitors of this observable
 
       this.requestApprove = true;
@@ -288,7 +288,7 @@ export class Globals {
         console.log(">>>No Ethereum Account linked<<<");
         console.log("ChainId = ", chainId);
 
-        this.appComponentInstance.darkModeChange(false);
+        //this.appComponentInstance.darkModeChange(false);
         this.accountActiveSubject.next(false);              // Mark account status as false to any monitors of this observable
 
         this.requestApprove = true;

@@ -1,12 +1,3 @@
-.accountContainer {
-  background-color: midnightblue;
-  color: white;
-  height: 2rem;
-  position: absolute;
-  width: 100%;
-  left: 0;
-  z-index: 11;
-}
 
 .promptLink {
   color: white;
@@ -15,24 +6,91 @@
   line-height: 2.2rem;
   cursor: pointer;
   z-index: 12;
+  display: flex;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  font-size: 15px;
 }
 
-.barContainer{
+.barContainer {
+  background-color: midnightblue;
+  color: white;
+  width: 100%;
+  left: 0;
+  z-index: 11;
   margin-bottom: 1rem;
+  margin-top: -16px;
 }
 
 .tronLinkLogin{
   display:none
 }
 
+.fa-hand-point-right {
+  align-self: center;
+  font-size: 22px;
+  opacity: .7;
+  position: absolute;
+  margin-top: -1px;
+}
+
+.moveLeftRight {
+  animation-name: move;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-duration: 2s;
+}
+.promptText{
+  display: inline;
+  padding-left: 32px;
+  margin-top: 1px
+}
+button.walletButton {
+  height: 26px;
+  vertical-align: middle;
+  font-size: 14px;
+  overflow: hidden;
+  margin-right: 8px;
+  margin-bottom: 3px;
+}
+  button.walletButton .buttonText {
+    margin-top: -4px;
+    vertical-align: top;
+    display: inline-block;
+  }
+
+@keyframes move {
+  from {
+    padding-left: 0;
+    opacity: .7;
+  }
+
+  to {
+    padding-left: 6px;
+    opacity: 1;
+  }
+}
+
+
 @media (max-width: 426px) {
 
-  .accountContainer{
-    height: 3rem;
+  .promptText{    
+  }
+  .approve, .connect{
+    display:flex;
+    align-items: center;
+
+  }
+  .connect button.walletButton {
+    width: 190px
+  }
+  .approve button.walletButton {
+    width: 254px
   }
   .promptLink {
-    font-size: .8rem;
-    line-height: 1.3rem;
-    padding-top: 0.2rem;
+    font-size: 13px;
+    line-height: 1.2rem;
+    padding-top: 3px;
+    padding-bottom: 3px;
   }
 }

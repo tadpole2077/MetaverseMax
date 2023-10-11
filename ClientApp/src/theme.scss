@@ -125,34 +125,36 @@ $foreground: map-get($dark-app-theme, foreground);
   /*@include mat.all-component-themes($dark-app-theme15);*/
   @include mode.home($dark-app-button-bg, $app-button-hover-bg, $dark-app-button-color);
   @include mode.link($dark-app-button-color, #FFF, #FFF);
-
   // dropdown-menu - Alert component
   .dropdown-menu {
     background-color: $dark-menu-bg;
   }
+
   .menuItem:hover {
     background-color: $dark-menu-hover-bg /*6% lighter then #303339*/
   }
+
   .gradientBar {
     background: linear-gradient(270deg, rgb(21, 101, 192) 0%, rgba(140, 180, 224, 0.7) 28%, rgba(227, 237, 247, 0.24) 42%, rgba(26, 28, 39, 0) 100%);
   }
-
   // Mat-Tab
   .mat-mdc-tab .mdc-tab__text-label {
     color: white;
   }
+
   .mat-mdc-tab:not(.mat-mdc-tab-disabled).mdc-tab--active .mdc-tab__text-label {
     color: $dark-app-button-color;
   }
-  .mat-mdc-tab:not(.mat-mdc-tab-disabled).mdc-tab--active .mdc-tab__text-label{
+
+  .mat-mdc-tab:not(.mat-mdc-tab-disabled).mdc-tab--active .mdc-tab__text-label {
     border-color: $dark-app-button-color;
   }
-
   // Mat-Datatable
   // Table Search field
   .tableFilter .material-icons.mdc-text-field__icon {
     color: rgba(255, 255, 255, 0.6)
   }
+
   .tableFilter .mdc-floating-label--float-above .material-icons {
     color: $app-link-color
   }
@@ -161,8 +163,9 @@ $foreground: map-get($dark-app-theme, foreground);
     background-color: $dark-inner-bg
   }
 
-  div.accountContainer {
+  div.barContainer {
     background-color: inherit;
+    margin-top: -8px;
   }
 
 

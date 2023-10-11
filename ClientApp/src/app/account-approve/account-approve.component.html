@@ -1,12 +1,27 @@
 
 <div [hidden]="!showFlag" class="barContainer">
-  <div class="accountContainer">
-  </div>
-  <div class="promptLink container">
 
-    <span [hidden]="!showEthApproveFlag" (click)="clickAccountLink()">Click here to Approve account link to enable MyAccount and Ranking features</span>
-    <span [hidden]="!showTronLinkLoginFlag" (click)="clickAccountLink()">Log into your Tron link Wallet to enable MyAccount and Ranking features</span>
-    <span [hidden]="!showTronLinkNoPlotsFlag" (click)="clickAccountLink()">Your Tron link Wallet owns no Plots on Tron MegaWorld - MyAccount and Ranking features disabled</span>
+    <div class="promptLink container">
+      <i class="fas fa-hand-point-right moveLeftRight"></i>
+      <span class="promptText">
 
-  </div>
+        <span [hidden]="!showEthApproveFlag" (click)="clickAccountLink()" class="approve">
+          <button class="walletButton buttonEffect" mat-raised-button color="primary">
+            <span class="buttonText">Wallet Site Approve</span>
+          </button>
+          <span>Click to Approve account link to enable MyAccount and Ranking features</span>
+        </span>
+
+        <span [hidden]="!showTronLinkLoginFlag" (click)="clickAccountLink()" class="connect">
+          <button class="walletButton buttonEffect" mat-raised-button color="primary">
+            <span class="buttonText">Wallet Connect</span>
+          </button>
+          Log into your Tron link Wallet to enable MyAccount and Ranking features
+        </span>
+
+        <span [hidden]="!showTronLinkNoPlotsFlag" (click)="clickAccountLink()">Your Tron link Wallet owns no Plots on Tron MegaWorld - MyAccount and Ranking features disabled</span>
+
+      </span>
+    </div>
+
 </div>
