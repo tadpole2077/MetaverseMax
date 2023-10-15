@@ -6,6 +6,8 @@ import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-to
 import { Alert } from '../common/alert';
 import { AlertCollection, AlertPending, AlertPendingManager, Globals, WORLD } from '../common/global-var';
 import { ALERT_TYPE, ALERT_ICON_TYPE, ICON_TYPE_CHANGE, ALERT_ACTION, PENDING_ALERT } from '../common/enum'
+import { RouterEvent } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-alert-bottom',
@@ -21,6 +23,7 @@ export class AlertBottomComponent{
   private httpClient: HttpClient;
   private baseUrl: string;
   public alertPendingManager: AlertPendingManager;
+  afterDismissSubscription: Subscription = null;
 
   // only one bottom sheet can be open at a time, use the Ref to close the currently opened sheet
   constructor(private bottomSheetRef: MatBottomSheetRef<AlertBottomComponent>, @Inject(MAT_BOTTOM_SHEET_DATA) public callerAlertPendingManager: AlertPendingManager, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string, public globals: Globals, public alert: Alert) {
@@ -29,20 +32,26 @@ export class AlertBottomComponent{
     this.alertPendingManager = callerAlertPendingManager;
     this.httpClient = http;
     this.baseUrl = rootBaseUrl + "api/" + globals.worldCode;
-    this.globals.bottomAlertRef = bottomSheetRef;
+    let firstTimeSheetShown:boolean = false;
+
+    if (this.globals.bottomAlertRef == null) {
+      firstTimeSheetShown = true;
+    }
+    this.globals.bottomAlertRef = bottomSheetRef;   
 
     // Observable notified after bottomsheet closes
-    bottomSheetRef.afterDismissed().subscribe(() => {
+    this.afterDismissSubscription = bottomSheetRef.afterDismissed().subscribe(() => {
 
       let params = new HttpParams();
 
       // On close of New alerts sheet - Mark active alerts as read/seen - dont show in next [New alerts interval check]
       params = params.append('matic_key', this.globals.ownerAccount.matic_key);
-      console.log("Alert vars (a) manualFullActive : " + this.globals.manualFullActive + " (b)autoAlertCheckProcessing : " + this.globals.autoAlertCheckProcessing );      
+      console.log("Alert vars (a) manualFullActive : " + this.globals.manualFullActive + " (b)autoAlertCheckProcessing : " + this.globals.autoAlertCheckProcessing + " : " + new Date());      
 
       if (this.globals.manualFullActive == true || this.globals.autoAlertCheckProcessing == false) {
 
         this.globals.manualFullActive = false;
+        this.globals.bottomAlertRef = null;                 // Release to reset for a new auto check cycle
 
         this.httpClient.get<any>(this.baseUrl + '/OwnerData/UpdateRead', { params: params })
           .subscribe({
@@ -56,8 +65,18 @@ export class AlertBottomComponent{
           });
       }
 
-      this.globals.autoAlertCheckProcessing = false;      // Flag used to identify a manual close of autocheck alerts - set to true during autocheck process
+      this.globals.autoAlertCheckProcessing = false;      // Flag used to identify a manual close of autocheck alerts - set to true during autocheck process      
+      this.afterDismissSubscription.unsubscribe();        // afterDismissed() event is invoked after ngOnDestory() so need to unsubscribe here.
     });
+
+    // Corner case - Need to capture if user manually closes sheet within 3 minutes of first sheet popup showing - in this case there was no prior sheet to close to reset the processing flag in the observable.
+    if (firstTimeSheetShown) {
+      this.globals.autoAlertCheckProcessing = false; 
+    }
+  }
+
+  ngOnDestroy() {
+    
   }
 
   markDelete(event: MouseEvent, alertKey: number, alertIndex: number): void {       

@@ -159,9 +159,12 @@ td.mat-column-district_id a {
   max-width: 100px;
   overflow: hidden;
 }
+  div.buildingZoom{
+    background-color: unset;
+  }
 
   .buildingZoom .buildingImg {
-    margin-top:6px;
+    margin-top: 6px;
     max-width: 110px;
     max-height: 100px;
   }

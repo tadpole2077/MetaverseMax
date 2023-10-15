@@ -1,4 +1,4 @@
-import { Component, Output, Input, EventEmitter, ViewChild, Inject, OnInit } from '@angular/core';
+import { Component, Output, Input, EventEmitter, ViewChild, Inject, OnInit, ContentChild, TemplateRef, ContentChildren, QueryList } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
@@ -49,10 +49,9 @@ export class CustomBuildingTableComponent {
     if (this.width < 768) {
       this.isMobileView = true;
       this.displayedColumns = this.displayedColumnsMobile;
-    }
+    }    
 
     this.searchAllParcels();
-
   }
 
   ngOnInit() {

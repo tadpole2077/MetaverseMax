@@ -84,10 +84,10 @@ tr.mat-mdc-header-row {
 }
 
 .copy {
-  font-size:.74rem;
+  font-size: .74rem;
   width: 148px;
   padding-left: 1.7rem;
-  
+  white-space: nowrap
 }
 .topBtnDiv i {
   font-size: 1rem;

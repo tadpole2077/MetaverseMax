@@ -75,8 +75,8 @@
 
   <mat-form-field fxFlex="30%" [style.width.rem]=12 subscriptSizing="dynamic" class="rewardFilter tableFilter">
     <mat-label>Hide Rewards < </mat-label>
-    <input matInput numbersDecimalOnly (keyup)="applyFilterMissionRewardByKey($event.target.value)" (click)="applyFilterMissionReward($event.target.value)" placeholder="1" [formControl]="filterMissionByReward"/>
-    <button *ngIf="filterMissionByReward.value" matSuffix mat-icon-button aria-label="Clear"  (click)="filterMissionByReward.setValue('');removeRewardFilterMission()">
+    <input matInput numbersDecimalOnly (keyup)="applyFilterMissionRewardByKey($event.target.value)" (click)="applyFilterMissionReward($event.target.value)" placeholder="1" [formControl]="filterMissionByReward" />
+    <button *ngIf="filterMissionByReward.value" matSuffix mat-icon-button aria-label="Clear" (click)="filterMissionByReward.setValue('');removeRewardFilterMission()">
       <mat-icon>close</mat-icon>
     </button>
   </mat-form-field>
@@ -86,7 +86,7 @@
     <div class="districtGroup">
       <div class="districtEle" *ngFor="let district of missionComponent.districtList;  index as districtIndex">
         <span class="districtNum">#{{district.id}}:</span>
-        <span class="districtCount"> {{district.total}}</span>        
+        <span class="districtCount"> {{district.total}}</span>
       </div>
     </div>
   </div>
@@ -112,11 +112,19 @@
 </mat-tab-group>
 
 <div class="tabContent">
-  <div class="missionDesk" [ngClass]="{'showMission': showMission}">
-    <app-mission-desk class="" (parcelFilterChange)="parcelFilterChange($event)" (buildingFilterChange)="buildingFilterChange($event)"></app-mission-desk>
+  <div class="missionDesk" [ngClass]="{'showMission': showMission}">       
+      <app-mission-desk class="" (parcelFilterChange)="parcelFilterChange($event)" (buildingFilterChange)="buildingFilterChange($event)"></app-mission-desk>    
   </div>
 
   <div class="customBuilding" [ngClass]="{'showCustom': showCustom}">
-    <app-custom-building-table class="" (parcelFilterChange)="parcelFilterChange($event)" (buildingFilterChange)="buildingFilterChange($event)"></app-custom-building-table>
-  </div>
+    
+    <app-tab-container-lazy [isOpen]="showCustom">
+      <ng-template tab-extracted-body>
+        <app-custom-building-table class="" (parcelFilterChange)="parcelFilterChange($event)" (buildingFilterChange)="buildingFilterChange($event)"></app-custom-building-table>
+      </ng-template>
+    </app-tab-container-lazy>
+
 </div>
+</div>
+
+

@@ -48,6 +48,7 @@ tr.mat-mdc-header-row {
   font-size: .74rem;
   width: 148px;
   padding-left: 1.7rem;
+  white-space: nowrap
 }
 
 .topBtnDiv i {

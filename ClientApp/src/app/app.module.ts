@@ -39,11 +39,13 @@ import { WorldComponent } from './world/world.component';
 import { CustomBuildingComponent } from './custom-building/custom-building.component';
 import { CustomBuildingTableComponent } from './custom-building-table/custom-building-table.component';
 import { MissionDeskComponent } from './mission-desk/mission-desk.component';
+import { TabContainerLazyComponent } from './tab-container-lazy/tab-container-lazy.component';
 
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NumberDirective } from './directive/numberonly.directive';
 import { NumberDecimalDirective } from './directive/number-decimal-only.directive';
+import { TabExtractedBodyDirective } from './directive/tab-extracted-body.directive';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -59,7 +61,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTabsModule} from '@angular/material/tabs';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
+import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatListModule } from '@angular/material/list';
@@ -106,6 +108,8 @@ import { Alert } from './common/alert';
     MissionDeskComponent,
     NumberDirective,
     NumberDecimalDirective,
+    TabExtractedBodyDirective,
+    TabContainerLazyComponent,
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

@@ -1,17 +1,18 @@
-import { Component, Output, Input, EventEmitter, ViewChild, Inject, OnInit } from '@angular/core';
+import { Component, Output, Input, EventEmitter, ViewChild, Inject, OnInit, Directive, ContentChild, ContentChildren, TemplateRef, ViewContainerRef, QueryList } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { FormControl } from '@angular/forms';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { MatTabChangeEvent } from '@angular/material/tabs';
+import { Subscription } from 'rxjs';
 
 import { CustomBuildingTableComponent } from '../custom-building-table/custom-building-table.component';
 import { MissionDeskComponent } from '../mission-desk/mission-desk.component';
 import { Globals, WORLD } from '../common/global-var';
 import { Alert } from '../common/alert';
 import { ALERT_TYPE, ALERT_ACTION } from '../common/enum';
-import { Subscription } from 'rxjs';
+import { TabContainerLazyComponent } from '../tab-container-lazy/tab-container-lazy.component';
 
 
 
@@ -43,7 +44,7 @@ export class WorldComponent {
 
   @ViewChild(CustomBuildingTableComponent, { static: false }) customComponent: CustomBuildingTableComponent;
   @ViewChild(MissionDeskComponent, { static: false }) missionComponent: MissionDeskComponent;
-
+  
 
   constructor(public globals: Globals, public alert: Alert,  public router: Router, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
 
@@ -56,7 +57,7 @@ export class WorldComponent {
   }
 
   ngOnInit() {
-
+        
     // Monitor using service - when account status changes - active / inactive : Get alert switch state for account.
     this.subscriptionAccountActive$ = this.globals.accountActive$.subscribe(active => {
 
@@ -138,6 +139,9 @@ export class WorldComponent {
     if (eventTab.index == 1) {
       this.showCustom = true;
       this.showMission = false;
+
+      //this.customComponent.searchAllParcels();
+      
     }
     else {
       this.showCustom = false;

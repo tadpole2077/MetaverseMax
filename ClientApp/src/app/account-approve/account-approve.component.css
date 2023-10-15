@@ -52,10 +52,11 @@ button.walletButton {
   overflow: hidden;
   margin-right: 8px;
   margin-bottom: 3px;
+  white-space: nowrap;
 }
   button.walletButton .buttonText {
-    margin-top: -4px;
-    vertical-align: top;
+    margin-top: 1px;
+    vertical-align: bottom;
     display: inline-block;
   }
 
@@ -92,5 +93,7 @@ button.walletButton {
     line-height: 1.2rem;
     padding-top: 3px;
     padding-bottom: 3px;
+    margin-left: 1%;
+    width: 98%;
   }
 }

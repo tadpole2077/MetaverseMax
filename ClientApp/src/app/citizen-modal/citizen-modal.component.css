@@ -146,10 +146,10 @@ td.mat-column-efficiency_industry, td.mat-column-efficiency_production, td.mat-c
 }
 
 .copy {
-  font-size:.74rem;
+  font-size: .74rem;
   width: 148px;
   padding-left: 1.7rem;
-  
+  white-space: nowrap
 }
 .topBtnDiv i {
   font-size: 1rem;

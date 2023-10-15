@@ -1,8 +1,3 @@
-/* Override typography styles - Angular - Material V3 styles (Must be overridden before mixin calls*/
-/*$mdc-typography-body2-font-size: 16px; /* default 14px */
-
-/*$mdc-typography-body2: ( font-size: 16px );
-*/
 
 @use '@angular/material' as mat;
 @use 'scss/palette_helper' as palette-helper;
@@ -11,7 +6,7 @@
 // Include the common styles for Angular Material. We include this here so that you only
 // have to load a single css file for Angular Material in your app.
 // Be sure that you only ever include this mixin once!
-// TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
+// (v15): As of v15 mat.legacy-core no longer includes default typography styles.
 //  The following line adds:
 //    1. Default typography styles for all components
 //    2. Styles for typography hierarchy classes (e.g. .mat-headline-1)
@@ -19,7 +14,7 @@
 //  If you don't need the default component typographies but still want the hierarchy styles,
 //  you can delete this line and instead use:
 //    `@include mat.legacy-typography-hierarchy(mat.define-legacy-typography-config());`
-@include mat.all-legacy-component-typographies();
+//@include mat.all-legacy-component-typographies();
 @include mat.core();
 
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
@@ -49,9 +44,9 @@ $light-app-theme: palette-helper.mat-set-custom-table($light-app-theme, #343a40)
 
 
 // Emit theme-dependent styles for common features used across multiple components.  TEMP - remove when full upgrade to V3 Material components completed
-@include mat.all-legacy-component-themes($light-app-theme);
-
+//@include mat.all-legacy-component-themes($light-app-theme);
 //@include mat.all-component-typographies($light-app-theme);
+
 @include mat.typography-hierarchy($light-typography);
 @include mat.core-theme($light-app-theme);
 @include mat.all-component-themes($light-app-theme);
@@ -73,6 +68,9 @@ $light-button-active-glow: mat.get-color-from-palette(mat.define-palette(mat.$bl
 
 // Dropdown Menu
 $light-menu-hover-bg: #f5f5f5;
+
+
+
 
 
 // *****************************************************************************************************
@@ -111,17 +109,21 @@ $foreground: map-get($dark-app-theme, foreground);
   // Emit theme-dependent styles for common features used across multiple components.
   // Use the `-color` mixins to only apply color styles without reapplying the same typography and density styles.
   // Not using dark mode on all Material components - some use same as light mode.
+  // List : material/core/theming/_all-theme.scss
   @include mat.core-color($dark-app-theme);
   @include mat.table-color($dark-app-theme);
+  @include mat.sort-color($dark-app-theme);
   @include mat.paginator-color($dark-app-theme);
   @include mat.form-field-color($dark-app-theme);
   @include mat.input-color($dark-app-theme);
   @include mat.checkbox-color($dark-app-theme);
   @include mat.autocomplete-color($dark-app-theme);
-  // @include mat.button-color($light-theme);
+  @include mat.expansion-color($dark-app-theme);
+  @include mat.badge-color($dark-app-theme);
+  @include mat.bottom-sheet-color($dark-app-theme);
 
-
-  @include mat.all-legacy-component-themes($dark-app-theme);
+  //@include mat.button-color($light-theme);
+  //@include mat.all-legacy-component-themes($dark-app-theme);
   /*@include mat.all-component-themes($dark-app-theme15);*/
   @include mode.home($dark-app-button-bg, $app-button-hover-bg, $dark-app-button-color);
   @include mode.link($dark-app-button-color, #FFF, #FFF);
@@ -284,7 +286,7 @@ $foreground: map-get($dark-app-theme, foreground);
     color: white;
   }
 
-  div.buildingInfo {
+  div.buildingZoom, div.buildingInfo {
     background-color: $dark-inner-bg;
   }
   // Production History
@@ -402,10 +404,6 @@ $foreground: map-get($dark-app-theme, foreground);
     border-bottom-color: gray;
   }
 
-  .mat-raised-button:hover {
-    background-color: $light-button-active-glow;
-  }
-
   .mat-button-toggle-appearance-standard {
     color: rgba(255, 255, 255, 0.5);
   }
@@ -460,6 +458,15 @@ header .container {
 }
 
 // Extra color used within materials
+// Mat-button
+.mat-mdc-raised-button {
+  font-family: Roboto,sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+}
+.mat-mdc-raised-button:hover:not(:disabled) {
+  background-color: $light-button-active-glow;  
+}
 
 // Dropdown Menu
 .menuItem:hover {
@@ -497,9 +504,6 @@ tr.mat-mdc-row:not(.detailRow):active {
   }
 }
 
-.mat-raised-button:hover {
-  background-color: $light-button-active-glow;
-}
 
 a.closeframe:hover {
   color: mat.get-color-from-palette($light-app-warn);

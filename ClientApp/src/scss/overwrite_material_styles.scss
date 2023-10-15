@@ -13,6 +13,16 @@ th.mat-table-sticky {
   opacity: 1;
 }
 
+
+/* MatBadge - Angular V15 - Material V15 (V3) root changes */
+.mat-badge-content{
+  font-size: 12px;
+  font-weight: 600;
+}
+.mat-badge-small .mat-badge-content {
+  font-size: 9px
+}
+
 /* Angular V15 - Material V3 Style change override to match V14 styles */
 th.mat-mdc-header-cell:first-of-type, td.mat-mdc-cell:first-of-type, td.mat-mdc-footer-cell:first-of-type {
   padding-left: 24px;
@@ -59,7 +69,10 @@ th.mat-mdc-header-cell:last-of-type{
   //background-color: white
 }
 
-.tableFilter .mdc-text-field--outlined{
+.tableFilter .mat-mdc-form-field-flex{
+  align-items: center
+}
+.tableFilter .mdc-text-field--outlined {
   height: 44px;
 }
 .tableFilter .mat-mdc-text-field-wrapper.mdc-text-field--outlined .mat-mdc-form-field-infix{
@@ -82,6 +95,10 @@ th.mat-mdc-header-cell:last-of-type{
   vertical-align: bottom;
   font-size: 20px;
   margin-right:2px
+}
+.tableFilter .mat-mdc-icon-button.mat-mdc-button-base {
+  height: 37px;
+  overflow: hidden;
 }
 .mat-mdc-form-field {
   /*--mat-mdc-form-field-floating-label-scale: 1.2;*/
