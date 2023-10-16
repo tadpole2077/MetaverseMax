@@ -26,13 +26,13 @@ a {
   margin-bottom: 1em;
 }
 
-.mat-button-toggle-group {
-  float: right;
-  margin-right: 2rem;
+.mat-button-toggle-group {  
   height: 2rem;
   font-size: .7rem;
   font-weight: bold;
   color: white;
+  margin-left: 200px;
+  vertical-align: top;
 }
 
 td.mat-mdc-cell {
@@ -278,6 +278,12 @@ td.mat-column-efficiency_energy_water span {
 @media only screen and (max-width: 426px) {
   .mobileVisible{
     display:inline-block
+  }
+
+  .mat-button-toggle-group {
+    margin-left: unset;
+    float: right;
+    vertical-align: top;
   }
 
   .table-container {

@@ -121,6 +121,7 @@ $foreground: map-get($dark-app-theme, foreground);
   @include mat.expansion-color($dark-app-theme);
   @include mat.badge-color($dark-app-theme);
   @include mat.bottom-sheet-color($dark-app-theme);
+  @include mat.button-toggle-color($dark-app-theme);
 
   //@include mat.button-color($light-theme);
   //@include mat.all-legacy-component-themes($dark-app-theme);
