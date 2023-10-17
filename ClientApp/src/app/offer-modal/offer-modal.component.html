@@ -6,7 +6,7 @@
 
   <div class="offerTable">
 
-    <mat-tab-group class="m-t-30">
+    <mat-tab-group class="m-t-30" [dynamicHeight]='true'>
       <mat-tab label="{{ offers == null ? 0 : offers.length }} Active Offers">
 
         <div class="table-container" [hidden]="!offers">

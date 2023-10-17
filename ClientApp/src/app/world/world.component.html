@@ -94,7 +94,7 @@
 
 <p *ngIf="!missionComponent || !missionComponent.worldMission" class="fadeInAndOut loading"><em>Loading...</em></p>
 
-<mat-tab-group (selectedTabChange)="changeTab($event)" selectedIndex="0" [ngClass]="{'extendTabMarginMobile': showMission}">
+<mat-tab-group (selectedTabChange)="changeTab($event)" [selectedIndex]="0" [ngClass]="{'extendTabMarginMobile': showMission}">
 
   <mat-tab>
     <ng-template mat-tab-label>
