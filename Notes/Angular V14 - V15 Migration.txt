@@ -4,7 +4,7 @@ https://update.angular.io/?l=2&v=14.0-15.0
 https://angular.io/guide/versions
 
 Node:
-	* (using)NPM V18.10.0					- (cmd)nvm list >> V18.10.0 or higher is latest node version required for V15x Angular,  alt is V16.13.0 or higher within V16.x tier also supported (see guide link for more info)
+	* (using)NPM V18.10.0					- (cmd)nvm list >> V18.10.0 or higher is latest node version required for V15x Angular,  alt is ^V16.13.0 or higher within V16.x tier also supported (see guide link for more info)
 	* previously using with V14 Angular : V16.10.0
 
 
@@ -45,6 +45,15 @@ Actions:
 	npm i @swimlane/ngx-charts@20.3.0 https://www.npmjs.com/package/@swimlane/ngx-charts
 
 	npm i web3@4.0.1
+
+	[2023/10/20] Updated Packages:
+	npm i web3@4.2.0  
+	Using Packages:
+		web3-core
+		web3-utils
+		web3.eth
+		web3-validator
+	[2023/10/23] Problem :  using method.send() with any arguments,  reverting back to V4.0.1 works.
 
 
 
@@ -109,7 +118,8 @@ Centralise those tweaks to allow easiler migration and removal on future release
 ======================================================================================
 Issue:
 	On Debug Run of System >> WARNING within CMD used to run Angular complile script >>    
-	TypeScript compiler options "target" and "useDefineForClassFields" are set to "ES2022" and "false" respectively by the Angular CLI. To control ECMA version and features use the Browerslist configuration. For more information, see https://angular.io/guide/build#configuring-browser-compatibility
+	TypeScript compiler options "target" and "useDefineForClassFields" are set to "ES2022" and "false" respectively by the Angular CLI. 
+	To control ECMA version and features use the Browerslist configuration. For more information, see https://angular.io/guide/build#configuring-browser-compatibility
     NOTE: You can set the "target" to "ES2022" in the project's tsconfig to remove this warning.
 
 	CHANGES:
@@ -117,6 +127,11 @@ Issue:
 		Setting: 
 			old >>  "target": "es2020"
 			new >>  "target": "es2022"
+    
+	Problem:
+	   Cant identify this object during debug within async typescript functions using ES2022
+	   Using es2015  - does show the this object, needed for debug
+	   Discuss: https://github.com/microsoft/vscode/issues/143598
 
 =====================================================================================
 Issue (outstanding - none blocking - as of 2023/09/15)

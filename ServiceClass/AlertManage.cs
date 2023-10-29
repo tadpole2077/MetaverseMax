@@ -187,8 +187,11 @@ namespace MetaverseMax.ServiceClass
             {
                 AlertTriggerManager alertTrigger = new(_context, worldType);
                 AlertManage alert = new(_context, worldType);
+                OwnerManage ownerManage = new(_context, worldType);
                 List<AlertTrigger> allOwnerAlerts = new();
-                
+                OwnerAccount ownerAccount;
+
+
                 allOwnerAlerts = alertTrigger.GetByType("ALL", ALERT_TYPE.NEW_BUILDING, 0);
                 List<Plot> buildingPlots = _context.plot.Where(x => x.parcel_info_id > 0).ToList();
 
@@ -197,7 +200,8 @@ namespace MetaverseMax.ServiceClass
                     allOwnerAlerts.ForEach(x =>
                     {
                         CustomBuilding customBuilding = _context.customBuilding.Where(x => x.parcel_info_id == p.parcel_info_id).FirstOrDefault();
-                        alert.AddNewBuildingAlert(x.matic_key, p.owner_nickname == string.Empty ? p.owner_matic : p.owner_nickname, p.token_id, p.district_id, p.parcel_info_id, customBuilding.building_name);
+                        ownerAccount = ownerManage.FindOwnerByMatic(p.owner_matic);
+                        alert.AddNewBuildingAlert(x.matic_key, ownerAccount.name == string.Empty ? ownerAccount.matic_key : ownerAccount.name, p.token_id, p.district_id, p.parcel_info_id, customBuilding.building_name);
                     });
                 });
             }

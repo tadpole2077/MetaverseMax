@@ -134,16 +134,27 @@ namespace MetaverseMax.ServiceClass
                 List<Sync> syncJobs = syncDB.Get(true);
                 _context.Dispose();
 
+                // Fault tolerance : if one world sync fails, next world is processed. 
                 for (int counter = 0; counter < syncJobs.Count; counter++)
                 {
-                    startTime = DateTime.Now;
-                    response = Task.Run(() => syncWorld.SyncRun((WORLD_TYPE)syncJobs[counter].world)).Result;
-
-                    using (_context = new MetaverseMaxDbContext(worldType))
+                    try
                     {
-                        SyncHistoryDB syncHistoryDB = new(_context);
-                        syncHistoryDB.Add(syncJobs[counter].world, startTime, DateTime.Now);
+                        startTime = DateTime.Now;
+                        response = Task.Run(() => syncWorld.SyncRun((WORLD_TYPE)syncJobs[counter].world)).Result;
+
+                        using (_context = new MetaverseMaxDbContext(worldType))
+                        {
+                            SyncHistoryDB syncHistoryDB = new(_context);
+                            syncHistoryDB.Add(syncJobs[counter].world, startTime, DateTime.Now);
+                        }
                     }
+                    catch (Exception ex)
+                    {
+                        DBLogger dbLogger = new(worldType);
+                        dbLogger.logException(ex, String.Concat("SyncWorld::SyncPlotData() : Error with Sync - Skipping world sync for ",
+                             worldType switch { WORLD_TYPE.ETH => "ETH", WORLD_TYPE.BNB => "BNB", _ or WORLD_TYPE.TRON => "TRON" } ));
+                    }
+
                 }
 
             }
@@ -301,6 +312,7 @@ namespace MetaverseMax.ServiceClass
                                     }
                                     else
                                     {
+                                        // Record if each flag was set to true, on this iteration or PRIOR.  Meaning if this monument or any prior menuments had a state change then enabled the flag
                                         targetOwnerChange.monument_activated = targetOwnerChange.monument_activated == false ? activated : false;
                                         targetOwnerChange.monument_deactivated = targetOwnerChange.monument_deactivated == false ? deactivated : false;
                                     }
@@ -442,6 +454,8 @@ namespace MetaverseMax.ServiceClass
                         if (ownerChangeList != null)
                         {
                             // Record Account avator/name change
+                            // ALL owners are added to list with latest owner_nickname and avatar_id - later these are checked for any change from existing. 1 record per Owner.
+                            // Note that partial Plot updates do not provide the ownerName and avatar details - hence at least one plot needs to be processed per account.
                             OwnerChange targetOwnerChange = ownerChangeList.Where(x => x.owner_matic_key == plotUpdated.owner_matic).FirstOrDefault();
                             if (targetOwnerChange == null)
                             {

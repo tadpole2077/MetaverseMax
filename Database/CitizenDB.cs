@@ -28,6 +28,8 @@
             CitizenChange citizenChange = new() { historyRefresh = false, updateFound = false };
             try
             {
+                citizen.name = citizen.name[0..(citizen.name.Length > 100 ? 100 : citizen.name.Length)].Trim();     // Apply max of 100 chars to citizen name matching db field storage limit.
+
                 // Extract flag used to indicate if a complete refresh of citizen history actions (over prior 40 days) is required - due to prior WS REST fault
                 if (storedCitizen != null)
                 {

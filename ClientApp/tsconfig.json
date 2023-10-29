@@ -1,6 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "resolveJsonModule": true,              /* used to import JSON files */
     "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
     "declaration": false,
@@ -15,7 +16,7 @@
     "outDir": "./dist/out-tsc",
     "skipLibCheck": true,
     "sourceMap": true,
-    "target": "ES2022",
+    "target": "es2015",
     "useDefineForClassFields": false,
     "typeRoots": [
       "node_modules/@types"

@@ -150,7 +150,7 @@ export class TransferAssetComponent implements OnInit {
           token_uint256;
 
         await web3.eth.sendTransaction({
-          from: this.globals.ownerAccount.public_key,
+          from: addressFrom,
           to: MW_TRANSFER_ADDRESS,
           //value: web3.utils.toWei(".01", "ether"),
           gas: 147100,         // Max gas for transaction
@@ -179,8 +179,6 @@ export class TransferAssetComponent implements OnInit {
     }
 
   }
-
-
 
 
   async transferSendRequestMatic(addressTo: string, addressFrom: string) {

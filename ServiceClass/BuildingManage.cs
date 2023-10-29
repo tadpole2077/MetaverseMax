@@ -291,7 +291,7 @@ namespace MetaverseMax.ServiceClass
             catch (Exception ex)
             {
                 DBLogger dbLogger = new(_context, worldType);
-                dbLogger.logException(ex, String.Concat("BuildingManage.BuildingTypeGet() : Error on retrival of List matching buildingType: ", buildingType, "and level ", buildingLevel));
+                dbLogger.logException(ex, String.Concat("BuildingManage.BuildingIPbyTypeGet() : Error on retrival of List matching buildingType: ", buildingType, "and level ", buildingLevel));
             }
 
             return buildingCollection;

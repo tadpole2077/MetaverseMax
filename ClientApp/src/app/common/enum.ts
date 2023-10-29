@@ -1,7 +1,7 @@
 enum ALERT_ACTION {  
   ADD = 1,
   REMOVE = 2,
-}
+};
 
 enum ALERT_TYPE {
   INITIAL_LAND_VALUE = 1,
@@ -10,7 +10,7 @@ enum ALERT_TYPE {
   DISTRIBUTION = 4,
   BUILDING_RANKING = 5,
   NEW_BUILDING = 6,
-}
+};
 
 enum ALERT_ICON_TYPE {
   INFO = 1,
@@ -19,17 +19,18 @@ enum ALERT_ICON_TYPE {
   NEW_OFFER = 4,
   RANKING = 5,
   NEW_BUILDING = 6,
-}
+};
+
 enum ICON_TYPE_CHANGE {
   NONE = 0,
   INCREASE = 1,
   DECREASE = 2
-}
+};
 
 enum PENDING_ALERT {
   ALL = 1,
   UNREAD = 2,
-}
+};
 
 const BUILDING_TYPE = {
   1: "Empty Plot",
@@ -42,7 +43,7 @@ const BUILDING_TYPE = {
   8: "Municipal",
   10: "Parcel",
   100: "AOI"
-}
+};
 
 enum PRODUCT_IMG {
   WOOD = "wood.png",
@@ -60,7 +61,7 @@ enum PRODUCT_IMG {
   MIXES = "mixes.png",
   COMPOSITE = "composite.png",
   PAPER = "paper.png",
-}
+};
 
 const PRODUCT_NAME = {
   1: "Wood",
@@ -79,39 +80,29 @@ const PRODUCT_NAME = {
   14: "Composite",
   15: "Paper",
   99: "Factory Product",
-}
+};
 
 const TRANSACTION_STATUS = {
   PENDING: 1,
   COMPLETED: 2
-}
+};
 
-const BLOCKCHAIN = {
-  ETHEREUM: 1,
-  TRON: 2,
-  BNB: 3,
-  POLYGON: 4
-}
 
-const TRANSACTION_TYPE = {
-  TRANSFER: 1,
-  DEPOSIT: 2
-}
 
 const CUSTOM_BUILDING_CATEGORY = {
-  0 : "Parcel",
-  1 : "Downtown",
-  2 : "Housing",
-  3 : "Shopping",
-  4 : "Retreat",
-  5 : "Eco",
-  6 : "Luxury",
-  7 : "Midtown",
-  8 : "Headquarters",
-  9 : "Countryside",
+  0: "Parcel",
+  1: "Downtown",
+  2: "Housing",
+  3: "Shopping",
+  4: "Retreat",
+  5: "Eco",
+  6: "Luxury",
+  7: "Midtown",
+  8: "Headquarters",
+  9: "Countryside",
   10: "Rural",
   100: "Main Tower"
-}
+};
 
 const EVENT_TYPE =
 {
@@ -124,6 +115,45 @@ const EVENT_TYPE =
   6: "Custom Built",
 }
 
+
+// Blockchain
+const BLOCKCHAIN = {
+  ETHEREUM: 1,
+  TRON: 2,
+  BNB: 3,
+  POLYGON: 4
+};
+
+const TRANSACTION_TYPE = {
+  TRANSFER: 1,
+  DEPOSIT: 2
+};
+
+enum HEX_NETWORK {
+  ETHEREUM = "0x1",
+  ETHEREUM_ID = '0x4',
+  POLYGON_ID = '0x89',
+  BINANCE_TESTNET_ID = '0x61',
+};
+
+const NETWORKS_DESC = {
+  1: "Ethereum Main Network",
+  3: "Ropsten Test Network",
+  4: "Rinkeby Test Network",
+  5: "Goerli Test Network",
+  42: "Kovan Test Network",
+  56: "Binance Smart Chain",
+  1337: "Ganache",
+};
+
+enum METAMASK_ERROR_CODE {
+  UNRECOGNISED_CHAIN = 4902, 
+};
+
+
+
+
+
 export {
   ALERT_TYPE,
   ALERT_ICON_TYPE,
@@ -135,7 +165,10 @@ export {
   PRODUCT_NAME,
   TRANSACTION_STATUS,
   BLOCKCHAIN,
+  HEX_NETWORK,
+  METAMASK_ERROR_CODE,
+  NETWORKS_DESC,
   TRANSACTION_TYPE,
   CUSTOM_BUILDING_CATEGORY,
   BUILDING_TYPE
-}
+};

@@ -448,7 +448,7 @@ namespace MetaverseMax.ServiceClass
                 }
 
                 // New Custom Building - Add alert
-                if (parcelInfoIdNew > 0 && plotMatched.parcel_info_id != parcelInfoIdNew)
+                if (parcelInfoIdNew > 0 && parcelInfoIdOld != parcelInfoIdNew)
                 {
                     AddNewBuildingAlert(parcelOwnerNickname, parcelOwner, plotMatched.token_id, plotMatched.district_id, parcelInfoIdNew, buildingName);
                 }

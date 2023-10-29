@@ -1,0 +1,39 @@
+
+<div class="bankSummary">
+  <i #transferIcon [ngClass]="{'rotate': rotateActive }" class="fas fa-sync-alt progressIcon" style=""></i>
+  <mat-label class="progressCaption">{{ progressCaption }}</mat-label>
+  <mat-label class="progressCaption">{{ contractRead }}</mat-label>
+  <mat-label class="progressCaption">{{ contractWrite }}</mat-label>
+</div>
+<div class="actions">
+  <button mat-raised-button color="primary" class="buttonEffect" (click)="getBankAdmin()">Bank: Get Admin</button>
+  <button mat-raised-button color="primary" class="buttonEffect" (click)="getMegaContract()">Bank: Get Mega Contract</button>
+  <button mat-raised-button color="primary" class="buttonEffect" (click)="setMegaContract(CONTRACT_MEGA, CONTRACT_ADMIN)">Bank: Assign Mega Contract</button>
+  <button mat-raised-button color="primary" class="buttonEffect" (click)="getBankBalance(CONTRACT_ADMIN)">Bank: Get bank Balance</button>
+  <button mat-raised-button color="primary" class="buttonEffect" (click)="getCurrentWalletBalance()">Bank: Get Wallet Mega Balance</button>
+
+  <div class="groupSpacer">
+    <span>Current wallet, must have Mega. (1) increseAllowance to allow transfer from wallet to MMBank (2) deposit</span>
+    <button mat-raised-button color="primary" class="buttonEffect" (click)="getAllowanceToBank()">Bank: Get Allowance To Bank</button>
+    <button mat-raised-button color="primary" class="buttonEffect" (click)="increaseAllowance(CONTRACT_MMBank, 101)">Mega: Increase Allowance To Bank</button>
+    <button mat-raised-button color="primary" class="buttonEffect" (click)="depositMegaToMMBank(101)">Bank: Deposit to Bank</button>
+  </div>
+
+  <div class="groupSpacer">
+    <button mat-raised-button color="primary" class="buttonEffect" (click)="withdrawMegaFromMMBank(101)">Bank: Withdraw from Bank</button>
+    <button mat-raised-button color="primary" class="buttonEffect" (click)="increaseBankAllowance(101)">Bank: Increase Allowance From Bank to Recipient</button>
+  </div>
+
+  <div class="actionInput">
+    <button mat-raised-button color="primary" class="buttonEffect" (click)="getAllowanceCustom(addressSender.value, addressReceiver.value)">Bank: Get Allowance From x to y</button>
+    <mat-form-field [style.width.rem]=28 class="addressInput" appearance="outline" floatLabel="auto" subscriptSizing="dynamic">
+      <mat-label>Sender</mat-label>
+      <input matInput [formControl]="addressSender" type='text' />
+    </mat-form-field>
+    <mat-form-field [style.width.rem]=28 class="addressInput" appearance="outline" floatLabel="auto" subscriptSizing="dynamic">
+      <mat-label>Receiver</mat-label>
+      <input matInput type='text' [formControl]="addressReceiver" />
+    </mat-form-field>
+  </div>
+
+</div>

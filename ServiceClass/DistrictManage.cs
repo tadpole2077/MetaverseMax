@@ -110,7 +110,7 @@ namespace MetaverseMax.ServiceClass
             catch (Exception ex)
             {
                 DBLogger dBLogger = new(_context.worldTypeSelected);
-                dBLogger.logException(ex, String.Concat("DistrictWebMap::GetDistrictsFromMCP() : Error "));
+                dBLogger.logException(ex, String.Concat("DistrictManage::GetDistrictsFromMCP() : Error "));
             }
 
             return districtList;
@@ -174,7 +174,7 @@ namespace MetaverseMax.ServiceClass
             catch (Exception ex)
             {
                 DBLogger dBLogger = new(_context.worldTypeSelected);
-                dBLogger.logException(ex, String.Concat("GetDistrict() : Error District_id: ", district_id.ToString()));
+                dBLogger.logException(ex, String.Concat("DistrictManage::GetDistrictMCP() : Error District_id: ", district_id.ToString()));
             }
 
             return district;
@@ -236,7 +236,7 @@ namespace MetaverseMax.ServiceClass
             catch (Exception ex)
             {
                 DBLogger dBLogger = new(_context.worldTypeSelected);
-                dBLogger.logException(ex, String.Concat("UpdateAllOpenedDistricts() : Error "));
+                dBLogger.logException(ex, String.Concat("DistrictManage::UpdateAllDistricts() : Error "));
             }
 
 
@@ -287,7 +287,7 @@ namespace MetaverseMax.ServiceClass
             catch (Exception ex)
             {
                 DBLogger dBLogger = new(_context.worldTypeSelected);
-                dBLogger.logException(ex, String.Concat("DistrictManage.GetDistrict() : Error District_id: ", district_id.ToString()));
+                dBLogger.logException(ex, String.Concat("DistrictManage::UpdateDistrict() : Error District_id: ", district_id.ToString()));
             }
 
             return returnCode;
@@ -303,7 +303,7 @@ namespace MetaverseMax.ServiceClass
             catch (Exception ex)
             {
                 DBLogger dBLogger = new(_context.worldTypeSelected);
-                dBLogger.logException(ex, String.Concat("DistrictManage.ArchiveOwnerSummaryDistrict(): Error occured during arhive call"));
+                dBLogger.logException(ex, String.Concat("DistrictManage::ArchiveOwnerSummaryDistrict(): Error occured during arhive call"));
             }
 
             return returnCode;

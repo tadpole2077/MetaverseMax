@@ -40,6 +40,7 @@ import { CustomBuildingComponent } from './custom-building/custom-building.compo
 import { CustomBuildingTableComponent } from './custom-building-table/custom-building-table.component';
 import { MissionDeskComponent } from './mission-desk/mission-desk.component';
 import { TabContainerLazyComponent } from './tab-container-lazy/tab-container-lazy.component';
+import { BankManageComponent } from './bank-manage/bank-manage.component';
 
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { DragDropModule } from '@angular/cdk/drag-drop';
@@ -110,6 +111,7 @@ import { Alert } from './common/alert';
     NumberDecimalDirective,
     TabExtractedBodyDirective,
     TabContainerLazyComponent,
+    BankManageComponent,
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -170,7 +172,12 @@ import { Alert } from './common/alert';
       { path: 'world', component: WorldComponent },
       { path: 'bnb/world', component: WorldComponent },
       { path: 'trx/world', component: WorldComponent },
-      { path: 'eth/world', component: WorldComponent }
+      { path: 'eth/world', component: WorldComponent },
+
+      { path: 'bank-manage', component: BankManageComponent },
+      { path: 'bnb/bank-manage', component: BankManageComponent  },
+      { path: 'trx/bank-manage', component: BankManageComponent  },
+      { path: 'eth/bank-manage', component: BankManageComponent  }
     ]),
     BrowserAnimationsModule,
     ClipboardModule

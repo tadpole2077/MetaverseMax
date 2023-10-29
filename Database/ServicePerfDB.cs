@@ -27,13 +27,14 @@ namespace MetaverseMax.Database
 
                 counter = worldType switch { WORLD_TYPE.ETH => ++counterETH, WORLD_TYPE.BNB => ++counterBNB, _ or WORLD_TYPE.TRON => ++counterTRX };
 
+                // impose a range of 50 max chars on ServieEntry string.
                 ServicePerf servicePerf = new()
                 {
                     service_url = serviceUrl,
                     start_time = startTime,
                     run_time = (int)runTime,
                     response_size = responseSize,
-                    service_param = serviceParam
+                    service_param = serviceParam[0..(serviceParam.Length > 50 ? 50 : serviceParam.Length)]
                 };
 
                 _context.servicePerf.Add(servicePerf);

@@ -30,7 +30,27 @@ Possible fix/improvements
 1) Dont really need the DistrictUpdateInstance table currently, but might be useful in the future to record, instance run time details, maybe to eval changes between distrist updates to reduce repetitive load on system runtime.
 
 
+=================================
 DB Performance Tweaks:
+=================================
 1) Add rebuild of Indexes as nightly task.  (See "Sql Optimise 2022" word doc for details)
 * Performance of SPROC sp_plot_IP_get, related to PlotArchive table, showing a high fragmentation of 98% meaning slow query responses using this index.
 * Top tables perf improve by index rebuild : Citizen, Plot, PlotArchive, DistrictFund, OwnerCitizen
+
+
+2) PlotArchive table
+* Table populated with full set of plot can grow to a massive size :  TRON = 26,742,548
+
+Current Usage (as of 2023/10/28):
+* PlotDB.GetIP_Historic()  >> calling SP >> sp_plot_IP_get
+  Use: Only claimed plots are required here - as unclaimed do not produce, therefore have no IP assigned to them and not used within Production History module.
+
+Enhancement:
+1) Remove all unclaimed plots from archive table
+2) do not store unclaimed plots on nightly sync - plot archive process
+
+Performance Conditions in sp_plot_archive
+1) Only archive opened districts - where plots have a district ID.  Tron: 74646 plots with no district id,  BNB: 62240 plots with no district id,  ETH: 111,976 plots with no district id
+		DistrictUpdateInstance DUI ON
+		P.district_id = DUI.district_id AND
+		CONVERT(date, P.last_updated) = CONVERT(date, DUI.update_time) ;

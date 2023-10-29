@@ -1,0 +1,50 @@
+
+.bankSummary{
+  font-size: 16px;
+  margin: 10px
+}
+
+.actions{
+  margin-top: 12px;
+}
+.actions button {
+  margin-top: 9px;
+  margin-bottom: 9px;
+  display: block
+}
+.actionInput button {
+  display: inline-block
+}
+.addressInput {
+  margin-left: 24px;
+}
+.groupSpacer{
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+.progressCaption {
+  margin-left: 40px;
+  display: block;
+}
+.progressIcon {
+  font-size: 1rem;
+  margin-left: 8px;
+  position: absolute;
+  z-index: 1;
+  display: none;
+}
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(359deg);
+  }
+}
+
+.rotate {
+  display: block;
+  animation: rotation 1s 30 linear;
+}

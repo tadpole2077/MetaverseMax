@@ -298,6 +298,9 @@ a {
     depending on your need change overflow: auto;*/
 }
 
+.mdc-data-table__row{
+  height:74px
+}
 table:last-child {
   margin-bottom: 30px;
 }
@@ -343,16 +346,19 @@ td.mat-column-building_type div{
   margin-top: 3px;
   min-width: 40px;
 }
-.buildingZoom {
-  margin-top: -16px;
+.buildingZoom {  
   margin-left: -10px;
-  margin-bottom: -20px;
   max-width: 80px;
   overflow: hidden;
 }
   .buildingZoom .buildingImg {
     max-width: 100px;
     max-height: 90px;
+    margin-top: -12px;    
+    margin-bottom: -20px;
+  }
+  div.buildingZoom{
+    background-color: unset;
   }
 
 .buildingNum {
@@ -409,13 +415,14 @@ td.mat-column-building_type .buildDescParcel .flexVertCenter {
 .magnifyHistoryPositioner {
   position: absolute;
   top: 0;
-  right: 0;
+  height: 100%;
+  right: -30px;
 }
 .magnifyHistoryIcon {
-  margin-top: 0;
-  position: absolute;
-  margin-left: -6px;
-  opacity: .6
+  position: relative;
+  opacity: .6;
+  top: 50%;
+  transform: translateY(-50%);
 }
   .magnifyHistoryIcon:hover {
     opacity: 1
@@ -772,12 +779,17 @@ td.mat-column-building_level{
   .buildDescParcel {
     text-align: center;
     width: 90px;
+    height:unset;
   }
   .buildingMaglink {
     width: 5rem;
     text-align: center;
   }
-  .citCount {    
+  .buildingZoom{
+
+  }
+
+  .citCount {
     text-indent: 0.4rem;
     margin-top: -.9rem;
     position: absolute;

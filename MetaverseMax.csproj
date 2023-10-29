@@ -57,6 +57,7 @@
   <ItemGroup>
     <None Remove="ClientApp\src\app\alert-bottom\alert-bottom.component.ts" />
     <None Remove="ClientApp\src\app\alert-menu\alert-menu.component.ts" />
+    <None Remove="ClientApp\src\app\bank-manage\bank-manage.component.ts" />
     <None Remove="ClientApp\src\app\building-filter\building-filter.component.ts" />
     <None Remove="ClientApp\src\app\building-ip\building-ip.component.ts" />
     <None Remove="ClientApp\src\app\common\alert.ts" />
@@ -64,6 +65,10 @@
     <None Remove="ClientApp\src\app\common\global-var.ts" />
     <None Remove="ClientApp\src\app\common\graph-interface.ts" />
     <None Remove="ClientApp\src\app\common\interface.ts" />
+    <None Remove="ClientApp\src\app\common\web3Utils.ts" />
+    <None Remove="ClientApp\src\app\Contract\contractBasicAbi.ts" />
+    <None Remove="ClientApp\src\app\Contract\contractMegaCoinAbi.ts" />
+    <None Remove="ClientApp\src\app\Contract\contractMMBankAbi.ts" />
     <None Remove="ClientApp\src\app\custom-building-table\custom-building-table.component.ts" />
     <None Remove="ClientApp\src\app\custom-building\custom-building.component.ts" />
     <None Remove="ClientApp\src\app\directive\tab-extracted-body.directive.ts" />
@@ -1834,6 +1839,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <TypeScriptCompile Update="ClientApp\src\app\Contract\contractMegaCoinAbi.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Update="ClientApp\src\app\Contract\contractMMBankAbi.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
     <TypeScriptCompile Update="ClientApp\src\app\graph-damage\data-damage-test.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>

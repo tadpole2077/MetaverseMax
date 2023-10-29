@@ -127,6 +127,8 @@ namespace MetaverseMax.Database
                 district.district_matic_key = districtToken.Value<string>("address");
 
                 district.owner_name = districtToken.Value<string>("owner_nickname") ?? "Not Found";
+                district.owner_name = district.owner_name[0..(district.owner_name.Length > 50 ? 50 : district.owner_name.Length)];
+
                 district.owner_avatar_id = districtToken.Value<int?>("owner_avatar_id") ?? 0;
                 district.owner_matic = districtToken.Value<string>("address") ?? "Not Found";
 
@@ -208,6 +210,11 @@ namespace MetaverseMax.Database
             catch (Exception ex)
             {
                 logException(ex, String.Concat("DistrictDB::DistrictUpdate() : Error updating district_id = ", district.district_id));
+
+                if (district != null)
+                {
+                    _context.Entry(district).State = EntityState.Detached; // De-associate from the poisoned order. Improves fault tolerance - allows SaveChange() to complete - context with other pending transactions
+                }
             }
 
             return instance;
