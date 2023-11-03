@@ -47,7 +47,13 @@ namespace MetaverseMax.Database
             }
             catch (Exception ex)
             {
-                logException(ex, String.Concat("PlotDB::AddPlot() : Error adding new Plots using token_id : ", tokenId));
+                logException(ex, String.Concat("MissionDB::AddOrUpdate() : Error adding new Mission for Plot using token_id : ", tokenId));
+
+                // De-associate from the faulty row. Improves fault tolerance - allows SaveChange() to complete - context with other pending transactions
+                if (mission != null)
+                {
+                    _context.Entry(mission).State = EntityState.Detached;
+                }
             }
 
             return mission;

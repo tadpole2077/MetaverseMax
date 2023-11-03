@@ -53,6 +53,9 @@ namespace MetaverseMax.Database
         [Column("alert_activated")]
         public bool alert_activated { get; set; }
 
+        [Column("created_date")]
+        public DateTime created_date { get; set; }
+
         // Account can update names - this is the last updated name that is not blank.
         [NotMapped]
         [Column("owner_name")]

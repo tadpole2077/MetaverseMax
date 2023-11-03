@@ -96,8 +96,10 @@ export class TransferAssetComponent implements OnInit {
 
       console.log("Current Chain : " + chainIdHex +" - "+ chainIdNumber);
       if (chainIdHex == NETWORKS.ETHEREUM) {
-
         console.log("Selected chain is Ethereum main-net, Request to switch to Polygon.");
+      }
+
+      if (chainIdHex != NETWORKS.POLYGON) {
         this.progressCaption = "Request to switch to Polygon";
         await this.switchNetwork(NETWORKS.POLYGON);        
         this.progressCaption = "";

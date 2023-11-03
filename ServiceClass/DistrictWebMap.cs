@@ -137,14 +137,16 @@ namespace MetaverseMax.ServiceClass
         {
             DistrictWeb districtWeb = new();
             CitizenManage citizen = new(_context, worldType);
+            OwnerManage ownerManage = new(_context, worldType);
+            OwnerAccount ownerAccount = ownerManage.FindOwnerByMatic(district.district_matic_key);
 
             districtWeb.update_instance = district.update_instance;
             districtWeb.last_update = district.last_update;
             districtWeb.last_updateFormated = common.LocalTimeFormatStandardFromUTC("", district.last_update);
             districtWeb.district_id = district.district_id;
-            districtWeb.owner_name = district.owner_name ?? "Not Found";
-            districtWeb.owner_avatar_id = district.owner_avatar_id ?? 0;
-            districtWeb.owner_url = citizen.AssignDefaultOwnerImg(district.owner_avatar_id.ToString() ?? "0");
+            districtWeb.owner_name = ownerAccount == null ? "Not Found" : ownerAccount.name;
+            districtWeb.owner_avatar_id = ownerAccount == null ? 0 : ownerAccount.avatar_id;
+            districtWeb.owner_url = citizen.AssignDefaultOwnerImg(districtWeb.owner_avatar_id.ToString());
             districtWeb.owner_matic = district.owner_matic ?? "Not Found";
 
             districtWeb.active_from = common.LocalTimeFormatStandardFromUTC("", district.active_from);

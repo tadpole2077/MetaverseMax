@@ -32,12 +32,12 @@ namespace MetaverseMax.ServiceClass
 
             jobInterval = interval;
 
-            Task.Run(() => SyncCustomAndMissionRun(worldType));      // start the sync dont wait for result.
+            Task.Run(() => SyncCustomAndMissionRun(worldType, jobInterval));      // start the sync dont wait for result.
 
             return string.Concat("Custom Building Sync Started at : ", DateTime.Now.ToShortTimeString());
         }
 
-        public async Task<RETURN_CODE> SyncCustomAndMissionRun(WORLD_TYPE worldType)
+        public async Task<RETURN_CODE> SyncCustomAndMissionRun(WORLD_TYPE worldType, int jobInterval)
         {
             RETURN_CODE response = RETURN_CODE.ERROR;
             DateTime startTime;

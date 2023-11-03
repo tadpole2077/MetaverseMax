@@ -45,6 +45,8 @@ namespace MetaverseMax.Database
         public virtual DbSet<ServicePerf> servicePerf { get; set; }
         public virtual DbSet<Sync> sync { get; set; }
         public virtual DbSet<SyncHistory> syncHistory { get; set; }
+        public virtual DbSet<JobSetting> JobSetting { get; set; }
+        
         public virtual DbSet<Transaction> transaction { get; set; }
 
         // options will be assigned on OnConfiguring()

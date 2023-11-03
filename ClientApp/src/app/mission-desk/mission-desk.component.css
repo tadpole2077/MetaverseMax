@@ -265,7 +265,7 @@ a {
     width: 160px;
   }
   .buildingImg {
-    max-width: 34px;
+    max-width: 40px;
     min-width: unset;
   }
   .buildDesc {

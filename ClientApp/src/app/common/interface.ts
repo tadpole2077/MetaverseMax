@@ -61,6 +61,11 @@ interface MissionCollection {
   mission_list: Mission[];
   mission_count: number;
   mission_reward: number;
+  all_mission_count: number;
+  all_mission_available_count: number;
+  all_mission_reward: number;
+  all_mission_available_reward: number;
+  repeatable_daily_reward: number;
 }
 
 export {

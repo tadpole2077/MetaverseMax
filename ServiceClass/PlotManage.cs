@@ -317,8 +317,9 @@ namespace MetaverseMax.ServiceClass
                         unclaimed_plot = string.IsNullOrEmpty(jsonContent.Value<string>("owner")),
 
 #nullable enable
-                        owner_nickname = parcelId == 0 ? jsonContent.Value<string?>("owner_nickname") ?? "" : parcelOwnerNickname,
-#nullable disable
+                        owner_nickname = parcelId == 0 ? CheckNameLength(jsonContent.Value<string?>("owner_nickname") ?? "") : parcelOwnerNickname,
+#nullable disable                        
+                        //.[0..(owner_nickname.Length > 50 ? 50 : owner_nickname.Length)]
                         owner_matic = parcelId == 0 ? jsonContent.Value<string>("owner") : parcelOwner,            // parcelOwner must be used if assigned, as when a parcel - plot.owner is a system owner.
                         owner_avatar_id = parcelId == 0 ? jsonContent.Value<int>("owner_avatar_id") : parcelOwnerAvatarId,
 
@@ -378,8 +379,8 @@ namespace MetaverseMax.ServiceClass
                     if (parcelId == 0)
                     {
 #nullable enable
-                        plotMatched.owner_nickname = jsonContent.Value<string?>("owner_nickname") ?? "";
-#nullable disable                    
+                        plotMatched.owner_nickname = CheckNameLength(jsonContent.Value<string?>("owner_nickname") ?? "");
+#nullable disable       
                         plotMatched.owner_matic = jsonContent.Value<string>("owner");
                         plotMatched.owner_avatar_id = jsonContent.Value<int>("owner_avatar_id");
 
@@ -466,6 +467,11 @@ namespace MetaverseMax.ServiceClass
             }
 
             return plotMatched;
+        }
+
+        private string CheckNameLength(string name)
+        {
+            return name[0..(name.Length > 50 ? 50 : name.Length)];
         }
 
         public RETURN_CODE AddNewBuildingAlert(string parcelOwnerNickname, string parcelOwner, int tokenId, int districtId, int parcelInfoId, string buildingName)
@@ -1059,7 +1065,8 @@ namespace MetaverseMax.ServiceClass
 
         public WorldMissionWeb GetMissionActive()
         {
-            MissionDB missionDB = new(_context, worldType);
+            MissionDB missionDB;
+            OwnerManage ownerManage;
             IEnumerable<MissionActive> missionActive = null;
             WorldMissionWeb worldMission = new();
             Common common = new();
@@ -1067,9 +1074,14 @@ namespace MetaverseMax.ServiceClass
 
             try
             {
+                missionDB = new(_context, worldType);
+                ownerManage = new(_context, worldType);
                 missionActive = missionDB.MissionActiveGet();
 
                 worldMission.mission_list = missionActive.Select(mission => {
+
+                    OwnerAccount ownerAccount = ownerManage.FindOwnerByMatic(mission.owner_matic);
+
                     return new MissionWeb
                     {
                         token_id = mission.token_id,
@@ -1077,8 +1089,8 @@ namespace MetaverseMax.ServiceClass
                         pos_y = mission.pos_y,
                         district_id = mission.district_id,                 
                         owner_matic = mission.owner_matic,
-                        owner_name = mission.owner_nickname,
-                        owner_avatar_id = mission.owner_avatar_id,
+                        owner_name = ownerAccount == null ? "" : ownerAccount.name,
+                        owner_avatar_id = ownerAccount == null ? 0 : ownerAccount.avatar_id,
                         building_id = mission.building_id,
                         building_level = mission.building_level,
                         building_type_id  = mission.building_type_id,
@@ -1101,6 +1113,12 @@ namespace MetaverseMax.ServiceClass
 
                 worldMission.mission_count = worldMission.mission_list.Count();
                 worldMission.mission_reward = Math.Round(worldMission.mission_list.Sum(x=>x.reward), 2);
+
+                worldMission.all_mission_count = worldMission.mission_list.Sum(x => x.max);
+                worldMission.all_mission_available_count = worldMission.all_mission_count - worldMission.mission_list.Sum(x => x.completed);
+                worldMission.all_mission_reward = Math.Round(worldMission.mission_list.Sum(x => x.reward * x.max), 0);
+                worldMission.all_mission_available_reward = Math.Round(worldMission.mission_list.Sum(x => x.reward * (x.max - x.completed)), 0);
+                worldMission.repeatable_daily_reward = Math.Round(worldMission.mission_list.Where(x => x.building_level == 7).Sum( x=> x.reward), 2);
             }
             catch (Exception ex)
             {
@@ -1117,15 +1135,20 @@ namespace MetaverseMax.ServiceClass
             BuildingParcelDB buildingParcelDB;
             List<BuildingParcel> parcelList = new();
             WorldParcelWeb worldParcel = new WorldParcelWeb();
+            OwnerManage ownerManage;            
             Common common = new();
             Building building = new();
 
             try
             {
                 buildingParcelDB = new(_context);
+                ownerManage = new(_context, worldType);
                 parcelList = buildingParcelDB.ParcelGet(districtId);
 
                 worldParcel.parcel_list = parcelList.Select(land => {
+
+                    OwnerAccount ownerAccount = ownerManage.FindOwnerByMatic(land.owner_matic);
+
                     return new ParcelWeb
                     {
                         parcel_id = land.parcel_id,
@@ -1136,8 +1159,8 @@ namespace MetaverseMax.ServiceClass
                         building_name = land.building_name,
                         unit_count = land.parcel_unit_count ?? 0,
                         owner_matic = land.owner_matic,
-                        owner_name = land.owner_nickname,
-                        owner_avatar_id = land.owner_avatar_id,
+                        owner_name = ownerAccount == null ? "" : ownerAccount.name,
+                        owner_avatar_id = ownerAccount == null ? 0 : ownerAccount.avatar_id,
                         forsale = land.on_sale,
                         forsale_price = land.current_price,
                         last_actionUx = ((DateTimeOffset)(land.last_action ?? land.last_updated)).ToUnixTimeSeconds(),

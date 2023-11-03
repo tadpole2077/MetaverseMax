@@ -117,19 +117,22 @@ namespace MetaverseMax.Database
 
         public int UpdateDistrictByToken(JToken districtToken)
         {
+            OwnerNameDB ownerNameDB = new(_context);
             District district = new();
             Common common = new();
             int returnCode = 0;
+            string districtOwnerName;
+            int districtAvatarId;
 
             try
             {
                 district.district_id = districtToken.Value<int?>("region_id") ?? 0;
                 district.district_matic_key = districtToken.Value<string>("address");
 
-                district.owner_name = districtToken.Value<string>("owner_nickname") ?? "Not Found";
-                district.owner_name = district.owner_name[0..(district.owner_name.Length > 50 ? 50 : district.owner_name.Length)];
+                districtOwnerName = districtToken.Value<string>("owner_nickname") ?? "Not Found";
+                districtOwnerName = districtOwnerName[0..(districtOwnerName.Length > 50 ? 50 : districtOwnerName.Length)];
 
-                district.owner_avatar_id = districtToken.Value<int?>("owner_avatar_id") ?? 0;
+                districtAvatarId = districtToken.Value<int?>("owner_avatar_id") ?? 0;
                 district.owner_matic = districtToken.Value<string>("address") ?? "Not Found";
 
                 district.active_from = common.TimeFormatStandardFromUTC(districtToken.Value<string>("active_from") ?? "", null);
@@ -167,6 +170,16 @@ namespace MetaverseMax.Database
                 district.land_plot_price = districtToken.Value<int?>("land_plot_price") ?? 0;
 
                 returnCode = DistrictUpdate(district);
+
+                // Corner Case - Owner of a District but owns no plots - check owner exists if not create account
+                OwnerChange ownerChange = new()
+                {
+                    owner_avatar_id = districtAvatarId,
+                    owner_name = districtOwnerName,
+                    owner_matic_key = district.owner_matic,
+                };
+
+                ownerNameDB.UpdateOwnerName(ownerChange);
 
             }
             catch (Exception ex)
@@ -211,48 +224,14 @@ namespace MetaverseMax.Database
             {
                 logException(ex, String.Concat("DistrictDB::DistrictUpdate() : Error updating district_id = ", district.district_id));
 
+                // De-associate from the faulty row. Improves fault tolerance - allows SaveChange() to complete - context with other pending transactions
                 if (district != null)
                 {
-                    _context.Entry(district).State = EntityState.Detached; // De-associate from the poisoned order. Improves fault tolerance - allows SaveChange() to complete - context with other pending transactions
+                    _context.Entry(district).State = EntityState.Detached; 
                 }
             }
 
             return instance;
-        }
-
-        public int DistrictAddOrUpdate(District district)
-        {
-            District matchedDistrict;
-            try
-            {
-                matchedDistrict = DistrictGet(district.district_id);
-
-                if (matchedDistrict != null && matchedDistrict.district_key > 0)
-                {
-                    matchedDistrict.last_update = DateTime.Now;
-                    matchedDistrict.owner_matic = district.owner_matic;
-                    matchedDistrict.owner_name = district.owner_name;
-                    matchedDistrict.owner_avatar_id = district.owner_avatar_id;
-                    matchedDistrict.plots_claimed = district.plots_claimed;
-                    matchedDistrict.land_count = district.land_count;
-                    matchedDistrict.building_count = district.building_count;
-
-                    _context.district.Update(matchedDistrict);
-                }
-                else
-                {
-                    district.last_update = DateTime.Now;
-                    _context.district.Add(district);
-                }
-
-                _context.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                logException(ex, String.Concat("DistrictDB::DistrictAddOrUpdate() : Error updating district_id = ", district.district_id));
-            }
-
-            return 0;
         }
 
         public int ArchiveOwnerSummaryDistrict()

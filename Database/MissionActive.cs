@@ -43,14 +43,8 @@ namespace MetaverseMax.Database
         [Column("district_id")]
         public int district_id { get; set; }
 
-        [Column("owner_nickname")]
-        public string owner_nickname { get; set; }
-
         [Column("owner_matic")]
         public string owner_matic { get; set; }
-
-        [Column("owner_avatar_id")]
-        public int owner_avatar_id { get; set; }
 
         [Column("building_id")]
         public int building_id { get; set; }

@@ -123,6 +123,12 @@
         public static readonly string NEW_BUILDING = "New custom building(#BUILDING_NAME#) in #DISTRICT_ID# district by #OWNER#.";
     }
 
+    public class JOB_SETTING_CODE
+    {
+        public static readonly string DISABLE_DISTRIBUTION_UPDATE = "DISABLE_DISTRIBUTION_UPDATE";
+        public static readonly string NEW_ACCOUNT_PRO_TOOLS_FREE_DAYS = "NEW_ACCOUNT_PRO_TOOLS_FREE_DAYS";
+    }
+
     public enum ALERT_STATE
     {
         ALL = 1,

@@ -54,3 +54,27 @@ Performance Conditions in sp_plot_archive
 		DistrictUpdateInstance DUI ON
 		P.district_id = DUI.district_id AND
 		CONVERT(date, P.last_updated) = CONVERT(date, DUI.update_time) ;
+
+
+=====================================================
+Archive Tables
+=====================================================
+1) PlotArchive					>> [sp_archive_plots]
+2) OwnerSummaryDistrictArchive	>> [sp_owner_summary_district_archive]
+
+When updated:
+* Each nightly sync  [SyncWorld::SyncRun()]
+	plotDB.ArchivePlots();
+    districtManage.ArchiveOwnerSummaryDistrict();
+
+Row Size of tables (as of 03/11/2023)
+1) PlotArchive
+	Tron: 12,840,667
+	BNB: 664,858
+	Eth: 7,669,278
+
+2) OwnerSummaryDistrictArchive
+	Tron: 2,741,923
+	BNB: 90,516
+	Eth: 2,494,626
+

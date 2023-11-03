@@ -6,6 +6,12 @@
 
         public int mission_count { get; set; }
         public decimal mission_reward { get; set; }
+        public int all_mission_count { get; set; }
+        public int all_mission_available_count { get; set; }
+        public decimal all_mission_reward { get; set; }
+        public decimal all_mission_available_reward { get; set; }
+        public decimal repeatable_daily_reward { get; set; }
+
     }
 
     public class MissionWeb

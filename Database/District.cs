@@ -20,11 +20,11 @@ namespace MetaverseMax.Database
         [Column("update_instance")]
         public int update_instance { get; set; }
 
-        [Column("owner_name")]
-        public string owner_name { get; set; }
+        //[Column("owner_name")]
+        //public string owner_name { get; set; }
 
-        [Column("owner_avatar_id")]
-        public int? owner_avatar_id { get; set; }
+        //[Column("owner_avatar_id")]
+        //public int? owner_avatar_id { get; set; }
 
         [Column("owner_matic")]
         public string owner_matic { get; set; }

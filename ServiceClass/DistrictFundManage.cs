@@ -19,6 +19,34 @@ namespace MetaverseMax.ServiceClass
             _parentContext.worldTypeSelected = worldType;
         }
 
+        public RETURN_CODE DistributionUpdateDisable(string secureToken)
+        {
+            RETURN_CODE returnCode = RETURN_CODE.ERROR;
+
+            // As this service could be abused as a DDOS a security token is needed.
+            if (!secureToken.Equals("JUST_SIMPLE_CHECK123"))
+            {
+                return returnCode;
+            }
+
+            try
+            {
+                JobSettingDB jobSettingDB = new(_context);
+                jobSettingDB.AddOrUpdate(JOB_SETTING_CODE.DISABLE_DISTRIBUTION_UPDATE, 1, "By service call DistributionUpdateDisable()");
+
+                returnCode = RETURN_CODE.SUCCESS;
+            }
+            catch (Exception ex)
+            {
+                string log = ex.Message;
+                _context.LogEvent(String.Concat("DistrictFundManage::DistributionUpdateDisable() : Error updateing JobSetting"));
+                _context.LogEvent(log);
+            }
+
+
+            return returnCode;
+        }
+
         public IEnumerable<DistrictFund> GetHistory(int districtId, int daysHistory)
         {
             IEnumerable<DistrictFund> districtFundList = null;
@@ -131,9 +159,10 @@ namespace MetaverseMax.ServiceClass
             int totalProcessed = 0;
             MetaverseMaxDbContext processContext = null;
             bool delayRepeat = false;
+            JobSettingDB jobSettingDB = null;
 
             try
-            {               
+            {                
                 // As this service could be abused as a DDOS a security token is needed.
                 if (!secureToken.Equals("JUST_SIMPLE_CHECK123"))
                 {
@@ -148,6 +177,11 @@ namespace MetaverseMax.ServiceClass
                 }
                 else if (distributeAction == DISTRIBUTE_ACTION.CALC_DISTRICT_DISTRIBUTION)
                 {
+                    processContext = new MetaverseMaxDbContext(WORLD_TYPE.TRON);
+                    jobSettingDB = new(processContext);                    
+                    jobSettingDB.AddOrUpdate(JOB_SETTING_CODE.DISABLE_DISTRIBUTION_UPDATE, 0, "start of DistributionUpdateCalc()");
+                    processContext.Dispose();
+
                     delayRepeat = DistributionUpdateCalc(interval, WORLD_TYPE.TRON, ref totalProcessed);
                     if (!delayRepeat)
                     {
@@ -176,14 +210,18 @@ namespace MetaverseMax.ServiceClass
             bool delayRepeat = false;
             int repeatInstance = 0;
             JToken districtFund = null;
-            MetaverseMaxDbContext processContext = null;            
+            MetaverseMaxDbContext processContext = null;
+            bool distributeUpdateDisable = false;
+            JobSettingDB jobSettingDB = null;
+            
+
             do
             {
                 worldType = worldTypeToProcess;         // needed by WS call to select correct L3 service set
                 base._context.worldTypeSelected = worldTypeToProcess;
-                processContext = new MetaverseMaxDbContext(worldTypeToProcess);
+                processContext = new MetaverseMaxDbContext(worldTypeToProcess);                
                 districtFundDB = new(processContext);
-                servicePerfDB = new(processContext);
+                servicePerfDB = new(processContext);                
 
                 // Process Gobal fund totals
                 // Check funds have changed on CALC_GLOBAL_DISTRIBUTION event, if not repeat with delay of 1 minute, after 10 attempts quit without update
@@ -200,7 +238,7 @@ namespace MetaverseMax.ServiceClass
                     }
                 }
 
-                // No distribution found - refresh all current worlds { districts and global } wait and repeat. 4hr window - 10 minute intervals
+                // No distribution found - refresh all current worlds { districts and global } wait and repeat. 15 minute intervals, 24 hrs
                 if (delayRepeat)
                 {
                     totalProcessed = 0;
@@ -224,6 +262,10 @@ namespace MetaverseMax.ServiceClass
                     repeatInstance++;
                     processContext.LogEvent(String.Concat("DistrictFund::DistrubutionUpdatePerWorld() : distribute calc [delay-repeat] event instance : ", repeatInstance, " total refreshed :", totalProcessed));
                     processContext.SaveChanges();
+
+                    // Check db for disable event - support for hard stop of process.
+                    jobSettingDB = new(processContext);
+                    distributeUpdateDisable = jobSettingDB.GetSettingValue(JOB_SETTING_CODE.DISABLE_DISTRIBUTION_UPDATE) == 1;
                     processContext.Dispose();
 
                     Task.Delay(900000).Wait();      // Wait 15 minutes                    
@@ -234,8 +276,9 @@ namespace MetaverseMax.ServiceClass
                     DistrubutionUpdatePerWorld(interval, DISTRIBUTE_ACTION.CALC_DISTRICT_DISTRIBUTION, worldTypeToProcess, ref totalProcessed);
                     totalProcessed++;
                 }
+                
             }
-            while (delayRepeat && repeatInstance < Common.jobFundRepeatCount);
+            while (delayRepeat && repeatInstance < Common.jobFundRepeatCount && distributeUpdateDisable == false);
 
             if (!processContext.IsDisposed())
             {

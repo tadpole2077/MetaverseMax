@@ -30,14 +30,8 @@ namespace MetaverseMax.Database
         [Column("last_updated")]
         public DateTime? last_updated { get; set; }
 
-        [Column("owner_nickname")]
-        public string owner_nickname { get; set; }
-
         [Column("owner_matic")]
         public string owner_matic { get; set; }
-
-        [Column("owner_avatar_id")]
-        public int owner_avatar_id { get; set; }
 
         [Column("on_sale")]
         public bool on_sale { get; set; }

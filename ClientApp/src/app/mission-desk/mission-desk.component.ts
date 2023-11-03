@@ -7,7 +7,7 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
 
 import { Globals, WORLD } from '../common/global-var';
 import { Mission, MissionCollection } from '../common/interface';
-import { CUSTOM_BUILDING_CATEGORY, EVENT_TYPE, BUILDING_TYPE } from '../common/enum';
+import { EVENT_TYPE, BUILDING_TYPE } from '../common/enum';
 
 interface IDistrictInfo {
   id: number;
@@ -32,6 +32,11 @@ export class MissionDeskComponent {
   showCustom: boolean = true;
   missionCount: number = 0;
   missionReward: number = 0;
+  allMissionCount: number = 0;
+  allMissionAvailableCount: number = 0;
+  allMissionReward: number = 0;
+  allMissionAvailableReward: number = 0;
+  repeatableDailyReward: number = 0
   districtList: IDistrictInfo[];
 
   dataSource = new MatTableDataSource(null);
@@ -82,19 +87,16 @@ export class MissionDeskComponent {
 
             this.missionCount = this.worldMission.mission_count;
             this.missionReward = this.worldMission.mission_reward;
+            this.allMissionCount = this.worldMission.all_mission_count;
+            this.allMissionAvailableCount = this.worldMission.all_mission_available_count;
+            this.allMissionReward = this.worldMission.all_mission_reward;
+            this.allMissionAvailableReward = this.worldMission.all_mission_available_reward;
+            this.repeatableDailyReward = this.worldMission.repeatable_daily_reward;
 
             if (this.worldMission.mission_list) {
 
               let change = new MatCheckboxChange();
               change.checked = true;
-              //if (this.worldMission.building_count > 0 || this.worldParcel.parcel_count == 0) {
-              //  this.buildingFilterChange.emit(true);             
-              //  this.filterBuilding(change);              
-              //}
-              //else {
-              //  this.parcelFilterChange.emit(true);
-              //  this.filterParcel(change);
-              //}
 
               this.dataSource = new MatTableDataSource<Mission>(this.worldMission.mission_list);
               this.dataSource.sort = this.sort;
@@ -195,85 +197,6 @@ export class MissionDeskComponent {
   }
 
 
-  /*
-  filterBuilding(eventCheckbox: MatCheckboxChange) {
-
-    var buildings: Parcel[] = new Array;
-    if (!this.isMobileView) {
-      this.displayedColumns = ['district_id', 'building_name', 'owner_name', 'plot_count', 'building_category_id', 'unit_forsale_count', 'last_action', 'pos_x', 'pos_y'];
-    }
-
-    // Use current building view with any applied filters
-    if (this.tableView == null) {
-      this.tableView = this.worldParcel.parcel_list;
-    }
-
-    if (eventCheckbox.checked) {
-      this.parcelFilterChange.emit(false);
-
-      for (var index = 0; index < this.worldParcel.parcel_list.length; index++) {
-        if (this.worldParcel.parcel_list[index].building_category_id > 0) {
-          buildings.push(this.worldParcel.parcel_list[index]);
-        }
-      }
-
-      this.dataSource = new MatTableDataSource<Parcel>(buildings);
-      this.dataSource.sort = this.sort;
-      this.dataSource.filter = this.activeTextFilter;
-    }
-    else {
-      this.dataSource = new MatTableDataSource<Parcel>(this.tableView);
-      this.dataSource.sort = this.sort;
-      this.dataSource.filter = this.activeTextFilter;
-    }
-
-    this.hidePaginator = buildings.length == 0 || buildings.length < 1000 ? true : false;
-    this.applyFilterPredicate();
-
-    return;
-  }
-
-  filterParcel(eventCheckbox: MatCheckboxChange) {
-
-    if (this.worldParcel == null) {
-      return;
-    }
-    var buildings: Parcel[] = new Array;
-    if (!this.isMobileView) {
-      this.displayedColumns = ['district_id', 'building_name', 'owner_name', 'plot_count', 'building_category_id', 'last_action', 'pos_x', 'pos_y'];
-    }
-
-    // Use current building view with any applied filters
-    if (this.tableView == null) {
-      this.tableView = this.worldParcel.parcel_list;
-    }
-
-    if (eventCheckbox.checked) {
-      this.buildingFilterChange.emit(false);
-
-      for (var index = 0; index < this.worldParcel.parcel_list.length; index++) {
-        if (this.worldParcel.parcel_list[index].building_category_id == 0) {
-          buildings.push(this.worldParcel.parcel_list[index]);
-        }
-      }
-
-      this.dataSource = new MatTableDataSource<Parcel>(buildings);
-      this.dataSource.sort = this.sort;
-      this.dataSource.filter = this.activeTextFilter;
-    }
-    else {
-      this.dataSource = new MatTableDataSource<Parcel>(this.tableView);
-      this.dataSource.sort = this.sort;
-      this.dataSource.filter = this.activeTextFilter;
-    }
-
-    this.hidePaginator = buildings.length == 0 || buildings.length < 1000 ? true : false;
-    this.applyFilterPredicate();
-
-    return;
-  }
-  */
-
   applyFilterPredicate() {
     this.dataSource.filterPredicate = function (data: Mission, filter: string): boolean {
       return data.district_id.toString().includes(filter)
@@ -283,9 +206,6 @@ export class MissionDeskComponent {
     };
   }
 
-  getCustomCategoryName(categoryId: number) {
-    return CUSTOM_BUILDING_CATEGORY[categoryId];
-  }
   getLastActionType(lastActionType: number) {
     return EVENT_TYPE[lastActionType];
   }

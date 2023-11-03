@@ -13,20 +13,29 @@ import { Globals, WORLD } from '../common/global-var';
 import { Alert } from '../common/alert';
 import { ALERT_TYPE, ALERT_ACTION } from '../common/enum';
 import { TabContainerLazyComponent } from '../tab-container-lazy/tab-container-lazy.component';
+import { animate, state, style, transition, trigger } from '@angular/animations';
 
 
 
 @Component({
   selector: 'app-world',
   templateUrl: './world.component.html',
-  styleUrls: ['./world.component.css']
+  styleUrls: ['./world.component.css'],
+  animations: [
+    trigger('detailExpand', [
+      state('collapsed', style({ height: '0px', minHeight: '0' })),
+      state('expanded', style({ height: '*' })),
+      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    ]),
+  ],
 })
 
 
 export class WorldComponent {
 
   readonly ALERT_TYPE: typeof ALERT_TYPE = ALERT_TYPE;    // expose enum to view attributes
-  
+
+  showDetail: false;
   httpClient: HttpClient;
   baseUrl: string;
   activeTextFilter: string = "";
@@ -36,7 +45,7 @@ export class WorldComponent {
   showMission: boolean = true;
   searchCustomTable = new FormControl('');
   searchMissionTable = new FormControl('');
-  filterMissionByReward = new FormControl('');
+  filterMissionByReward = new FormControl('');  
 
   @ViewChild("buildingFilter", { static: true } as any) buildingFilter: MatCheckbox;
   @ViewChild("parcelFilter", { static: true } as any) parcelFilter: MatCheckbox;
@@ -137,6 +146,7 @@ export class WorldComponent {
   changeTab(eventTab: MatTabChangeEvent) {
     
     if (eventTab.index == 1) {
+      this.showDetail = false;
       this.showCustom = true;
       this.showMission = false;
 
@@ -145,7 +155,7 @@ export class WorldComponent {
     }
     else {
       this.showCustom = false;
-      this.showMission = true;
+      this.showMission = true;      
     }
   }
 }

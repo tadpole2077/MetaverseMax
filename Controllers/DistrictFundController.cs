@@ -69,5 +69,18 @@ namespace MetaverseMax.Controllers
 
             return BadRequest("Sync Failed");       // 400 Error     
         }
+
+        [HttpGet("DistributionUpdateDisable")]
+        public IActionResult DistributionUpdateDisable([FromQuery] QueryParametersSecurity parameters)
+        {
+            DistrictFundManage districtFundManage = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(districtFundManage.DistributionUpdateDisable(parameters.secure_token));
+            }
+
+            return BadRequest("Sync Failed");       // 400 Error     
+        }
     }
 }

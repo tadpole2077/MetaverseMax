@@ -26,14 +26,19 @@
   position: absolute;
   width: 100%
 }
+
+.controlContainer {
+  min-height: 58px;
+  position: relative;
+}
 .tableControls {
-  display: inline-block;
   margin: 0;
   opacity: 0;
   transition: height 0ms 400ms, opacity 400ms 0ms;
   height: 0;
   position: absolute;
   overflow: hidden;
+  top: 0;
 }
 .showCustom, .showMission {
   overflow: unset; /* show all content due to sticky header spec*/
@@ -42,12 +47,30 @@
   transition: height 0ms 0ms, opacity 1000ms 0ms;
 }
   .showMission.tableControls {
-    margin-top: 30px;
+    margin-top: 20px;
   }
   .showCustom.tableControls {
-    margin-top: 14px;
+    margin-top: 20px;
   }
 
+.sizeRow{    
+}
+.sizeRow div {
+  width: 380px;
+  height: 42px;
+  display: inline-block
+}
+.sizeRowBig div {
+  width: 380px;
+  height: 120px;
+  display: inline-block
+}
+.showComponent{
+  display:block;
+}
+.hideComponent{
+  display:none;
+}
 
 .searchBlock {
   float: right;
@@ -95,6 +118,7 @@
 
 .tableFilter, .rewardFilter {
   vertical-align: top;
+  margin-bottom: 16px
 }
 .missionSummary {
   display: inline-block;
@@ -102,8 +126,23 @@
   width: 180px;
   margin-top: -3px;
 }
-.rewardFilter{
-  margin-right: 18px 
+.ExtraMissionData{
+  margin-bottom: 8px
+}
+.missionExtraSection {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+  margin-right: 30%;
+}
+.missionExtraSection .summaryTitle{
+  padding-right: 8px;
+  font-weight: 300;
+}
+
+.rewardFilter {
+  margin-right: 18px
 }
 .summaryTitle {
   font-weight: 500;
@@ -190,10 +229,32 @@ a {
 }
 
 
+.expandControl {
+  text-align: center;
+  margin-top: 12px;
+  margin-bottom: 6px;
+}
+.glowCalcText {
+  animation: glowCalcText 1.4s ease-in-out infinite alternate;
+  vertical-align: top;
+  margin-right: 6px;
+}
+
+@keyframes glowCalcText {
+  from {
+    color: gray;
+  }
+
+  to {
+    color: #1565c0;
+  }
+}
+
+
 @media only screen and (max-width: 426px) {
 
-  .container{
-    padding-right:0
+  .container {
+    padding-right: 0
   }
 
   h3 {
@@ -204,6 +265,7 @@ a {
   h6 {
     font-size: 13px
   }
+
   .loading {
     font-size: 14px;
   }
@@ -211,18 +273,19 @@ a {
   .defaultAvatorImg {
     height: 100px
   }
+
   .searchBlock {
-    width: 160px;    
+    width: 160px;
     height: 150px;
     position: absolute;
     right: 0;
   }
 
-  .mat-mdc-tab-group {
-    margin-top: 180px;
+  /* Dynamic height to expand area of absolute positioned controls - needed for animation */
+  .sizeRow div {
+    height: 44px;
   }
-  .extendTabMarginMobile{
-    margin-top: 250px;
+  .sizeRowBig div{
   }
 
   .filterControls {
@@ -231,7 +294,7 @@ a {
     margin-top: 12px;
   }
   .tableFilter {
-    margin-bottom: 8px
+    margin-bottom: 8px;
   }
   .activeFilter {
     margin: 0 2rem 0 0;
@@ -242,6 +305,8 @@ a {
   .missionControls {
     display: flex;
     flex-direction: column;
+    width: 100%;
+    padding-right: 20px;
   }
 
   .missionSummary {
@@ -251,6 +316,7 @@ a {
     flex-direction: row;
     width: 100%;
     margin-bottom: 12px;
+    padding-right: 60px;
   }
     .missionSummary div {
       display: flex;
@@ -262,6 +328,12 @@ a {
     width: 80px;
     text-align: center;
   }
+  .missionExtraSection {
+    margin-right: unset;
+  }
+  .padLeft{
+    padding-left: 4px
+  }
 
 
   .missionControls.filterControls {
@@ -270,12 +342,20 @@ a {
   .topDistrict {
     order: 2;
   }
-  .missionTable {
-    margin-top: 8px;
+  .expandControl {
+    margin-top: 18px;
+    margin-bottom: 8PX;
     order: 3;
   }
-  .rewardFilter{
+  .ExtraMissionData{
     order: 4;
+  }
+  .tableFilter {
+    order: 5;
+    margin-top: 8px;
+  }
+  .rewardFilter{
+    order: 6;
   }
 
 

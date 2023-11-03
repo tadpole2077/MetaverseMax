@@ -6,95 +6,144 @@
 <h6>View and evaluate missions and custom buidlings.</h6>
 
 <!--<p *ngIf="!customComponent || !customComponent.tableView" class="fadeInAndOut loading"><em>Loading...</em></p>-->
-
-<div class="tableControls" [ngClass]="{'showCustom': showCustom}">
-
-  <div [hidden]="!globals.ownerAccount.wallet_active_in_world" class="newBuildingSlider">
-    <mat-slide-toggle #alertSlide aria-labelledby="New Building Alert"
-                      (change)="alertChange($event, ALERT_TYPE.NEW_BUILDING)"
-                      [checked]="false">
-    </mat-slide-toggle>
-    <mat-label class="mat-slide-toggle-content">New Building Alert</mat-label>
+<div class="controlContainer">
+  <div class="sizeRow">
+    <div></div><div></div>
+  </div>
+  <div class="sizeRow">
+    <div></div><div></div>
+  </div>
+  <div class="sizeRow" [ngClass]="{'showComponent': showMission, 'hideComponent': !showMission}">
+    <div></div><div></div>
+  </div>
+  <div class="sizeRowBig" [@detailExpand]="showDetail ? 'expanded' : 'collapsed'">
+    <div></div>
   </div>
 
-  <mat-form-field fxFlex="30%" class="tableFilter" [style.width.rem]=8 subscriptSizing="dynamic">
-    <mat-label><i class="material-icons mdc-text-field__icon mdc-text-field__icon--leading" tabindex="0" role="button">search</i>Search</mat-label>
-    <input matInput type="text" (keyup)="applyFilterCustom($event.target.value)" placeholder="" [formControl]="searchCustomTable" />
-    <button *ngIf="searchCustomTable.value" matSuffix mat-icon-button aria-label="Clear" (click)="searchCustomTable.setValue(''); applyFilterCustom('');">
-      <mat-icon>close</mat-icon>
-    </button>
-  </mat-form-field>
+  <div class="tableControls" [ngClass]="{'showCustom': showCustom}">
 
-  <div class="filterControls">
-    <div class="activeFilter" fxLayout fxLayoutAlign="center center">
+    <div [hidden]="!globals.ownerAccount.wallet_active_in_world" class="newBuildingSlider">
+      <mat-slide-toggle #alertSlide aria-labelledby="New Building Alert"
+                        (change)="alertChange($event, ALERT_TYPE.NEW_BUILDING)"
+                        [checked]="false">
+      </mat-slide-toggle>
+      <mat-label class="mat-slide-toggle-content">New Building Alert</mat-label>
+    </div>
+
+    <mat-form-field fxFlex="30%" class="tableFilter" [style.width.rem]=8 subscriptSizing="dynamic">
+      <mat-label><i class="material-icons mdc-text-field__icon mdc-text-field__icon--leading" tabindex="0" role="button">search</i>Search</mat-label>
+      <input matInput type="text" (keyup)="applyFilterCustom($event.target.value)" placeholder="" [formControl]="searchCustomTable" />
+      <button *ngIf="searchCustomTable.value" matSuffix mat-icon-button aria-label="Clear" (click)="searchCustomTable.setValue(''); applyFilterCustom('');">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <div class="filterControls">
+      <div class="activeFilter" fxLayout fxLayoutAlign="center center">
+        <div>
+          <mat-checkbox #buildingFilter
+                        fxFlex="30%"
+                        (change)="filterBuilding($event)">
+            <img class="buildingImgSml" title="Land Parcels" src="./images/building.png">
+            <span class="filterLabel" matBadge="{{ !customComponent ? 0 : customComponent.buildingCount }}" [ngClass]="{'largeBadge': !customComponent ? false : customComponent.buildingCount > 100 }" matBadgePosition="above after">Buildings</span>
+          </mat-checkbox>
+        </div>
+      </div>
+
+      <div class="activeFilter" fxLayout fxLayoutAlign="center center">
+        <div>
+          <mat-checkbox #parcelFilter
+                        fxFlex="30%"
+                        (change)="filterParcel($event)">
+            <img class="buildingImgSml" title="Land Parcels" src="./images/Parcel.png">
+            <span class="filterLabel" matBadge="{{ !customComponent ? 0 : customComponent.parcelCount }}" [ngClass]="{'largeBadge': !customComponent ? false : customComponent.parcelCount > 100 }" matBadgePosition="above after">Parcels</span>
+          </mat-checkbox>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="missionControls tableControls" [ngClass]="{'showMission': showMission}">
+
+    <mat-form-field fxFlex="30%" class="missionTable tableFilter" [style.width.rem]=8 subscriptSizing="dynamic">
+      <mat-label><i class="material-icons mdc-text-field__icon mdc-text-field__icon--leading" tabindex="0" role="button">search</i>Search</mat-label>
+      <input matInput type="text" (keyup)="applyFilterMission($event.target.value)" placeholder="" [formControl]="searchMissionTable" />
+      <button *ngIf="searchMissionTable.value" matSuffix mat-icon-button aria-label="Clear" (click)="searchMissionTable.setValue(''); applyFilterMission('');">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+
+
+    <div class="missionSummary">
       <div>
-        <mat-checkbox #buildingFilter
-                      fxFlex="30%"
-                      (change)="filterBuilding($event)">
-          <img class="buildingImgSml" title="Land Parcels" src="./images/building.png">
-          <span class="filterLabel" matBadge="{{ !customComponent ? 0 : customComponent.buildingCount }}" [ngClass]="{'largeBadge': !customComponent ? false : customComponent.buildingCount > 100 }" matBadgePosition="above after">Buildings</span>
-        </mat-checkbox>
+        <span class="summaryTitle">Missions : </span>
+        <span class="missionCount">{{ !missionComponent ? 0 : missionComponent.missionCount }}</span>
       </div>
-    </div>
-
-    <div class="activeFilter" fxLayout fxLayoutAlign="center center">
       <div>
-        <mat-checkbox #parcelFilter
-                      fxFlex="30%"
-                      (change)="filterParcel($event)">
-          <img class="buildingImgSml" title="Land Parcels" src="./images/Parcel.png">
-          <span class="filterLabel" matBadge="{{ !customComponent ? 0 : customComponent.parcelCount }}" [ngClass]="{'largeBadge': !customComponent ? false : customComponent.parcelCount > 100 }" matBadgePosition="above after">Parcels</span>
-        </mat-checkbox>
+        <span class="summaryTitle">Rewards : </span>
+        <span>{{ !missionComponent ? 0 : missionComponent.missionReward }}<img class="mega" src="./images/coin-m.png" /></span>
       </div>
     </div>
-  </div>
 
-</div>
+    <mat-form-field fxFlex="30%" [style.width.rem]=12 subscriptSizing="dynamic" class="rewardFilter tableFilter">
+      <mat-label>Hide Rewards < </mat-label>
+      <input matInput numbersDecimalOnly (keyup)="applyFilterMissionRewardByKey($event.target.value)" (click)="applyFilterMissionReward($event.target.value)" placeholder="1" [formControl]="filterMissionByReward" />
+      <button *ngIf="filterMissionByReward.value" matSuffix mat-icon-button aria-label="Clear" (click)="filterMissionByReward.setValue('');removeRewardFilterMission()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
 
-<div class="missionControls tableControls" [ngClass]="{'showMission': showMission}">
-
-  <mat-form-field fxFlex="30%" class="missionTable tableFilter" [style.width.rem]=8 subscriptSizing="dynamic">
-    <mat-label><i class="material-icons mdc-text-field__icon mdc-text-field__icon--leading" tabindex="0" role="button">search</i>Search</mat-label>
-    <input matInput type="text" (keyup)="applyFilterMission($event.target.value)" placeholder="" [formControl]="searchMissionTable" />
-    <button *ngIf="searchMissionTable.value" matSuffix mat-icon-button aria-label="Clear" (click)="searchMissionTable.setValue(''); applyFilterMission('');">
-      <mat-icon>close</mat-icon>
-    </button>
-  </mat-form-field>
-
-
-  <div class="missionSummary">
-    <div>
-      <span class="summaryTitle">Missions : </span>
-      <span class="missionCount">{{ !missionComponent ? 0 : missionComponent.missionCount }}</span>
-    </div>
-    <div>
-      <span class="summaryTitle">Rewards : </span>
-      <span>{{ !missionComponent ? 0 : missionComponent.missionReward }}<img class="mega" src="./images/coin-m.png" /></span>
-    </div>
-  </div>
-
-  <mat-form-field fxFlex="30%" [style.width.rem]=12 subscriptSizing="dynamic" class="rewardFilter tableFilter">
-    <mat-label>Hide Rewards < </mat-label>
-    <input matInput numbersDecimalOnly (keyup)="applyFilterMissionRewardByKey($event.target.value)" (click)="applyFilterMissionReward($event.target.value)" placeholder="1" [formControl]="filterMissionByReward" />
-    <button *ngIf="filterMissionByReward.value" matSuffix mat-icon-button aria-label="Clear" (click)="filterMissionByReward.setValue('');removeRewardFilterMission()">
-      <mat-icon>close</mat-icon>
-    </button>
-  </mat-form-field>
-
-  <div class="topDistrict" *ngIf="missionComponent && missionComponent.districtList">
-    <span class="topDistrictLabal">Top Districts:</span>
-    <div class="districtGroup">
-      <div class="districtEle" *ngFor="let district of missionComponent.districtList;  index as districtIndex">
-        <span class="districtNum">#{{district.id}}:</span>
-        <span class="districtCount"> {{district.total}}</span>
+    <div class="topDistrict" *ngIf="missionComponent && missionComponent.districtList">
+      <span class="topDistrictLabal">Top Districts:</span>
+      <div class="districtGroup">
+        <div class="districtEle" *ngFor="let district of missionComponent.districtList;  index as districtIndex">
+          <span class="districtNum">#{{district.id}}:</span>
+          <span class="districtCount"> {{district.total}}</span>
+        </div>
       </div>
     </div>
+
+    <div class="expandControl">
+      <a *ngIf="!showDetail" role="button" (click)="showDetail=!showDetail"><span class="glowCalcText">Show More</span><mat-icon>arrow_drop_down_circle</mat-icon></a>
+      <a *ngIf="showDetail" role="button" (click)="showDetail=!showDetail"><span class="glowCalcText">Hide Detail</span><mat-icon>arrow_drop_up</mat-icon></a>
+    </div>
+
+    <div *ngIf="showDetail" class="ExtraMissionData" [@detailExpand]="showDetail ? 'expanded' : 'collapsed'">
+      <div class="missionExtraSection">
+        <div>
+          <span class="summaryTitle">All Missions in Buildings : </span>
+          <span class="missionCount">{{ !missionComponent ? 0 : missionComponent.allMissionCount }} </span>
+        </div>
+        <div>
+          <span class="summaryTitle padLeft">( Available : </span>
+          <span>{{ !missionComponent ? 0 : missionComponent.allMissionAvailableCount }} )</span>
+        </div>
+      </div>
+      <div class="missionExtraSection">
+        <div>
+          <span class="summaryTitle">All Mission Rewards : </span>
+          <span class="missionCount">{{ !missionComponent ? 0 : missionComponent.allMissionReward }}<img class="mega" src="./images/coin-m.png" /></span>
+        </div>
+      </div>
+      <div class="missionExtraSection">
+        <div>
+          <span class="summaryTitle">All Available Mission Rewards : </span>
+          <span class="missionCount">{{ !missionComponent ? 0 : missionComponent.allMissionAvailableReward }}<img class="mega" src="./images/coin-m.png" /></span>
+        </div>
+      </div>
+      <div class="missionExtraSection">
+        <div>
+          <span class="summaryTitle">Repeatable Daily Rewards (per Player) : </span>
+          <span class="missionCount">{{ !missionComponent ? 0 : missionComponent.repeatableDailyReward }}<img class="mega" src="./images/coin-m.png" /></span>
+        </div>
+      </div>      
+    </div>
   </div>
 </div>
-
 <p *ngIf="!missionComponent || !missionComponent.worldMission" class="fadeInAndOut loading"><em>Loading...</em></p>
 
-<mat-tab-group (selectedTabChange)="changeTab($event)" [selectedIndex]="0" [ngClass]="{'extendTabMarginMobile': showMission}">
+<mat-tab-group (selectedTabChange)="changeTab($event)" [selectedIndex]="0">
 
   <mat-tab>
     <ng-template mat-tab-label>

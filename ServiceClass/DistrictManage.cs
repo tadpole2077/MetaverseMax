@@ -16,8 +16,7 @@ namespace MetaverseMax.ServiceClass
 
             districtDB = new(_context);
         }
-
-
+        
         public DistrictWeb GetDistrict(int districtId)
         {
             DistrictWeb districtWeb = new();
@@ -25,25 +24,23 @@ namespace MetaverseMax.ServiceClass
             PlotDB plotDB = new(_context, worldType);
 
             District district, districtHistory_1Mth = new();
-            DistrictContent districtContent = new();
             bool getTaxHistory = true;
-
-            string content = string.Empty;
-            Common common = new();
             bool perksDetail = true;
 
             try
             {
                 district = districtDB.DistrictGet(districtId);
-                districtHistory_1Mth = districtDB.DistrictGet_History1Mth(districtId, district.last_update);
-
+                
+                // Defensive code - check no district found in local db (may be unclaimed)
                 if (district.district_id == 0)
                 {
 
-                    district.owner_name = "Unclaimed District";
+                    districtWeb.owner_name = "Unclaimed District";
                 }
                 else
                 {
+                    districtHistory_1Mth = districtDB.DistrictGet_History1Mth(districtId, district.last_update);
+
                     districtWeb = districtWebMap.MapData_DistrictWeb(district, districtHistory_1Mth, perksDetail, getTaxHistory);                    
                     districtWeb.custom_count = plotDB.GetCustomCountByDistrict(districtId);
                     districtWeb.parcel_count = plotDB.GetParcelCountByDistrict(districtId) - districtWeb.custom_count;
@@ -118,7 +115,7 @@ namespace MetaverseMax.ServiceClass
 
         public async Task<DistrictWeb> GetDistrictMCP(int district_id)
         {
-            DistrictWeb district = new();
+            DistrictWeb districtWeb = new();
             CitizenManage citizen = new(_context, worldType);
             string content = string.Empty;
             Common common = new();
@@ -145,7 +142,7 @@ namespace MetaverseMax.ServiceClass
 
                 if (content.Length == 0)
                 {
-                    district.owner_name = "Unclaimed District";
+                    districtWeb.owner_name = "Unclaimed District";
                 }
                 else
                 {
@@ -154,19 +151,19 @@ namespace MetaverseMax.ServiceClass
                     if (districtData != null && districtData.HasValues)
                     {
                         JToken districtToken = districtData[0];
-                        district.district_id = districtToken.Value<int?>("region_id") ?? 0;
-                        district.owner_name = districtToken.Value<string>("owner_nickname") ?? "Not Found";
-                        district.owner_url = citizen.AssignDefaultOwnerImg(districtToken.Value<string>("owner_avatar_id") ?? "");
-                        district.owner_matic = districtToken.Value<string>("address") ?? "Not Found";
+                        districtWeb.district_id = districtToken.Value<int?>("region_id") ?? 0;
+                        districtWeb.owner_name = districtToken.Value<string>("owner_nickname") ?? "Not Found";
+                        districtWeb.owner_url = citizen.AssignDefaultOwnerImg(districtToken.Value<string>("owner_avatar_id") ?? "");
+                        districtWeb.owner_matic = districtToken.Value<string>("address") ?? "Not Found";
 
-                        district.active_from = common.LocalTimeFormatStandardFromUTC(districtToken.Value<string>("active_from") ?? "", null);
-                        district.plots_claimed = districtToken.Value<int?>("claimed_cnt") ?? 0;
-                        district.building_count = districtToken.Value<int?>("buildings_cnt") ?? 0;
-                        district.land_count = districtToken.Value<int?>("lands") ?? 0;
-                        district.energy_tax = districtToken.Value<int?>("energy_tax") ?? 0;
-                        district.production_tax = districtToken.Value<int?>("production_tax") ?? 0;
-                        district.commercial_tax = districtToken.Value<int?>("commercial_tax") ?? 0;
-                        district.citizen_tax = districtToken.Value<int?>("citizens_tax") ?? 0;
+                        districtWeb.active_from = common.LocalTimeFormatStandardFromUTC(districtToken.Value<string>("active_from") ?? "", null);
+                        districtWeb.plots_claimed = districtToken.Value<int?>("claimed_cnt") ?? 0;
+                        districtWeb.building_count = districtToken.Value<int?>("buildings_cnt") ?? 0;
+                        districtWeb.land_count = districtToken.Value<int?>("lands") ?? 0;
+                        districtWeb.energy_tax = districtToken.Value<int?>("energy_tax") ?? 0;
+                        districtWeb.production_tax = districtToken.Value<int?>("production_tax") ?? 0;
+                        districtWeb.commercial_tax = districtToken.Value<int?>("commercial_tax") ?? 0;
+                        districtWeb.citizen_tax = districtToken.Value<int?>("citizens_tax") ?? 0;
                     }
 
                 }
@@ -177,10 +174,10 @@ namespace MetaverseMax.ServiceClass
                 dBLogger.logException(ex, String.Concat("DistrictManage::GetDistrictMCP() : Error District_id: ", district_id.ToString()));
             }
 
-            return district;
+            return districtWeb;
         }
 
-        // Update All active districts from MCP REST WS, update owner summary per district using local db plot data
+        // Update All active districts from MCP REST WS
         public async Task<int> UpdateAllDistricts(string secureToken)
         {
             DistrictDB districtDB;
@@ -270,12 +267,9 @@ namespace MetaverseMax.ServiceClass
                 watch.Stop();
                 servicePerfDB.AddServiceEntry(serviceUrl, serviceStartTime, watch.ElapsedMilliseconds, content.Length, district_id.ToString());
 
-                if (content.Length == 0)
-                {
-                    district.owner_name = "Unclaimed District";
-                }
-                else
-                {
+                // Defensive code - Check District exists
+                if (content.Length != 0)
+                {                
                     JObject jsonContent = JObject.Parse(content);
                     JArray districtData = jsonContent.Value<JArray>("stat");
                     if (districtData != null && districtData.HasValues)
