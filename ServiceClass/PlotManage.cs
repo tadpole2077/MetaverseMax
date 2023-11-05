@@ -108,22 +108,24 @@ namespace MetaverseMax.ServiceClass
                     // Find Citizen token_ids currently assigned to plot - used by features such as ranking.  plotMatched is returned by method.
                     citizenArray = jsonContent.Value<JArray>("citizens") ?? new();
                     plotMatched.citizen = citizenArray.Select(c => (c.Value<int?>("id") ?? 0)).ToList();
-                }
+                
 
-                // Special Cases : update related building plots (Huge, Mega, Custom, Parcel)
-                //  Huge updated to MEGA - the other huge will also get processed and its paired plot should also get updated.
-                //  MEGA or HUGE distroyed -  all related building plots will be reset to empty, on next nightly sync will be picked up as new buildings (if built)
-                if (plotMatched.building_level == 6 || plotMatched.building_level == 7 || plotMatched.parcel_id > 0)
-                {
-                    // Update each related plot for this building - Safer to do this in code vs sproc - due to deadlock/concurrent updates
-                    //    Issue where master plot gets updated first, then another distinct action updates the plot details (eg. user load IP Ranking page)
-                    //    Solution creates a more autonomous unit insuring that identical set of data is updated for a building.
-                    plotCount = plotDB.UpdateRelatedBuildingPlotLocal(plotMatched);
-                    //plotDB.UpdateRelatedBuildingPlotSproc(plotMatched.plot_id);
+                    // Special Cases : update related building plots (Huge, Mega, Custom, Parcel)
+                    //  Huge updated to MEGA - the other huge will also get processed and its paired plot should also get updated.
+                    //  MEGA or HUGE distroyed -  all related building plots will be reset to empty, on next nightly sync will be picked up as new buildings (if built)
+                    if (plotMatched.building_level == 6 || plotMatched.building_level == 7 || plotMatched.parcel_id > 0)
+                    {
+                        // Update each related plot for this building - Safer to do this in code vs sproc - due to deadlock/concurrent updates
+                        //    Issue where master plot gets updated first, then another distinct action updates the plot details (eg. user load IP Ranking page)
+                        //    Solution creates a more autonomous unit insuring that identical set of data is updated for a building.
+                        plotCount = plotDB.UpdateRelatedBuildingPlotLocal(plotMatched);
+                        //plotDB.UpdateRelatedBuildingPlotSproc(plotMatched.plot_id);
 
-                    // CORNER CASE: Not all matching plots found and updated. POSSIBLE new token and huge/mega built on same day
-                    if ((plotCount != 1 && plotMatched.building_level == 6) || (plotCount != 3 && plotMatched.building_level == 7)) {
-                        _context.LogEvent(String.Concat("PlotManage::AddOrUpdatePlot() : Anomoly found - Building ", plotMatched.token_id, ", building does not have correct amount of plots assigned."));
+                        // CORNER CASE: Not all matching plots found and updated. POSSIBLE new token and huge/mega built on same day
+                        // 
+                        if (plotMatched.upgradedSinceLastSync == false && (plotCount != 1 && plotMatched.building_level == 6) || (plotCount != 3 && plotMatched.building_level == 7)) {
+                            _context.LogEvent(String.Concat("PlotManage::AddOrUpdatePlot() : Anomoly found - Building ", plotMatched.token_id, ", building does not have correct amount of plots assigned."));
+                        }
                     }
                 }
 
@@ -271,7 +273,9 @@ namespace MetaverseMax.ServiceClass
                     parcelOnSale = jsonContentParcel.Value<bool?>("on_sale") ?? false;
                     parcelPrice = parcelOnSale ? building.convertPrice(jsonContentParcel.Value<decimal?>("price") ?? 0, worldType) : 0;
 
-                    parcelOwner = jsonContentParcel.Value<string>("address");
+                    // parcel/get WS returns a checksum wallet key (Upper and lower case), as we historically use only lower case - apply lowercase conversion.
+                    parcelOwner = jsonContentParcel.Value<string>("address").ToLower();                   
+
                     OwnerAccount ownerAccount = ownerManage.FindOwnerByMatic(parcelOwner);
                     parcelOwnerNickname = ownerAccount != null ? ownerAccount.name : "TBA";
                     parcelOwnerAvatarId = ownerAccount != null ? ownerAccount.avatar_id : 0;
@@ -318,9 +322,8 @@ namespace MetaverseMax.ServiceClass
 
 #nullable enable
                         owner_nickname = parcelId == 0 ? CheckNameLength(jsonContent.Value<string?>("owner_nickname") ?? "") : parcelOwnerNickname,
-#nullable disable                        
-                        //.[0..(owner_nickname.Length > 50 ? 50 : owner_nickname.Length)]
-                        owner_matic = parcelId == 0 ? jsonContent.Value<string>("owner") : parcelOwner,            // parcelOwner must be used if assigned, as when a parcel - plot.owner is a system owner.
+#nullable disable                                                
+                        owner_matic = parcelId == 0 ? jsonContent.Value<string>("owner").ToLower() : parcelOwner,            // parcelOwner must be used if assigned, as when a parcel - plot.owner is a system owner.
                         owner_avatar_id = parcelId == 0 ? jsonContent.Value<int>("owner_avatar_id") : parcelOwnerAvatarId,
 
                         on_sale = parcelId == 0 ?
@@ -405,6 +408,7 @@ namespace MetaverseMax.ServiceClass
 
                     plotMatched.resources = jsonContent.Value<int?>("resources") ?? 0;
                     plotMatched.building_id = jsonContent.Value<int?>("building_id") ?? 0;
+                    plotMatched.upgradedSinceLastSync = plotMatched.building_level != (jsonContent.Value<int?>("building_level") ?? 0);     // Internal flag used to manage new huge/Mega building now containing potentially many plots
                     plotMatched.building_level = jsonContent.Value<int?>("building_level") ?? 0;
                     plotMatched.token_id = jsonContent.Value<int?>("token_id") ?? 0;
 
@@ -438,7 +442,8 @@ namespace MetaverseMax.ServiceClass
                     parcelInfoIdOld = plotMatched.parcel_info_id;
                     plotMatched.parcel_info_id = parcelInfoIdNew;
                     
-                    balance = building.convertPriceMega(jsonContent.Value<decimal?>("balance") ?? 0);                    
+                    balance = building.convertPriceMega(jsonContent.Value<decimal?>("balance") ?? 0); 
+                    
                     if (balance > 0 || forceMissionCheck)
                     {
                         //Plot building has a Mission balance - worth checking mission to update.

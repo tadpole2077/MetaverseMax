@@ -167,7 +167,7 @@ namespace MetaverseMax.ServiceClass
             AlertDB alertDB = new(_context);
             OwnerManage ownerManage = new(_context, worldType);
             string ownerName = ownerManage.FindOwnerNameByMatic(buildingOwnerMaticKey);
-            ownerName = ownerName == string.Empty ? string.Concat(alertAccountMaticKey[..8], "..") : ownerName;
+            ownerName = ownerName == string.Empty ? string.Concat(alertAccountMaticKey[..10], "..") : ownerName;
 
 
             //"New custom building(#BUILDING_TOKEN_ID#) in #DISTRICT_ID# district by #OWNER#."

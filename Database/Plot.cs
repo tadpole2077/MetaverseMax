@@ -155,6 +155,9 @@ namespace MetaverseMax.Database
         [NotMapped]
         public List<int> citizen { get; set; }
 
+        // flag indicate plot was upgraded since last sync - potential a upgrade to huge / Mega - resulting in new building encompasing multiple prior plots under one token.
+        [NotMapped]
+        public bool upgradedSinceLastSync { get; set; }
 
         [Column("parcel_id")]
         public int parcel_id { get; set; }

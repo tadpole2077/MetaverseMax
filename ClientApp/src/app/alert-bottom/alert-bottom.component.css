@@ -24,6 +24,9 @@
   white-space: pre-wrap;
   padding-top: 0.2rem;
   min-height: 3.2rem;
+  overflow-wrap: break-word;
+  max-width: 300px;
+  display: inline-block;
 }
 
 .flexCellFirst {

@@ -105,10 +105,11 @@ namespace MetaverseMax.Database
                 alertPending = _context.alert.Where(x => x.matic_key == ownerMatic && x.alert_pending_key == alertKey).FirstOrDefault();
 
                 //alertPending.last_updated = DateTime.UtcNow;
-                alertPending.alert_delete = true;
-
-                _context.SaveChanges();
-
+                if (alertPending != null)
+                {
+                    alertPending.alert_delete = true;
+                    _context.SaveChanges();
+                }
                 returnCode = RETURN_CODE.SUCCESS;
             }
             catch (Exception ex)

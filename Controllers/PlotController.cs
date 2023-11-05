@@ -105,6 +105,7 @@ namespace MetaverseMax.Controllers
             return BadRequest("Get_WorldParcel failed");       // 400 Error     
         }
 
+
         [HttpGet("Get_DistrictParcel")]
         public IActionResult Get_DistrictParcel([FromQuery] QueryParametersDistrictId parameters)
         {

@@ -21,12 +21,17 @@ namespace MetaverseMax.ServiceClass
             List<DistrictTaxChange> taxChangeList = new();
             DistrictTaxChangeDB districtTaxChangeDB = new(_context);
             List<TaxChangeWeb> taxChangeWebList = new();
+            OwnerManage ownerManage;            
 
             try
             {
+                ownerManage = new(_context, worldType);
+
                 taxChangeList = districtTaxChangeDB.GetTaxChange(districtId);
                 foreach (DistrictTaxChange taxChange in taxChangeList)
                 {
+                    OwnerAccount ownerAccount = ownerManage.FindOwnerByMatic(taxChange.change_owner);
+
                     taxChangeWebList.Add(new TaxChangeWeb()
                     {
                         district_id = taxChange.district_id,
@@ -34,7 +39,7 @@ namespace MetaverseMax.ServiceClass
                         tax = taxChange.tax,
                         change_date = common.DateFormatStandard(taxChange.change_date),
                         change_desc = taxChange.change_desc,
-                        change_owner = taxChange.change_owner,
+                        change_owner = ownerAccount != null ? ownerAccount.name : taxChange.change_owner,
                         change_value = taxChange.change_value ?? 0
                     });
                 }
@@ -138,7 +143,7 @@ namespace MetaverseMax.ServiceClass
             DistrictWeb districtWeb = new();
             CitizenManage citizen = new(_context, worldType);
             OwnerManage ownerManage = new(_context, worldType);
-            OwnerAccount ownerAccount = ownerManage.FindOwnerByMatic(district.district_matic_key);
+            OwnerAccount ownerAccount = ownerManage.FindOwnerByMatic(district.owner_matic);
 
             districtWeb.update_instance = district.update_instance;
             districtWeb.last_update = district.last_update;

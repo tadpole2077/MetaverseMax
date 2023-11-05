@@ -21,3 +21,17 @@ Example:
 ETH
 ==========
 See Angular word doc
+
+
+Wallet Public Key
+===================
+Background:
+- 2 variations of public key
+	a) checksum key - containing upper and lowercese - used to confirm if wallet address is valid
+	b) lowercase only - no checksum check can be applied.
+
+- MCP provide
+  1) user/assets/lands  : lowercase owner wallet key
+  2) land/get			: lowercase owner wallet key
+  3) parcel/get			: checksum key used in field 'address' , which is the owner of the parcel.
+  4) user/get			: lowercase wallet ket used - 'address'

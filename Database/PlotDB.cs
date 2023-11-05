@@ -353,6 +353,10 @@ namespace MetaverseMax.Database
                     buildingPlotList[i].action_id = plotMaster.action_id;
 
                     buildingPlotList[i].predict_produce = plotMaster.predict_produce;
+                    buildingPlotList[i].last_run_produce = plotMaster.last_run_produce;
+                    buildingPlotList[i].last_run_produce_date = plotMaster.last_run_produce_date;
+                    buildingPlotList[i].last_run_produce_predict = plotMaster.last_run_produce_predict;
+
 
                     buildingPlotList[i].parcel_id = plotMaster.parcel_id;
                     buildingPlotList[i].parcel_info_id = plotMaster.parcel_info_id;
