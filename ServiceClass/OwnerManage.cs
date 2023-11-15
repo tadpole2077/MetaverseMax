@@ -15,7 +15,7 @@ namespace MetaverseMax.ServiceClass
         private static Dictionary<string, OwnerAccount> ownersListBNB = new();
 
         public OwnerData ownerData = new() { plot_count = -1 };
-        private Common common = new();
+        private ServiceCommon common = new();
 
         public OwnerManage(MetaverseMaxDbContext _parentContext, WORLD_TYPE worldTypeSelected) : base(_parentContext, worldTypeSelected)
         {
@@ -52,11 +52,11 @@ namespace MetaverseMax.ServiceClass
             if (ownersDict.Count == 0)
             {
                 OwnerDB ownerDB = new OwnerDB(_context);
-                ownerDB.GetOwners(ref ownersDict);          // Pass dictionary which is a reference type - called method will assign a new dictionary to this passed dict ref.
+                ownerDB.PopulateOwnersDicFromDB(ref ownersDict);          // Pass dictionary which is a reference type - called method will assign a new dictionary to this passed dict ref.
             }
 
             return ownersDict;
-        }
+        }      
 
         public List<OwnerNameWeb> GetOwnersWithName()
         {
@@ -85,7 +85,7 @@ namespace MetaverseMax.ServiceClass
             OwnerNameDB ownerNameDB = new OwnerNameDB(_context);
 
             ownerDB.SyncOwner();
-            ownerChangeList.ForEach(x => ownerNameDB.UpdateOwnerName(x));
+            ownerChangeList.ForEach(x => ownerNameDB.UpdateOwnerName(x, true));
 
             return RETURN_CODE.SUCCESS;
         }
@@ -112,7 +112,6 @@ namespace MetaverseMax.ServiceClass
                 ownerAccount.matic_key = "";
                 ownerAccount.pro_tools_enabled = false;
                 ownerAccount.wallet_active_in_world = false;
-
             }
 
             ownerAccount.checked_matic_key = maticKey;
@@ -800,6 +799,8 @@ namespace MetaverseMax.ServiceClass
                         JObject jsonContent = JObject.Parse(content);
 
                         ownerData.owner_name = jsonContent.Value<string>("avatar_name") ?? "Not Found";
+                        ownerData.owner_name = ownerData.owner_name == string.Empty ? owner.owner_name : ownerData.owner_name;
+
                         ownerData.owner_url = citizen.AssignDefaultOwnerImg(jsonContent.Value<string>("avatar_id") ?? "");
 
                         ownerData.registered_date = common.LocalTimeFormatStandardFromUTC(jsonContent.Value<string>("registered"), null);
@@ -947,7 +948,7 @@ namespace MetaverseMax.ServiceClass
             return ownerAccount;
         }
 
-        public bool SetDarkMode(string maticKey, bool darkMode)
+        public bool UpdateDarkMode(string maticKey, bool darkMode)
         {
             // Update db - update ownerAccount with matching public wallet key if not already stored.  (used for TRON where matic and public differ)
             OwnerDB ownerDB = new OwnerDB(_context);
@@ -957,7 +958,36 @@ namespace MetaverseMax.ServiceClass
             ownerAccount.dark_mode = darkMode;      // Update local cache store of ownerAccount.
 
             return true;
-        }       
+        }
+
+        public bool UpdateBalance(string maticKey, decimal amount)
+        {
+            OwnerDB ownerDB = new OwnerDB(_context);
+            OwnerAccount ownerAccount = FindOwnerByMatic(maticKey, string.Empty);
+            decimal balance = 0;
+
+            // Corner Case: Check if Owner Exists (found in local owner dic) - if not create owner record + ownername record
+            if (ownerAccount.matic_key == string.Empty)
+            {
+                OwnerNameDB ownerNameDB = new OwnerNameDB(_context);
+                ownerNameDB.UpdateOwnerName(new OwnerChange()
+                {
+                    owner_matic_key = maticKey,
+                    owner_avatar_id = 0,
+                    owner_name = string.Empty
+                }, false);
+
+                _context.SaveChanges();
+
+                GetOwners(true);                // Refresh local dic of owners
+                ownerAccount = FindOwnerByMatic(maticKey, string.Empty);
+            }
+
+            balance = ownerDB.UpdateOwnerBalance(amount, maticKey);
+            ownerAccount.balance = balance;      // Update local cache store of ownerAccount.
+
+            return true;
+        }
 
 
         public List<OwnerSummaryDistrict> GetOwnerSummaryDistrict(int districtId, int instanceNo)
@@ -997,7 +1027,7 @@ namespace MetaverseMax.ServiceClass
             HttpResponseMessage response;
             String content = string.Empty;          
             OwnerMaterial ownerMaterial = new();
-            Common common = new();
+            ServiceCommon common = new();
 
             serviceUrl = MATIC_WS.ACCOUNT_MATERIAL_GET;
 

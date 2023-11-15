@@ -6,7 +6,7 @@ namespace MetaverseMax.ServiceClass
     public class DistrictWebMap : ServiceBase
     {
         private DistrictDB districtDB;
-        private Common common = new();
+        private ServiceCommon common = new();
 
         public DistrictWebMap(MetaverseMaxDbContext _parentContext, WORLD_TYPE worldTypeSelected) : base(_parentContext, worldTypeSelected)
         {

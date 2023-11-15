@@ -48,6 +48,11 @@ export class CustomBuildingComponent {
 
   searchAllParcels(districtId:number) {
 
+    // Reset any prior showing Parcals/Buildings
+    this.tableView = null;
+    this.districtParcel = null;
+
+
     let params = new HttpParams();
     params = params.append('district_id', districtId);
 

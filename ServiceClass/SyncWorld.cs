@@ -9,7 +9,7 @@ namespace MetaverseMax.ServiceClass
 {
     public class SyncWorld : ServiceBase
     {
-        private Common common = new();
+        private ServiceCommon common = new();
 
         public static int jobInterval = 1;
         public static bool saveDBOverride = false;

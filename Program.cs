@@ -16,7 +16,7 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
 }
-Common.AssignSetting(app.Environment.IsDevelopment());
+ServiceCommon.AssignSetting(app.Environment.IsDevelopment());
 
 app.UseStaticFiles();
 app.UseRouting();

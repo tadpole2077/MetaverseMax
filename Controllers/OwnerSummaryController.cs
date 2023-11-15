@@ -15,7 +15,7 @@ namespace MetaverseMax.Controllers
         private readonly ILogger<OwnerSummaryController> _logger;
         private readonly MetaverseMaxDbContext _context;
 
-        private Common common = new();
+        private readonly ServiceCommon common = new();
 
         public OwnerSummaryController(MetaverseMaxDbContext context, ILogger<OwnerSummaryController> logger)
         {

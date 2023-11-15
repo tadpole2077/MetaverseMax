@@ -43,6 +43,11 @@ a.nav-link {
 
 }
 
+.balance {
+  align-self: flex-start;
+  margin-top: 3px;
+}
+
 .alertHistory {
   position: absolute;
   top: 0.9rem;  

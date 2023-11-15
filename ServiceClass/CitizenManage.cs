@@ -9,7 +9,7 @@ namespace MetaverseMax.ServiceClass
     public class CitizenManage : ServiceBase
     {
         private Dictionary<int, List<CitizenAction>> petActionsList = new();
-        private Common common = new();
+        private ServiceCommon common = new();
         private OwnerCitizenDB ownerCitizenDB;
 
         public CitizenManage(MetaverseMaxDbContext _parentContext, WORLD_TYPE worldTypeSelected) : base(_parentContext, worldTypeSelected)

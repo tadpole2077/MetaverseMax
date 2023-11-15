@@ -20,7 +20,7 @@ namespace MetaverseMax.Database
             int counter = 0;
             try
             {
-                if (Common.logServiceInfo == false)
+                if (ServiceCommon.logServiceInfo == false)
                 {
                     return RETURN_CODE.SUCCESS;
                 }

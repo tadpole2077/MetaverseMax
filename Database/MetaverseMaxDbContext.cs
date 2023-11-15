@@ -47,7 +47,7 @@ namespace MetaverseMax.Database
         public virtual DbSet<SyncHistory> syncHistory { get; set; }
         public virtual DbSet<JobSetting> JobSetting { get; set; }
         
-        public virtual DbSet<Transaction> transaction { get; set; }
+        public virtual DbSet<BlockchainTransaction> BlockchainTransaction { get; set; }
 
         // options will be assigned on OnConfiguring()
         public MetaverseMaxDbContext() : base()
@@ -73,7 +73,7 @@ namespace MetaverseMax.Database
             {
                 string appSettingFileName = "appsettings.json";
 
-                if (Common.isDevelopment)
+                if (ServiceCommon.isDevelopment)
                 {
                     appSettingFileName = "appsettings.Development.json";
                 }
@@ -109,7 +109,7 @@ namespace MetaverseMax.Database
         }
 
 
-        public RETURN_CODE SaveWithRetry()
+        public RETURN_CODE SaveWithRetry(bool throwParent = false)
         {
             DBLogger dBLogger = new(this, worldTypeSelected);
             int retryCount = 0;
@@ -127,6 +127,10 @@ namespace MetaverseMax.Database
                 {
                     dBLogger.logException(ex, String.Concat("MetaverseMaxDbContext::SaveWithRetry() : Error Saving - likely deadlock/timeout - Retry Count ", retryCount));
                 }
+            }
+            if (success == false && throwParent)
+            {
+                throw new Exception("Unable to Save");
             }
 
             return RETURN_CODE.SUCCESS;

@@ -7,7 +7,7 @@ namespace MetaverseMax.ServiceClass
 {
     public class DistrictFundManage : ServiceBase
     {
-        private Common common = new();
+        private ServiceCommon common = new();
 
         private DistrictDB districtDB;
         private DistrictFundDB districtFundDB;
@@ -278,7 +278,7 @@ namespace MetaverseMax.ServiceClass
                 }
                 
             }
-            while (delayRepeat && repeatInstance < Common.jobFundRepeatCount && distributeUpdateDisable == false);
+            while (delayRepeat && repeatInstance < ServiceCommon.jobFundRepeatCount && distributeUpdateDisable == false);
 
             if (!processContext.IsDisposed())
             {

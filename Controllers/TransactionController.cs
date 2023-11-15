@@ -16,7 +16,7 @@ namespace MetaverseMax.Controllers
     {
         private readonly ILogger<PlotController> _logger;
         private readonly MetaverseMaxDbContext _context;
-        private Common common = new();
+        private ServiceCommon common = new();
 
         public TransactionController(MetaverseMaxDbContext context, ILogger<PlotController> logger)
         {

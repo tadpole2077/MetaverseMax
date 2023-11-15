@@ -17,16 +17,16 @@ namespace MetaverseMax.Database
         {
             Mission mission = null;
             bool newMission = false;
-            bool alreadyProceedMission = false;
+            bool alreadyProcessedMission = false;
 
             try
             {
                 mission = _context.mission.Where(x => x.token_id == tokenId).FirstOrDefault();
 
                 // Corner Case: Check if Mission previously generated (only in local context) but not yet saved to db - can occur during building upgrades of Huge / Mega
-                alreadyProceedMission = _context.mission.Local.Any(e => e.token_id == tokenId);
+                alreadyProcessedMission = _context.mission.Local.Any(e => e.token_id == tokenId);
 
-                if (missionData != null && alreadyProceedMission == false) {
+                if (missionData != null) {
                  
                     if (mission == null) {                        
                         mission = new();
@@ -42,7 +42,7 @@ namespace MetaverseMax.Database
                     mission.reward_owner = missionData.Value<decimal?>("missions_reward_owner") ?? 0;
                     mission.balance = balance;
 
-                    if (newMission)
+                    if (newMission && alreadyProcessedMission == false)
                     {
                         mission = _context.mission.Add(mission).Entity;
                     }

@@ -54,7 +54,7 @@ namespace MetaverseMax.Database
             return owner;
         }
 
-        public RETURN_CODE GetOwners(ref Dictionary<string, OwnerAccount> ownerList)
+        public RETURN_CODE PopulateOwnersDicFromDB(ref Dictionary<string, OwnerAccount> ownerList)
         {
             RETURN_CODE returnCode = RETURN_CODE.ERROR;
             try
@@ -65,19 +65,20 @@ namespace MetaverseMax.Database
 
 
                 ownerList = ownerDBList.ToDictionary(
-                        o => o.owner_matic_key,
-                        o => new OwnerAccount()
-                        {
-                            matic_key = o.owner_matic_key,
-                            public_key = o.public_key,
-                            name = o.owner_name,
-                            avatar_id = o.avatar_id ?? 0,
-                            dark_mode = o.dark_mode,
-                            pro_tools_enabled = (o.pro_access_expiry ?? DateTime.UtcNow) > DateTime.UtcNow ? true : false,
-                            pro_expiry_days = GetExpiryDays(o.pro_access_expiry, (o.pro_access_expiry ?? DateTime.UtcNow) > DateTime.UtcNow ? true : false),
-                            alert_activated = o.alert_activated,
-                        }
-                        );
+                    o => o.owner_matic_key,
+                    o => new OwnerAccount()
+                    {
+                        matic_key = o.owner_matic_key,
+                        public_key = o.public_key,
+                        name = o.owner_name,
+                        avatar_id = o.avatar_id ?? 0,
+                        dark_mode = o.dark_mode,
+                        pro_tools_enabled = (o.pro_access_expiry ?? DateTime.UtcNow) > DateTime.UtcNow ? true : false,
+                        pro_expiry_days = GetExpiryDays(o.pro_access_expiry, (o.pro_access_expiry ?? DateTime.UtcNow) > DateTime.UtcNow ? true : false),
+                        alert_activated = o.alert_activated,
+                        balance = o.balance ?? 0
+                    }
+                );
 
                 returnCode = RETURN_CODE.SUCCESS;
             }
@@ -91,6 +92,23 @@ namespace MetaverseMax.Database
             return returnCode;
         }
 
+        public decimal GetOwnerBalance(string ownerMaticKey)
+        {
+            decimal balance = 0;
+            try
+            {
+                Owner owner = _context.owner.Where(x => x.owner_matic_key == ownerMaticKey).FirstOrDefault();
+
+                balance = owner.balance ?? 0;
+            }
+            catch (Exception ex)
+            {
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("OwnerDB::GetOwnerBalance() : Error retrieving balance for owner: "+ ownerMaticKey));                
+            }
+
+            return balance;
+        }
         private int GetExpiryDays(DateTime? pro_access_expiry, bool proToolsEnabled)
         {
             int proExpiryDays = 0;
@@ -111,6 +129,7 @@ namespace MetaverseMax.Database
 
             return proExpiryDays;
         }
+
         public RETURN_CODE UpdateOwnerDarkMode(string ownerMaticKey, bool darkMode)
         {
             RETURN_CODE returnCode = RETURN_CODE.ERROR;
@@ -193,7 +212,7 @@ namespace MetaverseMax.Database
                     // Slow down Nightly job process when 1+ user is active via (a)save on each db update (b) increase cycle wait interval to 1 second : avoids user db timeouts (such as opening large Cit collection).
                     if (SyncWorld.syncInProgress == true && SyncWorld.saveDBOverride == false)
                     {
-                        _ = ResetDataSync(_context);            // Allow aync to process in separate thread - 5 minute slowdown on data sync.
+                        _ = ResetDataSync(_context);            // Allow sync to process in separate thread - 5 minute slowdown on data sync.
                     }
 
                     _context.SaveChanges();
@@ -247,5 +266,75 @@ namespace MetaverseMax.Database
 
         }
 
+        public decimal UpdateOwnerBalance(decimal amount, string ownerMaticKey)
+        {
+            Owner owner = null;
+            try
+            {
+                owner = _context.owner.Where(o => o.owner_matic_key == ownerMaticKey).FirstOrDefault();
+
+                if (owner != null)
+                {
+                    owner.balance ??= 0;
+                    owner.balance += amount;
+                }                
+
+                _context.SaveWithRetry();
+            }
+            catch (Exception ex)
+            {
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("OwnerDB::UpdateOwnerBalance() : Error updating owner balance with matic Key - ", ownerMaticKey));
+            }
+
+
+            return owner.balance ?? 0;
+        }
+
+        public Owner NewOwner(string ownerMaticKey, bool saveCommit)
+        {
+            Owner owner = null;
+            try
+            {
+                JobSettingDB jobSettingDB = new(_context);
+
+                int freeDays = jobSettingDB.GetSettingValue(JOB_SETTING_CODE.NEW_ACCOUNT_PRO_TOOLS_FREE_DAYS);
+
+                owner = _context.owner.Add(
+                    new Owner()
+                    {
+                        owner_matic_key = ownerMaticKey,
+                        public_key = "",
+                        type = 1,
+                        tool_active = false,
+                        owner_lookup_count = 0,
+                        district_lookup_count = 0,
+                        player_key = 0,
+                        pet_count = 0,
+                        citizen_count = 0,
+                        dark_mode = false,
+                        alert_activated = false,
+                        created_date = DateTime.Now,
+                        pro_access_expiry = DateTime.Now.AddDays(freeDays),
+                        pro_access_renew_code = "test",
+                        balance = 0
+                    }).Entity;
+
+
+                if (saveCommit)
+                {
+                    _context.SaveChanges();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("OwnerDB::UpdateOwnerBalance() : Error updating owner balance with matic Key - ", ownerMaticKey));
+            }
+
+
+            return owner;
+        }
     }
 }

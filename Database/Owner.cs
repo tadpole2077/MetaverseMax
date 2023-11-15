@@ -56,6 +56,9 @@ namespace MetaverseMax.Database
         [Column("created_date")]
         public DateTime created_date { get; set; }
 
+        [Column("balance", TypeName = "decimal(16, 8)")]
+        public decimal? balance { get; set; }
+
         // Account can update names - this is the last updated name that is not blank.
         [NotMapped]
         [Column("owner_name")]
@@ -121,5 +124,8 @@ namespace MetaverseMax.Database
 
         [Column("alert_activated")]
         public bool alert_activated { get; set; }
+
+        [Column("balance", TypeName = "decimal(16, 8)")]
+        public decimal? balance { get; set; }
     }
 }

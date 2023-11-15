@@ -24,6 +24,7 @@ interface OwnerAccount {
   avatar_id: number;
   dark_mode: boolean;
   alert_count: number;
+  balance: number;
 }
 interface RequestAccountsResponse {
   code: number, // 200：ok，4000：In-queue， 4001：user rejected
@@ -135,7 +136,8 @@ export class Globals {
       pro_tools_enabled: false,
       avatar_id: 0,
       dark_mode: false,
-      alert_count: 0
+      alert_count: 0,
+      balance: 0
     };  
 
   }

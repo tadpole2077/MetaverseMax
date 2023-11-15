@@ -313,4 +313,20 @@ namespace MetaverseMax.ServiceClass
         public int token_id { get; set; }
     }
 
+    public class QueryParametersTransactionReceipt
+    {
+        [BindRequired]
+        public string hash { get; set; }
+
+    }
+
+    public class QueryParametersWithdrawAllowanceApprove
+    {
+        [BindRequired]
+        public decimal amount { get; set; }
+
+        [BindRequired]
+        public string ownerMaticKey { get; set; }
+
+    }
 }

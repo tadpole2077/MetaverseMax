@@ -43,10 +43,10 @@ namespace MetaverseMax.ServiceClass
             {
                 var s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-                string connectionString = Common.serverIP;
-                if (Common.serverIP != "")
+                string connectionString = ServiceCommon.serverIP;
+                if (ServiceCommon.serverIP != "")
                 {
-                    s.Bind(new IPEndPoint(IPAddress.Parse(Common.serverIP), 0));
+                    s.Bind(new IPEndPoint(IPAddress.Parse(ServiceCommon.serverIP), 0));
                 }
                 else
                 {

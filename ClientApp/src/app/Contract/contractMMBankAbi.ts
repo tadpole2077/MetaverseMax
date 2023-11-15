@@ -1,5 +1,5 @@
 const MMBankAbi = [
-   {
+     {
       "inputs": [],
       "stateMutability": "nonpayable",
       "type": "constructor"
@@ -43,13 +43,13 @@ const MMBankAbi = [
       "anonymous": false,
       "inputs": [
         {
-          "indexed": false,
+          "indexed": true,
           "internalType": "address",
           "name": "from",
           "type": "address"
         },
         {
-          "indexed": false,
+          "indexed": true,
           "internalType": "address",
           "name": "to",
           "type": "address"
@@ -61,7 +61,7 @@ const MMBankAbi = [
           "type": "uint256"
         }
       ],
-      "name": "DepositMegaBank",
+      "name": "Deposit",
       "type": "event"
     },
     {
@@ -93,13 +93,13 @@ const MMBankAbi = [
       "anonymous": false,
       "inputs": [
         {
-          "indexed": false,
+          "indexed": true,
           "internalType": "address",
           "name": "from",
           "type": "address"
         },
         {
-          "indexed": false,
+          "indexed": true,
           "internalType": "address",
           "name": "to",
           "type": "address"
@@ -111,7 +111,7 @@ const MMBankAbi = [
           "type": "uint256"
         }
       ],
-      "name": "WithdrawMegaBank",
+      "name": "Withdraw",
       "type": "event"
     },
     {
@@ -128,6 +128,20 @@ const MMBankAbi = [
           "internalType": "uint256",
           "name": "",
           "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [],
+      "name": "_MMbankAccountManagerAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
         }
       ],
       "stateMutability": "view",
@@ -457,7 +471,7 @@ const MMBankAbi = [
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
-    }
+  }
 ] as const;
 
 

@@ -229,7 +229,7 @@ namespace MetaverseMax.ServiceClass
         public Plot AddOrUpdatePlotData(JObject jsonContent, JObject jsonContentParcel, int posX, int posY, int plotId, bool saveEvent, bool forceMissionCheck)
         {
             PlotDB plotDB = new(_context, worldType);
-            ServiceClass.Common common = new();
+            ServiceClass.ServiceCommon common = new();
             Plot plotMatched = null;
             CitizenManage citizen = new(_context, worldType);
             BuildingManage buildingManage = new(_context, worldType);
@@ -352,7 +352,7 @@ namespace MetaverseMax.ServiceClass
                         app_4_bonus = plotDB.GetApplicationBonus(4, jsonContent.Value<JArray>("extra_appliances"), posX, posY),
                         app_5_bonus = plotDB.GetApplicationBonus(5, jsonContent.Value<JArray>("extra_appliances"), posX, posY),
                         app_123_bonus = plotDB.GetApplicationBonus(5, jsonContent.Value<JArray>("extra_appliances"), posX, posY),
-                        current_influence_rank = buildingManage.CheckInfluenceRankChange(jsonContent.Value<int?>("influence") ?? 0, 0, jsonContent.Value<int?>("influence_bonus") ?? 0, 0, jsonContent.Value<int?>("building_level") ?? 0, jsonContent.Value<int?>("building_type_id") ?? 0, jsonContent.Value<int?>("token_id") ?? 0, jsonContent.Value<int?>("building_id") ?? 0, jsonContent.Value<string>("owner")),
+                        current_influence_rank = buildingManage.CheckInfluenceRankChange(jsonContent.Value<int?>("influence") ?? 0, 0, jsonContent.Value<int?>("influence_bonus") ?? 0, 0, jsonContent.Value<int?>("building_level") ?? 0, jsonContent.Value<int?>("building_type_id") ?? 0, jsonContent.Value<int?>("token_id") ?? 0, jsonContent.Value<int?>("building_id") ?? 0, jsonContent.Value<int?>("region_id") ?? 0, jsonContent.Value<string>("owner")),
 
                         citizen_count = jsonContent.Value<JArray>("citizens") == null ? 0 : jsonContent.Value<JArray>("citizens").Count,
                         low_stamina_alert = citizen.CheckCitizenStamina(jsonContent.Value<JArray>("citizens"), jsonContent.Value<int?>("building_type_id") ?? 0),
@@ -422,7 +422,7 @@ namespace MetaverseMax.ServiceClass
 
                     newInfluence = jsonContent.Value<int?>("influence") ?? 0;
                     plotMatched.influence_bonus = jsonContent.Value<int?>("influence_bonus") ?? 0;
-                    plotMatched.current_influence_rank = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, plotMatched.building_level, plotMatched.building_type_id, plotMatched.token_id, plotMatched.building_id, plotMatched.owner_matic);
+                    plotMatched.current_influence_rank = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, plotMatched.building_level, plotMatched.building_type_id, plotMatched.token_id, plotMatched.building_id, plotMatched.district_id, plotMatched.owner_matic);
                     plotMatched.influence = newInfluence;                                   // Placed after ranking check, as both old and new influence needed for check
 
                     plotMatched.influence_poi_bonus = jsonContent.Value<Boolean?>("influence_poi_bonus") ?? false;
@@ -1074,7 +1074,7 @@ namespace MetaverseMax.ServiceClass
             OwnerManage ownerManage;
             IEnumerable<MissionActive> missionActive = null;
             WorldMissionWeb worldMission = new();
-            Common common = new();
+            ServiceCommon common = new();
             Building building = new();
 
             try
@@ -1141,7 +1141,7 @@ namespace MetaverseMax.ServiceClass
             List<BuildingParcel> parcelList = new();
             WorldParcelWeb worldParcel = new WorldParcelWeb();
             OwnerManage ownerManage;            
-            Common common = new();
+            ServiceCommon common = new();
             Building building = new();
 
             try
@@ -1331,7 +1331,7 @@ namespace MetaverseMax.ServiceClass
                             };
                         }
 
-                        plotMatched.current_influence_rank = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, buildingLevel, plotMatched.building_type_id, plotMatched.token_id, plotMatched.building_id, plotMatched.owner_matic);
+                        plotMatched.current_influence_rank = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, buildingLevel, plotMatched.building_type_id, plotMatched.token_id, plotMatched.building_id, plotMatched.district_id, plotMatched.owner_matic);
                         plotMatched.influence = newInfluence;                                                   // Placed after ranking check, as both old and new influence needed for check                    
 
                         //plotMatched.influence_bonus = ownerLand.Value<int?>("influence_bonus") ?? 0;          // Missing assign bonus per app slot
@@ -1379,7 +1379,7 @@ namespace MetaverseMax.ServiceClass
                             // Only apply ranking calc on first plot of multiplot building
                             if (newRanking == -1)
                             {
-                                newRanking = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, buildingLevel, plotMatched.building_type_id, plotMatched.token_id, plotMatched.building_id, plotMatched.owner_matic);
+                                newRanking = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, buildingLevel, plotMatched.building_type_id, plotMatched.token_id, plotMatched.building_id, plotMatched.district_id, plotMatched.owner_matic);
                             }
                             plotMatched.current_influence_rank = newRanking;                                    // Reuse ranking if already identified on prior related plot
                             plotMatched.influence = newInfluence;                                               // Placed after ranking check, as both old and new influence needed for check

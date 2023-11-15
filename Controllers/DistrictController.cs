@@ -16,7 +16,7 @@ namespace MetaverseMax.Controllers
         private readonly ILogger<DistrictController> _logger;
         private readonly MetaverseMaxDbContext _context;
         private DistrictDB districtDB;
-        private Common common = new();
+        private ServiceCommon common = new();
 
         public DistrictController(MetaverseMaxDbContext context, ILogger<DistrictController> logger)
         {

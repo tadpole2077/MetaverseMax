@@ -41,6 +41,7 @@ import { CustomBuildingTableComponent } from './custom-building-table/custom-bui
 import { MissionDeskComponent } from './mission-desk/mission-desk.component';
 import { TabContainerLazyComponent } from './tab-container-lazy/tab-container-lazy.component';
 import { BankManageComponent } from './bank-manage/bank-manage.component';
+import { BalanceComponent } from './balance/balance.component';
 
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { DragDropModule } from '@angular/cdk/drag-drop';
@@ -112,6 +113,7 @@ import { Alert } from './common/alert';
     TabExtractedBodyDirective,
     TabContainerLazyComponent,
     BankManageComponent,
+    BalanceComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

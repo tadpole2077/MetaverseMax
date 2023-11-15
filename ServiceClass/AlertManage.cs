@@ -5,7 +5,7 @@ namespace MetaverseMax.ServiceClass
 {
     public class AlertManage : ServiceBase
     {
-        private Common common = new Common();
+        private ServiceCommon common = new ServiceCommon();
 
         public AlertManage(MetaverseMaxDbContext _parentContext, WORLD_TYPE worldTypeSelected) : base(_parentContext, worldTypeSelected)
         {
@@ -139,7 +139,7 @@ namespace MetaverseMax.ServiceClass
             return true;
         }
 
-        public bool AddRankingAlert(string alertMaticKey, string ownerMaticKey, int plotTokenId, decimal oldRanking, decimal newRanking, int buildingLevel, string buildingType, ALERT_TYPE alertType)
+        public bool AddRankingAlert(string alertMaticKey, string ownerMaticKey, int plotTokenId, decimal oldRanking, decimal newRanking, int buildingLevel, string buildingType, int districtId, ALERT_TYPE alertType)
         {
 
             AlertDB alertDB = new(_context);
@@ -153,6 +153,7 @@ namespace MetaverseMax.ServiceClass
                 .Replace("#BUILDING_TYPE#", buildingType)
                 .Replace("#NEW_RANKING#", newRanking.ToString())
                 .Replace("#OLD_RANKING#", oldRanking.ToString())
+                .Replace("#DISTRICT_ID#", districtId.ToString())
                 .Replace("#OWNER#", ownerName != string.Empty ? "\nOwner: " + ownerName : "");
 
 
@@ -229,14 +230,14 @@ namespace MetaverseMax.ServiceClass
                     OwnerLand ownerLand = ownerData.owner_land.Where(x => x.building_type == (int)BUILDING_TYPE.ENERGY).FirstOrDefault();
 
                     alertTrigger.UpdateOwnerAlert("0xb197dc47fcbe7d7734b60fa87fd3b0ba0acaf441", ALERT_TYPE.BUILDING_RANKING, ownerLand.token_id, ALERT_ACTION_TYPE.ENABLE);
-                    AddRankingAlert("0xb197dc47fcbe7d7734b60fa87fd3b0ba0acaf441", "0xb197dc47fcbe7d7734b60fa87fd3b0ba0acaf441", ownerLand.token_id, 50, 75, ownerLand.building_level, building.BuildingType((int)BUILDING_TYPE.ENERGY, 0), ALERT_TYPE.BUILDING_RANKING);
+                    AddRankingAlert("0xb197dc47fcbe7d7734b60fa87fd3b0ba0acaf441", "0xb197dc47fcbe7d7734b60fa87fd3b0ba0acaf441", ownerLand.token_id, 50, 75, ownerLand.building_level, building.BuildingType((int)BUILDING_TYPE.ENERGY, 0), ownerLand.district_id, ALERT_TYPE.BUILDING_RANKING);
                 }
                 else
                 {                    
                     Plot plot = _context.plot.Where(x => x.building_type_id == (int)BUILDING_TYPE.ENERGY).FirstOrDefault();
 
                     alertTrigger.UpdateOwnerAlert("0xb197dc47fcbe7d7734b60fa87fd3b0ba0acaf441", ALERT_TYPE.BUILDING_RANKING, plot.token_id, ALERT_ACTION_TYPE.ENABLE);
-                    AddRankingAlert("0xb197dc47fcbe7d7734b60fa87fd3b0ba0acaf441", plot.owner_matic, plot.token_id, 50, 75, plot.building_level, building.BuildingType((int)BUILDING_TYPE.ENERGY, 0), ALERT_TYPE.BUILDING_RANKING);
+                    AddRankingAlert("0xb197dc47fcbe7d7734b60fa87fd3b0ba0acaf441", plot.owner_matic, plot.token_id, 50, 75, plot.building_level, building.BuildingType((int)BUILDING_TYPE.ENERGY, 0), plot.district_id, ALERT_TYPE.BUILDING_RANKING);
                 }
 
             }

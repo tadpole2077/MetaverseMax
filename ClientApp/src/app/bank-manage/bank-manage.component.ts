@@ -1,4 +1,4 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Component, Inject } from "@angular/core";
 import { HEX_NETWORK, METAMASK_ERROR_CODE } from "../common/enum";
 import { Globals } from "../common/global-var";
@@ -15,8 +15,6 @@ import { isAddress } from 'web3-validator';
 import { MMBankAbi } from "../Contract/contractMMBankAbi";
 import { testBasic_abi } from "../Contract/contractBasicAbi";
 import { MegaCoinAbi } from "../Contract/contractMegaCoinAbi";
-
-
 
 
 @Component({
@@ -39,10 +37,8 @@ export class BankManageComponent {
   addressSender = new FormControl('');
   addressReceiver = new FormControl('');
 
-
-
   readonly CONTRACT_ADDRESS_TEST_WRITE = "0xa80f07449BA85d60b28E11FD74f0e7C9FB09D553";  // Sanity check contract - read and write method confirmed working.
-  readonly CONTRACT_MMBank = "0x6C92919Fb79d5f70cdc887653E4169f33fF63146";
+  readonly CONTRACT_MMBank = "0x9Adf2de8c24c25B3EB1fc542598b69C51eE558A7";
   readonly CONTRACT_ADMIN = "0xFA87a94a37Ffd3e7d6Ae35FF33eB5d15A5A87467";
   readonly CONTRACT_MEGA = "0x4Dd0308aE43e56439D026E3f002423E9A982aeaF";
   readonly MEGA_DECIMALS = 1e18;
@@ -54,13 +50,45 @@ export class BankManageComponent {
     this.baseUrl = rootBaseUrl + "api/" + globals.worldCode;
 
     this.ethereum = (window as any).ethereum;
-
-    
+   
   }
 
   ngOnInit() {
     this.startWebProcess();
   }
+
+  confirmTransaction(hash: string) {
+
+    let params = new HttpParams();
+    params = params.append('hash', hash);
+
+    this.httpClient.get<number>(this.baseUrl + '/bank/confirmTransaction', { params: params })
+      .subscribe({
+        next: (result) => {
+         
+        },
+        error: (error) => { console.error(error) }
+      });
+  
+    return;
+  } 
+
+  async withdrawAllowanceApprove(amount: number, ownerMaticKey: string) {
+
+    let params = new HttpParams();
+    params = params.append('amount', amount);
+    params = params.append('ownerMaticKey', ownerMaticKey);
+
+    this.httpClient.get<boolean>(this.baseUrl + '/bank/WithdrawAllowanceApprove', { params: params })
+      .subscribe({
+        next: (result) => {
+          return result;
+        },
+        error: (error) => { console.error(error) }
+      });
+  
+    return;
+  } 
 
   checkSafeNumber(amount: any) {
     return Number.isSafeInteger(amount);
@@ -68,7 +96,7 @@ export class BankManageComponent {
 
   // Calculate actual tokens amounts based on decimals in token
   // Convert to string - ensure no localised chars .  Some issue with BigNumber adding additoinal values - may be due to using es2015
-  convertToCoinNumber(amount: number): string{
+  convertToCoinNumber(amount: number, allowanceExtra:number = 0): string{
     
     // Check if number is fractional then remove fractional amount.
     let stringAmount = '0';
@@ -79,10 +107,14 @@ export class BankManageComponent {
     if ((amount % 1 != 0)) {
       decimalLength = amount.toString().split(".")[1].length;
       amount = amount * (10 ** decimalLength);      // using Exponential ** operator
-      bigAmount = BigInt(amount * (10 ** (this.MEGA_DECIMALS_COUNT - decimalLength)));
+      bigAmount = BigInt(amount * (10 ** (this.MEGA_DECIMALS_COUNT - decimalLength)) ) ;
     }
     else {
-      bigAmount = BigInt(amount) * BigInt(this.MEGA_DECIMALS);
+      bigAmount = (BigInt(amount) * BigInt(this.MEGA_DECIMALS));
+    }
+
+    if (allowanceExtra != 0) {
+      bigAmount += BigInt(allowanceExtra);
     }
 
     return bigAmount.toString();
@@ -140,29 +172,7 @@ export class BankManageComponent {
 
       const addressFrom = this.ethereum.selectedAddress;
       this.addressSender.setValue(this.CONTRACT_MMBank);
-      this.addressReceiver.setValue(addressFrom);
-      //await this.contractAdminGet();
-      //await this.setMegaContract(this.CONTRACT_MEGA, this.CONTRACT_ADMIN);
-
-      //await this.contractTestMega();
-      //await this.testMegaWrite(99, addressFrom);      
-      //await this.getMegaBalance(this.CONTRACT_ADMIN);
-      //await this.contractGetAllowance(this.CONTRACT_ADMIN);
-      //await this.increaseAllowance(this.CONTRACT_MMBank, transferCoin);      // Using Contract Mega - allowance is increased on msg.sender address.
-      //await this.contractGetAllowance(this.CONTRACT_ADMIN);
-      //await this.contractGetAllowanceToBank(this.CONTRACT_ADMIN);
-      //await this.depositMegaToMMBank(transferCoin);
-
-      //await this.contractTestWriteRequest(addressFrom);
-      //await this.contractTestReadRequest(addressTo, addressFrom);
-
-      //await this.contractBalanceRead(addressFrom);
-      //await this.contractTestSeedAccount(addressFrom);
-      //await this.contractDepositBank(addressTo, addressFrom, 3);
-      //await this.contractBalanceRead(addressTo, this.CONTRACT_ADDRESS);
-
-      //await this.contractTestSendRequest(addressTo, addressFrom);
-      //await this.coinSendRequest(addressTo, addressFrom, "0.01");
+      this.addressReceiver.setValue(addressFrom);      
     }
 
   }
@@ -472,7 +482,7 @@ export class BankManageComponent {
     return;
   }
 
-  async getCurrentWalletBalance() {
+  async getCurrentWalletBalanceInBank() {
 
     const addressFrom = this.ethereum.selectedAddress;
     this.rotateActive = true;
@@ -486,9 +496,31 @@ export class BankManageComponent {
       this.CONTRACT_MMBank);
 
     // Get the current value of my number    
-    const balance = await testContract.methods.getBalanceOf(addressFrom).call();
+    const balance = await testContract.methods.balances(addressFrom).call();
 
     this.contractRead = "Bank has Mega balance of : " + Number(BigInt(balance) / BigInt(this.MEGA_DECIMALS));
+    this.rotateActive = false;
+    return;
+  }
+
+  async getCurrentWalletBalanceMega() {
+
+    const addressFrom = this.ethereum.selectedAddress;
+    this.rotateActive = true;
+    this.progressCaption = "Transaction in Progress"
+
+    const gasPrice = await this.web3.eth.getGasPrice();
+
+    // Create a new contract object using the ABI and bytecode
+    const testContract = new this.web3.eth.Contract(
+      MegaCoinAbi,
+      this.CONTRACT_MEGA);
+
+    // Get the current value of my number    
+    const balance = await testContract.methods.balanceOf(addressFrom).call();
+
+    this.contractRead = "Wallet has Mega balance of : " + Number(BigInt(balance) / BigInt(this.MEGA_DECIMALS));
+    this.progressCaption = "Transaction Completed";
     this.rotateActive = false;
     return;
   }
@@ -509,6 +541,7 @@ export class BankManageComponent {
     const contract = await testContract.methods.getMegaContract().call();
 
     this.contractRead = "Mega Contract Address : " + contract;
+    this.progressCaption = "Transaction Completed";
     this.rotateActive = false;
     return;
   }
@@ -700,7 +733,7 @@ export class BankManageComponent {
 
       const gasPrice = await this.web3.eth.getGasPrice();
 
-      await testContract.methods.increaseAllowance(addressReceiver, this.convertToCoinNumber(allowance+1))        
+      await testContract.methods.increaseAllowance(addressReceiver, this.convertToCoinNumber(allowance)+1)        
         .send({
           from: addressFrom,
           gasPrice: this.utils.toHex(gasPrice),
@@ -781,8 +814,7 @@ export class BankManageComponent {
     // Create a new contract object using the ABI and bytecode
     const testContract = new this.web3.eth.Contract(
       MMBankAbi,
-      this.CONTRACT_MMBank,
-      this.web3
+      this.CONTRACT_MMBank
     );
 
     try {
@@ -819,6 +851,7 @@ export class BankManageComponent {
 
   async withdrawMegaFromMMBank(megaValue: number) {
 
+    let allowanceApproved: boolean = false;
     const addressFrom = this.ethereum.selectedAddress;
     this.rotateActive = true;
     this.progressCaption = "Transaction in Progress"
@@ -826,11 +859,13 @@ export class BankManageComponent {
     // Create a new contract object using the ABI and bytecode
     const testContract = new this.web3.eth.Contract(
       MMBankAbi,
-      this.CONTRACT_MMBank,
-      this.web3
+      this.CONTRACT_MMBank
     );
 
     try {
+
+     //allowanceApproved = await this.withdrawAllowanceApprove(100, addressFrom).result;
+
 
       const gasPrice = await this.web3.eth.getGasPrice();
       const megaValueBN = this.convertToCoinNumber(megaValue);
@@ -842,11 +877,13 @@ export class BankManageComponent {
           gas: "100000"
         })
         .then((result) => {
-            console.log('Withdrawal of mega from bank : ' + result);
-            this.progressCaption = "Transaction Completed";
-            this.contractWrite =  addressFrom + " Withdrawal "+ megaValue +" mega from bank";
-            this.rotateActive = false;
-          })
+          console.log('Withdrawal of mega from bank : ' + result);
+          this.progressCaption = "Transaction Completed";
+          this.contractWrite =  addressFrom + " Withdrawal "+ megaValue +" mega from bank";
+          this.rotateActive = false;
+
+          this.confirmTransaction(result.transactionHash);
+        })
         .catch((error) => {
           console.log(error);
           this.progressCaption = "Error occured blocking Transaction";
@@ -863,6 +900,56 @@ export class BankManageComponent {
     return;    
   }
 
+
+  async depositMegaToMMBankWithAllowance(megaValue: number) {
+
+    const addressFrom = this.ethereum.selectedAddress;
+    const addressReceiver = this.CONTRACT_MMBank;
+    this.rotateActive = true;
+    this.progressCaption = "Transaction in Progress"
+
+    // Create a new contract object using the ABI and bytecode
+    const testContract = new this.web3.eth.Contract(
+      MegaCoinAbi,
+      this.CONTRACT_MEGA
+    );
+
+    try {
+
+      const gasPrice = await this.web3.eth.getGasPrice();
+
+      await testContract.methods.increaseAllowance(addressReceiver, this.convertToCoinNumber(megaValue, 1))        
+        .send({
+          from: addressFrom,
+          gasPrice: this.utils.toHex(gasPrice),
+          gas: "100000"
+        })
+        .then((result) => {
+            console.log('Allowance increased: ' + result);
+            this.progressCaption = "Transaction Completed";
+            this.contractWrite =  addressFrom + " Allowance to Bank increased by "+ megaValue;
+            this.rotateActive = false;
+
+            this.depositMegaToMMBank(megaValue);
+
+          })
+        .catch((error) => {
+          console.log(error);
+          this.progressCaption = "Error occured blocking Transaction";
+          this.contractWrite = error;
+          this.rotateActive = false;
+        });
+
+    }
+    catch (error) {
+      console.error(error);
+      this.progressCaption = error;
+      this.rotateActive = false;
+    }
+    return;    
+
+  }
+
   async depositMegaToMMBank(megaValue: number) {
 
     const addressFrom = this.ethereum.selectedAddress;
@@ -872,8 +959,7 @@ export class BankManageComponent {
     // Create a new contract object using the ABI and bytecode
     const testContract = new this.web3.eth.Contract(
       MMBankAbi,
-      this.CONTRACT_MMBank,
-      this.web3
+      this.CONTRACT_MMBank
     );
 
     try {
@@ -888,11 +974,13 @@ export class BankManageComponent {
           gas: "150000"
         })
         .then((result) => {
-            console.log('Deposited mega to bank : ' + result);
-            this.progressCaption = "Transaction Completed";
-            this.contractWrite =  addressFrom + " Deposited "+ megaValue +" mega to bank";
-            this.rotateActive = false;
-          })
+          console.log('Deposited mega to bank : ' + result);
+          this.progressCaption = "Transaction Completed";
+          this.contractWrite =  addressFrom + " Deposited "+ megaValue +" mega to bank";
+          this.rotateActive = false;
+
+          this.confirmTransaction(result.transactionHash);
+        })
         .catch((error) => {
           console.log(error);
           this.progressCaption = "Error occured blocking Transaction";

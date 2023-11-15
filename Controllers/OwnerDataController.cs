@@ -17,7 +17,7 @@ namespace MetaverseMax.Controllers
         private readonly MetaverseMaxDbContext _context;
 
         private OwnerData ownerData = new();
-        private Common common = new();
+        private ServiceCommon common = new();
 
         public OwnerDataController(MetaverseMaxDbContext context, ILogger<OwnerDataController> logger)
         {
@@ -82,7 +82,7 @@ namespace MetaverseMax.Controllers
 
             if (ModelState.IsValid)
             {
-                return Ok(ownerManage.SetDarkMode(parameters.owner_matic_key, parameters.dark_mode));
+                return Ok(ownerManage.UpdateDarkMode(parameters.owner_matic_key, parameters.dark_mode));
             }
 
             return BadRequest("Call is invalid");       // 400 Error   
@@ -293,7 +293,7 @@ namespace MetaverseMax.Controllers
             if (ModelState.IsValid)
             {
                 OwnerChange ownerChange = new() { owner_matic_key = "0xe4a746550e1ffb5f69775d3e413dbe1b5b734e36", owner_name = "TEST", owner_avatar_id = 0 };
-                int rowCount = Task.Run(() => ownerNameDB.UpdateOwnerName(ownerChange)).Result;
+                int rowCount = Task.Run(() => ownerNameDB.UpdateOwnerName(ownerChange, false)).Result;
                 _context.SaveChanges();
 
                 return Ok(string.Concat("Plots updated :", rowCount));

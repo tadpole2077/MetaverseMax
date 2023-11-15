@@ -3,7 +3,7 @@ using MetaverseMax.BaseClass;
 
 namespace MetaverseMax.ServiceClass
 {
-    public class Common
+    public class ServiceCommon
     {
         public static bool isDevelopment { get; set; }
         public static string serverIP { get; set; }

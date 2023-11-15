@@ -118,7 +118,7 @@ namespace MetaverseMax.ServiceClass
             DistrictWeb districtWeb = new();
             CitizenManage citizen = new(_context, worldType);
             string content = string.Empty;
-            Common common = new();
+            ServiceCommon common = new();
 
             try
             {
@@ -244,7 +244,7 @@ namespace MetaverseMax.ServiceClass
         {
             District district = new();
             string content = string.Empty;
-            Common common = new();
+            ServiceCommon common = new();
             int returnCode = 0;
 
             try

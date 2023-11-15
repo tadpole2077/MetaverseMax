@@ -24,7 +24,7 @@ namespace MetaverseMax.ServiceClass
         {
             List<DistrictPerk> districtPerkList = new();
             string content = string.Empty;
-            Common common = new();
+            ServiceCommon common = new();
 
             try
             {

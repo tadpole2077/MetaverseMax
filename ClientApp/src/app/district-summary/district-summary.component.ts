@@ -1,4 +1,4 @@
-import { Component, Inject, ViewChild, EventEmitter, ElementRef } from '@angular/core';
+import { Component, Inject, ViewChild, EventEmitter, ElementRef, ContentChild, ContentChildren } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
@@ -11,6 +11,7 @@ import { AlertMenuComponent } from '../alert-menu/alert-menu.component';
 import { GraphTaxComponent } from '../graph-tax/graph-tax.component';
 import { GraphFundComponent } from '../graph-fund/graph-fund.component';
 import { TaxChangeComponent } from '../tax-change/tax-change.component';
+import { CustomBuildingComponent } from '../custom-building/custom-building.component';
 import { OwnerSummary, District } from './data-district-interface';
 import { MatExpansionPanel } from '@angular/material/expansion';
 import { Globals, WORLD } from '../common/global-var';
@@ -51,8 +52,10 @@ export class DistrictSummaryComponent implements AfterViewInit {
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(NoteModalComponent, { static: true }) childNote: NoteModalComponent;
   @ViewChild(AlertMenuComponent, { static: true }) alertMenu: AlertMenuComponent;
+  @ViewChild("customBuilding", { static: false }) customBuilding: CustomBuildingComponent;    /// Static=false Component is lazy loaded.
   @ViewChild("taxChange", { static: true }) taxChange: TaxChangeComponent;
   @ViewChild("taxChangePanel", { static: true }) taxChangePanel: MatExpansionPanel;
+  @ViewChild("customBuildingPanel", { static: false }) customBuildingPanel: MatExpansionPanel;    
 
   @ViewChild("graphConstruct", { static: true }) childGraphConstruct: GraphTaxComponent;
   @ViewChild("graphProduce", { static: true }) childGraphProduce: GraphTaxComponent;
@@ -134,7 +137,7 @@ export class DistrictSummaryComponent implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    //this.dataSource.sort = this.sort;
+    //this.dataSource.sort = this.sort;    
   }
 
   ngOnDestroy() {
@@ -203,7 +206,8 @@ export class DistrictSummaryComponent implements AfterViewInit {
 
           if (this.globals.ownerAccount.wallet_active_in_world) {
             this.alertMenu.getAlert(districtId);
-          }
+          }          
+
         },
         error: (error) => { console.error(error) }
       });
@@ -222,6 +226,7 @@ export class DistrictSummaryComponent implements AfterViewInit {
     this.ownerSummaryNewArrivals_Week = new Array();
     this.ownerSummaryNewArrivals_Month = new Array();
     this.taxChangePanel.close();
+    this.customBuildingPanel.close();
     
     this.httpClient.get<OwnerSummary[]>(this.baseUrl + '/ownersummary', { params: params })
       .subscribe({
@@ -296,6 +301,15 @@ export class DistrictSummaryComponent implements AfterViewInit {
 
   loadTaxChange() {
     this.taxChange.getTaxChange(this.requestDistrictId);
+  }
+
+  // Note customBuilding component is contained within a ng-template directive - its lazy loaded on opening of the mat-expansion-panel
+  // As such, the component is not accessible from the ViewChild, and can be found within the ContentChild collection
+  loadCustomBuilding() {
+    // Update child Components : custom-building   [ Reflect change in district ]
+    if (this.customBuilding) {
+      this.customBuilding.searchAllParcels(this.requestDistrictId);
+    }
   }
 
   wholenumber(fundtotal, distribution_period) {

@@ -119,7 +119,7 @@ namespace MetaverseMax.Database
         {
             OwnerNameDB ownerNameDB = new(_context);
             District district = new();
-            Common common = new();
+            ServiceCommon common = new();
             int returnCode = 0;
             string districtOwnerName;
             int districtAvatarId;
@@ -179,7 +179,7 @@ namespace MetaverseMax.Database
                     owner_matic_key = district.owner_matic,
                 };
 
-                ownerNameDB.UpdateOwnerName(ownerChange);
+                ownerNameDB.UpdateOwnerName(ownerChange, false);
 
             }
             catch (Exception ex)

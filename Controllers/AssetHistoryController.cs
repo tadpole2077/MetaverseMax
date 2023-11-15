@@ -1,8 +1,6 @@
 ﻿using MetaverseMax.Database;
 using MetaverseMax.ServiceClass;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 
 namespace MetaverseMax.Controllers
 {
@@ -16,7 +14,7 @@ namespace MetaverseMax.Controllers
         private const int USE_STORED_EFFICIENCY = -1;
         private readonly ILogger<AssetHistoryController> _logger;
         private readonly MetaverseMaxDbContext _context;
-        private Common common = new();
+        private readonly ServiceCommon common = new();
 
         public AssetHistoryController(MetaverseMaxDbContext context, ILogger<AssetHistoryController> logger)
         {

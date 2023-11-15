@@ -14,6 +14,7 @@
       </button>
 
       <app-nav-menu-world class="world" (selectWorldEvent)="selectWorld($event)" [selectedWorld]="globals.selectedWorld"></app-nav-menu-world>
+      <app-balance class="balance" style="display:none"></app-balance>
       <app-alert-history class="alertHistory mobileAlert" *ngIf="globals.ownerAccount.alert_count >0"></app-alert-history>
 
       <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end" [ngClass]="{ show: isExpanded }">

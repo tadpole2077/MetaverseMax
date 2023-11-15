@@ -10,7 +10,7 @@ namespace MetaverseMax.ServiceClass
     public class BuildingManage : ServiceBase
     {
         private CitizenManage citizenManage;
-        private Common common = new();
+        private ServiceCommon common = new();
         //private List<OwnerCitizenExt> ownerCitizenExt = new();
         private BuildingCollection buildingCollection = new();
         private const int USE_STORED_EFFICIENCY = -1;
@@ -83,7 +83,7 @@ namespace MetaverseMax.ServiceClass
                 DistrictDB districtDB = new(_context);
                 BuildingRanking buildingRanking = new();
 
-                buildingCollection.show_prediction = Common.showPrediction;
+                buildingCollection.show_prediction = ServiceCommon.showPrediction;
 
                 List<District> districtList = districtList = districtDB.DistrictGetAll_Latest().ToList();
                 List<DistrictPerk> districtPerkList = districtPerkDB.PerkGetAll_ByPerkType((int)DISTRICT_PERKS.EXTRA_SLOT_APPLIANCE_ALL_BUILDINGS);
@@ -223,7 +223,7 @@ namespace MetaverseMax.ServiceClass
                     {
                         allOwnerAlerts.Where(x => x.id == buildingList[i].token_id).ToList().ForEach(x =>
                         {
-                            alert.AddRankingAlert(x.matic_key, buildingList[i].owner_matic, buildingList[i].token_id, ipEfficiencyStored, buildingList[i].current_influence_rank, buildingLevel, building.BuildingType(buildingType, buildingList[i].building_id), (ALERT_TYPE)x.key_type);
+                            alert.AddRankingAlert(x.matic_key, buildingList[i].owner_matic, buildingList[i].token_id, ipEfficiencyStored, buildingList[i].current_influence_rank, buildingLevel, building.BuildingType(buildingType, buildingList[i].building_id), buildingList[i].district_id, (ALERT_TYPE)x.key_type);
                         });
                     }
 
@@ -723,7 +723,7 @@ namespace MetaverseMax.ServiceClass
             OfficeGlobal officeGlobal = new();
             PlotDB plotDB = new(_context);
             DistrictFund globalFund;            
-            Common common = new Common();
+            ServiceCommon common = new ServiceCommon();
 
             try
             {
@@ -2726,7 +2726,7 @@ namespace MetaverseMax.ServiceClass
         }
 
         // IP changed from db store, then update ranking (used by Plot Full and Partial updates - as shown in MyPortfolio)
-        public decimal CheckInfluenceRankChange(int newInfluence, int storedInfluence, int influenceBonus, decimal storedRanking, int buildingLevel, int buildingType, int targetBuildingTokenId, int buildingId, string buidingOwnerMatic)
+        public decimal CheckInfluenceRankChange(int newInfluence, int storedInfluence, int influenceBonus, decimal storedRanking, int buildingLevel, int buildingType, int targetBuildingTokenId, int buildingId, int districtId, string buidingOwnerMatic)
         {
             decimal newRanking = storedRanking;
             int maxRankingIp = 0, minRankingIp = 0, rangeIP = 0, targetBuildingTotalIp = 0;
@@ -2749,23 +2749,23 @@ namespace MetaverseMax.ServiceClass
                     targetBuildingTotalIp = GetInfluenceTotal(newInfluence, influenceBonus);
 
                     maxRankingIp = buildingRanking.CalcMaxIP(buildingPlotList);
-                    maxRankingIp = maxRankingIp < targetBuildingTotalIp ? targetBuildingTotalIp : maxRankingIp;
+                    maxRankingIp = maxRankingIp < targetBuildingTotalIp ? targetBuildingTotalIp : maxRankingIp;         // Assign current building IP as MAX  - if above stored building collection max
 
                     minRankingIp = buildingRanking.CalcMinIP(buildingPlotList);                    
-                    minRankingIp = minRankingIp > targetBuildingTotalIp ? targetBuildingTotalIp : minRankingIp;
+                    minRankingIp = minRankingIp > targetBuildingTotalIp ? targetBuildingTotalIp : minRankingIp;         // Assign current building IP as MIN  - if below stored building collection min
 
                     rangeIP = maxRankingIp - minRankingIp;
 
                     newRanking = buildingRanking.GetIPEfficiency(targetBuildingTotalIp, rangeIP, minRankingIp, _context);
                 }
 
-                CheckBuildingAlert(targetBuildingTokenId, buidingOwnerMatic, storedRanking, newRanking, buildingType, buildingLevel, buildingId);
+                CheckBuildingAlert(targetBuildingTokenId, buidingOwnerMatic, storedRanking, newRanking, buildingType, buildingLevel, buildingId, districtId);
             }
 
             return newRanking;
         }
 
-        public RETURN_CODE CheckBuildingAlert(int tokenId, string ownerMatic, decimal storedRanking, decimal newRanking, int buildingType, int buildingLevel, int buildingId)
+        public RETURN_CODE CheckBuildingAlert(int tokenId, string ownerMatic, decimal storedRanking, decimal newRanking, int buildingType, int buildingLevel, int buildingId, int districtId)
         {
             List<Database.AlertTrigger> ownerAlerts = new();
             AlertTriggerManager alertTrigger = new(_context, worldType);
@@ -2776,7 +2776,7 @@ namespace MetaverseMax.ServiceClass
 
             ownerAlerts.ToList().ForEach(x =>
             {
-                alertManage.AddRankingAlert(x.matic_key, ownerMatic, tokenId, storedRanking, newRanking, buildingLevel, building.BuildingType(buildingType, buildingId), (ALERT_TYPE)x.key_type);
+                alertManage.AddRankingAlert(x.matic_key, ownerMatic, tokenId, storedRanking, newRanking, buildingLevel, building.BuildingType(buildingType, buildingId), districtId, (ALERT_TYPE)x.key_type);
             });
 
             return RETURN_CODE.SUCCESS;

@@ -148,7 +148,7 @@
 
     </mat-expansion-panel>
 
-    <mat-expansion-panel expanded="false" class="customBuilding">
+    <mat-expansion-panel #customBuildingPanel expanded="false" class="customBuilding" (opened)="loadCustomBuilding()">
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>location_city</mat-icon>          
@@ -163,8 +163,8 @@
         </mat-panel-description>
       </mat-expansion-panel-header>
 
-      <ng-template matExpansionPanelContent >        
-          <app-custom-building [districtId]="district.district_id"></app-custom-building>        
+      <ng-template matExpansionPanelContent expansion-panel-content>        
+          <app-custom-building #customBuilding [districtId]="district.district_id" ></app-custom-building>        
       </ng-template>
     </mat-expansion-panel>
 

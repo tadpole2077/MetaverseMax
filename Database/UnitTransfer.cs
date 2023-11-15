@@ -4,11 +4,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace MetaverseMax.Database
 {
     // Using Entity Framework Attributes to define tables (other method is API Fluent)
-    [Table("Transaction")]
-    public class Transaction
+    [Table("UnitTransfer")]
+    public class UnitTransfer
     {
         [Key]
-        [Column("transaction_key")]
+        [Column("unit_transfer_key")]
         public int transaction_key { get; set; }
 
         [Column("from_wallet")]

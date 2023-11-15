@@ -119,14 +119,21 @@
         public static readonly string LOW_STAMINA = "#CIT_AMOUNT# x Building have low stamina citizens and will stop building activity after next collection cycle.";
         public static readonly string NEW_OFFER = "New offer received from #BIDDER# for your #ASSET#(#ASSET_ID#), offer price #PRICE#.";
         public static readonly string OFFER_ACCEPTED_BY = "Your offer was accepted by #OWNER# for your #ASSET#(#ASSET_ID#), offer price #PRICE#.";
-        public static readonly string RANKING_CHANGE = "IP Ranking change on #BUILDING_TYPE# Building level-#LEVEL# (#TOKEN_ID#).\nOld Ranking: #OLD_RANKING#% vs New Ranking: #NEW_RANKING#%.#OWNER#";
-        public static readonly string NEW_BUILDING = "New custom building(#BUILDING_NAME#) in #DISTRICT_ID# district by #OWNER#.";
+        public static readonly string RANKING_CHANGE = "IP Ranking change : #BUILDING_TYPE# Building level-#LEVEL# (ID:#TOKEN_ID#) in District ##DISTRICT_ID#.\nOld Ranking: #OLD_RANKING#% vs New Ranking: #NEW_RANKING#%.#OWNER#";
+        public static readonly string NEW_BUILDING = "New custom building(#BUILDING_NAME#) in District ##DISTRICT_ID# by #OWNER#.";
     }
 
     public class JOB_SETTING_CODE
     {
         public static readonly string DISABLE_DISTRIBUTION_UPDATE = "DISABLE_DISTRIBUTION_UPDATE";
         public static readonly string NEW_ACCOUNT_PRO_TOOLS_FREE_DAYS = "NEW_ACCOUNT_PRO_TOOLS_FREE_DAYS";
+    }
+
+    public class BANK_ACTION
+    {
+        public static readonly char DEPOSIT = 'D';
+        public static readonly char WITHDRAW = 'W';
+        public static readonly char PENDING = 'P';
     }
 
     public enum ALERT_STATE
