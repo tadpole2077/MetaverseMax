@@ -71,6 +71,7 @@ namespace MetaverseMax.Database
                         matic_key = o.owner_matic_key,
                         public_key = o.public_key,
                         name = o.owner_name,
+                        discord_name = o.discord_name,
                         avatar_id = o.avatar_id ?? 0,
                         dark_mode = o.dark_mode,
                         pro_tools_enabled = (o.pro_access_expiry ?? DateTime.UtcNow) > DateTime.UtcNow ? true : false,
@@ -109,6 +110,28 @@ namespace MetaverseMax.Database
 
             return balance;
         }
+
+        public decimal UpdateOwnerBalance(string ownerMaticKey, decimal balance)
+        {
+            decimal oldBalance = 0;
+            try
+            {
+                Owner owner = _context.owner.Where(x => x.owner_matic_key == ownerMaticKey).FirstOrDefault();
+
+                oldBalance = owner.balance ?? 0;
+                owner.balance = balance;
+
+                _context.SaveWithRetry();
+            }
+            catch (Exception ex)
+            {
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("OwnerDB::UpdateOwnerBalance() : Error updating balance for owner: ", ownerMaticKey, ", Old Balance: ", oldBalance, " ,New balance: ", balance));
+            }
+
+            return balance;
+        }
+
         private int GetExpiryDays(DateTime? pro_access_expiry, bool proToolsEnabled)
         {
             int proExpiryDays = 0;

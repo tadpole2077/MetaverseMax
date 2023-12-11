@@ -18,9 +18,6 @@ namespace MetaverseMax.Database
         [Column("owner_name")]
         public string? owner_name { get; set; }
 
-        [Column("discord_name")]
-        public string? discord_name { get; set; }
-
         [Column("avatar_id")]
         public int? avatar_id { get; set; }
 

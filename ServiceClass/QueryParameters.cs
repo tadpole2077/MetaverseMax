@@ -328,5 +328,17 @@ namespace MetaverseMax.ServiceClass
         [BindRequired]
         public string ownerMaticKey { get; set; }
 
+        [BindRequired]
+        public string personalSign { get; set; }
     }
-}
+
+    public class QueryParametersWithdrawSignCode
+    {
+        [BindRequired]
+        public decimal amount { get; set; }
+
+        [BindRequired]
+        public string ownerMaticKey { get; set; }
+    }
+
+    }

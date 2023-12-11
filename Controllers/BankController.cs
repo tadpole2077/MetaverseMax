@@ -60,11 +60,23 @@ namespace MetaverseMax.Controllers
             if (ModelState.IsValid)
             {
 
-                return Ok(bankManage.WithdrawAllowanceApprove(parameters.amount, parameters.ownerMaticKey));
+                return Ok(bankManage.WithdrawAllowanceApprove(parameters.amount, parameters.ownerMaticKey, parameters.personalSign));
             }
 
             return BadRequest("Confirm Bank Transaction Call is invalid");       // 400 Error  
         }
-        
+
+        [HttpGet("GetWithdrawSignCode")]
+        public IActionResult GetWithdrawSignCode([FromQuery] QueryParametersWithdrawSignCode parameters)
+        {
+            BankManage bankManage = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(bankManage.GetWithdrawSignCode(parameters.amount, parameters.ownerMaticKey));  // "0x68656c6c6f" Hello in Hex UTF-8
+            }
+
+            return BadRequest("Confirm Bank Transaction Call is invalid");       // 400 Error  
+        }
     }
 }

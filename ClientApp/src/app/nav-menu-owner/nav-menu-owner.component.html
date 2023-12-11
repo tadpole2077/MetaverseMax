@@ -30,6 +30,13 @@
         </mat-slide-toggle>
       </div>
 
+      <div class="menuItem" *ngIf="globals.ownerAccount.wallet_active_in_world && globals.selectedWorld == 2">
+        <mat-icon>fast_forward</mat-icon>
+        <a class="menuLink"
+           [ngClass]="{ 'text-dark':!globals.ownerAccount.dark_mode, 'text-light':globals.ownerAccount.dark_mode}"
+           (click)="openDialog('1000ms', '750ms')">Direct Deposit</a>
+      </div>
+
     </div>
 
   </div>

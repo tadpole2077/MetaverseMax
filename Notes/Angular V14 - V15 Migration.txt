@@ -143,3 +143,24 @@ Issue (outstanding - none blocking - as of 2023/09/15)
 //		(to check the list of all animatable properties visit https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_animated_properties)
 //  OBSERVATIONS:
 //		Only occuring on component load,  not reloading the graph with new data - ie changing district
+
+
+=====================================================================================
+VISUAL STUDIO UPGRADE : 2023/11/20
+Action: Update to 17.8.0
+Warnings:
+	Some of your selections are no longer fully supported and will not receive security updates
+	1) .NET Core 3.1 Runtime (out of support)
+	2) .NET 5.0 Runtime (out of support)
+	2) .NET SDK (out of support)
+
+	How to uninstall .NET Core 3.1 Runtime?
+	* Uninstall Apps & Features:
+	- Microsoft .NET Core 3.1.32 Windows Server
+	- Microsoft .NET Core Runtime 3.1.32 (x64)
+	- Microsoft .NET Core Runtime 3.1.32 (x86)
+	- Microsoft .NET Core SDK 3.1.32 - Shared Framework
+	- Microsoft ASP.NET Core 3.1.32 - Shared Framework
+	- Microsoft Windows Desktop Runtime - 3.1.32
+
+	NOTE - I am not using these in active development, potential old projects like Transforms.

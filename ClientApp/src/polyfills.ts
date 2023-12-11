@@ -61,3 +61,6 @@ import 'zone.js';  // Included with Angular CLI.
 global.Buffer = global.Buffer || require('buffer').Buffer;
 global.process = require('process');
 resolve.fallback: { "process": false }*/
+
+/* TronWeb V5.3.1 :  Requires crypto-browserify - adding fallback to ignore (not sure if i need it, or at least not yet) */
+/*resolve.fallback: { "crypto": false } */

@@ -183,6 +183,7 @@ export class NavMenuComponent {
       if (ethereum) {
         ethereum.removeListener("accountsChanged", this.ethAccountsChanged);     // ethereum obj using Node.js EventEmitter
       }
+
     }
     else if (this.globals.selectedWorld == WORLD.ETH || this.globals.selectedWorld == WORLD.BNB )
     {

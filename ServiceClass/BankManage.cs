@@ -12,6 +12,11 @@ using System.Numerics;
 using Nethereum.RPC.Eth.DTOs;
 using System;
 using Nethereum.BlockchainProcessing.BlockStorage.Entities;
+using System.Text;
+using System.Security.Cryptography;
+using Nethereum.Signer;
+using System.Drawing;
+using System.ComponentModel;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -87,6 +92,11 @@ namespace MetaverseMax.ServiceClass
         public BigInteger amount { get; set; }
     }
 
+    // Process : User triggered Withdraw
+    //      GetWithdrawSignCode()
+    //      WithdrawAllowanceApprove()
+    //      ConfirmTransaction()
+    //      WithdrawProcess()
 
     public class BankManage : ServiceBase
     {
@@ -192,16 +202,17 @@ namespace MetaverseMax.ServiceClass
             return true;
         }
 
-
+        // When withdraw transaction completes on client side - this server side call occurs to check blockchain event log and record in local db.
+        // Note - A call to WithdrawAllowanceApprove will occur BEFORE this receipt call occurs.
         private bool WithdrawProcess(TransactionReceipt transactionReceipt, string transactionHash, WithdrawDTO withdrawDTO)
         {
             BlockchainTransactionDB blockchainTransactionDB = new(_context);
             BlockchainTransaction blockchainTransaction = new();
-            OwnerManage ownerManage = new(_context, worldType);
 
             // Check Receipt is Valid MMBank Contract
             bool validContract = transactionReceipt.To.Equals(MMBankContractAddress, StringComparison.CurrentCultureIgnoreCase);
 
+            // Check previously recorded blockchain - hacker may try to rerun the transaction event check.
             bool alreadyProcessed = blockchainTransactionDB.AlreadyProcessed(transactionHash, BANK_ACTION.WITHDRAW);
 
             if (validContract && alreadyProcessed == false && withdrawDTO != null)
@@ -215,28 +226,78 @@ namespace MetaverseMax.ServiceClass
                 blockchainTransaction.event_recorded_utc = DateTime.UtcNow;
 
                 blockchainTransactionDB.AddOrUpdate(blockchainTransaction, transactionHash);
-
-                ownerManage.UpdateBalance(blockchainTransaction.owner_matic, blockchainTransaction.amount);
             }
 
             return true;
         }
 
-        public bool WithdrawAllowanceApprove(decimal amount, string ownerMaticKey)
+        public bool WithdrawAllowanceApprove(decimal amount, string ownerMaticKey, string signed)
         {
+            bool approvalAllowed = false;
+            decimal accountBalance = 0;
             try
             {
+                OwnerManage ownerManage = new(_context, worldType);
+                OwnerDB ownerDB = new(_context);
+                PersonalSignDB personalSignDB = new(_context, worldType);
                 var account = new Account(adminMMBankPrivateKey);
-                var web3 = new Web3(account, networkUrl);
+                var web3 = new Web3(account, networkUrl);                
 
-                var increaseAllowanceFunctionMessage = new BankWithdrawIncreaseAllowanceFunction()
+                // Get active stored sign record for this account
+                PersonalSign personalSign = personalSignDB.GetUnsignedByMaticKey(ownerMaticKey);
+
+                // If no stored sign found or passed amount is not valid END PROCESSING
+                if (personalSign == null)
                 {
-                    recipient = ownerMaticKey,
-                    amount = Web3.Convert.ToWei(amount),
-                };
+                    _context.LogEvent(String.Concat("BankManage.WithdrawAllowanceApprove() : No PersonalSign found for ownerMaticKey : ", ownerMaticKey));
+                    approvalAllowed = false;
+                }
+                else if (amount <= 0)
+                {
+                    _context.LogEvent(String.Concat("BankManage.WithdrawAllowanceApprove() : Attempting to withdraw invalid amount for ownerMaticKey: ", ownerMaticKey, " amount: ", amount));
+                    approvalAllowed = false;
+                }
+                else
+                {                
+                    // Check Sign is valid
+                    // recover the signing account address using original message and signed message
+                    var signer = new EthereumMessageSigner();
+                    byte[] bytesMsg = GetCombinedBlurbCodeByte(amount, ownerMaticKey, personalSign.salt);
+                    var signedSignature = signer.EcRecover(bytesMsg, signed);
 
-                var balanceHandler = web3.Eth.GetContractQueryHandler<BankWithdrawIncreaseAllowanceFunction>();
-                var result = balanceHandler.QueryAsync<BigInteger>(MMBankContractAddress, increaseAllowanceFunctionMessage).Result;
+                    if (signedSignature.ToLower() == ownerMaticKey.ToLower() && ownerMaticKey != string.Empty)
+                    {                        
+                        // Sign is valid - store sign hash key, record can not be Reused. SECURITY STEP
+                        personalSign.signed_key = signed;
+                        personalSignDB.AddOrUpdate(personalSign);
+
+                        // CHECK withdraw amount is valid 
+                        accountBalance = ownerDB.GetOwnerBalance(ownerMaticKey);
+
+                        if (accountBalance >= amount)
+                        {
+                            approvalAllowed = true;
+
+                            var increaseAllowanceFunctionMessage = new BankWithdrawIncreaseAllowanceFunction()
+                            {
+                                recipient = ownerMaticKey,
+                                amount = Web3.Convert.ToWei(amount),
+                            };
+
+                            // TODO Add improved hander for blockchain contract call, on error log and prevent transaction proceeding.
+                            var balanceHandler = web3.Eth.GetContractQueryHandler<BankWithdrawIncreaseAllowanceFunction>();
+                            var result = balanceHandler.QueryAsync<BigInteger>(MMBankContractAddress, increaseAllowanceFunctionMessage).Result;
+
+                            // Update account balance - reduce by withdraw amount, include update of local cache accounts.
+                            ownerManage.UpdateBalance(ownerMaticKey, -amount);
+                        }
+                        else
+                        {
+                            _context.LogEvent(String.Concat("BankManage.WithdrawAllowanceApprove() : Attempting to withdraw using [invalid signature] for ownerMaticKey: ", ownerMaticKey, " amount: ", amount));
+                            approvalAllowed = false;
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -244,7 +305,83 @@ namespace MetaverseMax.ServiceClass
                 dbLogger.logException(ex, String.Concat("BankManage.WithdrawAllowanceApprove() : Error on approval of allowance to widthdraw. OwnerMatic: ", ownerMaticKey, " amount: ", amount));
             }
 
-            return true;
+            return approvalAllowed;
+        }
+
+        public string GetWithdrawSignCode(decimal amount, string ownerMaticKey)
+        {
+            PersonalSignDB personalSignDB = new(_context, worldType);
+            string salt = GetSalt(10);
+            byte[] BlurbByte = GetBlurbByte(amount, ownerMaticKey);
+
+            // hash code bytes array already in Hex utf8.
+            string encodedString = GetEncodedByte(amount, ownerMaticKey, salt).ToHex();             
+
+            // String suitable for MM Personal Sign-in
+            string codeHex = Encoding.UTF8.GetString(BlurbByte).ToHexUTF8() + encodedString;
+
+            personalSignDB.AddOrUpdate(new PersonalSign()
+            {
+                amount = Web3.Convert.ToWei(amount).ToString(),
+                matic_key = ownerMaticKey,
+                salt = salt,
+                encode_byte = codeHex
+            });
+
+            return codeHex;
+        }
+
+        public byte[] GetBlurbByte(decimal amount, string ownerMaticKey)
+        {
+            string blurb = string.Concat(amount, " Mega Withdraw from Bank \nApproval Code:\n");            
+            byte[] blurbBytes = Encoding.Default.GetBytes(blurb);
+
+            return blurbBytes;
+        }
+
+        // Code Encrypted with SHA256
+        // Purpose of this EncodedByte logic : 
+        //      Ensure person-sign is from verified account,  the code is valid for specific time period.
+        //      Objective: Only owner can approve withdraw amount.
+        //      Security:
+        //          If a hacker attempts to reuse the code, that has already been signed, it will fail.  
+        //          if a hacker attempt to create a code for another account, when signed by their account it will fail
+        //          if a hacker manages to scrap or sniff a valid signed code from a player device - if the code has already been used (to approve a withdraw) then its of no value/no use.
+        //          Each Code + Sign(confimed) pair is logged to db.
+        //          Any requested code, that is not sign approved is deleted after 24 hours.   Meaning either failed to proceed with sign-withdraw or hack attampt.
+        //          When an account requests a new code - any pending code with no sign approved for that account is removed from db.
+        public byte[] GetEncodedByte(decimal amount, string ownerMaticKey, string salt)
+        {
+            // Add Encypted salted code
+            byte[] buffer = Encoding.UTF8.GetBytes( string.Concat("100", ownerMaticKey, salt));
+            byte[] encodedCode = SHA256.HashData(buffer);       // 32 bytes
+
+            byte[] encodedCodeUTF8 = Encoding.UTF8.GetBytes(encodedCode.ToHex());       // 64 bytes
+
+            return encodedCodeUTF8;
+        }
+
+        public byte[] GetCombinedBlurbCodeByte(decimal amount, string ownerMaticKey, string salt)
+        {
+            byte[] blurbByte = GetBlurbByte(amount, ownerMaticKey);
+            byte[] encodedCode = GetEncodedByte(amount, ownerMaticKey, salt);
+
+            return blurbByte.Concat(encodedCode).ToArray();
+
+        }
+
+        private static string GetSalt(int maximumSaltLength)
+        {
+            var salt = new byte[maximumSaltLength];
+
+            using (var generator = RandomNumberGenerator.Create())
+            {
+                generator.GetNonZeroBytes(salt);             
+            }
+            string saltHex = Convert.ToHexString(salt);
+
+            //new RandomNumberGenerator()
+            return saltHex;
         }
     }
 }

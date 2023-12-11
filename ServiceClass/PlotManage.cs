@@ -956,7 +956,7 @@ namespace MetaverseMax.ServiceClass
 
         // Lazy update of plots using Full plot update 
         // Used to improve accuracy of ranking feature, where user loads portfolio - identifing plot.influence change >> then needs full update for Ranking
-        public async Task<int> FullUpdateBuildingAsync(List<PlotCord> tokenIdList)
+        public async Task<int> UpdateBuildingAsyncFull(List<PlotCord> tokenIdList)
         {
             // Generate a new dbContext as a safety measure - insuring log is recorded.  Service trigged has already ended.
             using (var _contextJob = new MetaverseMaxDbContext(worldType))

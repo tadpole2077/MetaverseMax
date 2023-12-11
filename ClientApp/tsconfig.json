@@ -16,13 +16,15 @@
     "outDir": "./dist/out-tsc",
     "skipLibCheck": true,
     "sourceMap": true,
-    "target": "es2015",
+    "target": "ES2022",
     "useDefineForClassFields": false,
     "typeRoots": [
       "node_modules/@types"
     ],
     "paths": {
-      "web3": [ "node_modules/web3" ]
+      "web3": [ "node_modules/web3" ],
+      "crypto": [ "node_modules/crypto-js" ],
+      "tronweb": ["node_modules/tronweb"]
     }
   },
   "angularCompilerOptions": {

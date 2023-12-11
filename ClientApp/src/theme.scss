@@ -122,7 +122,8 @@ $foreground: map-get($dark-app-theme, foreground);
   @include mat.badge-color($dark-app-theme);
   @include mat.bottom-sheet-color($dark-app-theme);
   @include mat.button-toggle-color($dark-app-theme);
-
+  @include mat.dialog-color($dark-app-theme);
+  @include mat.progress-bar-color($dark-app-theme);
   //@include mat.button-color($light-theme);
   //@include mat.all-legacy-component-themes($dark-app-theme);
   /*@include mat.all-component-themes($dark-app-theme15);*/
@@ -408,6 +409,10 @@ $foreground: map-get($dark-app-theme, foreground);
   .mat-button-toggle-appearance-standard {
     color: rgba(255, 255, 255, 0.5);
   }
+  // Dialog
+  .containerDialog {
+    color: white
+  }
 
   @keyframes glowDark {
     from {
@@ -467,6 +472,11 @@ header .container {
 }
 .mat-mdc-raised-button:hover:not(:disabled) {
   background-color: $light-button-active-glow;  
+}
+
+// Dialog
+.containerDialog{
+  color: lightslategray
 }
 
 // Dropdown Menu

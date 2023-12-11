@@ -42,12 +42,15 @@ import { MissionDeskComponent } from './mission-desk/mission-desk.component';
 import { TabContainerLazyComponent } from './tab-container-lazy/tab-container-lazy.component';
 import { BankManageComponent } from './bank-manage/bank-manage.component';
 import { BalanceComponent } from './balance/balance.component';
+import { BalanceManageDialogComponent } from './balance-manage-dialog/balance-manage-dialog.component';
+import { DirectDepositDialogComponent } from './direct-deposit-dialog/direct-deposit-dialog.component';
 
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NumberDirective } from './directive/numberonly.directive';
 import { NumberDecimalDirective } from './directive/number-decimal-only.directive';
 import { TabExtractedBodyDirective } from './directive/tab-extracted-body.directive';
+import { ImageFallbackDirective } from './directive/image-fallback.directive';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -67,6 +70,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatListModule } from '@angular/material/list';
+import { MatDialogModule } from '@angular/material/dialog';
 
 import { Globals } from './common/global-var';
 import { Alert } from './common/alert';
@@ -111,9 +115,12 @@ import { Alert } from './common/alert';
     NumberDirective,
     NumberDecimalDirective,
     TabExtractedBodyDirective,
+    ImageFallbackDirective,
     TabContainerLazyComponent,
     BankManageComponent,
-    BalanceComponent
+    BalanceComponent,
+    BalanceManageDialogComponent,
+    DirectDepositDialogComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -137,9 +144,10 @@ import { Alert } from './common/alert';
     MatBottomSheetModule,
     MatSlideToggleModule,
     MatListModule,
+    MatDialogModule,
     DragDropModule,
     NgbDropdownModule,
-    NgxChartsModule,    
+    NgxChartsModule,
     RouterModule.forRoot([
       { path: '', component: HomeComponent, pathMatch: 'full' },
       { path: 'bnb', component: HomeComponent, pathMatch: 'full' },

@@ -1,5 +1,5 @@
 
-<div class="balanceCoin">
+<div class="balanceCoin" (click)="openDialog('1000ms', '750ms')" [ngClass]="{'moduleEnabled':web3Active}">
   <img class="mega" src="./images/coin-m.png" />
-  <span class="amount">{{ balance }}</span>
+  <span class="amount">{{ accountMCPMegaBalance }}</span>
 </div>

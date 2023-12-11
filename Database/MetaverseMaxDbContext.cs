@@ -48,6 +48,7 @@ namespace MetaverseMax.Database
         public virtual DbSet<JobSetting> JobSetting { get; set; }
         
         public virtual DbSet<BlockchainTransaction> BlockchainTransaction { get; set; }
+        public virtual DbSet<PersonalSign> PersonalSign { get; set; }
 
         // options will be assigned on OnConfiguring()
         public MetaverseMaxDbContext() : base()

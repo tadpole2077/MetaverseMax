@@ -26,7 +26,7 @@
 
 <div class="buildingList" *ngFor="let row of tableView">
   <div class="buildingZoom">
-    <img src="{{ row.building_img }}" class="buildingImg">
+    <img imgfallback default="./images/construction.png" src="{{ row.building_img }}" class="buildingImg">
     <a class="mapLink lineAnim" target="_blank" title="Open MegaWorld Strategy" href="https://play.mcp3d.com/{{ globals.worldName.toLowerCase() }}/land?x={{ row.pos_x }}&y={{ row.pos_y }}">
       <mat-icon>language</mat-icon>
       <span>Strategy</span>

@@ -1,0 +1,6 @@
+﻿
+Resource Pack:  
+- By pack id
+- contents
+- owner
+https://mcp3d.com/api/matic/resource/71461

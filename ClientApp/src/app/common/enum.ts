@@ -133,6 +133,7 @@ enum HEX_NETWORK {
   ETHEREUM = "0x1",
   ETHEREUM_ID = '0x4',
   POLYGON_ID = '0x89',
+  BINANCE_ID = '0x38',      // 56 decimal
   BINANCE_TESTNET_ID = '0x61',
 };
 

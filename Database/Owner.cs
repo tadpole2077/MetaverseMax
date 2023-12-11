@@ -59,6 +59,9 @@ namespace MetaverseMax.Database
         [Column("balance", TypeName = "decimal(16, 8)")]
         public decimal? balance { get; set; }
 
+        [Column("discord_name")]
+        public string? discord_name { get; set; }
+
         // Account can update names - this is the last updated name that is not blank.
         [NotMapped]
         [Column("owner_name")]
@@ -115,6 +118,9 @@ namespace MetaverseMax.Database
         // Account can update names - this is the last updated name that is not blank.
         [Column("owner_name")]
         public string? owner_name { get; set; }
+
+        [Column("discord_name")]
+        public string? discord_name { get; set; }
 
         [Column("avatar_id")]
         public int? avatar_id { get; set; }

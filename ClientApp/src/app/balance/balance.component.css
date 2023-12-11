@@ -1,11 +1,11 @@
-
-
 .balanceCoin {
   border: 2px rgba(21,101,192,1) solid;
   margin-left: 30px;
   border-radius: 12px;
   padding: 4px 16px 4px 8px;
+  display:none;
 }
+
 
 .mega {
   width: 18px;
@@ -15,4 +15,8 @@
 .amount{
   min-width: 38px;
   display: inline-block;
+}
+
+.moduleEnabled{
+  display:inline-block;
 }

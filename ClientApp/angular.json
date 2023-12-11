@@ -15,6 +15,7 @@
           "build": {
             "builder": "@angular-devkit/build-angular:browser",
             "options": {
+              "allowedCommonJsDependencies": [ "crypto", "web3" ], // note that this is the key of --> "crypto":["node_modules/crypto-js"]"
               "progress": false,
               "outputPath": "dist",
               "index": "src/index.html",

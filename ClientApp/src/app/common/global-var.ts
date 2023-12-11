@@ -6,7 +6,8 @@ import { AccountApproveComponent } from '../account-approve/account-approve.comp
 import { OwnerDataComponent } from '../owner-data/owner-data.component';
 import { AppComponent } from '../app.component';
 import DetectEthereumProvider from '@metamask/detect-provider';
-/*import TronWebProvider from 'tronweb';*/    // Massive package 599kb included in main.js file - only needed on server side Tron apps i think
+//import TronLink from 'tronWeb';
+//import TronWebProvider from 'tronweb';*/    // Massive package 599kb included in main.js file - only needed on server side Tron apps i think
 import { Router, UrlSegmentGroup, PRIMARY_OUTLET, UrlSegment, UrlTree, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { ALERT_TYPE, ALERT_ICON_TYPE, PENDING_ALERT } from '../common/enum'
@@ -90,6 +91,7 @@ export class Globals {
 
   // Flag triggers an update on any module that uses the Account Approval component
   public _requestApprove: boolean = false;
+
   set requestApprove(value) {    
 
     let changed = this._requestApprove != value;
@@ -117,6 +119,9 @@ export class Globals {
   private accountActiveSubject = new Subject<boolean>()
   public accountActive$ = this.accountActiveSubject.asObservable()
 
+  private balanceChangeSubject = new Subject<boolean>()
+  public balaceChange$ = this.balanceChangeSubject.asObservable()
+
 
   constructor(private httpClient: HttpClient, private alertSheet: MatBottomSheet, public router: Router, private location: Location, private route: ActivatedRoute) {
     
@@ -140,6 +145,25 @@ export class Globals {
       balance: 0
     };  
 
+  }
+
+  // Trigger check on user balance
+  updateUserBankBalance(baseUrl: string, maticKey: string) {
+
+    let params = new HttpParams();
+    params = params.append('matic_key', maticKey);
+
+    this.balanceChangeSubject.next(false);      // Reset to off
+
+    this.httpClient.get<number>(baseUrl + '/bank/GetBalance', { params: params })
+      .subscribe({
+        next: (result) => {
+          this.ownerAccount.balance = result;
+          this.balanceChangeSubject.next(true);
+        },
+        error: (error) => { console.error(error) }
+      });
+    
   }
 
   checkUserAccountKey(OwnerPublicKey: string, baseUrl: string, checkMyPortfolio: boolean) {
@@ -194,9 +218,25 @@ export class Globals {
 
     let attempts: number = 0;
     let subTron: Subscription;
-
+    //const TronWeb = require('tronweb')
     //const tronWebProvider = await TronWebProvider;
     let requestAccountsResponse: RequestAccountsResponse;
+    //const TronWeb = require('tronweb')
+    //const HttpProvider = TronWeb.providers.HttpProvider;
+
+    //let tronWeb;
+   // if ((window as any).tronLink.ready) {
+   //   tronWeb = (window as any).tronWeb;
+   // }
+   // else {
+   //   const res = await (window as any).tronLink.request({ method: 'tron_requestAccounts' });
+   //   if (res.code === 200) {
+   //     tronWeb = (window as any).tronLink.tronWeb;
+   //   }
+   // }    
+    //const tronLink = TronLink();
+    //const accounts = await TronLink.request({method:"tron_requestAccounts"})
+
 
 
     // Delay check on Tron Widget load and init, must be a better way of hooking into it.  Try to find Tron account 5 times - 1 per 500ms, on find run WS or end.
@@ -239,7 +279,7 @@ export class Globals {
 
     const tronWeb = (window as any).tronWeb;
     let ownerPublicKey: any = tronWeb == null ? null : tronWeb.defaultAddress;
-
+    
     if (ownerPublicKey != null && ownerPublicKey.base58 != false) {
 
       this.checkUserAccountKey(ownerPublicKey.base58, baseUrl, checkMyPortfolio);
@@ -268,6 +308,7 @@ export class Globals {
     const provider = await DetectEthereumProvider();
     const ethereum = (window as any).ethereum;
 
+    // Check Metamask Provider
     if (provider && provider.isMetaMask) {
 
       if (provider !== ethereum) {
@@ -280,11 +321,12 @@ export class Globals {
 
       if (accounts && accounts.length) {
 
+        const selectedAddress = accounts[0];
         console.log(">>>Ethereum Account linked<<<");
-        console.log("Key = ", ethereum.selectedAddress);
+        console.log("Key = ", selectedAddress);    // previously using depreciated ethereum.selectedAddress
         this.requestApprove = false;        
 
-        this.checkUserAccountKey(ethereum.selectedAddress, baseUrl, checkMyPortfolio);
+        this.checkUserAccountKey(selectedAddress, baseUrl, checkMyPortfolio);
       }
       else {
         console.log(">>>No Ethereum Account linked<<<");
@@ -314,19 +356,18 @@ export class Globals {
 
   async approveEthereumAccountLink(httpClient: HttpClient, baseUrl: string) {
 
-    const provider = await DetectEthereumProvider();
     const ethereum = (window as any).ethereum;
 
     const accountsApproved = await ethereum.request({ method: 'eth_requestAccounts' });
-    const account = accountsApproved[0];
+    const accountAddress = accountsApproved != null ? accountsApproved[0] : "";
 
     const chainId = await ethereum.request({ method: 'eth_chainId' });
 
-    if (account && account !== "") {
+    if (accountAddress && accountAddress !== "") {
       console.log(">>>Ethereum Account linked<<<");
-      console.log("Key = ", ethereum.selectedAddress);
+      console.log("Key = ", accountAddress);
 
-      this.ownerAccount.public_key = ethereum.selectedAddress;
+      this.ownerAccount.public_key = accountAddress;
       this.requestApprove = false;      
     }
     else {
@@ -335,7 +376,7 @@ export class Globals {
       this.requestApprove = true;
     }
 
-    return account;
+    return accountAddress;
   }
 
   requestApproveRefresh() {

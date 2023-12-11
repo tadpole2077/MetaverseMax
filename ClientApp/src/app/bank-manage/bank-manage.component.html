@@ -8,7 +8,7 @@
 <div class="actions">
   <button mat-raised-button color="primary" class="buttonEffect" (click)="getBankAdmin()">Bank: Get Admin</button>
   <button mat-raised-button color="primary" class="buttonEffect" (click)="getMegaContract()">Bank: Get Mega Contract</button>
-  <button mat-raised-button color="primary" class="buttonEffect" (click)="setMegaContract(CONTRACT_MEGA, CONTRACT_ADMIN)">Bank: Assign Mega Contract</button>
+  <button mat-raised-button color="primary" class="buttonEffect" (click)="setMegaContract(CONTRACT_MEGA, currentPlayerWalletKey)">Bank: Assign Mega Contract</button>
   <button mat-raised-button color="primary" class="buttonEffect" (click)="getBankBalance(CONTRACT_ADMIN)">Bank: Get Bank Mega Balance</button>
   <button mat-raised-button color="primary" class="buttonEffect" (click)="getCurrentWalletBalanceInBank()">Bank: Get Current Wallet Mega Balance in Bank</button>
   <button mat-raised-button color="primary" class="buttonEffect" (click)="getCurrentWalletBalanceMega()">Bank: Get Current Wallet Mega Balance in Mega Contract</button>
@@ -22,7 +22,7 @@
   </div>
 
   <div class="groupSpacer">
-    <button mat-raised-button color="primary" class="buttonEffect" (click)="withdrawMegaFromMMBank(100)">Bank: Withdraw from Bank</button>
+    <button mat-raised-button color="primary" class="buttonEffect" (click)="withdrawAllowanceApprove(100, currentPlayerWalletKey)">Bank: Withdraw from Bank</button>
     <button mat-raised-button color="primary" class="buttonEffect" (click)="increaseBankAllowance(101)">Bank: Increase Allowance From Bank to Recipient</button>
   </div>
 

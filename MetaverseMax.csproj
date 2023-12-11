@@ -58,6 +58,7 @@
   <ItemGroup>
     <None Remove="ClientApp\src\app\alert-bottom\alert-bottom.component.ts" />
     <None Remove="ClientApp\src\app\alert-menu\alert-menu.component.ts" />
+    <None Remove="ClientApp\src\app\balance-manage-dialog\balance-manage-dialog.component.ts" />
     <None Remove="ClientApp\src\app\balance\balance.component.ts" />
     <None Remove="ClientApp\src\app\bank-manage\bank-manage.component.ts" />
     <None Remove="ClientApp\src\app\building-filter\building-filter.component.ts" />
@@ -69,10 +70,13 @@
     <None Remove="ClientApp\src\app\common\interface.ts" />
     <None Remove="ClientApp\src\app\common\web3Utils.ts" />
     <None Remove="ClientApp\src\app\Contract\contractBasicAbi.ts" />
+    <None Remove="ClientApp\src\app\Contract\contractMCPMegaAbi.ts" />
     <None Remove="ClientApp\src\app\Contract\contractMegaCoinAbi.ts" />
     <None Remove="ClientApp\src\app\Contract\contractMMBankAbi.ts" />
     <None Remove="ClientApp\src\app\custom-building-table\custom-building-table.component.ts" />
     <None Remove="ClientApp\src\app\custom-building\custom-building.component.ts" />
+    <None Remove="ClientApp\src\app\direct-deposit-dialog\direct-deposit-dialog.component.ts" />
+    <None Remove="ClientApp\src\app\directive\image-fallback.directive.ts" />
     <None Remove="ClientApp\src\app\directive\tab-extracted-body.directive.ts" />
     <None Remove="ClientApp\src\app\district-list\district-list.component.css" />
     <None Remove="ClientApp\src\app\district-notification\district-notification.component.css" />
@@ -90,6 +94,7 @@
     <None Remove="ClientApp\src\app\player-menu\player-menu.component.ts" />
     <None Remove="ClientApp\src\app\tab-container-lazy\tab-container-lazy.component.ts" />
     <None Remove="ClientApp\src\app\transfer-asset\transfer-asset.component.ts" />
+    <None Remove="ClientApp\src\app\validator\max-balance.validator.ts" />
     <None Remove="ClientApp\src\app\world\world.component.ts" />
     <None Remove="ClientApp\tsconfig.json" />
   </ItemGroup>
@@ -1845,6 +1850,9 @@
       <SubType>Code</SubType>
     </TypeScriptCompile>
     <TypeScriptCompile Update="ClientApp\src\app\Contract\contractMMBankAbi.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Update="ClientApp\src\app\direct-deposit-dialog\direct-deposit-dialog.component.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
     <TypeScriptCompile Update="ClientApp\src\app\graph-damage\data-damage-test.ts">

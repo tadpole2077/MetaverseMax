@@ -1,8 +1,92 @@
-﻿All world types support player swap of wallet account linked to in-world account.
-This requires mapping a Public Wallet key to an existing L2 account.
+﻿
+Overview
+=============
+All MegaWorld types support player swap of wallet account linked to in-world account.
+This requires mapping a Public Wallet key to an existing L2 account (Matic).
 A new L2 account is not generated during this process.
 Thus, it is no longer possible to find a matching L1 wallet key from L2 account after this switch occurs.
 Outstanding problem - a few account have switched (Example: Noblus)
+
+Components:
+=============
+1) @metamask/detect-provider
+	2023/11/22 :  V2 is still the latest provider.
+	2022 : @metamask/detect-provider@2.0.0
+
+	Use: Identify provider is metamask extension, also used to send to Web3 component.
+
+Install using: 
+1) VS2022 > Developer Powershell (integrated panal)
+2) CMD (admin) > cd D:\0_Development\2_Applications\GitHub\MetaverseMax\MetaverseMax\ClientApp
+
+
+2) Tronweb
+	https://www.npmjs.com/package/tronweb?activeTab=readme
+	2023/11/22 : V5.3.1
+	Install: npm i tronweb
+
+
+
+2) Sunweb
+	https://github.com/tronprotocol/sun-network/tree/develop/js-sdk
+	https://www.npmjs.com/package/sunweb
+
+
+
+
+Wallet Identification/Linking Process
+=============
+When:
+- On load/reload of Page
+
+Process:
+- Nav-Menu (component.constructer) >> checkWorldFromURL() >> selectWorld() >> registerOwnerKey()
+	- Depending on world (identified from URL)
+		getTronAccounts()
+		getEthereumAccounts()
+	- setEventListeners()
+	
+		Ethereum :  
+		* Add Ethereum object listener "accountsChanged",  triggering >> ethAccountsChanged();
+		* Which calls globals.getEthereumAccounts()
+
+		Tron : 
+		* Add Window listener "message", triggering >> trxAccountsChanged()
+		* Which calls globals.checkTronAccountKey()
+
+
+- Global.var.ts
+	getEthereumAccounts()
+		If 1 or more Ethereum accounts dedected from the (DOM)Ethereum object : call
+		checkUserAccountKey( ethereum.selectedAddress )			//  ethereum.selectedAdress is now depreciated!!
+			Call WS /OwnerData/CheckHasPortfolio -  Return backend User account details.
+
+	checkTronAccountKey()
+		If a Tron account is found using window.tronWeb DOM object : call
+		checkUserAccountKey( tronWeb.defaultAddress )
+			Call WS /OwnerData/CheckHasPortfolio -  Return backend User account details.
+
+
+
+
+
+Component tracking of Wallet Initialised and Account Identified, Account Swap:
+==================== 
+* Any component that needs to identify the current Wallet public key should use the following Listener Pattern
+
+1) Defined a subscription - that triggers an event when status changes.
+	subscriptionAccountActive$: Subscription;
+
+2) Within Component.ngOnInit() - define the subcription listener event - that trigger when a global var changes state. 
+    // Monitor using service - when account status changes - active / inactive.
+    this.subscriptionAccountActive$ = this.globals.accountActive$.subscribe(active => {
+      this.currentPlayerWalletKey = this.globals.ownerAccount.public_key;
+    })
+
+3) Within Component.ngOnDestroy() - Remove the subscription listener  (other potentially multiple events will get triggered when component is reloaded)
+	this.subscriptionAccountActive$.unsubscribe();
+	
+
 
 
 
@@ -17,6 +101,31 @@ Example:
 	TEezLac6wpckwoxtfMQiipyUKJtcMyZPVZ
 	41 3366921A0BCA183050F92BBEA0DDBD8922F7206E 82484BD0 using base58 tool http://lenschulwitz.com/base58	
 	matic: 0x3366921A0BCA183050F92BBEA0DDBD8922F7206E82
+
+
+
+Issue (2023/11/22):  Shown in Angular compile detail log
+
+Error Data:
+./node_modules/tronWeb/dist/TronWeb.node.js:6046:15-32 - Error: Module not found: Error: Can't resolve 'crypto' in 'D:\0_Development\2_Applications\GitHub\MetaverseMax\MetaverseMax\ClientApp\node_modules\tronWeb\dist'
+
+BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+This is no longer the case. Verify if you need this module and configure a polyfill for it.
+
+If you want to include a polyfill, you need to:
+        - add a fallback 'resolve.fallback: { "crypto": require.resolve("crypto-browserify") }'
+        - install 'crypto-browserify'
+If you don't want to include a polyfill, you can use an empty module like this:
+        resolve.fallback: { "crypto": false }
+
+Solution: https://stackoverflow.com/questions/67572355/webpack-5-angular-polyfill-for-node-js-crypto-js
+npm install crypto-browserify stream-browserify
+Add paths to tsconfig.json:
+"paths":{
+"crypto":["node_modules/crypto-browserify"],
+"stream":["node_modules/stream-browserify"]
+}
+
 
 ETH
 ==========
@@ -35,3 +144,21 @@ Background:
   2) land/get			: lowercase owner wallet key
   3) parcel/get			: checksum key used in field 'address' , which is the owner of the parcel.
   4) user/get			: lowercase wallet ket used - 'address'
+
+
+
+DetectEthereumProvider
+=================
+Use: 
+- Identify wallet provider (ie Metamask extension)
+- Assign provider to Web3 library.
+  
+Attach: import DetectEthereumProvider from '@metamask/detect-provider';
+
+Code:
+1) Check provider is MetaMask
+	this.provider = await DetectEthereumProvider();
+	if (this.provider && this.provider.isMetaMask) {
+
+2) Assign provider to Web3
+	this.web3 = new Web3(this.provider);

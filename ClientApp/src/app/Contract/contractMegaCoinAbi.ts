@@ -1,4 +1,4 @@
-const MegaCoinAbi = [
+const MegaCoinMOCKAbi = [
 {
       "inputs": [],
       "stateMutability": "nonpayable",
@@ -411,5 +411,5 @@ const MegaCoinAbi = [
 
 
 export {
-  MegaCoinAbi
+  MegaCoinMOCKAbi
 };

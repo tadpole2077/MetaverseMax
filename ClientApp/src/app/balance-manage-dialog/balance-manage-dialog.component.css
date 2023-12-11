@@ -1,0 +1,161 @@
+.containerDialog {  
+}
+
+
+
+.containerTop {
+  display: flex;  
+}
+.balanceInfo {
+  padding: 20px;
+}
+.balanceLabel {
+  font-size: 16px;
+  margin-bottom: 4px;
+  color: lightslategray;
+}
+.balanceCoin {
+  padding: 10px;
+  min-width: 260px;
+  background: lightskyblue;
+  display: inline-block;
+  border-radius: 8px;
+}
+.progressMsgCollection {
+  margin-top: 14px;
+}
+.processMsg {
+  display: flex;
+  align-items: center;
+  height: 30px;
+}
+.processMsg span {
+  padding-left: 22px;
+}
+
+.backgroundNoFocus {
+  background-color: #f5f5f5
+}
+
+.hideProgress{
+  display:none;
+}
+.showProgress {
+  display: block
+}
+.progressSection{
+  height: 40px
+}
+.progressData {
+  text-align: center;
+}
+.progressText {  
+}
+
+.containerAction {
+  display: flex;
+  border-top: thin lightgray solid;
+}
+.actionMega {
+  width: 300px;
+  height: 250px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-evenly;
+  flex-direction:column
+}
+.actionMega:first-of-type{
+  border-right: thin lightgray solid;
+}
+.inputAmount {
+  margin-top: 14px;
+  margin-bottom: 14px;
+  font-size: 20px;
+  font-weight: 500;
+  max-height: 56px;         /* Prevent input errors pushing tags down*/
+}
+.buttonEffect {
+  font-size: 18px;
+  padding-left: 30px;
+  padding-right: 28px
+}
+.mat-mdc-form-field-error{
+  font-size:12px
+}
+
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(359deg);
+  }
+}
+
+
+.transferIcon {
+  font-size: 1rem;
+  margin-left: 8px;
+  margin-top: 9px;
+  position: absolute;
+  color: white;
+  z-index: 1;
+  display:none
+}
+.progressIcon {
+  font-size: 1rem;
+  position: absolute;
+  z-index: 1;
+  display: none;
+  margin-left: -24px;
+}
+i.rotate {
+  display: block;
+  animation: rotation 1s 30 linear;
+  animation-iteration-count: infinite;
+}
+
+.mega {
+  width: 24px;
+  margin-top: -2px;
+}
+
+.megaSmall {
+  width: 18px;
+}
+
+.amount {
+  min-width: 38px;
+  display: inline-block;
+  font-size: 26px;
+  vertical-align: middle;
+  color: white;
+  font-weight: 700;
+  padding-left: 2px;
+}
+
+.megaBalance {
+  margin-bottom: 12px;
+  margin-top: 6px;
+}
+
+.networkWarning, .phase1Warning, .phase2Warning {
+  font-size: 20px;
+  position: absolute; 
+  color: darkorange;
+  display:none;
+}
+.enabled{
+  display:inline-block
+}
+
+
+
+@media only screen and (max-width: 426px) {
+  .containerAction, .containerTop {
+    flex-direction: column;
+  }
+
+}

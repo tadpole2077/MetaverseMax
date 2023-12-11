@@ -671,7 +671,7 @@ namespace MetaverseMax.ServiceClass
             // Check if FullUpdate flag enabled, and any plots identified that require a full update (due to specific attribute change found that partial update cant handle)
             if (processFullUpdate && plotFullUpdateList.Count > 0)
             {
-                Task.Run(() => plotManage.FullUpdateBuildingAsync(plotFullUpdateList));
+                Task.Run(() => plotManage.UpdateBuildingAsyncFull(plotFullUpdateList));
             }
 
             return plotsUpdatedCount;
@@ -799,7 +799,7 @@ namespace MetaverseMax.ServiceClass
                         JObject jsonContent = JObject.Parse(content);
 
                         ownerData.owner_name = jsonContent.Value<string>("avatar_name") ?? "Not Found";
-                        ownerData.owner_name = ownerData.owner_name == string.Empty ? owner.owner_name : ownerData.owner_name;
+                        ownerData.owner_name = ownerData.owner_name == string.Empty ? owner.discord_name ?? string.Empty : ownerData.owner_name;
 
                         ownerData.owner_url = citizen.AssignDefaultOwnerImg(jsonContent.Value<string>("avatar_id") ?? "");
 

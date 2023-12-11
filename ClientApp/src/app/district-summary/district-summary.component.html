@@ -38,7 +38,7 @@
     <div class="ownerdata">
       <div>
         Owner:
-        <a class="districtOwnerLink text-dark lineAnim" [routerLink]="['/', worldCode, 'owner-data']" [queryParams]="{matic: district.owner_matic}" title="{{ district.owner_name }}"><strong>{{ district.owner_name }}</strong></a>
+        <a class="districtOwnerLink text-dark lineAnim" [routerLink]="['/', worldCode, 'owner-data']" [queryParams]="{matic: district.owner_matic}" title="{{ district.owner_name }}"><strong>{{ district.owner_name == "" ? 'Unknown (' + district.owner_matic.substring(0,15) + '...)' : district.owner_name  }}</strong></a>
       </div>
       <div *ngIf="district.owner_matic">
         District Owner Key:

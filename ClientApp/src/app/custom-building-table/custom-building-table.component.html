@@ -25,7 +25,7 @@
           <span class="buildingNum"># {{ row.parcel_id }}</span>
           <span class="buildingCategory mobileView">{{ getCustomCategoryName(row.building_category_id) }}</span>
           <div [ngClass]="{'buildingZoom': row.building_category_id == 0 }">
-            <img src="{{ row.building_img }}" class="buildingImg">
+            <img imgfallback default="./images/construction.png" src="{{ row.building_img }}" class="buildingImg">
           </div>
         </div>
 
