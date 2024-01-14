@@ -40,8 +40,9 @@ import { CustomBuildingComponent } from './custom-building/custom-building.compo
 import { CustomBuildingTableComponent } from './custom-building-table/custom-building-table.component';
 import { MissionDeskComponent } from './mission-desk/mission-desk.component';
 import { TabContainerLazyComponent } from './tab-container-lazy/tab-container-lazy.component';
-import { BankManageComponent } from './bank-manage/bank-manage.component';
+import { TESTBankManageComponent } from './bank-manage/bank-manage.component';
 import { BalanceComponent } from './balance/balance.component';
+import { BalanceLogComponent } from './balance-log/balance-log.component';
 import { BalanceManageDialogComponent } from './balance-manage-dialog/balance-manage-dialog.component';
 import { DirectDepositDialogComponent } from './direct-deposit-dialog/direct-deposit-dialog.component';
 
@@ -117,8 +118,9 @@ import { Alert } from './common/alert';
     TabExtractedBodyDirective,
     ImageFallbackDirective,
     TabContainerLazyComponent,
-    BankManageComponent,
+    TESTBankManageComponent,
     BalanceComponent,
+    BalanceLogComponent,
     BalanceManageDialogComponent,
     DirectDepositDialogComponent
   ],
@@ -184,10 +186,10 @@ import { Alert } from './common/alert';
       { path: 'trx/world', component: WorldComponent },
       { path: 'eth/world', component: WorldComponent },
 
-      { path: 'bank-manage', component: BankManageComponent },
-      { path: 'bnb/bank-manage', component: BankManageComponent  },
-      { path: 'trx/bank-manage', component: BankManageComponent  },
-      { path: 'eth/bank-manage', component: BankManageComponent  }
+      { path: 'bank-manage', component: TESTBankManageComponent },
+      { path: 'bnb/bank-manage', component: TESTBankManageComponent  },
+      { path: 'trx/bank-manage', component: TESTBankManageComponent  },
+      { path: 'eth/bank-manage', component: TESTBankManageComponent  }
     ]),
     BrowserAnimationsModule,
     ClipboardModule

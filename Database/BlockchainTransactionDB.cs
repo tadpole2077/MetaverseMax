@@ -87,5 +87,23 @@ namespace MetaverseMax.Database
 
             return transactionProcessed;
         }
+
+        public List<BlockchainTransaction> GetByOwnerMatic(string ownerMaticKey)
+        {
+            List<BlockchainTransaction> ownerTransactionList = null;
+
+            try
+            {
+                ownerTransactionList = _context.BlockchainTransaction.Where(x => x.owner_matic == ownerMaticKey)
+                    .OrderByDescending(x => x.event_recorded_utc)
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                logException(ex, String.Concat("blockchainTransactionDB::GetByOwnerMatic() : Error getting list by ownerMaticKey ", ownerMaticKey));
+            }
+
+            return ownerTransactionList;
+        }
     }
 }

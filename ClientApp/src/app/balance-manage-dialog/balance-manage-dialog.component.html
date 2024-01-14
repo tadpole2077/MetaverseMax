@@ -1,110 +1,135 @@
 <div class="containerDialog">
 
-  <div class="containerTop">
-    <div class="balanceInfo">
-      <div class="balanceLabel"><span>Account MM Balance:</span></div>
-      <div class="balanceCoin">
-        <img class="mega" src="./images/coin-m.png" />
-        <span class="amount">{{ balance }}</span>
+  <mat-tab-group class="tabHeaderBank" (selectedTabChange)="changeTab($event)" [selectedIndex]="0">
+
+    <mat-tab class="dialogTab">
+      <ng-template mat-tab-label>
+        <mat-icon class="">account_balance</mat-icon>
+        <span>Balance</span>
+      </ng-template>
+    </mat-tab>
+
+    <mat-tab class="dialogTab">
+      <ng-template mat-tab-label>
+        <mat-icon class="">library_books</mat-icon>
+        <span>Log</span>
+      </ng-template>
+    </mat-tab>
+  </mat-tab-group>
+
+  <div class="tab1Content" [ngClass]="{'visible':tab1Visible}">
+    <div class="topSection">
+      <div class="balanceSection">
+        <div class="balanceInfo">
+          <div class="balanceLabel"><span>Account MM Balance:</span></div>
+          <div class="balanceCoin">
+            <img class="mega" src="./images/coin-m.png" />
+            <span class="amount">{{ balance }}</span>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="progressMsgCollection">
-      <div class="processMsg">
+
+      <div class="statusCheck disabled" [ngClass]="{'enabled': networkCheckActive}">
         <i [ngClass]="{'rotate': networkChange }" class="fas fa-sync-alt progressIcon"></i>
+        <i [ngClass]="{'enabled': !networkWarning && !networkChange}" class="fas fa-check checkIcon"></i>
+        <mat-icon class="warning" [ngClass]="{'enabled': networkWarning && !networkChange }">info</mat-icon>
         <span>{{ networkMsg }}</span>
-        <mat-icon class="networkWarning" [ngClass]="{'enabled': networkWarning && !networkChange }">info</mat-icon>
+      </div>
+
+      <section class="progressSection">
+        <div class="hideProgress" [ngClass]="{'showProgress': transactionStarted}">
+          <div class="progressData">
+            <mat-icon class="warning" [ngClass]="{'enabled': progressWarning }">info</mat-icon>
+            <label class="progressInfo"><i [ngClass]="{'rotate': processActive }" class="fas fa-sync-alt progressIcon"></i>{{ progressMsg }}</label>
+          </div>
+          <mat-progress-bar mode="buffer"
+                            [value]="1"
+                            [bufferValue]="100">
+          </mat-progress-bar>
+        </div>
+      </section>
+    </div>
+
+    <div class="containerAction">
+      <div class="actionMega" [ngClass]="{'backgroundNoFocus': !depositFocus}" (click)="withdrawFocus = false; depositFocus = true;">
+        <div class="balanceLabel"><span>Deposit into your MM Account</span></div>
+
+        <mat-form-field [style.width.rem]=14 class="notchAdjust inputAmount" appearance="outline" floatLabel="auto" subscriptSizing="dynamic">
+          <mat-label>Mega</mat-label>
+
+          <input id="amountDeposit"
+                 numbersDecimalOnly
+                 autocomplete="off"
+                 maxlength="12"
+                 matInput
+                 class=""
+                 (focus)="withdrawFocus = false; depositFocus = true;"
+                 autofocus
+                 [formControl]="amountDepositControl"
+                 type='text' />
+
+          <mat-error *ngIf="amountDepositControl.hasError('min')">
+            Deposit needs an amount
+          </mat-error>
+          <mat-error *ngIf="amountDepositControl.hasError('max')">
+            {{ insufficientMsg }}
+          </mat-error>
+        </mat-form-field>
+
+        <div class="balanceLabel megaBalance">
+          <span>{{ accountMCPMegaBalance }}</span>
+          <img class="megaSmall" src="./images/coin-m.png" />
+          <span> Available</span>
+        </div>
+
+        <div class="buttonContainer">
+          <i [ngClass]="{'rotate': depositRotateActive }" class="fas fa-sync-alt transferIcon"></i>
+          <button mat-raised-button color="primary" class="buttonEffect" (click)="depositMegaToMMBankWithAllowance()" [disabled]="checkInvalidDeposit">Deposit</button>
+        </div>
+
+      </div>
+
+      <div class="actionMega" [ngClass]="{'backgroundNoFocus': !withdrawFocus}" (click)="withdrawFocus = true; depositFocus = false;" (focus)="withdrawFocus = true; depositFocus = false;">
+        <div class="balanceLabel"><span>Withdraw from your MM Account</span></div>
+        <mat-form-field [style.width.rem]=14 class="notchAdjust inputAmount" appearance="outline" floatLabel="auto" subscriptSizing="dynamic">
+          <mat-label>Mega</mat-label>
+
+          <input id="amountWithdraw"
+                 numbersDecimalOnly
+                 autocomplete="off"
+                 maxlength="12"
+                 matInput
+                 class=""
+                 (focus)="withdrawFocus = true; depositFocus = false;"
+                 [formControl]="amountWithdrawControl"
+                 type='text' />
+          <!-- (keyup)="checkWithdrawMax($event.target.value)" -->
+
+          <mat-error *ngIf="amountWithdrawControl.hasError('min')">
+            Withdraw needs an amount
+          </mat-error>
+          <mat-error *ngIf="amountWithdrawControl.hasError('max')">
+            Insufficient balance
+          </mat-error>
+        </mat-form-field>
+
+        <div class="balanceLabel megaBalance">
+          <span>{{ balance }}</span>
+          <img class="megaSmall" src="./images/coin-m.png" />
+          <span> Available</span>
+        </div>
+
+        <div class="buttonContainer">
+          <i [ngClass]="{'rotate': withdrawRotateActive }" class="fas fa-sync-alt transferIcon"></i>
+          <button mat-raised-button color="primary" class="buttonEffect" [disabled]="checkInvalidWithdraw" (click)="withdrawAllowanceApprove()">Withdraw</button>
+        </div>
+
       </div>
     </div>
+
   </div>
 
-  <section class="progressSection">
-    <div class="hideProgress" [ngClass]="{'showProgress': transactionStarted}">
-      <div class="progressData">
-        <label class="progressInfo"><i [ngClass]="{'rotate': processActive }" class="fas fa-sync-alt progressIcon"></i>{{ progressMsg }}</label>
-      </div>
-      <mat-progress-bar
-                        mode="buffer"
-                        [value]="1"
-                        [bufferValue]="100">
-      </mat-progress-bar>
-    </div>
-  </section>
-
-
-  <div class="containerAction">
-    <div class="actionMega" [ngClass]="{'backgroundNoFocus': !depositFocus}" (click)="withdrawFocus = false; depositFocus = true;">
-      <div class="balanceLabel"><span>Deposit into your MM Account</span></div>
-
-      <mat-form-field [style.width.rem]=14 class="notchAdjust inputAmount" appearance="outline" floatLabel="auto" subscriptSizing="dynamic">
-        <mat-label>Mega</mat-label>
-
-        <input id="amountDeposit"
-               numbersDecimalOnly
-               autocomplete="off"
-               maxlength="12"
-               matInput
-               class=""
-               (focus)="withdrawFocus = false; depositFocus = true;"
-               [formControl]="amountDepositControl"
-               type='text' />
-
-        <mat-error *ngIf="amountDepositControl.hasError('min')">
-          Deposit needs an amount
-        </mat-error>
-        <mat-error *ngIf="amountDepositControl.hasError('max')">
-          Insufficient balance
-        </mat-error>
-      </mat-form-field>
-
-      <div class="balanceLabel megaBalance">
-        <span>{{ accountMCPMegaBalance }}</span>
-        <img class="megaSmall" src="./images/coin-m.png" />
-        <span> Available</span>
-      </div>
-
-      <div class="buttonContainer">
-        <i [ngClass]="{'rotate': depositRotateActive }" class="fas fa-sync-alt transferIcon"></i>
-        <button mat-raised-button color="primary" class="buttonEffect" (click)="depositMegaToMMBankWithAllowance()"  [disabled]="checkInvalidDeposit">Deposit</button>
-      </div>
-
-    </div>
-
-    <div class="actionMega" [ngClass]="{'backgroundNoFocus': !withdrawFocus}" (click)="withdrawFocus = true; depositFocus = false;" (focus)="withdrawFocus = true; depositFocus = false;">
-      <div class="balanceLabel"><span>Withdraw from your MM Account</span></div>
-      <mat-form-field [style.width.rem]=14 class="notchAdjust inputAmount" appearance="outline" floatLabel="auto" subscriptSizing="dynamic">
-        <mat-label>Mega</mat-label>
-
-        <input id="amountWithdraw"
-               numbersDecimalOnly
-               autocomplete="off"
-               maxlength="12"
-               matInput
-               class=""
-               (focus)="withdrawFocus = true; depositFocus = false;"
-               [formControl]="amountWithdrawControl"
-               type='text' />
-               <!-- (keyup)="checkWithdrawMax($event.target.value)" -->
-               
-        <mat-error *ngIf="amountWithdrawControl.hasError('min')">
-          Withdraw needs an amount
-        </mat-error>
-        <mat-error *ngIf="amountWithdrawControl.hasError('max')">
-          Insufficient balance
-        </mat-error>
-      </mat-form-field>
-
-      <div class="balanceLabel megaBalance">
-        <span>{{ balance }}</span>
-        <img class="megaSmall" src="./images/coin-m.png" />
-        <span> Available</span>
-      </div>
-
-      <div class="buttonContainer">
-        <i [ngClass]="{'rotate': withdrawRotateActive }" class="fas fa-sync-alt transferIcon"></i>
-        <button mat-raised-button color="primary" class="buttonEffect" [disabled]="checkInvalidWithdraw" (click)="withdrawAllowanceApprove()">Withdraw</button>
-      </div>
-
-    </div>
+  <div class="tab2Content" [ngClass]="{'visible':tab2Visible}">
+    <app-balance-log  />
   </div>
-
 </div>

@@ -69,6 +69,8 @@ $light-button-active-glow: mat.get-color-from-palette(mat.define-palette(mat.$bl
 // Dropdown Menu
 $light-menu-hover-bg: #f5f5f5;
 
+// Table Row
+$app-row-hover: rgba(173, 245, 230, .2);
 
 
 
@@ -129,6 +131,7 @@ $foreground: map-get($dark-app-theme, foreground);
   /*@include mat.all-component-themes($dark-app-theme15);*/
   @include mode.home($dark-app-button-bg, $app-button-hover-bg, $dark-app-button-color);
   @include mode.link($dark-app-button-color, #FFF, #FFF);
+
   // dropdown-menu - Alert component
   .dropdown-menu {
     background-color: $dark-menu-bg;
@@ -409,45 +412,41 @@ $foreground: map-get($dark-app-theme, foreground);
   .mat-button-toggle-appearance-standard {
     color: rgba(255, 255, 255, 0.5);
   }
+
   // Dialog
   .containerDialog {
     color: white
   }
-
-  @keyframes glowDark {
-    from {
-      text-shadow: 0 0 2px #fff, 0 0 5px #fff, 0 0 8px #fff, 0 0 10px #1b6ec2, 0 0 13px #1b6ec2, 0 0 15px #1b6ec2, 0 0 18px #fff;
-    }
-
-    to {
-      text-shadow: 0 0 5px #fff, 0 0 7px #FFF, 0 0 10px #ff4da6, 0 0 12px #ff4da6, 0 0 15px #ff4da6, 0 0 17px #ff4da6, 0 0 20px #fff;
-    }
+  .actionMega{
+    background-color: rgba($dark-outer-bg, .9);    
+  }
+  .actionMega .balanceLabel{
+    color: lightgray;
+  }
+  .backgroundNoFocus {
+    background-color: $dark-outer-bg;    
+  }
+  .actionMega.backgroundNoFocus .balanceLabel{
+    color: lightslategray
+  }
+  .mat-mdc-dialog-container .mdc-dialog__surface {
+    background-color: $dark-outer-bg; //#212936
   }
 
-  @keyframes glow2Dark {
-    from {
-      text-shadow: 0 0 1px #fff, 0 0 2px #fff, 0 0 4px #fff, 0 0 6px #28a745, 0 0 7px #28a745;
-    }
-
-    to {
-      text-shadow: 0 0 1px #fff, 0 0 3px #FFF, 0 0 5px #ff4da6, 0 0 7px #ff4da6;
-    }
+  // Button Animation
+  .magnifyHistoryPosition:hover::after {
+    animation-name: sonarEffectDark;
   }
 
   .topBtnDiv .mat-button-toggle-checked button {
     animation: glowBtnDoggleDark 1.4s ease-in-out infinite alternate;
   }
-
-  @keyframes glowBtnDoggleDark {
-    from {
-      box-shadow: 0 0 1px gray, 0 0 2px gray
-    }
-
-    to {
-      box-shadow: 0 0 2px #353741, 0 0 3px #353741;
-    }
+  // Icons
+  .topBtnDiv i.showTick {
+    color: white;
   }
 }
+
 
 
 
@@ -478,6 +477,9 @@ header .container {
 .containerDialog{
   color: lightslategray
 }
+.backgroundNoFocus {
+  background-color: #f5f5f5;
+}
 
 // Dropdown Menu
 .menuItem:hover {
@@ -498,21 +500,25 @@ header .container {
 
 //   Expanded Rows
 table tr.mat-mdc-row:not(.detailRow):hover {
-  background: lightblue;
+  background: $app-row-hover
 }
 
 tr.mat-mdc-row:not(.detailRow):active {
   background: #efefef;
 }
 
-@keyframes glowBtnDoggle {
-  from {
-    box-shadow: 0 0 1px gray, 0 0 3px gray;
-  }
+// Button Animation
+.magnifyHistoryPosition:hover::after {
+  animation-name: sonarEffect;
+}
 
-  to {
-    box-shadow: 0 0 2px $light-button-active-glow, 0 0 3px $light-button-active-glow, 0 0 5px $light-button-active-glow, 0 0 7px $light-button-active-glow;
-  }
+
+// ICONS
+.topBtnDiv i {
+  color: white;
+}
+.topBtnDiv i.showTick {
+  color: green;
 }
 
 
@@ -584,3 +590,6 @@ div.districtEle {
 
 // Final overwrites - higher specificity then above rules
 @import "scss/overwrite_material_styles.scss";
+
+// Add frame animations
+@import "scss/frames_animation.scss";

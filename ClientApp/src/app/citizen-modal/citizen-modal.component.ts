@@ -1,4 +1,4 @@
-import { Component, Inject, ViewChild, Output, EventEmitter, ChangeDetectorRef, AfterViewInit, ElementRef } from '@angular/core';
+import { Component, Inject, ViewChild, Output, EventEmitter, ChangeDetectorRef, AfterViewInit, ElementRef, NgZone } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
@@ -25,6 +25,7 @@ export class CitizenModalComponent {
   public notifySubscription: Subscription = null;
   public showingColumnsTraits: boolean = true;
   showTick: boolean = false;
+  reset: any = null;
 
   httpClient: HttpClient;
   baseUrl: string;
@@ -42,7 +43,7 @@ export class CitizenModalComponent {
   displayedColumns: string[] = this.displayedColumnsTraits;
   tableHeader: string = "Traits";
 
-  constructor(public globals: Globals, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private clipboard: Clipboard) {
+  constructor(public globals: Globals, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private clipboard: Clipboard, private zone: NgZone) {
 
     this.httpClient = http;
     this.baseUrl = baseUrl + "api/" + globals.worldCode;
@@ -81,6 +82,20 @@ export class CitizenModalComponent {
     let counter: number = 0;
     let header: string = "";
     let copyDataset = this.portfolioCitizen.citizen;
+
+    if (this.reset != null) {
+      return;
+    }
+
+    // Control tick animation reset flag, supports reuse of animation.
+    this.reset = interval(4000)
+      .subscribe(
+        async (val) => {
+          this.showTick = false;
+          this.reset.unsubscribe();
+          this.reset = null;
+        }
+      );
 
     this.displayedColumns.forEach(function (key, value) {
       parseData += key + "\t";

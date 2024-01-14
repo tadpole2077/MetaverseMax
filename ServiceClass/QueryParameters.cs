@@ -66,6 +66,17 @@ namespace MetaverseMax.ServiceClass
 
     }
 
+    public class QueryParametersOwnerVisible
+    {
+        // Using BingRequired attribute and not Required as it forces a specific use of a parameter name
+        [BindRequired]
+        public string owner_matic_key { get; set; }
+
+        [BindRequired]
+        public bool balance_visible { get; set; }
+
+    }
+
     public class QueryParametersMatic
     {
         //[BindRequired]
@@ -280,6 +291,12 @@ namespace MetaverseMax.ServiceClass
 
     }
 
+    public class QueryParametersEndpoint
+    {
+        [BindRequired]
+        public string contract_name { get; set; }
+    }
+    
     public class QueryParametersTransaction
     {
         [BindRequired]

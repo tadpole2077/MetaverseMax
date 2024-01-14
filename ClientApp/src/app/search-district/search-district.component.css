@@ -1,13 +1,3 @@
-@keyframes rotation {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(359deg);
-  }
-}
-
 .rotate {
   animation: rotation 10s 1 linear;
 }
@@ -19,14 +9,4 @@ a {
 .buttonEffect {
   font-size: .96rem;
   animation: glowBtn 1.4s ease-in-out infinite alternate;
-}
-
-@keyframes glowBtn {
-  from {
-    box-shadow: 0 0 3px #fff, 0 0 6px #fff, 0 0 9px #fff, 0 0 12px #fff;
-  }
-
-  to {
-    box-shadow: 0 0 3px #1b6ec2, 0 0 6px #1b6ec2, 0 0 8px #1b6ec2, 0 0 8px #1b6ec2;
-  }
 }

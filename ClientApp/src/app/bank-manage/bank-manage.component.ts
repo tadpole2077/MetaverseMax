@@ -14,7 +14,7 @@ import { Contract } from 'web3-eth-contract';
 import { isAddress } from 'web3-validator';
 import { MMBankAbi } from "../Contract/contractMMBankAbi";
 import { testBasic_abi } from "../Contract/contractBasicAbi";
-import { MegaCoinMOCKAbi } from "../Contract/contractMegaCoinAbi";
+import { MegaCoinMOCKAbi } from "../Contract/contractMockMegaCoinAbi";
 import { firstValueFrom, lastValueFrom, Subscription } from "rxjs";
 
 
@@ -23,7 +23,7 @@ import { firstValueFrom, lastValueFrom, Subscription } from "rxjs";
   templateUrl: './bank-manage.component.html',
   styleUrls: ['./bank-manage.component.css']
 })
-export class BankManageComponent {
+export class TESTBankManageComponent {
 
   subscriptionAccountActive$: Subscription;
   private httpClient: HttpClient;
@@ -275,7 +275,7 @@ export class BankManageComponent {
       console.log("Current Chain : " + chainIdHex + " - " + chainIdNumber);
 
       if (chainIdHex != selectedNetwork) {
-        if (chainIdHex == HEX_NETWORK.ETHEREUM) {
+        if (chainIdHex == HEX_NETWORK.ETHEREUM_ID) {
           console.log("Selected chain is Ethereum main-net, Request to switch to " + networkDesc + ".");
         }
 

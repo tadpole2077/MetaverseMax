@@ -300,9 +300,19 @@ namespace MetaverseMax.ServiceClass
         private IEnumerable<BuildingIPWeb> ConvertBuildingWeb(List<BuildingTypeIP> buildingList, List<Database.AlertTrigger> ownerAlertList)
         {
             List<BuildingIPWeb> buildingIPWeb = new();
+            OwnerManage ownerManage = new(_context, worldType);
 
             foreach (BuildingTypeIP building in buildingList)
             {
+                OwnerAccount ownerAccount = ownerManage.FindOwnerByMatic(building.owner_matic);
+                string name = string.Empty;
+                int avatarId = 0;
+
+                if (ownerAccount != null) {
+                    name = ownerAccount.name == string.Empty ? ownerAccount.discord_name ?? string.Empty : ownerAccount.name;
+                    avatarId = ownerAccount.avatar_id;
+                }
+
                 buildingIPWeb.Add(new()
                 {
                     id = building.token_id,
@@ -318,8 +328,8 @@ namespace MetaverseMax.ServiceClass
                     ip_i = GetInfluenceTotal(building.influence_info, building.influence_bonus),
                     ip_b = building.influence,
                     bon = building.influence_bonus,
-                    name = building.owner_nickname,
-                    nid = building.owner_avatar_id,
+                    name = name,
+                    nid = avatarId,
                     name_m = building.owner_matic,
                     con = building.condition,
                     act = building.active_building ? 1 : 0,

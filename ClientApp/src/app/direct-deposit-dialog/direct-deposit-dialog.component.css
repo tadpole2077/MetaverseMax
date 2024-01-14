@@ -5,6 +5,16 @@
   margin: 20px 20px 0px 20px;
   font-size: 16px;
 }
+.moduleHeader a{
+  display: block;
+  margin-top: 4px;
+  width: 130px;
+}
+.book {
+  font-size: 16px;
+  vertical-align: middle;
+  line-height: 20px;
+}
 
 .containerTop {
   display: flex;  
@@ -86,17 +96,6 @@
 }
 
 
-@keyframes rotation {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(359deg);
-  }
-}
-
-
 .transferIcon {
   font-size: 1rem;
   margin-left: 8px;
@@ -106,12 +105,13 @@
   z-index: 1;
   display:none
 }
-.progressIcon {
+.checkIcon, .progressIcon {
   font-size: 1rem;
   position: absolute;
   z-index: 1;
   display: none;
   margin-left: -24px;
+  color: green;
 }
 i.rotate {
   display: block;
@@ -140,17 +140,36 @@ i.rotate {
 
 .megaBalance {
   margin-bottom: 12px;
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
-.networkWarning, .phase1Warning, .phase2Warning {
+.statusCheck {
+  margin-left: 40px;
+  margin-bottom: 10px;
+}
+  .statusCheck .progressIcon, .statusCheck .checkIcon {
+    margin-left: -21px;
+    margin-top: 2px;
+  }
+
+
+.contractWarning, .warning, .phase1Warning, .phase2Warning {
   font-size: 20px;
-  position: absolute; 
+  position: absolute;
   color: darkorange;
+  display: none;
+  margin-left: -24px;
+  margin-top: -1px;
+}
+.disabled{
   display:none;
 }
-.enabled{
-  display:inline-block
+.enabled {
+  display: inline-block
+}
+
+.lineAnim:focus{
+  outline: none;
 }
 
 

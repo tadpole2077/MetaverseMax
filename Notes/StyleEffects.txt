@@ -14,3 +14,7 @@ https://mdigi.tools/lighten-color/#303339
 
 4) Gradient CSS Lines:
 https://cssgradient.io/
+
+5) Specific Icons
+Asleep out of stamina cit Icon : https://www.iconfinder.com/icons/1758093/asleep_class_classroom_college_life_sleeping_icon
+OutOfStamina.png : https://www.iconfinder.com/search?q=hyperventilation

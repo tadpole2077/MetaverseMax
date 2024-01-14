@@ -114,6 +114,17 @@
         AUTOMATIC_NO_TRIGGER = 0,
     }
 
+    public enum MIN_STAMINA
+    {
+        ENERGY = 15,
+        RESIDENTIAL = 100,
+        OFFICE = 25,
+        COMMERCIAL = 5,
+        MUNICIPAL = 10,
+        INDUSTRIAL = 25,
+        PRODUCTION = 50
+    }
+
     public class ALERT_MESSAGE {
         public static readonly string INTRO = "Your alerts are now activated. New alerts will be shown here when identified, and stored in your alert history. Click delete to clear alert from history.";
         public static readonly string LOW_STAMINA = "#CIT_AMOUNT# x Building have low stamina citizens and will stop building activity after next collection cycle.";
@@ -660,6 +671,7 @@
         public static readonly string DISTRICT_INFO = "https://ws-tron.mcp3d.com/newspaper/district/info";
         public static readonly string BALANCES = "https://ws-tron.mcp3d.com/balances";
         public static readonly string MISSION = "https://ws-tron.mcp3d.com/missions/land/";
+        public static readonly string CONTRACT = "https://ws.mcp3d.com/contract";
 
     }
 
@@ -683,6 +695,7 @@
         public static readonly string DISTRICT_INFO = "https://ws-bsc.mcp3d.com/newspaper/district/info";
         public static readonly string BALANCES = "https://ws-bsc.mcp3d.com/balances";
         public static readonly string MISSION = "https://ws-bsc.mcp3d.com/missions/land/";
+        public static readonly string CONTRACT = "https://ws.mcp3d.com/contract";
     }
 
     public class ETH_WS
@@ -705,6 +718,7 @@
         public static readonly string DISTRICT_INFO = "https://ws.mcp3d.com/newspaper/district/info";
         public static readonly string BALANCES = "https://ws.mcp3d.com/balances";
         public static readonly string MISSION = "https://ws.mcp3d.com/missions/land/";
+        public static readonly string CONTRACT = "https://ws.mcp3d.com/contract";
     }
 
     public enum UPDATE_TYPE

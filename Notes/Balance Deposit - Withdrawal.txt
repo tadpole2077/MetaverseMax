@@ -1,0 +1,29 @@
+﻿Process Steps:
+Deposit:
+1) depositMegaToMMBankWithAllowance()			>> File: balance-manage-dialog.component.ts
+	calls ABI MCPMegaContract.methods.approve()
+
+2) deposit()									>> File: balance-manage-dialog.component.ts
+	calls ABI MMBankContract.methods.depositMega()
+
+3) confirmTransaction()							>> File: balance-manage-dialog.component.ts
+	calls WS >> /bank/confirmTransaction		>> File: bankManage.cs
+		Using transaction hash, checks event log for that transaction
+		If (1) deposit Event found on transaction (matching event sig)  
+		and (2) transaction receipt matches MMBankContractAddress			
+		and (3) Event using MMBank Contract address ( Prevent spoofing of deposit event log - using fake MMBank contract )
+
+
+Withdrawal:
+1)
+2)
+3)
+
+
+
+
+Test Settings:
+==============================
+Deposit: 
+* Step 1 >> Contract used is : CONTRACT_MEGA_MOCK & MegaCoinMOCKAbi    [ swap to using BNB contract on release ]
+* Step 2 >> MMBankContract (MetaverseMax contract on BNB network) points to MEGA_MOCK Contract on testnet  [BNB>MMContract needs to be updated to use the BNB Mega contract on release]

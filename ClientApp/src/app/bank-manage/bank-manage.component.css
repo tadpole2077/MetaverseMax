@@ -34,15 +34,6 @@
   z-index: 1;
   display: none;
 }
-@keyframes rotation {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(359deg);
-  }
-}
 
 .rotate {
   display: block;

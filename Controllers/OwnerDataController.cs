@@ -88,6 +88,20 @@ namespace MetaverseMax.Controllers
             return BadRequest("Call is invalid");       // 400 Error   
         }
 
+        [HttpGet("SetBalanceVisible")]
+        public IActionResult SetBalanceVisible([FromQuery] QueryParametersOwnerVisible parameters)
+        {
+            OwnerManage ownerManage = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(ownerManage.UpdateBalanceVisible(parameters.owner_matic_key, parameters.balance_visible));
+            }
+
+            return BadRequest("Call is invalid");       // 400 Error   
+        }
+        
+
         [HttpGet("GetOfferMCP")]
         public IActionResult GetOfferMCP([FromQuery] QueryParametersMatic parameters)
         {

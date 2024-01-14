@@ -59,6 +59,9 @@ namespace MetaverseMax.Database
         [Column("balance", TypeName = "decimal(16, 8)")]
         public decimal? balance { get; set; }
 
+        [Column("balance_visible")]
+        public bool? balance_visible { get; set; }
+
         [Column("discord_name")]
         public string? discord_name { get; set; }
 
@@ -133,5 +136,8 @@ namespace MetaverseMax.Database
 
         [Column("balance", TypeName = "decimal(16, 8)")]
         public decimal? balance { get; set; }
+
+        [Column("balance_visible")]
+        public bool? balance_visible { get; set; }
     }
 }

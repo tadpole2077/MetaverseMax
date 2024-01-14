@@ -8,12 +8,15 @@ import Web3 from 'web3';
 import { Web3Utils } from '../common/web3Utils';
 
 import { MMBankAbi } from "../Contract/contractMMBankAbi";
-import { MCPMegaAbi } from "../Contract/contractMCPMegaAbi";
-import { MegaCoinMOCKAbi } from "../Contract/contractMegaCoinAbi";
-import { Globals } from '../common/global-var';
-import { HEX_NETWORK, METAMASK_ERROR_CODE } from "../common/enum";
+import { MCPMegaAbiBNB } from "../Contract/contractMCPMegaAbiBNB";
+import { MCPMegaAbiETH } from "../Contract/contractMCPMegaAbiETH";
+import { MegaCoinMOCKAbi } from "../Contract/contractMockMegaCoinAbi";
+import { Globals, WORLD } from '../common/global-var';
+import { HEX_NETWORK, METAMASK_ERROR_CODE, MCP_CONTRACT, MCP_CONTRACT_NAME } from "../common/enum";
 import { maxBalanceValidator } from '../validator/max-balance.validator'
 import { MatProgressBar } from '@angular/material/progress-bar';
+import { MatTabChangeEvent } from '@angular/material/tabs';
+import { BalanceLogComponent } from '../balance-log/balance-log.component';
 
 @Component({
   selector: 'app-balance-manage-dialog',
@@ -27,6 +30,10 @@ export class BalanceManageDialogComponent {
   readonly CONTRACT_MMBank = "0x9Adf2de8c24c25B3EB1fc542598b69C51eE558A7";
   readonly CONTRACT_MEGA_MOCK = "0x4Dd0308aE43e56439D026E3f002423E9A982aeaF";
 
+  readonly CONTRACT_MCPMEGATOKEN_BNB = MCP_CONTRACT.MW_BSC;
+  readonly CONTRACT_MCPMEGATOKEN_ETH = MCP_CONTRACT.MW_ETHEREUM;
+
+  insufficientMsg: string = "Insufficient Allowance";
   httpClient: HttpClient;
   baseUrl: string;
   provider: any;
@@ -43,6 +50,8 @@ export class BalanceManageDialogComponent {
 
   withdrawRotateActive: boolean = false;
   depositRotateActive: boolean = false;
+
+  networkCheckActive: boolean = false;
   networkChange: boolean = false;
   networkMsg: string;
   networkWarning: boolean = false;
@@ -50,15 +59,21 @@ export class BalanceManageDialogComponent {
   transactionStarted: boolean = false;
   processActive: boolean = true;
   progressMsg: string;
+  progressWarning: boolean = false;
   accountActive: boolean = false;
 
   overLimit: boolean = false;
   depositFocus: boolean = true;
   withdrawFocus: boolean = false;
 
+  tab1Visible: boolean = true;
+  tab2Visible: boolean = false;
+
   @ViewChild(MatProgressBar, { static: true } as any) progressBar: MatProgressBar;
+  @ViewChild(BalanceLogComponent, { static: false }) balanceLog: BalanceLogComponent;
 
   constructor(public dialog: MatDialog, public globals: Globals, private zone: NgZone, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
+
     this.httpClient = http;
     this.baseUrl = rootBaseUrl + "api/" + globals.worldCode;
 
@@ -66,20 +81,17 @@ export class BalanceManageDialogComponent {
 
   ngOnInit() {
 
+    // Check client side contract address matching server side - MCP in-world(off-chain) address used for deposit contract.
+    //this.checkMCPContractValid();
+
     this.startBalanceMonitor();
 
     this.initWeb3().then((active) => {
 
-      if (active && this.currentPlayerWalletKey !== "") {
+      if (active && this.currentPlayerWalletKey !== "") {       
+        this.checkBalances(true);                        
+      }
 
-        this.checkBNBSmartChain().then((bnbSmartChangeActive) => {
-
-          if (bnbSmartChangeActive) {
-            this.checkBalances(true);                        
-          }
-
-        });
-      };
     });
 
   }
@@ -93,48 +105,18 @@ export class BalanceManageDialogComponent {
     }
   }
 
-  async checkBalances(MCPMegaCheck) {
-
-    if (MCPMegaCheck) {
-
-      this.checkBNBSmartChain().then((bnbSmartChangeActive) => {
-        // Network Active check.
-        if (bnbSmartChangeActive) {
-          this.getMCPMegaBalance().then((megaBalance) => {
-
-            this.zone.run(() => {
-              this.accountMCPMegaBalance = megaBalance;
-              let orgValue = this.amountDepositControl.value;
-
-              // Update validation rules - max and min.
-              this.amountDepositControl = new FormControl( orgValue == "0" ? "0.1" : orgValue, [
-                Validators.required,
-                (control: AbstractControl) => Validators.max(this.accountMCPMegaBalance)(control),
-                (control: AbstractControl) => Validators.min(0.0001)(control)
-              ]);
-            });
-
-          });                     
-        }
-
-      });      
+  
+  changeTab(eventTab: MatTabChangeEvent) {
+    
+    if (eventTab.index == 0) {
+      this.tab1Visible = true;
+      this.tab2Visible = false;      
     }
-
-    // Trigger zone update event, refresh balance
-    this.zone.run(() => {
-      
-      this.balance = this.globals.ownerAccount.balance;
-      let orgValue = this.amountWithdrawControl.value;
-
-      this.accountActive = true;
-
-      
-      this.amountWithdrawControl = new FormControl(orgValue == "0" ? "0.1" : orgValue, [
-        Validators.required,
-        (control: AbstractControl) => Validators.max(this.balance)(control),    // dynamic validator - find max per invoke.
-        (control: AbstractControl) => Validators.min(0.0001)(control)
-      ]);
-    });
+    else {
+      this.tab1Visible = false;
+      this.tab2Visible = true;
+      this.balanceLog.getOwnerLog(this.globals.ownerAccount.matic_key);
+    }
   }
 
   startBalanceMonitor() {
@@ -161,15 +143,62 @@ export class BalanceManageDialogComponent {
     });
   }
 
+  async checkBalances(MCPMegaCheck) {
+
+    if (MCPMegaCheck) {
+
+      this.manageNetwork().then((networkActive) => {
+
+        // Network Active check.
+        if (networkActive) {
+
+          this.getMCPMegaBalance().then((megaBalance) => {
+
+            this.accountActive = true;
+
+            this.zone.run(() => {
+              this.accountMCPMegaBalance = 100;// megaBalance;
+              let orgValue = this.amountDepositControl.value;
+
+              // Update validation rules - max and min.
+              this.amountDepositControl = new FormControl( orgValue == "0" ? "0.1" : orgValue, [
+                Validators.required,
+                (control: AbstractControl) => Validators.max(Number(this.accountMCPMegaBalance))(control),
+                (control: AbstractControl) => Validators.min(0.0001)(control)
+              ]);
+
+              this.insufficientMsg = "Insufficient Mega Balance"; 
+            });
+
+          });                     
+        }
+
+      });      
+    }
+
+    // Trigger zone update event, refresh balance
+    this.zone.run(() => {
+      
+      this.balance = this.globals.ownerAccount.balance;
+      let orgValue = this.amountWithdrawControl.value;
+      
+      this.amountWithdrawControl = new FormControl(orgValue == "0" ? "0.1" : orgValue, [
+        Validators.required,
+        (control: AbstractControl) => Validators.max(this.balance)(control),    // dynamic validator - find max per invoke.
+        (control: AbstractControl) => Validators.min(0.0001)(control)
+      ]);
+    });
+  }
+
   // Read View - Get MCPMega Balance for current account.
   async getMCPMegaBalance() {
 
     // Create a new contract object using the ABI and bytecode
     const contractMCPMega = new this.web3.eth.Contract(
-      MCPMegaAbi,
-      this.CONTRACT_MCPMEGA);
+      this.globals.selectedWorld == WORLD.BNB ? MCPMegaAbiBNB : MCPMegaAbiETH,
+      this.globals.selectedWorld == WORLD.BNB ? this.CONTRACT_MCPMEGATOKEN_BNB : this.CONTRACT_MCPMEGATOKEN_ETH);
 
-    // Get the current value of my number
+    // Get balance matching correct contract
     const balanceReturned = await contractMCPMega.methods.balanceOf(this.currentPlayerWalletKey).call();
 
     return this.convertFromEVMtoCoinLocale(balanceReturned, 0);
@@ -178,6 +207,9 @@ export class BalanceManageDialogComponent {
 
   // ************************************************************
   // Deposit Function set
+  //  (1) approval -  allow deposit to MM Bank contract
+  //  (2) depositMega - metaverseMax bank contract to record deposit and store Mega 
+  //  (3) confirmTransaction - server side update account balance after security checks (a) correct network and contract (b) deposit event (c) not recorded previously
   async depositMegaToMMBankWithAllowance() {
 
     const addressFrom = this.currentPlayerWalletKey;
@@ -201,25 +233,35 @@ export class BalanceManageDialogComponent {
 
       this.depositRotateActive = true;
       this.transactionStarted = true;
-      this.setProgressBarMsg("1. Allow Deposit Approval (Security Check)", true, 10);
+      this.setProgressBarMsg("1. Allow Deposit Approval (Security Check)", true, 10, false);
 
+      // totalFees = gasLimit * gasPrice (in Wei).
+      // Get Current Gas Price in GWEI  - this is actually the max fee per gas GWEI - it changes per block. 
       const gasPrice = await this.web3.eth.getGasPrice();
 
-      await MCPMegaContract.methods.increaseAllowance(addressReceiver, this.convertToCoinNumber(megaValue, 1))        
+      // Using Ethers, Get Estimate of Gas to Use. Add 25% extra buffer
+      const estimatedGas = await MCPMegaContract.methods.approve(addressReceiver, this.convertToCoinNumber(megaValue, 0))
+        .estimateGas(
+          {
+            from: addressFrom
+          }
+        ) * 5n / 4n;  
+
+      await MCPMegaContract.methods.approve(addressReceiver, this.convertToCoinNumber(megaValue, 0))        
         .send({
           from: addressFrom,
           gasPrice: this.utils.toHex(gasPrice),
-          gas: "100000"
+          gas: estimatedGas.toString()
         })
         .on('sent', (receipt) => {
           //console.log('receipt: ' + receipt);
           this.zone.run(() => {
-            this.setProgressBarMsg('1. Approval Transaction In-Progress...', true, 15);
+            this.setProgressBarMsg('1. Approval Transaction In-Progress...', true, 15, false);
           });
         })
         .then((result) => {
           console.log('Allowance increased: ' + result);
-          this.setProgressBarMsg("1. Allow Transaction Completed (Security Check)", true, 25);
+          this.setProgressBarMsg("1. Allow Transaction Completed (Security Check)", true, 25, false);
 
           this.deposit(megaValue);
 
@@ -228,14 +270,14 @@ export class BalanceManageDialogComponent {
           console.log(error);
 
           this.depositRotateActive = false;
-          this.setProgressBarMsg("1. Allow Deposit Denied (Security Check)", false, 30);
+          this.setProgressBarMsg("1. Allow Deposit Denied (Security Check)", false, 30, true);
         });
 
     }
     catch (error) {
       console.error(error);
       this.depositRotateActive = false;
-      this.setProgressBarMsg("1. Allow Deposit Error (Security Check) - (contact support)", false, 30);
+      this.setProgressBarMsg("1. Allow Deposit Error (Security Check) - (contact support)", false, 30, true);
     }
 
     return;    
@@ -253,10 +295,26 @@ export class BalanceManageDialogComponent {
       this.CONTRACT_MMBank
     );
 
-    try {
+    try {           
 
-      const gasPrice = await this.web3.eth.getGasPrice();
+      // CHECK : Approval amount matching initial deposit amount, or less. Owner may have edited/reduced approval amount.
+      const megaAllowance = await this.getMMBankMegaAllowance();
+      megaValue = Number(megaAllowance) <= Number(megaValue) ? megaAllowance : megaValue
+
       const megaValueBN = this.convertToCoinNumber(megaValue);
+
+      // totalFees = gasLimit * gasPrice (in Wei).
+      // Get Current Gas Price in GWEI  - this is actually the max fee per gas GWEI - it changes per block. 
+      const gasPrice = await this.web3.eth.getGasPrice();
+
+      // Using Ethers, Get Estimate of Gas to Use. Add 25% extra buffer
+      const estimatedGas = await MMBankContract.methods.depositMega(megaValueBN)  
+        .estimateGas(
+          {
+            from: addressFrom
+          }
+      ) * 5n / 4n;
+
 
       await MMBankContract.methods.depositMega(megaValueBN)        
         .send({
@@ -264,16 +322,22 @@ export class BalanceManageDialogComponent {
           gasPrice: this.utils.toHex(gasPrice),
           gas: "150000"
         })
+        .on('sent', (receipt) => {
+          //console.log('receipt: ' + receipt);
+          this.zone.run(() => {
+            this.setProgressBarMsg('2. Deposit Transaction In-Progress...', true, 50, false);
+          });
+        })
         .then((result) => {
           console.log('Deposited mega to bank : ' + result);
-          //this.progressCaption = "Transaction Completed";
-          //this.contractWrite =  addressFrom + " Deposited "+ megaValue +" mega to bank";
-          //this.rotateActive = false;
-
-          this.confirmTransaction(result.transactionHash);
+          this.zone.run(() => {
+            this.setProgressBarMsg("2. Deposit Completed", true, 65, false);
+          });
+          this.confirmTransaction(result.transactionHash, "3");
         })
         .catch((error) => {
           console.log(error);
+          this.depositRotateActive = false;
           //this.progressCaption = "Error occured blocking Transaction";
           //this.contractWrite = error;
           //this.rotateActive = false;
@@ -282,13 +346,33 @@ export class BalanceManageDialogComponent {
     }
     catch (error) {
       console.error(error);
+      this.depositRotateActive = false;
       //this.progressCaption = error;
       //this.rotateActive = false;
     }
     return;    
   }
 
-  confirmTransaction(hash: string) {
+  // Read View - Get MCPMega Allowance for current account.
+  // Allowance between wallet owner && MEGA_MANAGER contract
+  async getMMBankMegaAllowance() {
+
+    let owner = this.currentPlayerWalletKey;
+    let spender = this.globals.selectedWorld == WORLD.BNB ? this.CONTRACT_MMBank : this.CONTRACT_MMBank;   // spender  MM Bank contract - handles deposits into MMBalance
+
+    // Create a new contract object using the ABI and bytecode
+    const contractMCPMega = new this.web3.eth.Contract(
+      MCPMegaAbiBNB,
+      this.CONTRACT_MEGA_MOCK);
+      //this.globals.selectedWorld == WORLD.BNB ? this.CONTRACT_MCPMEGATOKEN_BNB : this.CONTRACT_MCPMEGATOKEN_ETH);
+
+    // Get the current value of my number
+    const allowanceReturned = await contractMCPMega.methods.allowance(owner, spender).call();
+
+    return this.convertFromEVMtoCoinLocale(allowanceReturned, 2);
+  }
+
+  confirmTransaction(hash: string, stage: string) {
 
     let params = new HttpParams();
     params = params.append('hash', hash);
@@ -298,14 +382,16 @@ export class BalanceManageDialogComponent {
         next: (result) => {
           this.globals.updateUserBankBalance(this.baseUrl, this.currentPlayerWalletKey);
 
+          this.depositRotateActive = false;
           this.withdrawRotateActive = false;
 
-          this.setProgressBarMsg("4. Transaction Confirmed, Balance Updated", false, 100);
+          this.setProgressBarMsg(stage + ". Transaction Confirmed, Balance Updated", false, 100, false);
         },
         error: (error) => {
           console.error(error);
-          this.setProgressBarMsg("4. Transaction confirm issue! (contact support)", false, 100);
+          this.setProgressBarMsg(stage + ". Transaction confirm issue! (contact support)", false, 100, true);
           this.withdrawRotateActive = false;
+          this.depositRotateActive = false;
         }
       });
   
@@ -344,13 +430,13 @@ export class BalanceManageDialogComponent {
 
     this.withdrawRotateActive = true;
     this.transactionStarted = true;
-    this.setProgressBarMsg("1. Sign Withdraw Approval (Security Check)", true, 10);
+    this.setProgressBarMsg("1. Sign Withdraw Approval (Security Check)", true, 10, false);
 
     let signResult = await this.walletSign(withdrawMegaAmountNumber);
 
     if (signResult != "") {
 
-      this.setProgressBarMsg("2. Checking Balance Allowed (Security Check)", true, 25);
+      this.setProgressBarMsg("2. Checking Balance Allowed (Security Check)", true, 25, false);
 
       params = params.append('amount', withdrawMegaAmount);
       params = params.append('ownerMaticKey', ownerMaticKey);
@@ -361,13 +447,13 @@ export class BalanceManageDialogComponent {
           next: (result) => {
 
             if (result == true) {
-              this.setProgressBarMsg("2. Withdraw allowed Confirmed", true, 35);
+              this.setProgressBarMsg("2. Withdraw allowed Confirmed", true, 35, false);
 
               this.globals.updateUserBankBalance(this.baseUrl, ownerMaticKey);
               this.withdrawMegaFromMMBank(withdrawMegaAmountNumber);
             }
             else {
-              this.setProgressBarMsg("2. Invalid Withdraw - balance issue (Contact Support)", false, 35);              
+              this.setProgressBarMsg("2. Invalid Withdraw - balance issue (Contact Support)", false, 35, false);              
               this.withdrawRotateActive = false;
             }
 
@@ -375,7 +461,7 @@ export class BalanceManageDialogComponent {
           error: (error) => {
             console.error(error);
             this.withdrawRotateActive = false;
-            this.setProgressBarMsg("2. Invalid Withdraw - balance error (Contact Support)", false, 35);
+            this.setProgressBarMsg("2. Invalid Withdraw - balance error (Contact Support)", false, 35, true);
           }
         });
     }
@@ -403,7 +489,7 @@ export class BalanceManageDialogComponent {
     }
     catch(err) {
       console.error(err);
-      this.setProgressBarMsg("1. Sign Denied (Security Check) - Canceled", false, 10);
+      this.setProgressBarMsg("1. Sign Denied (Security Check) - Canceled", false, 10, true);
 
       this.withdrawRotateActive = false;
     }
@@ -430,7 +516,7 @@ export class BalanceManageDialogComponent {
 
     const addressFrom = this.currentPlayerWalletKey;
 
-    this.setProgressBarMsg('3. Actual Withdraw Transaction', true, 50);    
+    this.setProgressBarMsg('3. Actual Withdraw Transaction', true, 50, false);    
 
     // Create a new contract object using the ABI and bytecode
     const MMBankContract = new this.web3.eth.Contract(
@@ -452,29 +538,29 @@ export class BalanceManageDialogComponent {
         .on('sent', (receipt) => {
           //console.log('receipt: ' + receipt);
           this.zone.run(() => {
-            this.setProgressBarMsg('3. Withdraw Transaction In-Progress...', true, 60);
+            this.setProgressBarMsg('3. Withdraw Transaction In-Progress...', true, 60, false);
           });
         })
         .then((result) => {
           console.log('Withdrawal of mega from bank : ' + result);
 
-          this.setProgressBarMsg('3. Withdraw Completed', true, 75);
+          this.setProgressBarMsg('3. Withdraw Completed', true, 75, false);
 
-          this.confirmTransaction(result.transactionHash);
+          this.confirmTransaction(result.transactionHash, "4");
 
           // Check external wallet for change in Mega Balance (MCP contract view call)
           this.checkBalances(true);           
         })
         .catch((error) => {
           console.log(error);
-          this.setProgressBarMsg('3. Partial Withdraw Canceled (check bank log)', false, 75);
+          this.setProgressBarMsg('3. Partial Withdraw Canceled (check bank log)', false, 75, true);
           this.withdrawRotateActive = false;
         });
 
     }
     catch (error) {
       console.error(error);
-      this.setProgressBarMsg("3. Partial Withdraw Error - check bank log", false, 75);
+      this.setProgressBarMsg("3. Partial Withdraw Error - check bank log", false, 75, true);
       this.withdrawRotateActive = false;
     }
 
@@ -491,6 +577,7 @@ export class BalanceManageDialogComponent {
     }
   }
 
+  // accountActive (flag) : if Mega balance retrieved = true
   get checkInvalidWithdraw(): boolean {
     return this.amountWithdrawControl.hasError('max') ||
       this.amountWithdrawControl.hasError('min') ||
@@ -501,10 +588,11 @@ export class BalanceManageDialogComponent {
   //*****************************************************************
 
 
-  setProgressBarMsg(message:string, active: boolean, barValue: number) {
+  setProgressBarMsg(message:string, active: boolean, barValue: number, warningActive: boolean) {
     this.progressMsg = message;
     this.processActive = active;
-    this.progressBar.value = barValue;  
+    this.progressBar.value = barValue;
+    this.progressWarning = warningActive;
   }
 
 
@@ -529,44 +617,35 @@ export class BalanceManageDialogComponent {
     return active;
   }
 
-  async checkBNBSmartChain() {
+  //*******************************************************************
+  // NETWORK Fn's
+  async manageNetwork() {
 
     let chainIdHex: string;
-    let bnbSmartChain: boolean = false;
+    let networkCorrect: boolean = false;
+    let connected: boolean = false;
+    let selectedChain: HEX_NETWORK;
 
-    let connected = await this.checkNetwork(HEX_NETWORK.BINANCE_ID, "Binance Mainnet");
+    if (this.globals.selectedWorld == WORLD.BNB) {
+      selectedChain = HEX_NETWORK.BINANCE_ID;
+      connected = await this.checkNetwork(selectedChain, "Binance Smart Chain");
+    }
+    else if (this.globals.selectedWorld == WORLD.ETH) {
+      selectedChain = HEX_NETWORK.ETHEREUM_ID;
+      connected = await this.checkNetwork(HEX_NETWORK.ETHEREUM_ID, "Ethereum Mainnet");
+    }
 
-    chainIdHex = await this.ethereum.request({ method: "eth_chainId", params: [] })
+    chainIdHex = await this.ethereum.request({ method: "eth_chainId", params: [] });
 
-    if (connected && chainIdHex == HEX_NETWORK.BINANCE_ID && this.provider) {
-      bnbSmartChain = true;
+    if (connected && chainIdHex == selectedChain && this.provider) {
+      networkCorrect = true;
     }
     else {
       this.networkMsg = "Network Not Changed, unable to proceed..";
       this.networkWarning = true;
     }
 
-    return bnbSmartChain;
-  }
-
-  async checkBNBTestnet() {
-
-    let chainIdHex: string;
-    let bnbSmartChainTestNet: boolean = false;
-
-    let connected = await this.checkNetwork(HEX_NETWORK.BINANCE_TESTNET_ID, "BNB Smart Chain - Testnet");
-
-    chainIdHex = await this.ethereum.request({ method: "eth_chainId", params: [] })
-
-    if (connected && chainIdHex == HEX_NETWORK.BINANCE_TESTNET_ID && this.provider) {
-      bnbSmartChainTestNet = true;
-    }
-    else {
-      this.networkMsg = "Network Not Changed, unable to proceed..";
-      this.networkWarning = true;
-    }
-
-    return bnbSmartChainTestNet;
+    return networkCorrect;
   }
 
   async checkNetwork(selectedNetwork: HEX_NETWORK, networkDesc: string) {
@@ -585,12 +664,16 @@ export class BalanceManageDialogComponent {
 
       if (chainIdHex != selectedNetwork) {
 
+        this.networkCheckActive = true;
         this.networkChange = true;
         this.networkMsg = "Change Network Required";
         this.networkWarning = false;
 
-        if (chainIdHex == HEX_NETWORK.ETHEREUM) {
+        if (chainIdHex == HEX_NETWORK.ETHEREUM_ID) {
           console.log("Selected chain is Ethereum main-net, Request to switch to " + networkDesc + ".");
+        }
+        else if (chainIdHex == HEX_NETWORK.BINANCE_ID) {
+          console.log("Selected chain is Binance Smart Chain, Request to switch to " + networkDesc + ".");
         }
 
         await this.switchNetwork(selectedNetwork);        
@@ -687,6 +770,25 @@ export class BalanceManageDialogComponent {
               });
 
             }
+            else if (chainIdHex == HEX_NETWORK.ETHEREUM_ID) {
+              // Add Polygon chain
+              await ethereum.request({
+                method: 'wallet_addEthereumChain',
+                params: [
+                  {
+                    chainId: HEX_NETWORK.POLYGON_ID,
+                    blockExplorerUrls: ['https://etherscan.io'],
+                    chainName: 'Ethereum Mainnet',
+                    nativeCurrency: {
+                      decimals: 18,
+                      name: 'Ethereum',
+                      symbol: 'ETH'
+                    },
+                    rpcUrls: ['https://mainnet.infura.io/v3/']
+                  },
+                ],
+              });
+            }
           }
 
         }
@@ -702,6 +804,50 @@ export class BalanceManageDialogComponent {
     return networkSwitched;
   }
 
+  async checkBNBSmartChain() {
+
+    let chainIdHex: string;
+    let bnbSmartChain: boolean = false;
+
+    let connected = await this.checkNetwork(HEX_NETWORK.BINANCE_ID, "Binance Mainnet");
+
+    chainIdHex = await this.ethereum.request({ method: "eth_chainId", params: [] })
+
+    if (connected && chainIdHex == HEX_NETWORK.BINANCE_ID && this.provider) {
+      bnbSmartChain = true;
+    }
+    else {
+      this.networkMsg = "Network Not Changed, unable to proceed..";
+      this.networkWarning = true;
+    }
+
+    return bnbSmartChain;
+  }
+
+  async checkBNBTestnet() {
+
+    let chainIdHex: string;
+    let bnbSmartChainTestNet: boolean = false;
+
+    let connected = await this.checkNetwork(HEX_NETWORK.BINANCE_TESTNET_ID, "BNB Smart Chain - Testnet");
+
+    chainIdHex = await this.ethereum.request({ method: "eth_chainId", params: [] })
+
+    if (connected && chainIdHex == HEX_NETWORK.BINANCE_TESTNET_ID && this.provider) {
+      bnbSmartChainTestNet = true;
+    }
+    else {
+      this.networkMsg = "Network Not Changed, unable to proceed..";
+      this.networkWarning = true;
+    }
+
+    return bnbSmartChainTestNet;
+  }
+  //*******************************************************************
+
+
+  //*******************************************************************
+  // COIN CONVERTER Fn's 
   convertFromEVMtoCoinLocale(amount: any, decimalPlaces: number) {
 
     let amountString = amount.toString();
@@ -739,6 +885,9 @@ export class BalanceManageDialogComponent {
     else if (amountInteger != '' && amountDecimal == '') {
       amountString = amountInteger;
     }
+    else {
+      amountString = 0;
+    }
 
     return amountString;
   }
@@ -775,4 +924,5 @@ export class BalanceManageDialogComponent {
 
     return bigAmount.toString();
   }
+  //*******************************************************************
 }

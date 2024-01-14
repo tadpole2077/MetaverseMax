@@ -75,16 +75,6 @@
 }
 
 /* Progress Indicator */
-@keyframes rotation {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(359deg);
-  }
-}
-
 .rotate {
   animation: rotation 1s 30 linear;
   visibility: visible;

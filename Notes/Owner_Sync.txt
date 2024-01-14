@@ -1,0 +1,30 @@
+﻿Owner / Account Sync
+================================
+Purpose:
+* Find new owners from review of Plot
+* Find new owners from reivew of District
+* Create new ownsers
+* Update owner name to latest - while retaining log of old owner name in db.
+
+
+
+1) Nightly Data Sync - SPROC call
+Sproc: sp_owner_sync
+Process:
+	1) Compare current Plot table with Owner Table, any owner_matic not in owner table then Create new owner account
+	2) Update OwnerName for ALL account, Where ANY plot {owner_nickname, avatar_id) does not match latest OwnerName record for that account AND plot.owner_nickname is NOT NULL
+
+Notes:
+	1) Owner may remove name (no name assigned) - if any account plot has owner name as [empty string] and latest OwnerName is not [empty string], then new owner_name [empty string] is applied.
+Limitations:
+	1) Parcals, District owners may not have a plots
+
+
+2) OwnerDB.NewOwner()
+Called by:
+	OwerNameDB.UpdateOwnerName()
+	Called by:
+		OwnerDataController.UnitTest_UpdateOwnerName()
+		DistrictDB.UpdateDistrictByToken()			//  Called by nightly sync
+		OwnerManage.SyncOwner()						//  Called by nightly sync  - note sp_owner_sync called just before it.
+		OwnerManage.UpdateBalance()					//  Corner case call - in case balance owner not registerd yet.

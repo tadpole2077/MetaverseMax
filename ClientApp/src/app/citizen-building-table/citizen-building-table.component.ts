@@ -3,8 +3,9 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
-import { ICitizen, BUILDING, PRODUCT } from '../owner-data/owner-interface';
+import { ICitizen, PRODUCT } from '../owner-data/owner-interface';
 import { Globals, WORLD } from '../common/global-var';
+import { BUILDING } from '../common/enum'
 
 
 @Component({

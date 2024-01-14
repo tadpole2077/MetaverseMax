@@ -1,9 +1,61 @@
-.containerDialog {  
+.containerDialog {
+  height: 478px;
+  background-color: dimgray;
 }
 
+.tabHeaderBank{
+  height: 52px;
+  background-color: dimgray;
+  padding-top: 4px;
+  margin-left: 2px;
+  margin-right: 2px;
+}
+::ng-deep .containerDialog .mdc-tab{
+  margin-left: 4px;
+  margin-right: 4px;
+}
 
+::ng-deep .containerDialog .mat-mdc-tab:hover{
+  border-top-right-radius: 12px;
+  border-top-left-radius: 12px;
+  background: gray;
+}
+::ng-deep .containerDialog .mdc-tab--active:hover{
+  background: white;
+}
+::ng-deep .containerDialog .mdc-tab--active{
+  border-top-right-radius: 12px;
+  border-top-left-radius: 12px;  
+  background: white;
+}
+::ng-deep .containerDialog .mat-mdc-tab .mdc-tab__text-label{
+  color:white;
+  font-size: 15px;
+  font-weight: 500;
+}
 
-.containerTop {
+::ng-deep .containerDialog .mat-mdc-tab:not(.mat-mdc-tab-disabled) .mdc-tab-indicator__content--underline{
+  margin-left: 3px;
+  margin-right: 3px;
+  background: linear-gradient(to left, rgb(255, 255, 255), rgb(21, 101, 192,.3), rgb(21, 101, 192), rgb(21, 101, 192,.3), rgb(255, 255, 255));
+  height: 1px;
+  border: 0px;
+}
+
+.tab1Content,.tab2Content{
+  display:none;
+  background-color: white;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  height: 396px;
+}
+
+.topSection{
+  display:flex;
+  flex-direction: column;
+  min-height:175px;
+}
+.balanceSection {
   display: flex;  
 }
 .balanceInfo {
@@ -33,10 +85,6 @@
   padding-left: 22px;
 }
 
-.backgroundNoFocus {
-  background-color: #f5f5f5
-}
-
 .hideProgress{
   display:none;
 }
@@ -51,10 +99,20 @@
 }
 .progressText {  
 }
+.statusCheck {
+  margin-left: 40px;
+  margin-bottom: 10px;
+}
+  .statusCheck .progressIcon, .statusCheck .checkIcon {
+    margin-left: -21px;
+    margin-top: 2px;
+  }
+
 
 .containerAction {
   display: flex;
   border-top: thin lightgray solid;
+  background-color:white;
 }
 .actionMega {
   width: 300px;
@@ -84,17 +142,6 @@
 }
 
 
-@keyframes rotation {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(359deg);
-  }
-}
-
-
 .transferIcon {
   font-size: 1rem;
   margin-left: 8px;
@@ -104,12 +151,13 @@
   z-index: 1;
   display:none
 }
-.progressIcon {
+.checkIcon, .progressIcon {
   font-size: 1rem;
   position: absolute;
   z-index: 1;
   display: none;
   margin-left: -24px;
+  color: green;
 }
 i.rotate {
   display: block;
@@ -141,21 +189,35 @@ i.rotate {
   margin-top: 6px;
 }
 
-.networkWarning, .phase1Warning, .phase2Warning {
+.contractWarning, .warning, .phase1Warning, .phase2Warning {
   font-size: 20px;
-  position: absolute; 
+  position: absolute;
   color: darkorange;
-  display:none;
+  display: none;
+  margin-left: -24px;
+  margin-top: -1px;
 }
-.enabled{
-  display:inline-block
+
+
+.visible{
+  display:block;
 }
+.disabled {
+  display: none;
+}
+.enabled {
+  display: inline-block
+}
+
 
 
 
 @media only screen and (max-width: 426px) {
-  .containerAction, .containerTop {
+  .containerAction, .balanceSection {
     flex-direction: column;
   }
 
+  .actionMega{
+    width: 100%;
+  }
 }

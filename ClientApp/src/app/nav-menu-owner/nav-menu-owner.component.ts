@@ -24,6 +24,7 @@ interface WorldName {
 })
 export class NavMenuOwnerComponent {
 
+  readonly WORLD = WORLD;
   color: ThemePalette = 'accent';
   checked = false;
   hoverIcon = false;
@@ -75,6 +76,11 @@ export class NavMenuOwnerComponent {
     this.globals.ownerAccount.dark_mode = eventSlider.checked;
   }
 
+  mmBalanceChange(eventSlider: MatSlideToggleChange) {
+    // update db - WS call    
+    this.updateBalanceVisible(this.globals.ownerAccount.matic_key, eventSlider.checked);
+  }
+
 
   updateDarkMode(maticKey: string, darkMode: boolean) {
 
@@ -87,6 +93,28 @@ export class NavMenuOwnerComponent {
       this.httpClient.get<Object>(this.baseUrl + '/OwnerData/SetDarkMode', { params: params })
         .subscribe({
           next: (result) => {
+          },
+          error: (error) => { console.error(error) }
+        });
+    }
+
+    return;
+  }
+
+  updateBalanceVisible(maticKey: string, visible: boolean) {
+
+    let params = new HttpParams();
+    params = params.append('owner_matic_key', maticKey);
+    params = params.append('balance_visible', visible ? 'true':'false');
+
+    if (this.globals.ownerAccount.wallet_active_in_world) {
+
+      this.httpClient.get<Object>(this.baseUrl + '/OwnerData/SetBalanceVisible', { params: params })
+        .subscribe({
+          next: (result) => {
+            this.zone.run(() => {
+              this.globals.ownerAccount.balance_visible = visible;
+            });
           },
           error: (error) => { console.error(error) }
         });

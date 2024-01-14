@@ -1,6 +1,7 @@
 <div class="containerDialog">
   <div class="moduleHeader">
-    <span>Deposit Mega to MegaWorld, Skip Allowance Sign & reduce gas cost</span>
+    <span>Deposit Mega to MegaWorld, Skip Allowance Sign & Reduce gas fees. </span>
+    <a class="lineAnim" href="https://link.medium.com/QTboeVqriFb" target="_blank"><mat-icon class="book">library_books</mat-icon>About Article</a>
   </div>
   <div class="containerTop">
     <div class="balanceInfo">
@@ -18,15 +19,25 @@
       </div>
     </div>
   </div>
-  <div>
-    <i [ngClass]="{'rotate': networkChange }" class="fas fa-sync-alt progressIcon"></i>
-    <span>{{ networkMsg }}</span>
-    <mat-icon class="networkWarning" [ngClass]="{'enabled': networkWarning && !networkChange }">info</mat-icon>
+
+  <div class="statusCheck">
+    <i [ngClass]="{'rotate': checkingContract }" class="fas fa-sync-alt progressIcon"></i>
+    <i [ngClass]="{'enabled': !contractWarning }" class="fas fa-check checkIcon"></i>
+    <mat-icon class="contractWarning" [ngClass]="{'enabled': contractWarning }">info</mat-icon>
+    <span>{{ contractCheckMsg }}</span>
   </div>
+  <div class="statusCheck disabled" [ngClass]="{'enabled': networkCheckActive}">
+    <i [ngClass]="{'rotate': networkChange }" class="fas fa-sync-alt progressIcon"></i>
+    <i [ngClass]="{'enabled': !networkWarning && !networkChange}" class="fas fa-check checkIcon"></i>
+    <mat-icon class="warning" [ngClass]="{'enabled': networkWarning && !networkChange }">info</mat-icon>
+    <span>{{ networkMsg }}</span>
+  </div>
+
 
   <section class="progressSection">
     <div class="hideProgress" [ngClass]="{'showProgress': transactionStarted}">
       <div class="progressData">
+        <mat-icon class="warning" [ngClass]="{'enabled': progressWarning }">info</mat-icon>
         <label class="progressInfo"><i [ngClass]="{'rotate': processActive }" class="fas fa-sync-alt progressIcon"></i>{{ progressMsg }}</label>
       </div>
       <mat-progress-bar mode="buffer"
@@ -50,6 +61,7 @@
                maxlength="12"
                matInput
                class=""
+               autofocus
                (focus)="withdrawFocus = false; depositFocus = true;"
                [formControl]="amountDepositControl"
                type='text' />

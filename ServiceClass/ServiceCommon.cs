@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using MetaverseMax.BaseClass;
+using Microsoft.IdentityModel.Tokens;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -80,7 +81,7 @@ namespace MetaverseMax.ServiceClass
             string timeFormated = string.Empty;
             DateTime? dtConvertedTime = null;
 
-            if (sourceTime == null)
+            if (string.IsNullOrEmpty(sourceTime) && dtSourceTime == null)
             {
                 timeFormated = "Not Found";
             }

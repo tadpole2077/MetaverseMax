@@ -5,26 +5,6 @@
     margin-right:6px
 }
 
-@keyframes rotation {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(359deg);
-  }
-}
-
-@keyframes rotation-alt {
-  from {
-    transform: rotate(359deg);
-  }
-
-  to {
-    transform: rotate(0deg);
-  }
-}
-
 .rotate {
   animation: rotation 1s 22 linear;
 }

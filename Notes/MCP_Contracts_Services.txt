@@ -1,0 +1,27 @@
+﻿
+Resource Pack:  
+- By pack id
+- contents
+- owner
+https://mcp3d.com/api/matic/resource/71461
+
+
+
+===================================================
+ETH T1 Smart Contract
+
+MegaBankEthereum : 0x82613a289B48f3012339E3f2ADaaA57568F1bF70
+	Purpose: lower tier contract that receives deposited Mega from Players, and handles Withdraw of Mega to Players external Wallet.
+
+	Total Mega Held by Contract : 2,774,505   (14/12/2023)
+	Total Mega in GTF & LTF : 1,747,542 (14/12/2023)
+	Max Liquid Balance: 1,026,963   [held by players & MCP(from Tax receipts)]
+	Staked in District Perks : ~614,000
+
+
+Withdraw : 0x79B84BdA353e06878501283cc55Ee59390d9a029 
+	Purpose:  L1 contract used to handle withdraw from player in-world wallet to external Wallet
+	Calls: 
+		Transfer: Mega Token Contract (0x82613a289B48f3012339E3f2ADaaA57568F1bF70)
+	Notes:
+		Withdraw requires MCP signature on L2, to proceed.

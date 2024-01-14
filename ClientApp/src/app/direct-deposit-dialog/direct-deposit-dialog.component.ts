@@ -7,31 +7,28 @@ import DetectEthereumProvider from '@metamask/detect-provider';
 import Web3 from 'web3';
 import { Web3Utils } from '../common/web3Utils';
 
-import { MMBankAbi } from "../Contract/contractMMBankAbi";
-import { MCPMegaAbi } from "../Contract/contractMCPMegaAbi";
-import { MegaCoinMOCKAbi } from "../Contract/contractMegaCoinAbi";
-import { Globals } from '../common/global-var';
-import { HEX_NETWORK, METAMASK_ERROR_CODE } from "../common/enum";
-import { maxBalanceValidator } from '../validator/max-balance.validator'
+import { MCPMegaAbiBNB } from "../Contract/contractMCPMegaAbiBNB";
+import { MCPMegaAbiETH } from "../Contract/contractMCPMegaAbiETH";
+import { Globals, WORLD } from '../common/global-var';
+import { HEX_NETWORK, METAMASK_ERROR_CODE, MCP_CONTRACT, MCP_CONTRACT_NAME } from "../common/enum";
 import { MatProgressBar } from '@angular/material/progress-bar';
-import { OwnerDataComponent } from '../owner-data/owner-data.component';
 
 @Component({
   selector: 'app-direct-deposit-dialog',
   styleUrls: ['./direct-deposit-dialog.component.css'],
   templateUrl: './direct-deposit-dialog.component.html',
 })
-export class DirectDepositDialogComponent {
+export class DirectDepositDialogComponent {  
   readonly MEGA_DECIMALS = 1e18;
   readonly MEGA_DECIMALS_COUNT = 18;
-  readonly CONTRACT_MCPMEGATOKEN = "0x0af8c016620d3ed0c56381060e8ab2917775885e";
-  readonly CONTRACT_MCPMEGA_DEPOSIT = "0xD96c0110E6cE40787602ec9038d66E7277E5c61d";
-  readonly CONTRACT_MCPMEGA_MANAGER = "0x29E4590b970ca60de81BC8968759DbC9E98dB031";  
+  readonly CONTRACT_MCPMEGATOKEN_BNB = MCP_CONTRACT.MW_BSC;
+  readonly CONTRACT_MCPMEGA_DEPOSIT_BNB = MCP_CONTRACT.DEPOSIT_BSC;     // AddMega (Method) [ amount ]  [ Internal calls to Transfer Mega From Player to MCP Manager Contract]
+  readonly CONTRACT_MCPMEGA_MANAGER_BNB = MCP_CONTRACT.MEGA_BANK_BSC;   // Lower-tier manager : Allowance MCP recipient. Used to retrieve current Mega allowance 
 
-  //readonly CONTRACT_MMBank = "0x9Adf2de8c24c25B3EB1fc542598b69C51eE558A7";
-  //readonly CONTRACT_MEGA_MOCK = "0x4Dd0308aE43e56439D026E3f002423E9A982aeaF";
+  readonly CONTRACT_MCPMEGATOKEN_ETH = MCP_CONTRACT.MW_ETHEREUM;
+  readonly CONTRACT_MCPMEGA_DEPOSIT_ETH = MCP_CONTRACT.DEPOSIT_ETHEREUM;
+  readonly CONTRACT_MCPMEGA_MANAGER_ETH = MCP_CONTRACT.MEGA_BANK_ETHEREUM;
   
-
   httpClient: HttpClient;
   baseUrl: string;
   provider: any;
@@ -46,12 +43,18 @@ export class DirectDepositDialogComponent {
   amountDepositControl = new FormControl('0');
 
   depositRotateActive: boolean = false;
+  networkCheckActive: boolean = false;
   networkChange: boolean = false;
   networkMsg: string;
   networkWarning: boolean = false;
 
+  contractCheckMsg: string = 'Confirming MCP Contract Valid';
+  checkingContract: boolean = true;
+  contractWarning: boolean = false;
+
   transactionStarted: boolean = false;
   processActive: boolean = true;
+  progressWarning: boolean = false;
   progressMsg: string;
   accountActive: boolean = false;
 
@@ -62,6 +65,7 @@ export class DirectDepositDialogComponent {
   @ViewChild(MatProgressBar, { static: true } as any) progressBar: MatProgressBar;
 
   constructor(public dialog: MatDialog, public globals: Globals, private zone: NgZone, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
+
     this.httpClient = http;
     this.baseUrl = rootBaseUrl + "api/" + globals.worldCode;
 
@@ -69,19 +73,15 @@ export class DirectDepositDialogComponent {
 
   ngOnInit() {
 
-    this.startBalanceMonitor();
+    // Check client side contract address matching server side - MCP in-world(off-chain) address used for deposit contract.
+    this.checkMCPContractValid();
+
+    this.startBalanceMonitor();    
 
     this.initWeb3().then((active) => {
 
       if (active && this.currentPlayerWalletKey !== "") {
-
-        this.checkBNBSmartChain().then((bnbSmartChangeActive) => {
-
-          if (bnbSmartChangeActive) {
-            this.checkBalances(true);                        
-          }
-
-        });
+        this.checkBalances(true);                                
       };
     });
 
@@ -93,43 +93,6 @@ export class DirectDepositDialogComponent {
     }
     if (this.subscriptionBalanceChange$) {
       this.subscriptionBalanceChange$.unsubscribe();
-    }
-  }
-
-  async checkBalances(MCPMegaCheck) {
-
-    if (MCPMegaCheck) {
-
-      this.checkBNBSmartChain().then((bnbSmartChangeActive) => {
-        // Network Active check.
-        if (bnbSmartChangeActive) {
-          this.getMCPMegaBalance().then((megaBalance) => {
-
-            this.getMCPMegaAllowance().then((MCPMegaAllowance) => {
-
-              this.accountActive = true;
-
-              this.zone.run(() => {
-                this.accountMCPMegaBalance = megaBalance;
-                this.accountMCPMegaAllowance = MCPMegaAllowance
-                let orgValue = this.amountDepositControl.value;
-
-                // Update validation rules - max and min.
-                this.amountDepositControl = new FormControl(orgValue == "0" ? "0.1" : orgValue, [
-                  Validators.required,
-                  (control: AbstractControl) => Validators.max(Number(MCPMegaAllowance) < Number(megaBalance) ? Number(MCPMegaAllowance) : Number(megaBalance))(control),
-                  (control: AbstractControl) => Validators.min(0.0001)(control)
-                ]);
-
-                this.insufficientMsg = Number(MCPMegaAllowance) < Number(megaBalance) ? "Insufficient Allowance" : "Insufficient Mega Balance"; 
-              });
-
-            });
-
-          });                     
-        }
-
-      });      
     }
   }
 
@@ -157,15 +120,56 @@ export class DirectDepositDialogComponent {
     });
   }
 
+  
+  async checkBalances(MCPMegaCheck) {
+
+    if (MCPMegaCheck) {
+
+      this.manageNetwork().then((networkActive) => {
+
+        // Network Active check.
+        if (networkActive) {
+
+          this.getMCPMegaBalance().then((megaBalance) => {
+
+            this.getMCPMegaAllowance().then((MCPMegaAllowance) => {
+
+              this.accountActive = true;
+
+              this.zone.run(() => {
+
+                this.accountMCPMegaBalance = megaBalance;
+                this.accountMCPMegaAllowance = MCPMegaAllowance
+                let orgValue = this.amountDepositControl.value;
+
+                // Update validation rules - max and min.
+                this.amountDepositControl = new FormControl(orgValue == "0" ? "0.1" : orgValue, [
+                  Validators.required,
+                  (control: AbstractControl) => Validators.max(Number(MCPMegaAllowance) < Number(megaBalance) ? Number(MCPMegaAllowance) : Number(megaBalance))(control),
+                  (control: AbstractControl) => Validators.min(0.0001)(control)
+                ]);
+
+                this.insufficientMsg = Number(MCPMegaAllowance) < Number(megaBalance) ? "Insufficient Allowance" : "Insufficient Mega Balance"; 
+              });
+
+            });
+
+          });                     
+        }
+
+      });      
+    }
+  }
+
   // Read View - Get MCPMega Balance for current account.
   async getMCPMegaBalance() {
 
     // Create a new contract object using the ABI and bytecode
     const contractMCPMega = new this.web3.eth.Contract(
-      MCPMegaAbi,
-      this.CONTRACT_MCPMEGATOKEN);
+      this.globals.selectedWorld == WORLD.BNB ? MCPMegaAbiBNB : MCPMegaAbiETH,
+      this.globals.selectedWorld == WORLD.BNB ? this.CONTRACT_MCPMEGATOKEN_BNB : this.CONTRACT_MCPMEGATOKEN_ETH);
 
-    // Get the current value of my number
+    // Get balance matching correct contract
     const balanceReturned = await contractMCPMega.methods.balanceOf(this.currentPlayerWalletKey).call();
 
     return this.convertFromEVMtoCoinLocale(balanceReturned, 0);
@@ -176,12 +180,12 @@ export class DirectDepositDialogComponent {
   async getMCPMegaAllowance() {
 
     let owner = this.currentPlayerWalletKey;
-    let spender = this.CONTRACT_MCPMEGA_MANAGER;   // spender  MCP MEGA Manager contract - handles deposits into Mega world
+    let spender = this.globals.selectedWorld == WORLD.BNB ? this.CONTRACT_MCPMEGA_MANAGER_BNB : this.CONTRACT_MCPMEGA_MANAGER_ETH;   // spender  MCP MEGA Manager contract - handles deposits into Mega world
 
     // Create a new contract object using the ABI and bytecode
     const contractMCPMega = new this.web3.eth.Contract(
-      MCPMegaAbi,
-      this.CONTRACT_MCPMEGATOKEN);
+      MCPMegaAbiBNB,
+      this.globals.selectedWorld == WORLD.BNB ? this.CONTRACT_MCPMEGATOKEN_BNB : this.CONTRACT_MCPMEGATOKEN_ETH);
 
     // Get the current value of my number
     const allowanceReturned = await contractMCPMega.methods.allowance(owner, spender).call();
@@ -204,41 +208,52 @@ export class DirectDepositDialogComponent {
     //if (testnet == false) {
     //  return;
     //}
-    let bnbNet: boolean = await this.checkBNBSmartChain();
+    let selectedNetworkCorrect: boolean = await this.manageNetwork();
 
-    if (bnbNet == false) {
+    if (selectedNetworkCorrect == false) {
       return;
     }
 
     // Create a new contract object using the ABI and bytecode
     const MCPMegaContract = new this.web3.eth.Contract(
-      MCPMegaAbi,
-      this.CONTRACT_MCPMEGA_DEPOSIT
+      MCPMegaAbiBNB,
+      this.globals.selectedWorld == WORLD.BNB ? this.CONTRACT_MCPMEGA_DEPOSIT_BNB : this.CONTRACT_MCPMEGA_DEPOSIT_ETH
     );
 
     try {
 
       this.depositRotateActive = true;
       this.transactionStarted = true;
-      this.setProgressBarMsg("Deposit Transaction Pending ..", true, 10);
+      this.setProgressBarMsg("Deposit Transaction Pending ..", true, 10, false);
 
+      // totalFees = gasLimit * gasPrice (in Wei).
+      // Get Current Gas Price in GWEI  - this is actually the max fee per gas GWEI - it changes per block. 
       const gasPrice = await this.web3.eth.getGasPrice();
 
+      // Using Ethers, Get Estimate of Gas to Use. Add 25% extra buffer
+      const estimatedGas = await MCPMegaContract.methods.addMega(this.convertToCoinNumber(megaValue, 0))
+        .estimateGas(
+          {
+            from: addressFrom
+          }
+        ) * 5n / 4n;  
+
+      // Proceed with Contact write call
       await MCPMegaContract.methods.addMega(this.convertToCoinNumber(megaValue, 0))        
         .send({
           from: addressFrom,
           gasPrice: this.utils.toHex(gasPrice),
-          gas: "100000"
+          gas: estimatedGas.toString()
         })
         .on('sent', (receipt) => {
           //console.log('receipt: ' + receipt);
           this.zone.run(() => {
-            this.setProgressBarMsg('Deposit Transaction In-Progress...', true, 50);
+            this.setProgressBarMsg('Deposit Transaction In-Progress...', true, 50, false);
           });
         })
         .then((result) => {
           console.log('Deposit Completed: ' + result);
-          this.setProgressBarMsg("Deposit Completed", false, 100);
+          this.setProgressBarMsg("Deposit Completed", false, 100, false);
           this.checkBalances(true);          
           this.depositRotateActive = false;
           //this.confirmTransaction(result.transactionHash);
@@ -248,34 +263,39 @@ export class DirectDepositDialogComponent {
           console.log(error);
 
           this.depositRotateActive = false;
-          this.setProgressBarMsg("Deposit Denied", false, 60);
+          this.setProgressBarMsg("Deposit Denied", false, 60, true);
         });
 
     }
     catch (error) {
       console.error(error);
       this.depositRotateActive = false;
-      this.setProgressBarMsg("Deposit Denied - Error", false, 60);
+      this.setProgressBarMsg("Deposit Denied - Error", false, 60, true);
     }
 
     return;    
   }
 
+  // Deposit button - Disable state controller
   get checkInvalidDeposit(): boolean {
+
     return this.amountDepositControl.hasError('max') ||
       this.amountDepositControl.hasError('min') ||
       this.amountDepositControl.hasError('required') ||
-      this.accountActive == false; 
+      this.accountActive == false ||
+      this.checkingContract ||
+      this.contractWarning; 
 
   }
   // ************************************************************
 
 
 
-  setProgressBarMsg(message:string, active: boolean, barValue: number) {
+  setProgressBarMsg(message:string, active: boolean, barValue: number, warningActive: boolean) {
     this.progressMsg = message;
     this.processActive = active;
-    this.progressBar.value = barValue;  
+    this.progressBar.value = barValue;
+    this.progressWarning = warningActive;
   }
 
   async initWeb3() {        
@@ -299,24 +319,35 @@ export class DirectDepositDialogComponent {
     return active;
   }
 
-  async checkBNBSmartChain() {
+  //*******************************************************************
+  // NETWORK Fn's
+  async manageNetwork() {
 
     let chainIdHex: string;
-    let bnbSmartChain: boolean = false;
+    let networkCorrect: boolean = false;
+    let connected: boolean = false;
+    let selectedChain: HEX_NETWORK;
 
-    let connected = await this.checkNetwork(HEX_NETWORK.BINANCE_ID, "Binance Mainnet");
+    if (this.globals.selectedWorld == WORLD.BNB) {
+      selectedChain = HEX_NETWORK.BINANCE_ID;
+      connected = await this.checkNetwork(selectedChain, "Binance Smart Chain");
+    }
+    else if (this.globals.selectedWorld == WORLD.ETH) {
+      selectedChain = HEX_NETWORK.ETHEREUM_ID;
+      connected = await this.checkNetwork(HEX_NETWORK.ETHEREUM_ID, "Ethereum Mainnet");
+    }
 
-    chainIdHex = await this.ethereum.request({ method: "eth_chainId", params: [] })
+    chainIdHex = await this.ethereum.request({ method: "eth_chainId", params: [] });
 
-    if (connected && chainIdHex == HEX_NETWORK.BINANCE_ID && this.provider) {
-      bnbSmartChain = true;
+    if (connected && chainIdHex == selectedChain && this.provider) {
+      networkCorrect = true;
     }
     else {
       this.networkMsg = "Network Not Changed, unable to proceed..";
       this.networkWarning = true;
     }
 
-    return bnbSmartChain;
+    return networkCorrect;
   }
 
   async checkBNBTestnet() {
@@ -355,12 +386,16 @@ export class DirectDepositDialogComponent {
 
       if (chainIdHex != selectedNetwork) {
 
+        this.networkCheckActive = true;     // Once enabled - secton stay visible until dialog close.
         this.networkChange = true;
         this.networkMsg = "Change Network Required";
         this.networkWarning = false;
 
-        if (chainIdHex == HEX_NETWORK.ETHEREUM) {
+        if (chainIdHex == HEX_NETWORK.ETHEREUM_ID) {
           console.log("Selected chain is Ethereum main-net, Request to switch to " + networkDesc + ".");
+        }
+        else if (chainIdHex == HEX_NETWORK.BINANCE_ID) {
+          console.log("Selected chain is Binance Smart Chain, Request to switch to " + networkDesc + ".");
         }
 
         await this.switchNetwork(selectedNetwork);        
@@ -457,6 +492,25 @@ export class DirectDepositDialogComponent {
               });
 
             }
+            else if (chainIdHex == HEX_NETWORK.ETHEREUM_ID) {
+              // Add Polygon chain
+              await ethereum.request({
+                method: 'wallet_addEthereumChain',
+                params: [
+                  {
+                    chainId: HEX_NETWORK.POLYGON_ID,
+                    blockExplorerUrls: ['https://etherscan.io'],
+                    chainName: 'Ethereum Mainnet',
+                    nativeCurrency: {
+                      decimals: 18,
+                      name: 'Ethereum',
+                      symbol: 'ETH'
+                    },
+                    rpcUrls: ['https://mainnet.infura.io/v3/']
+                  },
+                ],
+              });
+            }
           }
 
         }
@@ -548,4 +602,37 @@ export class DirectDepositDialogComponent {
 
     return bigAmount.toString();
   }
+
+  checkMCPContractValid() {
+    let contractName = this.globals.selectedWorld == WORLD.BNB ? MCP_CONTRACT_NAME.DEPOSIT_BSC : MCP_CONTRACT_NAME.DEPOSIT_ETHEREUM;
+    let contractAddressCompare = this.globals.selectedWorld == WORLD.BNB ? this.CONTRACT_MCPMEGA_DEPOSIT_BNB : this.CONTRACT_MCPMEGA_DEPOSIT_ETH;
+
+    this.getMCPContractAddress(contractName, contractAddressCompare);
+  }
+
+  getMCPContractAddress(contractName: MCP_CONTRACT_NAME, contractAddressCompare: string) {
+
+    let params = new HttpParams();
+    params = params.append('contract_name', contractName);
+
+    this.httpClient.get<any>(this.baseUrl + '/transaction/getMCPEndpoint', { params: params })
+      .subscribe({
+        next: (result) => {
+
+          if (contractAddressCompare != result.address) {
+            this.contractCheckMsg = "MCP Contract Change - Feature disabled";
+            this.contractWarning = true;
+          }
+          else {
+            this.contractCheckMsg = "Confirmed : Using Valid MCP Contract"
+          }
+          this.checkingContract = false;          
+        },
+        error: (error) => {
+          console.error(error);         
+        }
+      });
+  
+    return;
+  } 
 }

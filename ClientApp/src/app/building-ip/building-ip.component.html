@@ -298,7 +298,7 @@
         <span class="rankEff">{{row.rank}}%</span>
 
         <a class="magnifyHistoryPosition" *ngIf="buildingType==5 || buildingType==3 || buildingType==7 || buildingType==6" role="button" (click)="showHistory(row.id, row.pos_x, row.pos_y, buildingType, row.rank)">
-          <img src="./assets/magnify_history{{ globals.ownerAccount.dark_mode ? '_dark' : '' }}.png" class="magnifyHistoryIcon" height="30" />
+          <img src="./assets/magnify_history_dark.png" class="magnifyHistoryIcon" height="30" />
         </a>
 
         <a class="showIPAlertPosition" *ngIf="showIPAlert" role="button" (click)="enableRankingAlert(row)" [ngClass]="{'fadeInAndOut': searchBlinkOnce }" (animationend)="searchBlinkOnce=false">

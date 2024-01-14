@@ -14,9 +14,9 @@ import { PetModalComponent } from '../pet-modal/pet-modal.component';
 import { PackModalComponent } from '../pack-modal/pack-modal.component';
 import { CitizenModalComponent } from '../citizen-modal/citizen-modal.component';
 import { MatLegacyButton as MatButton } from '@angular/material/legacy-button';
-import { IOwnerLandData, IOwnerData, IPlotPosition, BUILDING, IFilterCount } from './owner-interface';
+import { IOwnerLandData, IOwnerData, IPlotPosition, IFilterCount } from './owner-interface';
 import { Globals, WORLD } from '../common/global-var';
-import { CUSTOM_BUILDING_CATEGORY } from '../common/enum';
+import { CUSTOM_BUILDING_CATEGORY, BUILDING, MIN_STAMINA } from '../common/enum';
 import { SearchPlotComponent } from '../search-plot/search-plot.component';
 
 
@@ -690,4 +690,29 @@ export class OwnerDataComponent implements AfterViewInit {
     this.historyShow = false;
   }
 
+  getStaminaImg(citizenStamina: number, buildingType: number) {
+    let staminaImg:string = "./assets/OutOfStamina.png";
+
+    if (this.stoppedWork(citizenStamina, buildingType) ) {
+      staminaImg = "./assets/stopped_work.png";
+    }
+
+    return staminaImg;
+  }
+  stoppedWork(citizenStamina: number, buildingType: number) {
+    let stoppedWork = false;
+
+    if ((citizenStamina < MIN_STAMINA.ENERGY && buildingType == BUILDING.ENERGY) ||
+      (citizenStamina < MIN_STAMINA.INDUSTRIAL && buildingType == BUILDING.INDUSTRIAL) ||
+      (citizenStamina < MIN_STAMINA.COMMERCIAL && buildingType == BUILDING.COMMERCIAL) ||
+      (citizenStamina < MIN_STAMINA.MUNICIPAL && buildingType == BUILDING.MUNICIPAL) ||
+      (citizenStamina < MIN_STAMINA.PRODUCTION && buildingType == BUILDING.PRODUCTION) ||
+      (citizenStamina < MIN_STAMINA.RESIDENTIAL && buildingType == BUILDING.RESIDENTIAL) ||
+      (citizenStamina < MIN_STAMINA.OFFICE && buildingType == BUILDING.OFFICE))
+    {
+      stoppedWork = true;
+    }
+
+    return stoppedWork;
+  }
 }

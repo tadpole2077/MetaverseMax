@@ -46,5 +46,32 @@ namespace MetaverseMax.Controllers
 
             return BadRequest("log Failed");       // 400 Error     
         }
+
+        [HttpGet("getLog")]
+        public IActionResult getLogbyMatic([FromQuery] QueryParametersOwnerDataMatic parameters)
+        {
+            TransactionManage transactionManage = new TransactionManage(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(transactionManage.GetLogByMatic(parameters.owner_matic_key));
+            }
+
+            return BadRequest("Get log Failed");       // 400 Error     
+        }
+
+        [HttpGet("getMCPEndpoint")]
+        public IActionResult getMCPEndpoint([FromQuery] QueryParametersEndpoint parameters)
+        {
+            TransactionManage transactionManage = new TransactionManage(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(transactionManage.GetMCPEndpoint(parameters.contract_name));
+            }
+
+            return BadRequest("log Failed");       // 400 Error     
+        }
+
     }
 }

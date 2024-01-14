@@ -1,0 +1,9 @@
+
+1) Correct Image Size
+
+
+2) Convert color black (+ alpha transparancy) to another color
+Via :  Colors > Map > Color Exchange 
+
+
+3) 

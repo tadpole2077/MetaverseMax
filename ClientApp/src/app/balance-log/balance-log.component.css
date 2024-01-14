@@ -1,0 +1,46 @@
+
+.long-text {
+  display: inline-block;
+}
+.short-text, .mobileView {
+  display: none;
+}
+
+.mat-column-hash span{
+  vertical-align:super
+}
+.iconSearch{
+  margin-right:4px
+}
+
+.mega {
+  width: 26px;
+  margin-right: 2px;
+  margin-top: -2px;
+}
+.fa-minus, .fa-plus{
+  display: none;  
+  width: 16px;
+}
+.fa-plus{
+  color: #1565c0;
+}
+.fa-minus{
+  color: darkorange
+}
+
+.enabled{
+  display: inline-block;
+}
+
+
+@media only screen and (max-width: 426px) {
+ 
+  .long-text {
+    display: none;
+  }
+
+  .short-text, .mobileView {
+    display: inline-block;
+  }
+}

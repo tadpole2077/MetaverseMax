@@ -43,3 +43,33 @@ Add FontAwesome to app.
 For Rent
 For Sale
 Rented
+
+
+3) Fonts
+==============================================================================
+American Mathematical Fonts : https://www.ams.org/arc/resources/amsfonts-about.html
+
+
+
+
+4) Twitter - X
+==============================================================================
+New 2024
+Removed twitter injection script (remove security and tracking risk from injection of 3rd party code from Twitter dev team repo - widgets.js file)
+Create custom twitter button, that works within a SPA environment. (previosly native twitter script button disappears when navigating between features and back to home page)
+
+
+
+Old 2022-2023
+-------------
+<a style="display:none" href="https://twitter.com/MetaverseMax?ref_src=twsrc%5Etfw" target="_blank" class="twitter-follow-button" data-size="large" data-show-count="false">Follow @MetaverseMax</a>
+
+[home.component.ts ADD Script]
+// Load twitter sharing button
+(function (d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0], p = /^http:/.test(d.location.toString()) ? 'http' : 'https';
+  if (!d.getElementById(id)) {
+    js = d.createElement(s); js.id = id; js.src = p + '://platform.twitter.com/widgets.js';
+    fjs.parentNode.insertBefore(js, fjs);
+  }
+}(document, 'script', 'twitter-wjs'));

@@ -30,15 +30,23 @@
         </mat-slide-toggle>
       </div>
 
-      <div class="menuItem" *ngIf="globals.ownerAccount.wallet_active_in_world && globals.selectedWorld == 2">
+      <div class="menuItem" *ngIf="globals.ownerAccount.wallet_active_in_world && globals.selectedWorld != WORLD.TRON">
         <mat-icon>fast_forward</mat-icon>
         <a class="menuLink"
            [ngClass]="{ 'text-dark':!globals.ownerAccount.dark_mode, 'text-light':globals.ownerAccount.dark_mode}"
            (click)="openDialog('1000ms', '750ms')">Direct Deposit</a>
       </div>
 
+      <div class="menuItem" style="" *ngIf="globals.ownerAccount.wallet_active_in_world">
+        <mat-icon>{{ globals.ownerAccount.balance_visible ? 'visibility':'visibility_off'}} </mat-icon>
+        <mat-label class="mat-slide-toggle-content">MM Balance&nbsp;</mat-label>
+        <mat-slide-toggle aria-labelledby="MM Balance"
+                          class="slideNight"
+                          [checked]="globals.ownerAccount.balance_visible"
+                          (change)="mmBalanceChange($event)">
+          <!-- [color]="primary" -->
+        </mat-slide-toggle>
+      </div>
     </div>
-
   </div>
-
 </div>

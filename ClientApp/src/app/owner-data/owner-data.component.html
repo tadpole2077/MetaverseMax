@@ -182,9 +182,13 @@
           </div>
           <div *ngIf="land.building_type==6 || land.building_type==5 || land.building_type==3 || land.building_type==7" class="buildDesc">
             <a class="lineAnim buildingMaglink" role="button" (click)="showHistory(land.token_id, land.pos_x, land.pos_y, land.building_type, land.current_influence_rank)">
-              <span> {{ land.building_desc }} <span *ngIf="land.resource>0" class="resource" [ngClass]="{'hideTag':!mobileView}"> R:{{ land.resource }} </span></span>
-              <span *ngIf="land.resource>0" class="resource" [ngClass]="{'hideTag':mobileView}"> R:{{ land.resource }} </span>
-              <span class="magnifyHistoryPositioner"><img src="./assets/magnify_history{{ globals.ownerAccount.dark_mode ? '_dark' : '' }}.png" class="magnifyHistoryIcon" height="36" /></span>
+              <span>
+                <span> {{ land.building_desc }} <span *ngIf="land.resource>0" class="resource" [ngClass]="{'hideTag':!mobileView}"> R:{{ land.resource }} </span></span>
+                <span *ngIf="land.resource>0" class="resource" [ngClass]="{'hideTag':mobileView}"> R:{{ land.resource }} </span>
+              </span>
+              <span class="magnifyHistoryPosition">
+                <img src="./assets/magnify_history_dark.png" class="magnifyHistoryIcon" />
+              </span>
             </a>
           </div>
 
@@ -243,8 +247,8 @@
           <i style="display:none" *ngIf="land.active == 1" class="fas fa-running activeProduce"></i>
           <div class="alertContainer">
             <div *ngIf="land.citizen_stamina_alert">
-              <span class="staminaLow">S: {{ land.citizen_stamina }}</span>
-              <img src="./assets/OutOfStamina.png" height="60" class="staminaOutImg">
+              <span class="staminaLow" [ngClass]="{'staminaStop': stoppedWork(land.citizen_stamina, land.building_type)}">S: {{ land.citizen_stamina }}</span>
+              <img src="{{ getStaminaImg(land.citizen_stamina, land.building_type) }}" height="60" class="staminaOutImg" title="Out of Stamina">
             </div>
           </div>
         </td>

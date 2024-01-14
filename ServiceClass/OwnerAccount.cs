@@ -17,5 +17,6 @@ namespace MetaverseMax.ServiceClass
         public bool alert_activated { get; set; }
         public int alert_count { get; set; }
         public decimal balance { get; set; }
+        public bool balance_visible { get; set; }
     }
 }

@@ -1,13 +1,3 @@
-@keyframes rotation {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(359deg);
-  }
-}
-
 .rotate {
   animation: rotation 1s 1 linear;
 }
@@ -156,7 +146,6 @@ td.mat-column-efficiency_industry, td.mat-column-efficiency_production, td.mat-c
   margin-left: 8px;
   margin-top: 9px;
   position: absolute;
-  color: white;
   z-index: 1;
 }
 
@@ -225,16 +214,6 @@ td.mat-column-efficiency_energy_water span {
 
 
 /* Progress Indicator */
-@keyframes rotation {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(359deg);
-  }
-}
-
 .rotate {
   animation: rotation 1s 30 linear;
 }
@@ -264,11 +243,22 @@ td.mat-column-efficiency_energy_water span {
 }
 .fa-check {
   opacity: 0;
-  transition: 2s;
-  /*color: green;*/
+  transition: all .5s;
 }
-.showTick{
-  opacity: 1
+.topBtnDiv i.showTick {
+  font-size: 22px;  
+  animation: fadeOut 4s ease-out;
+}
+
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
 }
 
 

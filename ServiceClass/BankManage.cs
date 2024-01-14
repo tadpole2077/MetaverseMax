@@ -136,6 +136,8 @@ namespace MetaverseMax.ServiceClass
             return MegaBalance.ToString();
         }
 
+        // Security Checks
+        // Using actual deposit - check has deposit Event, with recipient MMBank, and use actual amount deposited.
         public int ConfirmTransaction(string transactionHash)
         {            
             try
@@ -155,7 +157,7 @@ namespace MetaverseMax.ServiceClass
                 if (depositEventOutput.Count > 0)
                 {
                     depositDTO = depositEventOutput[0].Event;
-                    DepositProcess(transactionReceipt, transactionHash, depositDTO);
+                    DepositProcess(transactionReceipt, transactionHash, depositEventOutput[0]);
                 }
                 else if (withdrawEventOutput.Count > 0)
                 {
@@ -173,18 +175,23 @@ namespace MetaverseMax.ServiceClass
             return 0;
         }
 
-        private bool DepositProcess(TransactionReceipt transactionReceipt, string transactionHash, DepositDTO depositDTO)
+        private bool DepositProcess(TransactionReceipt transactionReceipt, string transactionHash, EventLog<DepositDTO> eventLog)
         {
             BlockchainTransactionDB blockchainTransactionDB = new(_context);
             BlockchainTransaction blockchainTransaction = new();
             OwnerManage ownerManage = new(_context, worldType);
+            DepositDTO depositDTO = eventLog.Event;
 
-            // Check Receipt is Valid MMBank Contract
-            bool validContract = transactionReceipt.To.Equals(MMBankContractAddress, StringComparison.CurrentCultureIgnoreCase);
+            // Check Receipt - deposit recipient == Valid MMBank Contract
+            bool validRecipientMMBank = transactionReceipt.To.Equals(MMBankContractAddress, StringComparison.CurrentCultureIgnoreCase);
 
+            // Check MMBank issued deposit event Log entry - not a spoof deposit event
+            bool validMMBankDepositEvent = eventLog.Log.Address.Equals(MMBankContractAddress, StringComparison.CurrentCultureIgnoreCase);
+
+            // Check if this transaction hash previously processed
             bool alreadyProcessed = blockchainTransactionDB.AlreadyProcessed(transactionHash, BANK_ACTION.DEPOSIT);
 
-            if (validContract && alreadyProcessed == false && depositDTO != null)
+            if (validRecipientMMBank && validMMBankDepositEvent && alreadyProcessed == false && depositDTO != null)
             {
                 BigDecimal MegaAmount = Web3.Convert.FromWei(depositDTO.amount);
 
@@ -194,6 +201,8 @@ namespace MetaverseMax.ServiceClass
                 blockchainTransaction.action = BANK_ACTION.DEPOSIT;
                 blockchainTransaction.event_recorded_utc = DateTime.UtcNow;
 
+                // Atomic unit - dont allow balance update if transaction already completed - Protect from Brute force multiple simultaneous calls to process Transaction Hash
+                // lock table - Transaction tble, check transaction not prior processed, update transaction, update owner.balance, unlock transaction tbl (sproc).  Ensure - balance can only be updated once per transaction.
                 blockchainTransactionDB.AddOrUpdate(blockchainTransaction, transactionHash);
 
                 ownerManage.UpdateBalance(blockchainTransaction.owner_matic, blockchainTransaction.amount);

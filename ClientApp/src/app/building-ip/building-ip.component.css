@@ -200,16 +200,6 @@
 
 
 /* Search buttons */
-@keyframes rotation {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(359deg);
-  }
-}
-
 .rotate {
   animation: rotation 1s 30 linear;
 }
@@ -230,37 +220,6 @@
 .buttonEffect {
   animation: glowBtn 1.4s ease-in-out infinite alternate;
 }
-
-@keyframes glowBtn {
-  from {
-    box-shadow: 0 0 3px #fff, 0 0 6px #fff, 0 0 9px #fff, 0 0 12px #fff;
-  }
-
-  to {
-    box-shadow: 0 0 3px #1b6ec2, 0 0 6px #1b6ec2, 0 0 9px #1b6ec2, 0 0 8px #1b6ec2;
-  }
-}
-
-@keyframes glowText2 {
-  from {
-    text-shadow: 0 0 3px #fff, 0 0 6px #fff, 0 0 9px #fff, 0 0 12px #fff;
-  }
-
-  to {
-    text-shadow: 0 0 1px #ffc107, 0 0 2px #ffc107, 0 0 6px #ffc107, 0 0 4px #ffc107;
-  }
-}
-@keyframes glowText {
-  from {
-    color: gray;
-  }
-
-  to {
-    color: #ffc107;
-  }
-}
-
-
 
 .searchIcon {
   font-size: 1.1rem;
@@ -525,9 +484,14 @@ td.mat-column-name {
   display: inline-block;
   position: relative;
   vertical-align: top;
+  border-radius: 50%;
   width: 24px;
-  /*float: right;
-  margin-right: 3rem;*/
+  height: 24px;
+  background-color: rgba(21, 101, 192, 0.35);
+  transform: scale(1.8);
+  margin-left: 10px;
+  margin-top: -3px;
+  transition: all .5s;
 }
 .officeMagify {
   margin-left: 1rem;
@@ -535,12 +499,37 @@ td.mat-column-name {
 }
 .magnifyHistoryIcon {
   margin-top: -12px;
-  position: absolute;
-  opacity: .6
+  transform: scale(.7);
+  color: white;
 }
-  .magnifyHistoryIcon:hover {
-    opacity: 1
+  /* Hover - reduce size and darken circle*/
+  .magnifyHistoryPosition:hover {
+    background: rgba(173, 216, 230, 1);
+    background-color: rgba(21, 101, 192, 0.5);
+    transform: scale(1.5);
+    color: #fff;
   }
+
+  .magnifyHistoryPosition:hover::after {
+    content: "";
+    top: 0;
+    left: 0;
+    padding: 0;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.1);
+    opacity: 0;
+    transform: scale(0.9);
+    pointer-events: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    box-sizing: content-box;
+    animation-iteration-count: infinite;
+    animation-duration: 2.2s;
+    animation-delay: 75ms;
+    animation-timing-function: ease-out;
+  }  
+
 
 .showIPAlertPosition {
   display: inline-block;

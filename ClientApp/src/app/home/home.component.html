@@ -6,8 +6,13 @@
       <a class="widgetLogo-6zH6Nv" href="https://discord.gg/FdtTJqmZ8W" target="_blank"></a>
     </div>
 
-    <a style="display:none" href="https://twitter.com/MetaverseMax?ref_src=twsrc%5Etfw" target="_blank" class="twitter-follow-button" data-size="large" data-show-count="false">Follow @MetaverseMax</a>
+    <a class="twitterButton buttonEffect" mat-raised-button color="primary" href="https://twitter.com/MetaverseMax?ref_src=twsrc%5Etfw" target="_blank">
+      <i class="twitterIcon"></i>
+      <span class="buttonText">Follow @MetaverseMax</span>
+    </a>
+    <!--<a href="https://twitter.com/MetaverseMax?ref_src=twsrc%5Etfw" target="_blank" class="twitter-follow-button" data-size="large" data-show-count="false">Follow @MetaverseMax</a>-->
   </div>
+
   <img src="./assets/circle-cropped.png" class="logoImg" height="100" />
 
   <div class="actionPanel" style="--card-margin-bottom: var(--spacing-3xl); ">
@@ -42,7 +47,7 @@
 
   <div id="introBlock">
     <ul class="introList">
-      <li>Version 1.5.30 (05.Dec.2023)</li>
+      <li>Version 1.6.3 (12.Jan.2024)</li>
       <li>Our tools currently support 3x "MEGA WORLD" metaverse environments: <a target="_blank" href="https://play.mcp3d.com/ethereum">Eth</a> / <a target="_blank" href="https://play.mcp3d.com/bsc">BSC</a> / <a target="_blank" href="https://play.mcp3d.com/tron">Tron</a>.</li>
       <li>Notice will be given within our discord channel before any scheduled outage-deployment occurance. Please report any bugs within our discord channel</li>
       <li style="display:none">
@@ -66,7 +71,7 @@
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>new_releases</mat-icon>
-          <span style="margin-left:.2rem">V1.5.0 Release Notes (Latest)</span>
+          <span style="margin-left:.2rem">V1.6.0 Release Notes (Latest)</span>
         </mat-panel-title>
         <mat-panel-description>
         </mat-panel-description>
@@ -75,32 +80,45 @@
 
         <div class="infoSection">
           <div class="infoBlockImg blockRight">
-            <img src="./assets/mission_desk.png" class="promoImg" height="300" />
+            <img src="./assets/direct_deposit.png" class="promoImg" height="300" />
           </div>
           <div class="infoBlock blockLeft">
-            <h3>World : Mission Desk</h3>
-            View, evaluate, filter all world active missions
+            <h3>Direct Deposit (Mega)</h3>
+            Reduce fee costs of Mega Deposits to MegaWorld
             <ul style="margin-top:.6rem">
-              <li>Filter by Reward amount - showing only rewards above X Mega</li>
-              <li>Find top districts with most high value rewards to plan your next session</li>
-              <li>Search on any keyword</li>
-              <li>Find easiest lower level building missions with best reward</li>
-              <li>All Rewards and Custom Building updated every hour, 'Refresh mins' showing last mission info update time</li>
+              <li>The following Medium article explains the feature in depth <a class="lineAnim" href="https://link.medium.com/QTboeVqriFb" target="_blank"><mat-icon class="book">library_books</mat-icon>About Article</a></li>
+              <li>In short, deposit Mega to your in-world using part of your allowance cap</li>
+              <li>Using this method reduces your overall gas fees, as less allowance signing is required</li>
+              <li>The solution uses MCP contract methods, verify contact used before signing</li>
             </ul>
           </div>
         </div>
 
         <div class="infoSection">
           <div class="infoBlockImg blockLeft">
-            <img src="./assets/mission_desk_mobile.png" class="promoImg" height="300" />
+            <img src="./assets/direct_deposit_menu.png" class="promoImg" height="300" />
           </div>
           <div class="infoBlock blockRight">
-            <h3>World : Custom Building Mobile</h3>
-            Contains all key data from desktop mode
+            <h3>Direct Deposit - Menu Link</h3>
+            Shown within account popup menu
             <ul style="margin-top:.6rem">
-              <li>Owner and building position removed to improve readability</li>
-              <li>Reward and search filters support, plus top mission districts</li>
-              <li>Sticky table header also active</li>
+              <li>hover over your avatar image within the main menu - furthest right</li>
+              <li>Shown within BNB and ETH accounts. (not supported in Tron yet)</li>              
+            </ul>
+          </div>
+        </div>
+
+        <div class="infoSection">
+          <div class="infoBlockImg blockRight">
+            <img src="./assets/tool_links.PNG" class="promoImg" height="300" />
+          </div>
+          <div class="infoBlock blockLeft">
+            <h3>Homepage - Partner Links</h3>
+            Additional new tool/partner links added, at bottom of this homepage.
+            <ul style="margin-top:.6rem">
+              <li>MyMegaWorld</li>
+              <li>Max Headroom Charts</li>
+              <li>MetaTex</li>
             </ul>
           </div>
         </div>
@@ -133,6 +151,64 @@
       </mat-expansion-panel-header>
 
       <ng-template matExpansionPanelContent>
+
+        <mat-expansion-panel expanded="false" style="">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>new_releases</mat-icon>
+              <span style="margin-left:.2rem">Release Content [Version 1.5.0] (09_OCT_2023)</span>
+            </mat-panel-title>
+            <mat-panel-description>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <ng-template matExpansionPanelContent>
+            <div class="infoSection">
+              <div class="infoBlockImg blockRight">
+                <img src="./assets/mission_desk.png" class="promoImg" height="300" />
+              </div>
+              <div class="infoBlock blockLeft">
+                <h3>World : Mission Desk</h3>
+                View, evaluate, filter all world active missions
+                <ul style="margin-top:.6rem">
+                  <li>Filter by Reward amount - showing only rewards above X Mega</li>
+                  <li>Find top districts with most high value rewards to plan your next session</li>
+                  <li>Search on any keyword</li>
+                  <li>Find easiest lower level building missions with best reward</li>
+                  <li>All Rewards and Custom Building updated every hour, 'Refresh mins' showing last mission info update time</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="infoSection">
+              <div class="infoBlockImg blockLeft">
+                <img src="./assets/mission_desk_mobile.png" class="promoImg" height="300" />
+              </div>
+              <div class="infoBlock blockRight">
+                <h3>World : Custom Building Mobile</h3>
+                Contains all key data from desktop mode
+                <ul style="margin-top:.6rem">
+                  <li>Owner and building position removed to improve readability</li>
+                  <li>Reward and search filters support, plus top mission districts</li>
+                  <li>Sticky table header also active</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="infoSection">
+              <div class="infoBlockImg blockRight">
+              </div>
+              <div class="infoBlock blockLeft">
+                <h3>More...</h3>
+                Full List of enhancements and fixed defects found over on MetaverseMax Discord Group
+                <ul style="margin-top:.6rem">
+                  <li>Discord link : <div class="discordButton"><a class="widgetLogo-6zH6Nv" href="https://discord.gg/FdtTJqmZ8W" target="_blank"></a></div></li>
+                  <li>Go to the Release-Note channel</li>
+                </ul>
+              </div>
+            </div>
+          </ng-template>
+        </mat-expansion-panel>
 
         <mat-expansion-panel expanded="false" style="">
           <mat-expansion-panel-header>
@@ -192,7 +268,6 @@
                 </ul>
               </div>
             </div>
-
 
             <div class="infoSection">
               <div class="infoBlockImg blockLeft">
@@ -864,9 +939,22 @@
           <img src="./assets/MyMegaWorld.png" height="42" />
         </a>
 
-        <a class="partnerLink MetaTex" href="https://www.thecryptoconnect.net/" target="_blank">
+        <a class="partnerLink metaTex" href="https://www.thecryptoconnect.net/" target="_blank">
           <img src="./assets/MetaTexAlpha.png" height="54" />
         </a>
+
+        <a class="partnerLink maxCharts" href="https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8oasTW2GkvV3qRO2LKZJGp_CXtX6iwWFwzg26FFhPwQYKYJ6tLeVurQX4_xFGKpLwm8Ov3tW4Zqjj/pubhtml" target="_blank">
+          <img src="./assets/MaxHeadroom.png" height="56" />
+        </a>
+
+        <a class="partnerLink maxCharts" href="https://docs.google.com/spreadsheets/u/0/d/e/2PACX-1vRpxU8Mw8_0vCeW0GBGHsQMijjTcW4N7WWvgYd5Sl3g3-eAbFLn-J6Jwt98Nl8JlEwBKzxMqE0KPne9/pubhtml?pli=1" target="_blank">
+          <img src="./assets/MaxHeadroomBank.png" height="56" />
+        </a>
+
+        <a class="partnerLink roadmap" href="https://megaworld.io/#roadmap" style="display:none" target="_blank">
+          <img src="./assets/MaxHeadroomBank.png" height="56" />
+        </a>        
+
       </div>
 
     </mat-expansion-panel>

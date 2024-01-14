@@ -43,7 +43,7 @@
 }
 
 .menuItem {
-  height: 35px;
+  height: 37px;
   padding: 7px;
   vertical-align: middle;
   cursor:pointer;
@@ -82,7 +82,9 @@
 @media only screen and (max-width: 426px) {
 
   .menuContainer {
-    margin-left: 0;
+    position: absolute;
+    right: 10px;
+    top: 48px;
   }
 
   div.dropdown-menu.show2 {

@@ -68,9 +68,21 @@ interface MissionCollection {
   repeatable_daily_reward: number;
 }
 
+interface TransactionCollection {
+  transaction_list: Transaction[];
+}
+interface Transaction {
+  hash: string;
+  action: string;
+  amount: number;
+  event_recorded_gmt: string;
+}
+
 export {
   Parcel,
   ParcelCollection,
   Mission,
-  MissionCollection
+  MissionCollection,
+  Transaction,
+  TransactionCollection
 }

@@ -950,8 +950,7 @@ namespace MetaverseMax.ServiceClass
 
         public bool UpdateDarkMode(string maticKey, bool darkMode)
         {
-            // Update db - update ownerAccount with matching public wallet key if not already stored.  (used for TRON where matic and public differ)
-            OwnerDB ownerDB = new OwnerDB(_context);
+            OwnerDB ownerDB = new(_context);
             ownerDB.UpdateOwnerDarkMode(maticKey, darkMode);
 
             OwnerAccount ownerAccount = FindOwnerByMatic(maticKey, string.Empty);
@@ -960,9 +959,20 @@ namespace MetaverseMax.ServiceClass
             return true;
         }
 
+        public bool UpdateBalanceVisible(string maticKey, bool visible)
+        {
+            OwnerDB ownerDB = new(_context);
+            ownerDB.UpdateBalanceVisible(maticKey, visible);
+
+            OwnerAccount ownerAccount = FindOwnerByMatic(maticKey, string.Empty);
+            ownerAccount.balance_visible = visible;      // Update local cache store of ownerAccount.
+
+            return true;
+        }
+
         public bool UpdateBalance(string maticKey, decimal amount)
         {
-            OwnerDB ownerDB = new OwnerDB(_context);
+            OwnerDB ownerDB = new(_context);
             OwnerAccount ownerAccount = FindOwnerByMatic(maticKey, string.Empty);
             decimal balance = 0;
 

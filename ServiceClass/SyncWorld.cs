@@ -462,8 +462,8 @@ namespace MetaverseMax.ServiceClass
                                 ownerChangeList.Add(new OwnerChange()
                                 {
                                     owner_matic_key = plotUpdated.owner_matic,
-                                    monument_activated = false,                 // if owner pre-existed in list then POI change = true.
-                                    owner_name = plotUpdated.owner_nickname,
+                                    monument_activated = false,                                     // if owner pre-existed in list then POI change = true.
+                                    owner_name = plotUpdated.owner_nickname ?? string.Empty,        // Set name as empty string if null
                                     owner_avatar_id = plotUpdated.owner_avatar_id
                                 });
                             }

@@ -10,10 +10,9 @@ import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { Alert } from '../common/alert';
 import { ProdHistoryComponent } from '../production-history/prod-history.component';
 import { BuildingFilterComponent } from '../building-filter/building-filter.component';
-import { BUILDING } from '../owner-data/owner-interface';
 import { Globals, WORLD } from '../common/global-var';
 import { Router } from '@angular/router';
-import { ALERT_TYPE, ALERT_ACTION } from '../common/enum'
+import { ALERT_TYPE, ALERT_ACTION, BUILDING } from '../common/enum'
 
 interface OfficeGlobalIp {
   totalIP: number;

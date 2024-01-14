@@ -5,16 +5,6 @@ a {
 .predictControl{}
 
 /* Progress Indicator */
-@keyframes rotation {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(359deg);
-  }
-}
-
 .rotate {
   animation: rotation 1s 30 linear;
 }
@@ -222,16 +212,6 @@ tr.mat-mdc-row:not(.detailRow) {
   position: absolute;
   color: #1565c0;
   z-index: 1;
-}
-
-@keyframes rotation {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(359deg);
-  }
 }
 
 .rotate {

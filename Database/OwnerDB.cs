@@ -77,7 +77,8 @@ namespace MetaverseMax.Database
                         pro_tools_enabled = (o.pro_access_expiry ?? DateTime.UtcNow) > DateTime.UtcNow ? true : false,
                         pro_expiry_days = GetExpiryDays(o.pro_access_expiry, (o.pro_access_expiry ?? DateTime.UtcNow) > DateTime.UtcNow ? true : false),
                         alert_activated = o.alert_activated,
-                        balance = o.balance ?? 0
+                        balance = o.balance ?? 0,
+                        balance_visible = o.balance_visible ?? false
                     }
                 );
 
@@ -178,7 +179,33 @@ namespace MetaverseMax.Database
 
             return returnCode;
         }
-        
+
+        public RETURN_CODE UpdateBalanceVisible(string ownerMaticKey, bool visible)
+        {
+            RETURN_CODE returnCode = RETURN_CODE.ERROR;
+            Owner owner = null;
+            try
+            {
+                owner = _context.owner.Where(o => o.owner_matic_key == ownerMaticKey).FirstOrDefault();
+
+                if (owner != null)
+                {
+                    owner.balance_visible = visible;
+
+                    _context.SaveChanges();
+                    returnCode = RETURN_CODE.SUCCESS;
+                }
+            }
+            catch (Exception ex)
+            {
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("OwnerDB::UpdateBalanceVisible() : Error updating owner with matic Key - ", ownerMaticKey));
+            }
+
+
+            return returnCode;
+        }
+
         public RETURN_CODE UpdateOwnerAlertActivated(string ownerMaticKey, bool alertActivated)
         {
             RETURN_CODE returnCode = RETURN_CODE.ERROR;
@@ -340,7 +367,8 @@ namespace MetaverseMax.Database
                         created_date = DateTime.Now,
                         pro_access_expiry = DateTime.Now.AddDays(freeDays),
                         pro_access_renew_code = "test",
-                        balance = 0
+                        balance = 0,
+                        balance_visible = false,
                     }).Entity;
 
 

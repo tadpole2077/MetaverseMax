@@ -51,6 +51,7 @@ namespace MetaverseMax.ServiceClass
             return count;
         }
 
+        // Min 15 stamina Energy
         public bool CheckCitizenStamina(JArray citizens, int buildingType)
         {
             int count = 0;
@@ -91,7 +92,7 @@ namespace MetaverseMax.ServiceClass
 
                     (int)BUILDING_TYPE.ENERGY =>
                         citizens.Where(
-                        row => (row.Value<int?>("stamina") ?? 0) <= 30
+                        row => (row.Value<int?>("stamina") ?? 0) < 30
                         ).Count(),
 
                     _ => citizens.Where(

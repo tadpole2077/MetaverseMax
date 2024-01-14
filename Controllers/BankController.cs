@@ -52,6 +52,7 @@ namespace MetaverseMax.Controllers
             return BadRequest("Confirm Bank Transaction Call is invalid");       // 400 Error  
         }
 
+        // 2ND Part of Widthdraw process
         [HttpGet("WithdrawAllowanceApprove")]
         public IActionResult WithdrawAllowanceApprove([FromQuery] QueryParametersWithdrawAllowanceApprove parameters)
         {
@@ -63,9 +64,10 @@ namespace MetaverseMax.Controllers
                 return Ok(bankManage.WithdrawAllowanceApprove(parameters.amount, parameters.ownerMaticKey, parameters.personalSign));
             }
 
-            return BadRequest("Confirm Bank Transaction Call is invalid");       // 400 Error  
+            return BadRequest("Withdraw Approve is invalid");       // 400 Error  
         }
 
+        // 1ND Part of Widthdraw process
         [HttpGet("GetWithdrawSignCode")]
         public IActionResult GetWithdrawSignCode([FromQuery] QueryParametersWithdrawSignCode parameters)
         {
@@ -76,7 +78,7 @@ namespace MetaverseMax.Controllers
                 return Ok(bankManage.GetWithdrawSignCode(parameters.amount, parameters.ownerMaticKey));  // "0x68656c6c6f" Hello in Hex UTF-8
             }
 
-            return BadRequest("Confirm Bank Transaction Call is invalid");       // 400 Error  
+            return BadRequest("Get Sign Code is invalid");       // 400 Error  
         }
     }
 }

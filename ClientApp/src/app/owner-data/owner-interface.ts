@@ -161,20 +161,6 @@ interface IFilterCount {
   parcel: number;
 }
 
-const BUILDING = {
-  NO_FILTER: -1,
-  EMPTYPLOT: 0,
-  RESIDENTIAL: 1,
-  ENERGY: 3,
-  COMMERCIAL: 4,
-  INDUSTRIAL: 5,
-  OFFICE: 6,
-  PRODUCTION: 7,
-  MUNICIPAL: 8,
-  PARCEL: 10,
-  AOI: 100
-}
-
 const PRODUCT = {
   WOOD: 1,
   SAND: 2,
@@ -206,7 +192,6 @@ export
   IPortfolioPet,
   ICitizen,
   IPortfolioCitizen,
-  BUILDING,
   PRODUCT,
   IFilterCount,
   IPack
