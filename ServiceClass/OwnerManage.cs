@@ -5,6 +5,7 @@ using MetaverseMax.BaseClass;
 using MetaverseMax.Database;
 using System.Linq;
 using System.Runtime.ConstrainedExecution;
+using Microsoft.IdentityModel.Tokens;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -104,25 +105,32 @@ namespace MetaverseMax.ServiceClass
 
             ownerChangeList.ForEach(x => {
 
-                ownerNameDB.UpdateOwnerName(x, true);
-
-                updated = ownerUniDB.CheckLink(x, worldType);
-
-                // Defensive coding - check for missing world.owner.owner_uni_key
-                // May be used if a specific World DB is missing owner_uni_key mappings, dropped or deleted for some reason.
-                // Should not really occur, but useful as a backup process.
-                if (updated == false)
+                if (x.owner_matic_key.IsNullOrEmpty())
                 {
-                    int localOwnerUnitID = GetOwnerUniIDByMatic(x.owner_matic_key);     // Pull from local cache should reflect database.
-                    if (localOwnerUnitID == 0)
-                    {
-                        // Get from OwnerUni table
-                        OwnerUni ownerUni = ownerUniDB.GetOwner(x.owner_matic_key, worldType);
+                    _context.LogEvent(String.Concat("OwnerManage.SyncOwner() : Anomoly found - ownerChange entry with No owner_matic_key,  owner_name: ", x.owner_name));
+                }
+                else
+                {
+                    ownerNameDB.UpdateOwnerName(x, true);
 
-                        // Update Local - if db world.owner.owner_uni_key mapping key found.
-                        if (ownerUni != null)
+                    updated = ownerUniDB.CheckLink(x, worldType);
+
+                    // Defensive coding - check for missing world.owner.owner_uni_key
+                    // May be used if a specific World DB is missing owner_uni_key mappings, dropped or deleted for some reason.
+                    // Should not really occur, but useful as a backup process.
+                    if (updated == false)
+                    {
+                        int localOwnerUnitID = GetOwnerUniIDByMatic(x.owner_matic_key);     // Pull from local cache should reflect database.
+                        if (localOwnerUnitID == 0)
                         {
-                            ownerDB.UpdateOwner_UniID(x.owner_matic_key, ownerUni.owner_uni_id);
+                            // Get from OwnerUni table
+                            OwnerUni ownerUni = ownerUniDB.GetOwner(x.owner_matic_key, worldType);
+
+                            // Update Local - if db world.owner.owner_uni_key mapping key found.
+                            if (ownerUni != null)
+                            {
+                                ownerDB.UpdateOwner_UniID(x.owner_matic_key, ownerUni.owner_uni_id);
+                            }
                         }
                     }
                 }

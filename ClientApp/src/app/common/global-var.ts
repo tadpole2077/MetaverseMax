@@ -326,7 +326,7 @@ export class Globals {
     const provider = await DetectEthereumProvider();
     const ethereum = (window as any).ethereum;
 
-    const approved = provider && (provider.isMetaMask || ethereum.isCoinbaseWallet);
+    const approved = provider && (provider.isMetaMask || ethereum.isTrustWallet || ethereum.isCoinbaseWallet);
 
     if (approved) {
 

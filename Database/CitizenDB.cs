@@ -71,12 +71,14 @@
                     storedCitizen.efficiency_municipal != citizen.efficiency_municipal ||
                     storedCitizen.efficiency_office != citizen.efficiency_office ||
                     storedCitizen.efficiency_production != citizen.efficiency_production ||
-                    storedCitizen.refresh_history != citizen.refresh_history
+                    storedCitizen.refresh_history != citizen.refresh_history ||
+                    storedCitizen.stamina != citizen.stamina
                     )     // changed attributes
                 {
 
                     storedCitizen.breeding = citizen.breeding;
                     storedCitizen.name = citizen.name;
+                    storedCitizen.stamina = citizen.stamina;
 
                     storedCitizen.current_price = citizen.current_price;
                     if (skipPriceCheck == false)
@@ -101,7 +103,7 @@
                     storedCitizen.efficiency_municipal = citizen.efficiency_municipal;
 
                     storedCitizen.last_update = DateTime.UtcNow;
-                    storedCitizen.refresh_history = citizen.refresh_history;
+                    storedCitizen.refresh_history = citizen.refresh_history;                    
 
                     citizenChange.updateFound = true;
                     if (saveFlag)

@@ -23,6 +23,9 @@ namespace MetaverseMax.Database
         [Column("sex")]
         public short? sex { get; set; }
 
+        [Column("stamina")]
+        public int? stamina { get; set; }        
+
         [Column("on_sale")]
         public bool on_sale { get; set; }
 

@@ -316,7 +316,7 @@ namespace MetaverseMax.Database
             catch (Exception ex)
             {
                 DBLogger dBLogger = new(_context.worldTypeSelected);
-                dBLogger.logException(ex, String.Concat("OwnerDB::UpdateOwnerBalance() : Error updating owner balance with matic Key - ", ownerMaticKey));
+                dBLogger.logException(ex, String.Concat("OwnerDB::NewOwner() : Error creating new owner with matic Key - ", ownerMaticKey));
             }
 
 

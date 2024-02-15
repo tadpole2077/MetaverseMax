@@ -542,6 +542,7 @@ namespace MetaverseMax.ServiceClass
                 citizen.generation = citizenMCP.Value<int?>("generation") ?? 1;
                 citizen.breeding = citizenMCP.Value<int?>("breedings") ?? 0;
                 citizen.sex = citizenMCP.Value<short>("gender");
+                citizen.stamina = citizenMCP.Value<int?>("stamina") ?? 0;
 
                 ArrayTraits = citizenMCP.Value<JArray>("special");
                 if (ArrayTraits.Any())
