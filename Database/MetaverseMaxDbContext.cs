@@ -11,6 +11,7 @@ namespace MetaverseMax.Database
         public static string dbConnectionStringTron { get; set; }
         public static string dbConnectionStringBNB { get; set; }
         public static string dbConnectionStringETH { get; set; }
+       
         public static int dbCommandTimeout { get; set; }
 
         public WORLD_TYPE worldTypeSelected { get; set; }
@@ -53,11 +54,12 @@ namespace MetaverseMax.Database
         // options will be assigned on OnConfiguring()
         public MetaverseMaxDbContext() : base()
         {
-
+            init();
         }
         public MetaverseMaxDbContext(WORLD_TYPE worldType) : base()
         {
             worldTypeSelected = worldType;
+            init();
         }
         public MetaverseMaxDbContext(DbContextOptions<MetaverseMaxDbContext> options) : base(options)
         {
@@ -88,7 +90,7 @@ namespace MetaverseMax.Database
 
                 dbConnectionStringTron = configuration.GetConnectionString("DatabaseConnection");
                 dbConnectionStringBNB = configuration.GetConnectionString("DatabaseConnectionBNB");
-                dbConnectionStringETH = configuration.GetConnectionString("DatabaseConnectionETH");
+                dbConnectionStringETH = configuration.GetConnectionString("DatabaseConnectionETH");                
                 dbCommandTimeout = (int)configuration.GetValue(typeof(int), "DBCommandTimeout");
             }
         }

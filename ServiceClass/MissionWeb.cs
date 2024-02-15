@@ -38,5 +38,9 @@
         public double last_updatedUx { get; set; }
         public int last_refresh { get; set; }
 
+        public int c_d { get; set; }            // collect days
+        public int c_h { get; set; }            // collect hours
+        public bool c_r { get; set; }           // collect ready
+
     }
 }

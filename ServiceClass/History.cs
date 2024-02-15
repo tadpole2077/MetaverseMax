@@ -131,6 +131,7 @@ namespace MetaverseMax.ServiceClass
         public string name { get; set; }
         public int buildingCount { get; set; }
         public int buildingActive { get; set; }
+        public long buildingActiveIP { get; set; }
         public string buildingImg { get; set; }
         public int buildingId { get; set; }
         public string buildingName { get; set; }
@@ -145,7 +146,7 @@ namespace MetaverseMax.ServiceClass
         public decimal maxDailyDistribution { get; set; }
         public decimal maxDailyDistributionPerIP { get; set; }
         public string lastDistributionDate { get; set; }
-        public decimal lastDistribution {  get; set; }
+        public decimal lastDistribution {  get; set; }        
 
     }
 }

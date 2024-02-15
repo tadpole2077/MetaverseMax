@@ -236,7 +236,10 @@ export class TESTBankManageComponent {
     let connected = await this.checkNetwork(HEX_NETWORK.BINANCE_TESTNET_ID, "Binance Testnet");
 
     chainIdHex = await this.ethereum.request({ method: "eth_chainId", params: [] })
-    if (connected && chainIdHex == HEX_NETWORK.BINANCE_TESTNET_ID && this.provider && this.provider.isMetaMask && this.web3) {
+    if (connected &&
+      chainIdHex == HEX_NETWORK.BINANCE_TESTNET_ID &&
+      await this.globals.checkApprovedWalletType() &&
+      this.web3) {
 
       const addressFrom = this.currentPlayerWalletKey;
       this.addressSender.setValue(this.CONTRACT_MMBank);
@@ -250,7 +253,8 @@ export class TESTBankManageComponent {
     try {
       this.provider = await DetectEthereumProvider();
       
-      if (this.provider && this.provider.isMetaMask) {
+      // Check Metamask Provider :  Supporting Metamask & CoinbaseWallet
+      if (await this.globals.checkApprovedWalletType()) {
         this.web3 = new Web3(this.provider);
       }
     }
@@ -1304,7 +1308,8 @@ export class TESTBankManageComponent {
 
     let web3: Web3 = null;
 
-    if (provider && provider.isMetaMask) {
+    // Check Metamask Provider :  Supporting Metamask & CoinbaseWallet
+    if (await this.globals.checkApprovedWalletType()) {
 
       //console.log('Ethereum successfully detected!');
       this.rotateActive = true;

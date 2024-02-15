@@ -1,11 +1,15 @@
 ﻿using System.Globalization;
 using MetaverseMax.BaseClass;
+using MetaverseMax.Database;
 using Microsoft.IdentityModel.Tokens;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace MetaverseMax.ServiceClass
 {
     public class ServiceCommon
     {
+        public const string SECURE_TOKEN = "JUST_SIMPLE_CHECK123";
+        public static bool pendingShutdown { get; set; }
         public static bool isDevelopment { get; set; }
         public static string serverIP { get; set; }
         public static bool logServiceInfo { get; set; }
@@ -41,7 +45,38 @@ namespace MetaverseMax.ServiceClass
             dbConnectionStringBNB = configuration.GetConnectionString("DatabaseConnectionBNB");
             dbConnectionStringETH = configuration.GetConnectionString("DatabaseConnectionETH");
             dbCommandTimeout = (int)configuration.GetValue(typeof(int), "DBCommandTimeout");
+
+            pendingShutdown = false;    // initial state.  set to true when scheduled app shutdown enabled.
         }
+
+        public bool CheckPendingShutdownSetting()
+        {
+            if (ServiceCommon.pendingShutdown == false) { 
+                using (MetaverseMaxDbContext_UNI contextUNI = new())
+                {
+                    SettingDB settingDB = new(contextUNI);
+                    ServiceCommon.pendingShutdown = settingDB.GetSettingValue(SETTING_CODE.SHUTDOWN_PENDING) == 1;
+                }
+            }
+
+            return ServiceCommon.pendingShutdown;
+        }
+        public bool SetSystemSetting(string secureToken, string settingName, int value)
+        {
+            // As this service could be abused as a DDOS a security token is needed.
+            if (!secureToken.Equals("JUST_SIMPLE_CHECK123"))
+            {
+                return false;
+            }
+
+            using (MetaverseMaxDbContext_UNI contextUNI = new())
+            {
+                SettingDB settingDB = new(contextUNI);
+                settingDB.AddOrUpdate(settingName, value, "SERVICE");
+            }
+
+            return true;
+        }    
 
         public WORLD_TYPE IdentifyWorld(string url)
         {
@@ -247,6 +282,15 @@ namespace MetaverseMax.ServiceClass
             };
 
             return tokenType;
+        }
+
+        public JSend JsendAssignJSONData(object responseData)
+        {
+            return new JSend
+            {                
+                status = "success",
+                data = responseData
+            };
         }
     }
 }

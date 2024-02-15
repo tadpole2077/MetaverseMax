@@ -21,16 +21,19 @@ namespace MetaverseMax.ServiceClass
             return 0;
         }
 
-        public OwnerTransactionWeb GetLogByMatic(string ownerMaticKey)
+        public OwnerTransactionWeb GetLogByOwnerMatic(string ownerMaticKey)
         {
-            BlockchainTransactionDB blockchainTransactionDB = new(_context);
+            using MetaverseMaxDbContext_UNI _contextUni = new();        // Auto disposed at end of scope/method C#8
+            BlockchainTransactionDB blockchainTransactionDB = new(_contextUni);
             ServiceCommon serviceCommon = new();
             OwnerTransactionWeb ownerTransactionWeb = new OwnerTransactionWeb();
             List<TransactionWeb> transactionList = new();
 
             try
             {
-                List<BlockchainTransaction> ownerTransaction = blockchainTransactionDB.GetByOwnerMatic(ownerMaticKey);
+                OwnerManage ownerManage = new(_context, worldType);
+                int ownerUniID = ownerManage.GetOwnerUniIDByMatic(ownerMaticKey);
+                List<BlockchainTransaction> ownerTransaction = blockchainTransactionDB.GetByOwnerUniID(ownerUniID);
             
                 foreach (var transaction in ownerTransaction)
                 {
@@ -50,7 +53,7 @@ namespace MetaverseMax.ServiceClass
                 string log = ex.Message;
                 if (_context != null)
                 {
-                    _context.LogEvent(String.Concat("TransactionManage::GetLogByMatic() : Error getting transaction log for owner matic key -  ", ownerMaticKey));
+                    _context.LogEvent(String.Concat("TransactionManage::GetLogByOwnerUniID() : Error getting transaction log for owner matic -  ", ownerMaticKey));
                     _context.LogEvent(log);
                 }
             }

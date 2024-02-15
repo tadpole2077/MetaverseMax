@@ -4,7 +4,7 @@ import { MatBottomSheet, MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angul
 import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-toggle';
 
 import { Alert } from '../common/alert';
-import { AlertCollection, AlertPending, AlertPendingManager, Globals, WORLD } from '../common/global-var';
+import { JSend, AlertCollection, AlertPending, AlertPendingManager, Globals, WORLD } from '../common/global-var';
 import { ALERT_TYPE, ALERT_ICON_TYPE, ICON_TYPE_CHANGE, ALERT_ACTION, PENDING_ALERT } from '../common/enum'
 import { RouterEvent } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -86,11 +86,11 @@ export class AlertBottomComponent{
     params = params.append('matic_key', this.globals.ownerAccount.matic_key);
     params = params.append('alert_pending_key', alertKey);
 
-    this.httpClient.get<AlertCollection>(this.baseUrl + '/OwnerData/DeletePendingAlert', { params: params })
+    this.httpClient.get<JSend<boolean>>(this.baseUrl + '/OwnerData/DeletePendingAlert', { params: params })
       .subscribe({
         next: (result) => {
 
-          if (result) {
+          if (result.data) {
             // Remove element
             delete this.alertPendingManager.alert[alertIndex];
             // Reindex array

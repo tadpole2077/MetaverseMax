@@ -77,6 +77,10 @@ export class NavMenuOwnerComponent {
   }
 
   mmBalanceChange(eventSlider: MatSlideToggleChange) {
+
+    // needs to be updated again - due to possible change in world since component was initially loaded.
+    this.baseUrl = this.rootBaseUrl + "api/" + this.globals.worldCode;
+
     // update db - WS call    
     this.updateBalanceVisible(this.globals.ownerAccount.matic_key, eventSlider.checked);
   }

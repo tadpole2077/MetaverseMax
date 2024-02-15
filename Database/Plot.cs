@@ -169,6 +169,7 @@ namespace MetaverseMax.Database
 
     public class PlotCord
     {
+        public bool fullUpdateRequired { get; set; }
         public int plotId { get; set; }
         public int posX { get; set; }
         public int posY { get; set; }

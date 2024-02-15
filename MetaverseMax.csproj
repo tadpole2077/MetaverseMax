@@ -69,6 +69,7 @@
     <None Remove="ClientApp\src\app\common\global-var.ts" />
     <None Remove="ClientApp\src\app\common\graph-interface.ts" />
     <None Remove="ClientApp\src\app\common\interface.ts" />
+    <None Remove="ClientApp\src\app\common\map-data.ts" />
     <None Remove="ClientApp\src\app\common\web3Utils.ts" />
     <None Remove="ClientApp\src\app\contract\contractBasicAbi.ts" />
     <None Remove="ClientApp\src\app\contract\contractMCPMegaAbiBNB.ts" />

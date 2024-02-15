@@ -223,7 +223,11 @@ namespace MetaverseMax.ServiceClass
                         for (int index = 0; index < districts.Count; index++)
                         {
                             districtToken = districts[index];
-                            districtDB.UpdateDistrictByToken(districtToken);
+
+                            District district = districtDB.MapDistrictByToken(districtToken);
+                            districtDB.DistrictUpdate(district);
+
+                            UpdateDistrictOwner(district.district_avatar_id, district.district_owner_name, district.owner_matic);
 
                             districtUpdateCount++;
                         }
@@ -240,12 +244,37 @@ namespace MetaverseMax.ServiceClass
             return districtUpdateCount;
         }
 
+        public bool UpdateDistrictOwner(int districtAvatarId, string districtOwnerName, string ownerMatic)
+        {
+            MetaverseMaxDbContext_UNI _contextUni = new();
+            OwnerNameDB ownerNameDB = new(_context);
+            OwnerUniDB ownerUniDB = new(_contextUni);
+
+            if (!string.IsNullOrEmpty(ownerMatic))
+            {
+
+                // Corner Case - Owner of a District but owns no plots - check owner exists if not create account
+                OwnerChange ownerChange = new()
+                {
+                    owner_avatar_id = districtAvatarId,
+                    owner_name = districtOwnerName,
+                    owner_matic_key = ownerMatic,
+                };
+
+                ownerNameDB.UpdateOwnerName(ownerChange, false);
+                ownerUniDB.CheckLink(ownerChange, worldType);
+            }
+
+            _contextUni.Dispose();
+
+            return true;
+        }
+
         public async Task<int> UpdateDistrict(int district_id)
         {
-            District district = new();
+            District district;
             string content = string.Empty;
-            ServiceCommon common = new();
-            int returnCode = 0;
+            int updateInstance = 0;
 
             try
             {
@@ -254,7 +283,7 @@ namespace MetaverseMax.ServiceClass
                 HttpResponseMessage response;
                 using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
                 {
-                    StringContent stringContent = new StringContent("{\"region_id\": " + district_id.ToString() + "}", Encoding.UTF8, "application/json");
+                    StringContent stringContent = new("{\"region_id\": " + district_id.ToString() + "}", Encoding.UTF8, "application/json");
 
                     response = await client.PostAsync(
                         serviceUrl,
@@ -274,7 +303,9 @@ namespace MetaverseMax.ServiceClass
                     JArray districtData = jsonContent.Value<JArray>("stat");
                     if (districtData != null && districtData.HasValues)
                     {
-                        returnCode = districtDB.UpdateDistrictByToken(districtData[0]);
+                        district = districtDB.MapDistrictByToken(districtData[0]);
+                        UpdateDistrictOwner(district.district_avatar_id, district.district_owner_name, district.owner_matic);
+                        updateInstance = districtDB.DistrictUpdate(district);                        
                     }
                 }
             }
@@ -284,7 +315,7 @@ namespace MetaverseMax.ServiceClass
                 dBLogger.logException(ex, String.Concat("DistrictManage::UpdateDistrict() : Error District_id: ", district_id.ToString()));
             }
 
-            return returnCode;
+            return updateInstance;
         }
 
         public int ArchiveOwnerSummaryDistrict()

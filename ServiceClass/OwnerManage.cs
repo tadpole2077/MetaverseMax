@@ -4,6 +4,7 @@ using System.Text;
 using MetaverseMax.BaseClass;
 using MetaverseMax.Database;
 using System.Linq;
+using System.Runtime.ConstrainedExecution;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -13,6 +14,7 @@ namespace MetaverseMax.ServiceClass
         private static Dictionary<string, OwnerAccount> ownersListTRON = new();
         private static Dictionary<string, OwnerAccount> ownersListETH = new();
         private static Dictionary<string, OwnerAccount> ownersListBNB = new();
+        private static Dictionary<int, OwnerUni> ownersListUNI = new();
 
         public OwnerData ownerData = new() { plot_count = -1 };
         private ServiceCommon common = new();
@@ -40,6 +42,7 @@ namespace MetaverseMax.ServiceClass
             };
         }
 
+
         public Dictionary<string, OwnerAccount> GetOwners(bool refresh)
         {
             ref Dictionary<string, OwnerAccount> ownersDict = ref GetOwnersListByWorldType();         // use the root dictionary to populate data.
@@ -47,12 +50,22 @@ namespace MetaverseMax.ServiceClass
             if (refresh)
             {
                 ownersDict.Clear();
+                ownersListUNI.Clear();
             }
 
             if (ownersDict.Count == 0)
             {
-                OwnerDB ownerDB = new OwnerDB(_context);
+                OwnerDB ownerDB = new(_context);
                 ownerDB.PopulateOwnersDicFromDB(ref ownersDict);          // Pass dictionary which is a reference type - called method will assign a new dictionary to this passed dict ref.
+            }
+
+            if (ownersListUNI.Count == 0)
+            {
+                using (MetaverseMaxDbContext_UNI _contextUni = new())
+                {
+                    OwnerUniDB ownerDB = new(_contextUni);
+                    ownerDB.PopulateOwnersDicFromDB(ref ownersListUNI);          // Pass dictionary which is a reference type - called method will assign a new dictionary to this passed dict ref.
+                }                    
             }
 
             return ownersDict;
@@ -61,7 +74,7 @@ namespace MetaverseMax.ServiceClass
         public List<OwnerNameWeb> GetOwnersWithName()
         {
             List<OwnerNameWeb> ownerNameList = new();
-            // Iterate all distinct OwnerMatic keys found in local db - update pets on all owners
+           
             foreach (KeyValuePair<string, OwnerAccount> owner in GetOwners(false))
             {
                 if (owner.Value.name != null && owner.Value.name != string.Empty)
@@ -81,17 +94,70 @@ namespace MetaverseMax.ServiceClass
 
         public RETURN_CODE SyncOwner(List<OwnerChange> ownerChangeList)
         {
-            OwnerDB ownerDB = new OwnerDB(_context);
-            OwnerNameDB ownerNameDB = new OwnerNameDB(_context);
+            using MetaverseMaxDbContext_UNI _contextUni = new();
+            OwnerDB ownerDB = new(_context);
+            OwnerNameDB ownerNameDB = new(_context);
+            OwnerUniDB ownerUniDB = new(_contextUni);
+            bool updated;
 
             ownerDB.SyncOwner();
-            ownerChangeList.ForEach(x => ownerNameDB.UpdateOwnerName(x, true));
+
+            ownerChangeList.ForEach(x => {
+
+                ownerNameDB.UpdateOwnerName(x, true);
+
+                updated = ownerUniDB.CheckLink(x, worldType);
+
+                // Defensive coding - check for missing world.owner.owner_uni_key
+                // May be used if a specific World DB is missing owner_uni_key mappings, dropped or deleted for some reason.
+                // Should not really occur, but useful as a backup process.
+                if (updated == false)
+                {
+                    int localOwnerUnitID = GetOwnerUniIDByMatic(x.owner_matic_key);     // Pull from local cache should reflect database.
+                    if (localOwnerUnitID == 0)
+                    {
+                        // Get from OwnerUni table
+                        OwnerUni ownerUni = ownerUniDB.GetOwner(x.owner_matic_key, worldType);
+
+                        // Update Local - if db world.owner.owner_uni_key mapping key found.
+                        if (ownerUni != null)
+                        {
+                            ownerDB.UpdateOwner_UniID(x.owner_matic_key, ownerUni.owner_uni_id);
+                        }
+                    }
+                }
+            });
+
+            _context.SaveChanges();
 
             return RETURN_CODE.SUCCESS;
         }
 
-        // Finding match on maticKey as this is the key used by MCP for ownership of assets in-world and within local db's
-        public OwnerAccount FindOwnerByMatic(string maticKey, string walletPublicKey)
+        // SyncOwner - Using local store ownerlist, complete full sync process.
+        public RETURN_CODE SyncWorldOwnerAll()
+        {
+            List<OwnerChange> ownerChangeList = new List<OwnerChange>();
+            Dictionary<string, OwnerAccount> ownersList = GetOwnersListByWorldType();
+
+            foreach (var ownerAccount in ownersList)
+            {
+                ownerChangeList.Add(new OwnerChange()
+                {
+                    owner_matic_key = ownerAccount.Key,
+                    owner_avatar_id = ownerAccount.Value.avatar_id,
+                    owner_name = ownerAccount.Value.name
+                });                
+            }
+            
+            SyncOwner(ownerChangeList);
+
+            GetOwners(true);          // Refresh LOCAL owner lists after nightly sync
+            
+            return RETURN_CODE.SUCCESS;
+        }
+
+    // Finding match on maticKey as this is the key used by MCP for ownership of assets in-world and within local db's
+    public OwnerAccount FindOwnerByMatic(string maticKey, string walletPublicKey)
         {
             OwnerAccount ownerAccount = new();
             string dbWalletKey = string.Empty;
@@ -145,7 +211,8 @@ namespace MetaverseMax.ServiceClass
 
             return accountName;
         }
-        public OwnerAccount FindOwnerByMatic(string maticKey)
+
+        public OwnerAccount GetOwnerAccountByMatic(string maticKey)
         {
             OwnerAccount ownerAccount = null;
             ref Dictionary<string, OwnerAccount> ownersList = ref GetOwnersListByWorldType();
@@ -153,6 +220,29 @@ namespace MetaverseMax.ServiceClass
             ownersList.TryGetValue(maticKey.ToLower(), out ownerAccount);
 
             return ownerAccount;
+        }
+
+        public OwnerAccountWeb GetOwnerAccountWebByMatic(string maticKey)
+        {
+            OwnerAccount ownerAccount = GetOwnerAccountByMatic(maticKey);
+            
+            ownersListUNI.TryGetValue(ownerAccount.ownerUniID, out OwnerUni ownerUni);
+
+            return MapFieldForWeb(ownerAccount, ownerUni);
+        }
+
+        public int GetOwnerUniIDByMatic(string maticKey)
+        {
+            OwnerAccount ownerAccount = GetOwnerAccountByMatic(maticKey);
+
+            return ownersListUNI.TryGetValue(ownerAccount.ownerUniID, out OwnerUni ownerUni) ? ownerUni.owner_uni_id : 0;            
+        }
+
+        public decimal GetOwnerBalanceByMatic(string maticKey)
+        {
+            OwnerAccountWeb ownerAccountWeb = GetOwnerAccountWebByMatic(maticKey);
+
+            return ownerAccountWeb == null ? 0 : ownerAccountWeb.balance;
         }
 
         public bool CheckOwnerExistsByMatic(string maticKey)
@@ -483,7 +573,22 @@ namespace MetaverseMax.ServiceClass
                         ownerData.owner_land = lands.Select(landInstance =>
                         {
                             var plot = localPlots.Where(x => x.token_id == (landInstance.Value<int?>("token_id") ?? 0)).FirstOrDefault();
-                         
+
+                            var citizenCount = citizen.GetCitizenCount(landInstance.Value<JArray>("citizens"));
+                            var buildingTypeId = (BUILDING_TYPE)(landInstance.Value<int?>("building_type_id") ?? 0);
+                            var buildingLevel = landInstance.Value<int?>("building_level") ?? 0;
+                            var lastActionUx = landInstance.Value<double?>("last_action") ?? 0;
+                            var buildingId = landInstance.Value<int?>("building_id") ?? 0;
+                            var actionId = plot != null ? plot.action_id : 0;
+                            ProductionCollection productionCollection = null;
+
+                            // Find next collection details on active building : No additional WS calls required
+                            if (buildingManage.CheckBuildingActive(buildingTypeId, citizenCount, buildingLevel) &&
+                                buildingManage.CheckProductiveBuildingType(buildingTypeId))
+                            {
+                                productionCollection = buildingManage.CollectionEval(buildingTypeId, buildingLevel, lastActionUx);
+                            }
+
                             return new OwnerLand
                             {
                                 district_id = landInstance.Value<int?>("region_id") ?? 0,
@@ -492,27 +597,31 @@ namespace MetaverseMax.ServiceClass
                                 plot_ip = landInstance.Value<int?>("influence") ?? 0,
                                 ip_info = plot == null ? 0 : plot.influence_info ?? 0,
                                 ip_bonus = (landInstance.Value<int?>("influence") ?? 0) * (landInstance.Value<int?>("influence_bonus") ?? 0) / 100,
-                                building_type = landInstance.Value<int?>("building_type_id") ?? 0,
+                                building_type = (int)buildingTypeId,
                                 building_category = -1,
-                                building_desc = building.BuildingType(landInstance.Value<int?>("building_type_id") ?? 0, landInstance.Value<int?>("building_id") ?? 0),
-                                building_img = building.GetBuildingImg((BUILDING_TYPE)(landInstance.Value<int?>("building_type_id") ?? 0), landInstance.Value<int?>("building_id") ?? 0, landInstance.Value<int?>("building_level") ?? 0, worldType),
-                                last_actionUx = landInstance.Value<double?>("last_action") ?? 0,
-                                last_action = common.UnixTimeStampUTCToDateTimeString(landInstance.Value<double?>("last_action"), "Empty Plot"),
+                                building_desc = building.BuildingType((int)buildingTypeId, buildingId),
+                                building_img = building.GetBuildingImg((BUILDING_TYPE)buildingTypeId, buildingId, buildingLevel, worldType),
+                                last_actionUx = lastActionUx,
+                                last_action = common.UnixTimeStampUTCToDateTimeString(lastActionUx, "Empty Plot"),
                                 action_type = (int)EVENT_TYPE.UNKNOWN,
+                                c_r = productionCollection == null ? false : productionCollection.ready,
+                                c_d = productionCollection == null ? 0 : productionCollection.day,
+                                c_h = productionCollection == null ? 0 : productionCollection.hour,
                                 token_id = landInstance.Value<int?>("token_id") ?? 0,
-                                building_level = landInstance.Value<int?>("building_level") ?? 0,
+                                building_level = buildingLevel,
                                 resource = landInstance.Value<int?>("abundance") ?? 0,
-                                citizen_count = citizen.GetCitizenCount(landInstance.Value<JArray>("citizens")),
+                                citizen_count = citizenCount,
                                 citizen_url = citizen.GetCitizenUrl(landInstance.Value<JArray>("citizens")),
                                 citizen_stamina = citizen.GetLowStamina(landInstance.Value<JArray>("citizens")),
-                                citizen_stamina_alert = citizen.CheckCitizenStamina(landInstance.Value<JArray>("citizens"), landInstance.Value<int?>("building_type_id") ?? 0),
+                                citizen_stamina_alert = citizen.CheckCitizenStamina(landInstance.Value<JArray>("citizens"), (int)buildingTypeId),
                                 forsale_price = building.GetSalePrice(landInstance.Value<JToken>("sale_data"), worldType),
                                 forsale = (landInstance.Value<string>("on_sale") ?? "False") == "False" ? false : true,
                                 rented = landInstance.Value<string>("renter") != null,
                                 current_influence_rank = CheckInfluenceRank(plot),
                                 condition = landInstance.Value<int?>("condition") ?? 0,
-                                active = 1// buildingManage.CheckBuildingActive((BUILDING_TYPE)(landInstance.Value<int?>("building_type_id") ?? 0), citizen.GetCitizenCount(landInstance.Value<JArray>("citizens")), landInstance.Value<int?>("building_level") ?? 0) == true ? 1 : 0
-                            };
+                                active = 1, // buildingManage.CheckBuildingActive((BUILDING_TYPE)(landInstance.Value<int?>("building_type_id") ?? 0), citizen.GetCitizenCount(landInstance.Value<JArray>("citizens")), landInstance.Value<int?>("building_level") ?? 0) == true ? 1 : 0                                
+                                product_id = BuildingManage.GetBuildingProduct((int)buildingTypeId, buildingId, actionId, worldType)
+                        };
                                 
                          
                         })
@@ -655,7 +764,7 @@ namespace MetaverseMax.ServiceClass
                     // KNOWN WEAKNESS - Does not update/reEval all other buildings IP Ranking - this building may impact the max-min which would then impact ranking for all other buidlings in that league level (but the performance hit means its not currently worth it - potential solution -  a ranking async task to update ranking changes on all building in respective league - if new min or max change identified)
                     currentPlotFullUpdate = plotManage.UpdatePlotPartial(ownerLandList[i], false, refreshMission);
 
-                    if (currentPlotFullUpdate != null)
+                    if (currentPlotFullUpdate != null && currentPlotFullUpdate.fullUpdateRequired)
                     {
                         plotFullUpdateList.Add(currentPlotFullUpdate);
                     }
@@ -669,6 +778,7 @@ namespace MetaverseMax.ServiceClass
             }
 
             // Check if FullUpdate flag enabled, and any plots identified that require a full update (due to specific attribute change found that partial update cant handle)
+            // Async call will, 1 second delay between calls.
             if (processFullUpdate && plotFullUpdateList.Count > 0)
             {
                 Task.Run(() => plotManage.UpdateBuildingAsyncFull(plotFullUpdateList));
@@ -901,10 +1011,12 @@ namespace MetaverseMax.ServiceClass
             return 0;
         }
 
-        public OwnerAccount MatchOwner(string publicKey)
+        // Used by Key Service on initial load of Page to identify Account holder
+        public OwnerAccountWeb MatchOwner(string publicKey)
         {
             string maticKeyFormated = string.Empty;
-            OwnerAccount ownerAccount = new();
+            OwnerAccountWeb ownerAccountWeb = new();
+            OwnerAccount ownerAccount;
             AlertDB alertDB = new AlertDB(_context);
 
             if (worldType == WORLD_TYPE.TRON)
@@ -912,9 +1024,9 @@ namespace MetaverseMax.ServiceClass
                 // Check if passed string is valid Tron key
                 if (publicKey == "false")
                 {
-                    ownerAccount.wallet_active_in_world = false;
-                    ownerAccount.matic_key = "";
-                    return ownerAccount;
+                    ownerAccountWeb.wallet_active_in_world = false;
+                    ownerAccountWeb.matic_key = "";
+                    return ownerAccountWeb;
                 }                
 
                 // Base58 Public Tron to Hex Conversion.
@@ -943,10 +1055,41 @@ namespace MetaverseMax.ServiceClass
                 ownerDB.UpdateOwner(maticKeyFormated, publicKey, ownerAccount);
 
                 ownerAccount.alert_count = alertDB.count(ownerAccount.matic_key);
-            }            
+            }
 
-            return ownerAccount;
+            ServiceCommon serviceCommon = new();
+            ownerAccount.app_shutdown_warning_alert = serviceCommon.CheckPendingShutdownSetting();
+
+            ownersListUNI.TryGetValue(ownerAccount.ownerUniID, out OwnerUni ownerUni);
+            
+            return MapFieldForWeb(ownerAccount, ownerUni);
         }
+
+        public static OwnerAccountWeb MapFieldForWeb(OwnerAccount ownerAccount, OwnerUni ownerUni)
+        {
+
+            return new OwnerAccountWeb()
+            {
+                alert_activated = ownerAccount.alert_activated,
+                allow_link = ownerUni == null ? false : ownerUni.allow_link,
+                app_shutdown_warning_alert = ownerAccount.app_shutdown_warning_alert,
+                avatar_id = ownerAccount.avatar_id,
+                alert_count = ownerAccount.alert_count,
+                balance = ownerUni == null ? 0 : ownerUni.balance ?? 0,
+                balance_visible = ownerUni == null ? false : ownerUni.balance_visible ?? false,
+                checked_matic_key = ownerAccount.checked_matic_key,
+                dark_mode = ownerAccount.dark_mode,
+                discord_name = ownerAccount.discord_name,
+                matic_key = ownerAccount.matic_key,
+                name = ownerAccount.name,
+                pro_expiry_days = ownerAccount.pro_expiry_days,
+                pro_tools_enabled = ownerAccount.pro_tools_enabled,
+                public_key = ownerAccount.public_key,
+                slowdown_end = ownerAccount.slowdown_end,
+                wallet_active_in_world = ownerAccount.wallet_active_in_world
+            };
+        }
+
 
         public bool UpdateDarkMode(string maticKey, bool darkMode)
         {
@@ -961,25 +1104,57 @@ namespace MetaverseMax.ServiceClass
 
         public bool UpdateBalanceVisible(string maticKey, bool visible)
         {
-            OwnerDB ownerDB = new(_context);
-            ownerDB.UpdateBalanceVisible(maticKey, visible);
-
             OwnerAccount ownerAccount = FindOwnerByMatic(maticKey, string.Empty);
-            ownerAccount.balance_visible = visible;      // Update local cache store of ownerAccount.
+
+            using (MetaverseMaxDbContext_UNI _contextUni = new()) {
+                OwnerUniDB ownerUniDB = new(_contextUni);
+                ownerUniDB.UpdateBalanceVisible(ownerAccount.ownerUniID, visible);                
+            }
+            
+            if (ownersListUNI.TryGetValue(ownerAccount.ownerUniID, out OwnerUni ownerUni))
+            {
+                ownerUni.balance_visible = visible;      // Update local cache store of ownerAccount.
+            }
 
             return true;
         }
 
+        // Used to refresh local cache for single Owner - No Balance change
+        public bool UpdateOwnerBalanceFromDB(string maticKey)
+        {
+            OwnerUni ownerUni;            
+            bool updated = false;
+
+            using (MetaverseMaxDbContext_UNI _contextUni = new())
+            {
+                OwnerUniDB ownerUniDB = new(_contextUni);
+                ownerUni = ownerUniDB.GetOwner(maticKey, worldType);
+            }
+            
+            // Update local ownerUni Cache
+            if (ownersListUNI.TryGetValue(ownerUni.owner_uni_id, out OwnerUni ownerUniAccount))
+            {
+                ownerUniAccount.balance = ownerUni.balance ?? 0;
+                updated = true;
+            }            
+            
+            return updated;
+        }
+
+        // Use to (a) create new owner account if not pre existing,  (b) Change balance of account
         public bool UpdateBalance(string maticKey, decimal amount)
         {
-            OwnerDB ownerDB = new(_context);
+            MetaverseMaxDbContext_UNI _contextUni = new();
+            OwnerUniDB ownerUniDB = new(_contextUni);            
+            decimal balance;
+
             OwnerAccount ownerAccount = FindOwnerByMatic(maticKey, string.Empty);
-            decimal balance = 0;
 
             // Corner Case: Check if Owner Exists (found in local owner dic) - if not create owner record + ownername record
             if (ownerAccount.matic_key == string.Empty)
-            {
-                OwnerNameDB ownerNameDB = new OwnerNameDB(_context);
+            {  
+                // 1: Create Owner Record on target World
+                OwnerNameDB ownerNameDB = new(_context);
                 ownerNameDB.UpdateOwnerName(new OwnerChange()
                 {
                     owner_matic_key = maticKey,
@@ -989,14 +1164,59 @@ namespace MetaverseMax.ServiceClass
 
                 _context.SaveChanges();
 
-                GetOwners(true);                // Refresh local dic of owners
-                ownerAccount = FindOwnerByMatic(maticKey, string.Empty);
+                OwnerChange ownerChange = new() { owner_avatar_id = 0, owner_matic_key = maticKey, owner_name = string.Empty };
+
+                // 2: Create OwnerUni Record if no existing use of matching matic_key [otherwise use existing OwnerUNI record]
+                ownerUniDB.CheckLink(ownerChange, worldType);
+
+                // 3: Refresh local dic of owners
+                GetOwners(true);                
+                ownerAccount = FindOwnerByMatic(maticKey, string.Empty);                
             }
 
-            balance = ownerDB.UpdateOwnerBalance(amount, maticKey);
-            ownerAccount.balance = balance;      // Update local cache store of ownerAccount.
+            // Update DB
+            balance = ownerUniDB.UpdateOwnerBalance(amount, ownerAccount.ownerUniID);
+
+            // Update local cache store of ownerAccount.
+            if (ownersListUNI.TryGetValue(ownerAccount.ownerUniID, out OwnerUni ownerUni))
+            {
+                ownerUni.balance = balance;  
+            }                
+
+            _contextUni.Dispose();
 
             return true;
+        }
+
+        public int GetOwnerOrCreate(string maticKey)
+        {
+            OwnerAccount ownerAccount = FindOwnerByMatic(maticKey, string.Empty);
+
+            // Corner Case: Check if Owner Exists (found in local owner dic) - if not create owner record + ownername record
+            if (ownerAccount.matic_key == string.Empty)
+            {
+                OwnerNameDB ownerNameDB = new(_context);
+
+                OwnerChange ownerChange = new()
+                {
+                    owner_matic_key = maticKey,
+                    owner_avatar_id = 0,
+                    owner_name = string.Empty
+                };
+
+                ownerNameDB.UpdateOwnerName(ownerChange, false);
+                _context.SaveChanges();
+
+                using (MetaverseMaxDbContext_UNI _contextUni = new())
+                {
+                    OwnerUniDB ownerUniDB = new(_contextUni);
+                    ownerUniDB.CheckLink(ownerChange, worldType);
+                }
+
+                GetOwners(true);                // Refresh local dic of owners
+            }            
+
+            return GetOwnerUniIDByMatic(maticKey);
         }
 
 

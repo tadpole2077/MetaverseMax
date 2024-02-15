@@ -1,21 +1,21 @@
 /* eslint-disable @typescript-eslint/no-inferrable-types */
 import { Component, Inject, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Location } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { NavigationEnd, RouterEvent, Router, ActivatedRoute } from '@angular/router';
 import { interval, Subscription } from 'rxjs';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatSort, MatSortable, Sort } from '@angular/material/sort';
+import { MatTableDataSource, MatTableDataSourcePaginator } from '@angular/material/table';
+import { MatSort, MatSortable, Sort, SortDirection } from '@angular/material/sort';
 import { AfterViewInit } from '@angular/core';
 import { ProdHistoryComponent } from '../production-history/prod-history.component';
 import { OfferModalComponent } from '../offer-modal/offer-modal.component';
 import { PetModalComponent } from '../pet-modal/pet-modal.component';
 import { PackModalComponent } from '../pack-modal/pack-modal.component';
 import { CitizenModalComponent } from '../citizen-modal/citizen-modal.component';
-import { MatLegacyButton as MatButton } from '@angular/material/legacy-button';
+import { MatButton } from '@angular/material/button';
 import { IOwnerLandData, IOwnerData, IPlotPosition, IFilterCount } from './owner-interface';
 import { Globals, WORLD } from '../common/global-var';
+import { MapData } from '../common/map-data';
 import { CUSTOM_BUILDING_CATEGORY, BUILDING, MIN_STAMINA } from '../common/enum';
 import { SearchPlotComponent } from '../search-plot/search-plot.component';
 
@@ -51,7 +51,7 @@ export class OwnerDataComponent implements AfterViewInit {
   // UI class flags
   public searchBlinkOnce: boolean = false;
 
-  dataSource = new MatTableDataSource(null);
+  dataSource = new MatTableDataSource(null);    //MatTableDataSource<unknown, MatDatatableSourcePaginator>
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(ProdHistoryComponent, { static: true }) prodHistory: ProdHistoryComponent;
   @ViewChild(OfferModalComponent, { static: true }) offerModal: OfferModalComponent;
@@ -62,17 +62,14 @@ export class OwnerDataComponent implements AfterViewInit {
 
   // ViewChild used for these elements to provide for rapid element attribute changes without need for scanning DOM and readability.
   @ViewChild('emptyPlotFilter', { static: false}) emptyPlotFilter: ElementRef;
-
   @ViewChild('lowStaminaBtn', { static: false }) lowStaminaBtn: MatButton;
   @ViewChild('offerDetailsBtn', { static: false }) offerDetailsBtn: MatButton;
-  
-
 
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumns: string[] = ['district_id', 'pos_x', 'pos_y', 'building_type', 'building_level', 'last_action', 'current_influence_rank', 'condition', 'plot_ip', 'citizen_count',/* 'token_id', */'citizen_stamina_alert'];
   displayedColumnsMobile: string[] = ['district_id', 'pos_x', 'building_type', 'building_level', 'last_action', 'current_influence_rank', 'condition', 'plot_ip', 'citizen_count',/* 'token_id', */'citizen_stamina_alert'];
  
-  constructor(private cdf: ChangeDetectorRef, public globals: Globals, private location: Location, public router: Router, private route: ActivatedRoute, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef)
+  constructor(private cdf: ChangeDetectorRef, public globals: Globals, public mapdata: MapData, private location: Location, public router: Router, private route: ActivatedRoute, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef)
   {
     this.httpClient = http;    
     this.baseUrl = baseUrl + "api/" + globals.worldCode;
@@ -392,7 +389,8 @@ export class OwnerDataComponent implements AfterViewInit {
     return;
   }
 
-  applySortDataAsccessor(targetDataSource: any) {
+  applySortDataAsccessor(targetDataSource: MatTableDataSource<unknown, MatTableDataSourcePaginator>) {
+
     // Add custom date column sort
     targetDataSource.sortingDataAccessor = (item: IOwnerLandData, property) => {
       switch (property) {
@@ -400,17 +398,53 @@ export class OwnerDataComponent implements AfterViewInit {
         case 'building_type': return item.building_type * 10 + item.resource;
         case 'current_influence_rank': return item.building_type == 0 && this.sort.direction == "asc" ? 1000 : item.current_influence_rank;   // Only sort plots with buildings
         case 'condition': return item.building_type == 0 && this.sort.direction == "asc" ? 1000 : item.condition;   // Only sort plots with buildings
+        case 'citizen_stamina_alert': return item.c_r == true ||  item.c_d >0 || item.c_h >0 ? 1 - (item.c_d/7)  - (item.c_h/24/7)  : item.citizen_stamina_alert;
         default: return item[property];
       }
     };
   }
+
   sortData(sort: Sort) {
     //const data = this.owner;    
   }
 
-  sortTableStamina() {
+  sortTableAlertShowingStaminaFirst() {
 
-    this.sort.sort({ id: 'citizen_stamina_alert', start: 'desc', disableClear: true });
+    // Only assign new sorted land array if alerts found.
+    if (this.owner.stamina_alert_count > 0) {
+
+      // Remove any current filters
+      this.filterTable(null, 0, BUILDING.NO_FILTER);
+
+      // Generate a table list with all stamina alert buildings shown first.
+      const sortbyAlert: IOwnerLandData[] = [];
+     
+      this.owner.owner_land.forEach(land => {
+        if (land.citizen_stamina_alert == true) {
+          sortbyAlert.push(land);          
+        }
+      });
+
+      this.owner.owner_land.forEach(land => {
+        if (land.citizen_stamina_alert == false) {
+          sortbyAlert.push(land);
+        }
+      });
+  
+      this.dataSource = new MatTableDataSource<IOwnerLandData>(sortbyAlert);
+      this.sort.active = "";
+      this.dataSource.sort = this.sort;
+      this.applySortDataAsccessor(this.dataSource);
+
+    }
+  }
+
+  sortTableStaminaOld() {
+
+    this.sort.direction = 'desc';
+    this.sort.active = 'citizen_stamina_alert';
+    this.sort.sortChange.emit(this.sort);
+    //this.sort.sort({ id: 'citizen_stamina_alert', start: 'desc', disableClear: true });
 
     return;
   }
@@ -699,7 +733,11 @@ export class OwnerDataComponent implements AfterViewInit {
 
     return staminaImg;
   }
+
+  // Idenify if building contains ANY citizens with min stamina
+  // TO_DO: potential some citizens can have min stamina and building can continue to work, only if min amount of citizens is also impacted.
   stoppedWork(citizenStamina: number, buildingType: number) {
+
     let stoppedWork = false;
 
     if ((citizenStamina < MIN_STAMINA.ENERGY && buildingType == BUILDING.ENERGY) ||

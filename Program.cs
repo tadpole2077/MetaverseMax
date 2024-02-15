@@ -1,5 +1,8 @@
+using MetaverseMax.BaseClass;
 using MetaverseMax.Database;
 using MetaverseMax.ServiceClass;
+using static Azure.Core.HttpHeader;
+ServiceCommon serviceCommon = new();
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
@@ -17,6 +20,7 @@ if (!app.Environment.IsDevelopment())
 {
 }
 ServiceCommon.AssignSetting(app.Environment.IsDevelopment());
+serviceCommon.SetSystemSetting(ServiceCommon.SECURE_TOKEN, SETTING_CODE.SHUTDOWN_PENDING, 0);   // Reset setting to active system on startup
 
 app.UseStaticFiles();
 app.UseRouting();

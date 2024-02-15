@@ -1,0 +1,23 @@
+﻿
+
+
+REST Service JSON:
+====================
+Concern:
+*  JSON hijacking :
+	A JSON Object is not a valid Javascript file
+	A JSON Array is a valid javascrpt file
+	Meaning a JSON Array can be "executed" on the client browser.
+	Potentially a JSON Aarry repsonse that is hijacked, could contain malicious code.
+	[2016 onward] Modern browsers typically fix bugs that protect against this type of attack.
+
+* JSONP 
+	ISSUE: cross domain requests using script Bypass of CORS (Cross-Origin Resource Sharing) Protocol
+	Background: JSONP allowed request from another server of a JSON package to use that data as a parameter in a native function call ( processThis(jsonResponse) )
+		<script src="https://foo.com/my.json?myCallback=processThis"></script>
+		Its a bypass of secuirty, bad practice,  use CORS model with Get request.
+		No failure code model with this method.
+
+
+* JSON Reponse Format
+	Convert to using Standard Jsend: https://github.com/omniti-labs/jsend

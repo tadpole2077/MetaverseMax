@@ -1,0 +1,7 @@
+﻿Rules:
+MCP: "When the Condition falls to 10% or less the building stops all operations."
+
+Damage:
+* Image is not a linear image, as damage increases the impact on production increases disproportionately.  See Dmg V Eff Chart.
+* Damage Effect: To identify impact on production
+* Using BuildingManage.GetDamageCoeff() using a best fit Parabola / Hyperbola using curve fitting

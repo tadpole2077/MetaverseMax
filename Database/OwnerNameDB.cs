@@ -29,7 +29,7 @@ namespace MetaverseMax.Database
                     .OrderByDescending(x => x.created_date)
                     .FirstOrDefault();
 
-                // Add new record if (a) new account (b) new avatar used for account (c) new name assigned
+                // OWNERNAME TABLE : Add new record if (a) new account (b) new avatar used for account (c) new name assigned
                 if (lastOwnerName == null || lastOwnerName.avatar_id != ownerChange.owner_avatar_id || lastOwnerName.owner_name != ownerChange.owner_name)
                 {
                     _context.ownerName.Add(
@@ -43,14 +43,16 @@ namespace MetaverseMax.Database
                     );
                 }
 
-                // Check if owner is new (not found in database).  This may occur if owner owns no plots, but owns other tracked assets such as a District.
-                if (_context.ownerName.Where(o => o.owner_matic_key == ownerChange.owner_matic_key).Count() == 0)
+                // OWNER TABLE : Check if owner is new (not found in database).
+                // This may occur if owner owns no plots, but owns other tracked assets such as a District.
+                if (_context.ownerName.Where(o => o.owner_matic_key == ownerChange.owner_matic_key).Any() == false)
                 {
                     OwnerDB ownerDB = new(_context);
                     ownerDB.NewOwner(ownerChange.owner_matic_key, false);
                 }
 
-                //TEMP CODE - Future Enh : Assign same name and avatar_id to all plots owned by this account -  May be removed if avatar_id and owner_name removed from plot enh (using account & accountName to store as single source)
+                // TEMP CODE - Future Enh : Assign same name and avatar_id to all plots owned by this account
+                // May be removed if/when avatar_id and owner_name removed from plot enh (using account & accountName to store as single source)
                 if (updatePlotOwnerName)
                 {
                     rowCountUpdated = _context.plot.Where(x => x.owner_matic == ownerChange.owner_matic_key)
@@ -58,6 +60,7 @@ namespace MetaverseMax.Database
                             .SetProperty(x => x.owner_avatar_id, x => ownerChange.owner_avatar_id)
                             .SetProperty(x => x.owner_nickname, x => ownerChange.owner_name));
                 }
+
             }
             catch (Exception ex)
             {

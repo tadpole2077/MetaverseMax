@@ -47,7 +47,7 @@ namespace MetaverseMax.ServiceClass
                 try
                 {                  
 
-                    MetaverseMaxDbContext _context = new MetaverseMaxDbContext(worldType);
+                    MetaverseMaxDbContext _context = new(worldType);
                     SyncWorld syncWorld = new(_context, worldType);
 
                     SyncDB syncDB = new(_context);
@@ -535,7 +535,7 @@ namespace MetaverseMax.ServiceClass
 
                 // Add/deactive Owner Offers
                 ownerManage.SyncOwner(ownerChangeList);                                             // Find New owners and owner names from nightly sync                
-                Dictionary<string, OwnerAccount> ownersList = ownerManage.GetOwners(true);          // Refresh list after nightly sync
+                Dictionary<string, OwnerAccount> ownersList = ownerManage.GetOwners(true);          // Refresh LOCAL owner lists after nightly sync
 
                 ownerOfferDB.SetOffersInactive();
                 _customContext.LogEvent(String.Concat("All Owner Offers set to Inactive (recreate)"));

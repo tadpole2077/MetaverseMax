@@ -37,10 +37,13 @@
       </div>
 
       <section class="progressSection">
-        <div class="hideProgress" [ngClass]="{'showProgress': transactionStarted}">
-          <div class="progressData">
-            <mat-icon class="warning" [ngClass]="{'enabled': progressWarning }">info</mat-icon>
-            <label class="progressInfo"><i [ngClass]="{'rotate': processActive }" class="fas fa-sync-alt progressIcon"></i>{{ progressMsg }}</label>
+        <div class="hideProgress" [ngClass]="{'showProgress': transactionStarted || systemShutdownPending}">
+          <div class="progressData">            
+            <label class="progressInfo">
+              <i [ngClass]="{'rotate': processActive , 'hideProgress': !processActive}" class="fas fa-sync-alt progressIcon"></i>
+              <mat-icon class="warning" [ngClass]="{'enabled': progressWarning || systemShutdownPending }">info</mat-icon>
+              {{ progressMsg }}
+            </label>
           </div>
           <mat-progress-bar mode="buffer"
                             [value]="1"
@@ -84,7 +87,7 @@
 
         <div class="buttonContainer">
           <i [ngClass]="{'rotate': depositRotateActive }" class="fas fa-sync-alt transferIcon"></i>
-          <button mat-raised-button color="primary" class="buttonEffect" (click)="depositMegaToMMBankWithAllowance()" [disabled]="checkInvalidDeposit">Deposit</button>
+          <button mat-raised-button color="primary" class="buttonEffect" (click)="depositMegaToMMBankWithAllowance()" [disabled]="checkInvalidDeposit || depositRotateActive">Deposit</button>
         </div>
 
       </div>
@@ -121,7 +124,7 @@
 
         <div class="buttonContainer">
           <i [ngClass]="{'rotate': withdrawRotateActive }" class="fas fa-sync-alt transferIcon"></i>
-          <button mat-raised-button color="primary" class="buttonEffect" [disabled]="checkInvalidWithdraw" (click)="withdrawAllowanceApprove()">Withdraw</button>
+          <button mat-raised-button color="primary" class="buttonEffect" [disabled]="checkInvalidWithdraw || withdrawRotateActive" (click)="withdrawAllowanceApprove()">Withdraw</button>
         </div>
 
       </div>

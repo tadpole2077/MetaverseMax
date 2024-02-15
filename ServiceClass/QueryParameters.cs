@@ -195,6 +195,20 @@ namespace MetaverseMax.ServiceClass
         public int interval { get; set; }
     }
 
+    public class QueryParametersSystemSetting
+    {
+
+        // Using BingRequired attribute and not Required as it forces a specific use of a parameter name
+        [BindRequired]
+        public string secure_token { get; set; }
+
+        [BindRequired]
+        public string setting_name { get; set; }
+
+        [BindRequired]
+        public int value { get; set; }
+    }
+
     public class QueryParametersDistributeUpdate
     {
 

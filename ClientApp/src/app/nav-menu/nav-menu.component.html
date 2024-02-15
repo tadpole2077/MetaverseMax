@@ -14,7 +14,7 @@
       </button>
 
       <app-nav-menu-world class="world" (selectWorldEvent)="selectWorld($event)" [selectedWorld]="globals.selectedWorld"></app-nav-menu-world>
-      <app-balance class="balance" style="" *ngIf="globals.ownerAccount.wallet_active_in_world && globals.ownerAccount.balance_visible"></app-balance>
+      <app-balance class="balance" style="display:none" *ngIf="globals.ownerAccount.wallet_active_in_world && globals.ownerAccount.balance_visible" [ngClass]="{ show: isExpanded }"></app-balance>
       <app-alert-history class="alertHistory mobileAlert" *ngIf="globals.ownerAccount.alert_count >0"></app-alert-history>
 
       <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end" [ngClass]="{ show: isExpanded }">

@@ -78,3 +78,20 @@ Row Size of tables (as of 03/11/2023)
 	BNB: 90,516
 	Eth: 2,494,626
 
+
+
+======================================================
+Database Connections
+======================================================
+Dev Env:
+* root/appsettings.json
+PRD Env:
+* web.config
+
+Data:
+* 4 db connection settings (as per 2024/01)
+
+DB Setting Assignment/Use
+* MetaverseMaxDbContext.cs > init()		: Assigned to static class vars - used to generate the Sql Context based on World type.
+* ServiceCommon.cs > AssignSetting()	: Not used currently
+* Startup.cs > Startup()				: Not used currently

@@ -45,8 +45,8 @@
       <div>
         <span>Buildings:</span>
         <span>{{ buildingCollection.buildings.length }}</span>
-        <span  *ngIf="buildingCollection && buildingType != 6" title="Effect on IP max-to-min range">IP Impact:</span>
-        <span  *ngIf="buildingCollection && buildingType != 6">{{ buildingCollection.buildingIP_impact }}%</span>
+        <span *ngIf="buildingCollection && buildingType != 6" title="Effect on IP max-to-min range">IP Impact:</span>
+        <span *ngIf="buildingCollection && buildingType != 6">{{ buildingCollection.buildingIP_impact }}%</span>
       </div>
       <div>
         <span>Min IP:</span>
@@ -63,11 +63,56 @@
     </div>
   </mat-expansion-panel>
 
+  <mat-expansion-panel expanded="true" *ngIf="buildingCollection && buildingType == 6 && officeBCIndex != -1" class="officeGlobalSummary">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>info</mat-icon>
+        <span>Active - Global BC Office</span>
+      </mat-panel-title>
+      <mat-panel-description>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <div class="summaryInfo">
+      <div>
+        <span>Active - BC Office:</span>
+        <span>
+          <span>{{ buildingCollection.active_buildings[officeBCIndex].active }}</span>
+          <span class="fontNormal"> ({{ ((buildingCollection.active_buildings[officeBCIndex].active / buildingCollection.active_buildings[officeBCIndex].total) * 100).toFixed(1) }}%)</span>
+        </span>
+      </div>
+      <div>
+        <span>Active BC Total IP:</span>
+        <span>
+          <span>{{ buildingCollection.active_buildings[officeBCIndex].active_total_ip.toLocaleString() }}</span>
+          <span class="fontNormal"> ({{ ((buildingCollection.active_buildings[officeBCIndex].active_total_ip / officeGlobalIp.totalIP) * 100).toFixed(1) }}%)</span>
+        </span>
+      </div>
+      <div>
+        <span>Active BC Avg IP:</span>
+        <span>
+          <span>{{ (buildingCollection.active_buildings[officeBCIndex].active_total_ip / buildingCollection.active_buildings[officeBCIndex].active).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0}) }}</span>          
+        </span>
+      </div>
+      <div [hidden]="selectedBuildingLvl != 7">
+        <span>Max Earnings Per 1k IP:</span>
+        <span>{{ officeBC_MaxEarningsPer1kIP.toLocaleString() }} Mega</span>
+      </div>
+      <div [hidden]="selectedBuildingLvl != 7">
+        <span>Avg Earnings Per 1k IP:</span>
+        <span>
+          <span>{{ officeBC_AvgEarningsPer1kIP.toLocaleString() }} Mega</span>
+          <span class="fontNormal"> ({{ ((officeBC_AvgEarningsPer1kIP / officeBC_MaxEarningsPer1kIP) * 100).toFixed(1) }}%)</span>
+        </span>
+      </div>
+    </div>
+  </mat-expansion-panel>
+
   <mat-expansion-panel expanded="true" *ngIf="buildingCollection && buildingType == 6" class="officeGlobalSummary">
     <mat-expansion-panel-header>
       <mat-panel-title>
         <mat-icon>info</mat-icon>
-        <span>Global Office</span>
+        <span>Global Fund - BC Office</span>
       </mat-panel-title>
       <mat-panel-description>
       </mat-panel-description>
@@ -96,6 +141,7 @@
       </div>
     </div>
   </mat-expansion-panel>
+
 
   <mat-expansion-panel id="activeBuildingPanel" expanded="false" *ngIf="buildingCollection && buildingCollection.active_buildings && (buildingType == 3 || buildingType == 5 || buildingType == 7) ">
     <mat-expansion-panel-header>
@@ -317,11 +363,15 @@
         <span class="long-text">Total IP</span><span class="short-text">Total IP</span>
       </th>
       <td mat-cell *matCellDef="let row">
-        <span><span class="mobileVisible"><span>Total:</span></span> {{ row.ip_t}}<span *ngIf="row.ip_i<0" class="warnData"> ({{ row.ip_i }})</span></span>
+        <span>
+          <span class="mobileVisible"><span>Total: </span></span>
+          <span class="ipTotal">{{ row.ip_t }}</span>
+          <span *ngIf="row.ip_i<0" class="warnData"> ({{ row.ip_i }})</span>
+        </span>
         <span class="mobileVisible"><span>Base:</span> {{ row.ip_b }}</span>
         <span class="mobileVisible"><span>Bonus:</span> {{ row.bon }}%</span>
         <a class="magnifyHistoryPosition officeMagify" *ngIf="buildingType==6" role="button" (click)="showHistory(row.id, row.pos_x, row.pos_y, buildingType, row.rank)">
-          <img src="./assets/magnify_history{{ globals.ownerAccount.dark_mode ? '_dark' : '' }}.png" class="magnifyHistoryIcon" height="30" />
+          <img src="./assets/magnify_history_dark.png" class="magnifyHistoryIcon" height="30" />
         </a>
       </td>
     </ng-container>

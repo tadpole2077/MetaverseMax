@@ -45,12 +45,14 @@ export class BalanceManageDialogComponent {
   currentPlayerWalletKey: string = "";
   subscriptionAccountActive$: Subscription;
   subscriptionBalanceChange$: Subscription;
+  subscriptionSystemShutdown$: Subscription;
   amountDepositControl = new FormControl('0');
   amountWithdrawControl = new FormControl('0');
 
   withdrawRotateActive: boolean = false;
   depositRotateActive: boolean = false;
 
+  systemShutdownPending: boolean = false;
   networkCheckActive: boolean = false;
   networkChange: boolean = false;
   networkMsg: string;
@@ -86,6 +88,13 @@ export class BalanceManageDialogComponent {
 
     this.startBalanceMonitor();
 
+    this.checkSystemShutdown();
+
+    // shutdownPending state change : Monitor state using observable service - true/false.
+    this.subscriptionSystemShutdown$ = this.globals.systemShutdown$.subscribe(enabled => {
+      this.checkSystemShutdown();
+    });
+
     this.initWeb3().then((active) => {
 
       if (active && this.currentPlayerWalletKey !== "") {       
@@ -103,8 +112,23 @@ export class BalanceManageDialogComponent {
     if (this.subscriptionBalanceChange$) {
       this.subscriptionBalanceChange$.unsubscribe();
     }
+    if (this.subscriptionSystemShutdown$) {
+      this.subscriptionSystemShutdown$.unsubscribe();
+    }
   }
 
+  checkSystemShutdown() {
+
+    if (this.globals.systemShutdownPending == false && this.systemShutdownPending) {
+      this.systemShutdownPending = true;  
+      this.progressMsg = "System was Shutdown and restarted. Please refresh your web page due to new system updates deployed."
+
+    }
+    else if (this.globals.systemShutdownPending == true) {
+      this.systemShutdownPending = true;      
+      this.progressMsg = "System Shutdown in-progress, transaction activities disabled. Please try again in a few minutes time"
+    }
+  }
   
   changeTab(eventTab: MatTabChangeEvent) {
     
@@ -216,6 +240,8 @@ export class BalanceManageDialogComponent {
     const addressReceiver = this.CONTRACT_MMBank;
     const megaValue = this.amountDepositControl.value;
 
+    this.depositRotateActive = true;
+
     // Test code to use testnet for deposit/withdraw
     let testnet:boolean = await this.checkBNBTestnet();
 
@@ -231,7 +257,6 @@ export class BalanceManageDialogComponent {
 
     try {
 
-      this.depositRotateActive = true;
       this.transactionStarted = true;
       this.setProgressBarMsg("1. Allow Deposit Approval (Security Check)", true, 10, false);
 
@@ -330,25 +355,24 @@ export class BalanceManageDialogComponent {
         })
         .then((result) => {
           console.log('Deposited mega to bank : ' + result);
+
           this.zone.run(() => {
             this.setProgressBarMsg("2. Deposit Completed", true, 65, false);
           });
+
           this.confirmTransaction(result.transactionHash, "3");
         })
         .catch((error) => {
           console.log(error);
           this.depositRotateActive = false;
-          //this.progressCaption = "Error occured blocking Transaction";
-          //this.contractWrite = error;
-          //this.rotateActive = false;
+          this.setProgressBarMsg("2. Deposit Transaction - Denied", false, 50, true);
         });
 
     }
     catch (error) {
       console.error(error);
       this.depositRotateActive = false;
-      //this.progressCaption = error;
-      //this.rotateActive = false;
+      this.setProgressBarMsg("2. Deposit Transaction Error - (contact support)", false, 50, true);
     }
     return;    
   }
@@ -377,7 +401,7 @@ export class BalanceManageDialogComponent {
     let params = new HttpParams();
     params = params.append('hash', hash);
 
-    this.httpClient.get<number>(this.baseUrl + '/bank/confirmTransaction', { params: params })
+    this.httpClient.get<boolean>(this.baseUrl + '/bank/confirmTransaction', { params: params })
       .subscribe({
         next: (result) => {
           this.globals.updateUserBankBalance(this.baseUrl, this.currentPlayerWalletKey);
@@ -385,7 +409,12 @@ export class BalanceManageDialogComponent {
           this.depositRotateActive = false;
           this.withdrawRotateActive = false;
 
-          this.setProgressBarMsg(stage + ". Transaction Confirmed, Balance Updated", false, 100, false);
+          if (result == false) {
+            this.setProgressBarMsg(stage + ". Transaction confirm issue identified, (contact support)", false, 100, true);
+          }
+          else {
+            this.setProgressBarMsg(stage + ". Transaction Confirmed, Balance Updated", false, 100, false);
+          }
         },
         error: (error) => {
           console.error(error);
@@ -402,7 +431,8 @@ export class BalanceManageDialogComponent {
     return this.amountDepositControl.hasError('max') ||
       this.amountDepositControl.hasError('min') ||
       this.amountDepositControl.hasError('required') ||
-      this.accountActive == false; 
+      this.accountActive == false ||
+      this.systemShutdownPending; 
 
   }
   // ************************************************************
@@ -582,7 +612,8 @@ export class BalanceManageDialogComponent {
     return this.amountWithdrawControl.hasError('max') ||
       this.amountWithdrawControl.hasError('min') ||
       this.amountWithdrawControl.hasError('required') ||
-      this.accountActive == false; 
+      this.accountActive == false ||
+      this.systemShutdownPending;
 
   }
   //*****************************************************************
@@ -604,7 +635,8 @@ export class BalanceManageDialogComponent {
       this.provider = await DetectEthereumProvider();
       this.ethereum = (window as any).ethereum;
       
-      if (this.provider && this.provider.isMetaMask) {
+      // Check Metamask Provider :  Supporting Metamask & CoinbaseWallet
+      if (await this.globals.checkApprovedWalletType()) {
         this.web3 = new Web3(this.provider);
         active = true;
       }

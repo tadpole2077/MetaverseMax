@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 #nullable enable
@@ -13,6 +12,9 @@ namespace MetaverseMax.Database
         [Key]
         [Column("owner_matic_key")]
         public string? owner_matic_key { get; set; }
+
+        [Column("owner_uni_id")]
+        public int? owner_uni_id { get; set; }   
 
         [Column("tool_active")]
         public bool tool_active { get; set; }
@@ -56,12 +58,6 @@ namespace MetaverseMax.Database
         [Column("created_date")]
         public DateTime created_date { get; set; }
 
-        [Column("balance", TypeName = "decimal(16, 8)")]
-        public decimal? balance { get; set; }
-
-        [Column("balance_visible")]
-        public bool? balance_visible { get; set; }
-
         [Column("discord_name")]
         public string? discord_name { get; set; }
 
@@ -73,8 +69,6 @@ namespace MetaverseMax.Database
         [NotMapped]
         [Column("avatar_id")]
         public int? avatar_id { get; set; }
-
-
     }
 
 
@@ -84,6 +78,9 @@ namespace MetaverseMax.Database
         [Key]
         [Column("owner_matic_key")]
         public string? owner_matic_key { get; set; }
+
+        [Column("owner_uni_id")]
+        public int? owner_uni_id { get; set; }
 
         [Column("tool_active")]
         public bool tool_active { get; set; }
@@ -134,10 +131,5 @@ namespace MetaverseMax.Database
         [Column("alert_activated")]
         public bool alert_activated { get; set; }
 
-        [Column("balance", TypeName = "decimal(16, 8)")]
-        public decimal? balance { get; set; }
-
-        [Column("balance_visible")]
-        public bool? balance_visible { get; set; }
     }
 }

@@ -74,6 +74,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatDialogModule } from '@angular/material/dialog';
 
 import { Globals } from './common/global-var';
+import { MapData } from './common/map-data';
 import { Alert } from './common/alert';
 
 
@@ -196,6 +197,7 @@ import { Alert } from './common/alert';
   ],
   providers: [
     Globals,
+    MapData,
     Alert,
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } }
   ],

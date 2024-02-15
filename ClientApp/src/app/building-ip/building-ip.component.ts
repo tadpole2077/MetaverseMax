@@ -12,13 +12,14 @@ import { ProdHistoryComponent } from '../production-history/prod-history.compone
 import { BuildingFilterComponent } from '../building-filter/building-filter.component';
 import { Globals, WORLD } from '../common/global-var';
 import { Router } from '@angular/router';
-import { ALERT_TYPE, ALERT_ACTION, BUILDING } from '../common/enum'
+import { ALERT_TYPE, ALERT_ACTION, BUILDING, BUILDING_TYPE, BUILDING_SUBTYPE } from '../common/enum'
 
 interface OfficeGlobalIp {
   totalIP: number;
   globalFund: number;
   maxDailyDistribution: number;
   maxDailyDistributionPerIP: number;
+  lastDistribution: number;
 }
 
 interface BuildingCollection {
@@ -69,6 +70,7 @@ interface ResourceActive {
   name: string;
   total: number;
   active: number;
+  active_total_ip: number;
   shutdown: number;
   building_id: number;
   building_img: string;
@@ -88,13 +90,19 @@ export class BuildingIPComponent {
   public buildingCollection: BuildingCollection = null;
   public viewBuildings: BuildingDetail[] = null;
   public officeGlobalIp: OfficeGlobalIp = null;
+  public officeBCIndex: number = -1;
+  public officeBC_MaxEarningsPer1kIP: number;
+  public officeBC_AvgEarningsPer1kIP: number;
+
 
   public hidePaginator: boolean;
   public historyShow: boolean = false;
   public buildingFilterShow: boolean = false;
   public showIPAlert: boolean = false;
 
+  public test: boolean = true;
   public buildingType: number = 0;
+  public selectedBuildingLvl: number = 7;
   public selectedType: string = "Select Type";
   public selectedLevel: string = "Level 1";
   public activeTextFilter: string = "";
@@ -192,6 +200,9 @@ export class BuildingIPComponent {
 
           if (type == BUILDING.OFFICE) {
             this.displayedColumns = this.assignColumns(this.displayedColumnsOffice);
+            this.officeBCIndex = this.findBCIndex(this.buildingCollection.active_buildings);
+            this.officeBC_MaxEarningsPer1kIP = this.officeGlobalIp.maxDailyDistribution / (this.buildingCollection.active_buildings[this.officeBCIndex].active_total_ip / 1000);
+            this.officeBC_AvgEarningsPer1kIP = this.officeGlobalIp.lastDistribution / (this.buildingCollection.active_buildings[this.officeBCIndex].active_total_ip / 1000);
           }
           else {
             this.displayedColumns = this.assignColumns(this.displayedColumnsStandard);
@@ -214,6 +225,19 @@ export class BuildingIPComponent {
       });
 
     return;
+  }
+
+  // Find index of Business center resource if it exist, used to display summary data on BC
+  public findBCIndex(active_buildings: ResourceActive[] ) {
+    let indexBC = -1;
+
+    for (var index = 0; index < active_buildings.length; index++) {
+      if (active_buildings[index].building_id == BUILDING_SUBTYPE.BUSINESS_CENTER) {
+        indexBC = index;
+      }
+    }
+
+    return indexBC;
   }
 
   public getOfficeGlobalData() {
@@ -286,7 +310,7 @@ export class BuildingIPComponent {
 
   public searchFromDropdown(building: string, level: string) {
 
-    var buildingLvl = 1;
+    this.selectedBuildingLvl = 1;
 
     if (building != "") {
       this.selectedType = building;
@@ -299,37 +323,37 @@ export class BuildingIPComponent {
     }
 
     if (this.selectedLevel == "Huge") {
-      buildingLvl = 6;
+      this.selectedBuildingLvl = 6;
     }
     else if (this.selectedLevel == "Mega") {
-      buildingLvl = 7;
+      this.selectedBuildingLvl = 7;
     }
     else {
-      buildingLvl = parseInt(this.selectedLevel.split(' ')[1]);
+      this.selectedBuildingLvl = parseInt(this.selectedLevel.split(' ')[1]);
     }
 
 
 
     if (this.selectedType == "Industry") {
-      this.search(BUILDING.INDUSTRIAL, buildingLvl);
+      this.search(BUILDING.INDUSTRIAL, this.selectedBuildingLvl);
     }
     else if (this.selectedType == "Residential") {
-      this.search(BUILDING.RESIDENTIAL, buildingLvl);
+      this.search(BUILDING.RESIDENTIAL, this.selectedBuildingLvl);
     }
     else if (this.selectedType == "Production") {
-      this.search(BUILDING.PRODUCTION, buildingLvl);
+      this.search(BUILDING.PRODUCTION, this.selectedBuildingLvl);
     }
     else if (this.selectedType == "Commercial") {
-      this.search(BUILDING.COMMERCIAL, buildingLvl);
+      this.search(BUILDING.COMMERCIAL, this.selectedBuildingLvl);
     }
     else if (this.selectedType == "Municipal") {
-      this.search(BUILDING.MUNICIPAL, buildingLvl);
+      this.search(BUILDING.MUNICIPAL, this.selectedBuildingLvl);
     }
     else if (this.selectedType == "Energy") {
-      this.search(BUILDING.ENERGY, buildingLvl);
+      this.search(BUILDING.ENERGY, this.selectedBuildingLvl);
     }
     else if (this.selectedType == "Office") {
-      this.search(BUILDING.OFFICE, buildingLvl);
+      this.search(BUILDING.OFFICE, this.selectedBuildingLvl);
     }
 
     return;

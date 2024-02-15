@@ -22,6 +22,8 @@ namespace MetaverseMax.ServiceClass
 
         public PredictOutcome predict { get; set; }
 
+        public OfficeSummary office_summary { get; set; }
+
         public int active_count { get; set; }
 
         public string img_url { get; set; }
@@ -33,9 +35,11 @@ namespace MetaverseMax.ServiceClass
 
     public class ResourceActiveWeb
     {
+        public int resource_id { get; set; }
         public string name { get; set; }
         public int total { get; set; }
         public int active { get; set; }
+        public long active_total_ip { get; set; }
         public int shutdown { get; set; }
         public string building_img { get; set; }
         public int building_id { get; set; }
@@ -54,6 +58,11 @@ namespace MetaverseMax.ServiceClass
         public decimal miss_below_percent { get; set; }
     }
 
+    public class OfficeSummary
+    {
+        public long active_total_ip { get; set; }
+        public decimal active_max_daily_distribution_per_ip { get; set; }
+    }
     public class BuildingIPWeb
     {
         public int id { get; set; }

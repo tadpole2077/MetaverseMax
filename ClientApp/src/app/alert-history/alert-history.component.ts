@@ -2,8 +2,8 @@ import { Component, Inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { AlertBottomComponent } from '../alert-bottom/alert-bottom.component';
-import { AlertCollection, AlertPendingManager, AlertPending, Globals, WORLD } from '../common/global-var';
-import { ALERT_TYPE, ALERT_ICON_TYPE, PENDING_ALERT } from '../common/enum'
+import { JSend, AlertCollection, AlertPendingManager, AlertPending, Globals, WORLD } from '../common/global-var';
+import { ALERT_TYPE, ALERT_ICON_TYPE, PENDING_ALERT, STATUS } from '../common/enum'
 
 @Component({
   selector: 'app-alert-history',
@@ -41,27 +41,29 @@ export class AlertHistoryComponent {
     params = params.append('matic_key', this.globals.ownerAccount.matic_key);
     params = params.append('pending_alert', PENDING_ALERT.ALL);
 
-    this.httpClient.get<AlertCollection>(this.baseUrl + '/OwnerData/GetPendingAlert', { params: params })
+    this.httpClient.get<JSend<AlertCollection>>(this.baseUrl + '/OwnerData/GetPendingAlert', { params: params })
       .subscribe({
         next: (result) => {
+          if (result.status == STATUS.SUCCESS) {
+            this.alertPendingManager.alert = result.data.alert;
 
-          this.alertPendingManager.alert = result.alert;
+            if (this.alertPendingManager.alert && this.alertPendingManager.alert.length > 0) {
 
-          if (this.alertPendingManager.alert && this.alertPendingManager.alert.length > 0) {
+              this.globals.ownerAccount.alert_count = result.data.history_count;
+              this.globals.systemShutdownPending = result.data.app_shutdown_warning_alert;
 
-            this.globals.ownerAccount.alert_count = result.historyCount;            
+              // Close and remove existing bottom sheet
+              if (that.bottomAlertRef != null) {
+                that.bottomAlertRef.dismiss();
+              }
 
-            // Close and remove existing bottom sheet
-            if (that.bottomAlertRef != null) {
-              that.bottomAlertRef.dismiss();
+              that.bottomAlertRef = that.alertSheet.open(AlertBottomComponent, {
+                data: this.alertPendingManager,
+              });
+
+              this.globals.manualFullActive = true;   // flag that indicates if new alert sheet (checked at set intervals) is active - reset when showing full history
+
             }
-
-            that.bottomAlertRef = that.alertSheet.open(AlertBottomComponent, {
-              data: this.alertPendingManager,
-            });
-
-            this.globals.manualFullActive = true;   // flag that indicates if new alert sheet (checked at set intervals) is active - reset when showing full history
-
           }
         },
         error: (error) => {

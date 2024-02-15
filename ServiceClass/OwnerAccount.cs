@@ -4,6 +4,7 @@ namespace MetaverseMax.ServiceClass
     public class OwnerAccount
     {
         public string matic_key { get; set; }
+        public int ownerUniID { get; set; }
         public string checked_matic_key { get; set; }
         public string public_key { get; set; }
         public string name { get; set; }
@@ -16,7 +17,6 @@ namespace MetaverseMax.ServiceClass
         public bool dark_mode { get; set; }
         public bool alert_activated { get; set; }
         public int alert_count { get; set; }
-        public decimal balance { get; set; }
-        public bool balance_visible { get; set; }
+        public bool app_shutdown_warning_alert { get; set; }
     }
 }

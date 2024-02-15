@@ -213,7 +213,7 @@
     height: 60px;
     width: 90px;
     display: inline-block;
-    background-size: contain;
+    background-size: cover;
     margin-top: -30px;
     margin-left: -28px;
     position: absolute;

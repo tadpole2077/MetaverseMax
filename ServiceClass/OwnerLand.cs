@@ -12,8 +12,13 @@ namespace MetaverseMax.ServiceClass
         public int building_level { get; set; }
         public int resource { get; set; }
         public string last_action { get; set; }
-        public int action_type { get; set; }                                          
+        public int action_type { get; set; }
         public double last_actionUx { get; set; }
+
+        public int c_d { get; set; }            // collect days
+        public int c_h { get; set; }            // collect hours
+        public bool c_r { get; set; }           // collect ready
+
         public int plot_ip { get; set; }
         public int ip_info { get; set; }
         public int ip_bonus { get; set; }
@@ -30,5 +35,13 @@ namespace MetaverseMax.ServiceClass
         public int condition { get; set; }
         public int active { get; set; }
         public int unit { get; set; }
+        public int product_id { get; set; }
+    }
+
+    public class ProductionCollection
+    {
+        public bool ready { get; set; }
+        public int day { get; set; }
+        public int hour { get; set; }
     }
 }

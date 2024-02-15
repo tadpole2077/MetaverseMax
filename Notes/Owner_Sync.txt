@@ -1,4 +1,5 @@
-﻿Owner / Account Sync
+﻿================================================================================================================
+Owner / Account Sync
 ================================
 Purpose:
 * Find new owners from review of Plot
@@ -7,8 +8,9 @@ Purpose:
 * Update owner name to latest - while retaining log of old owner name in db.
 
 
-
+================================================================================================================
 1) Nightly Data Sync - SPROC call
+================================================================================================================
 Sproc: sp_owner_sync
 Process:
 	1) Compare current Plot table with Owner Table, any owner_matic not in owner table then Create new owner account
@@ -20,7 +22,10 @@ Limitations:
 	1) Parcals, District owners may not have a plots
 
 
+
+================================================================================================================
 2) OwnerDB.NewOwner()
+================================================================================================================
 Called by:
 	OwerNameDB.UpdateOwnerName()
 	Called by:
@@ -28,3 +33,34 @@ Called by:
 		DistrictDB.UpdateDistrictByToken()			//  Called by nightly sync
 		OwnerManage.SyncOwner()						//  Called by nightly sync  - note sp_owner_sync called just before it.
 		OwnerManage.UpdateBalance()					//  Corner case call - in case balance owner not registerd yet.
+
+
+
+================================================================================================================
+3) Wallet links [2024]
+================================================================================================================
+Objective:
+* Global account - with one-to-many link to wallet types (future proof - supporting xyz new blockchain)
+* MaticLink table -  linking global account to matic key  paired with blockchain env.
+
+Process:
+- When: nightly sync, and (anything) NewOwner method call 
+- Rule_1 : Check owner id (OwnerUni.owner_uni_id) has at least one link record - MaticKeyLink,  Create link record if none found
+- Rule_2 : Check each world db (owner) has a matching link record. if not create one per world. link to existing OwnerUni record, if none then create a new record and assign key to link (owner_uni_id) 
+
+Account Owner - Use Cases:
+- Owner can wallet sign to attach related world account to a designated OwnerUni record.   
+	- A co-sign is then required by an existing account to accept the account join.
+	- Prior OwnerUni & link (if any) is removed.
+	- Existing bb_balance(if any) is transfered to selected OwnerUni record.
+	- Example:  owner has 1x account on each world but using separate wallets, each world will use a different matic key.  link matic keys to one OwnerUni account - sharing same BB_balance.
+- Wallet Owner can also unlink wallet account from a uni(universe) joint account, therefore having a separate uni account and maticlink to that account (per world-wallet pair)
+
+
+Calls:
+1) OwnerManage.SyncOwner()  >> OwnerUniDB.CheckLink()											>> Nightly sync process
+2) DistrictManage.UpdateAllDistricts() >> UpdateDistrictOwner() >> OwnerUniDB.CheckLink()		>> Test Web Service used to force update of all districts retrieved from REGIONS_LIST Tier-3 MCP WS
+3) DistrictManage.UpdateDistrict() >> UpdateDistrictOwner() >> OwnerUniDB.CheckLink()			>> [Nightly sync] Web Service used to update ONE district retrieved from REGIONS_LIST Tier-3 MCP WS
+4) OwnerManage.UpdateBalance() >> OwnerManage.UpdateBalance() >> OwnerUniDB.CheckLink()	
+
+

@@ -80,6 +80,10 @@ a.nav-link {
 }
 
 @media only screen and (max-width: 426px) {
+  .nav-item{
+    width: 50%;
+  }
+
   .mobileAlert{
     display: inline-block;
   }
@@ -100,6 +104,15 @@ a.nav-link {
     margin-left: 10px;
     padding-left: unset;
     top: unset;
-
+  }
+  .balance{
+    margin-right: 0;
+    position: absolute;
+    right: 10px;
+    top: 56px;
+    display:none;
+  }
+  .show{
+    display:unset;
   }
 }

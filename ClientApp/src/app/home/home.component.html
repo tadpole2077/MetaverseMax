@@ -1,9 +1,9 @@
 <div class="homeContent">
   <h2>MetaverseMax!</h2>
   <p>Get the Max value from your Metaverse:</p>
-  <div>
+  <div class="socialButtons">
     <div class="discordButton">
-      <a class="widgetLogo-6zH6Nv" href="https://discord.gg/FdtTJqmZ8W" target="_blank"></a>
+      <a class="widgetLogo-6zH6Nv" href="https://discord.gg/uFvxYA4CHv" target="_blank"></a>
     </div>
 
     <a class="twitterButton buttonEffect" mat-raised-button color="primary" href="https://twitter.com/MetaverseMax?ref_src=twsrc%5Etfw" target="_blank">
@@ -47,7 +47,7 @@
 
   <div id="introBlock">
     <ul class="introList">
-      <li>Version 1.6.3 (12.Jan.2024)</li>
+      <li>Version 1.7.0 (14.Feb.2024)</li>
       <li>Our tools currently support 3x "MEGA WORLD" metaverse environments: <a target="_blank" href="https://play.mcp3d.com/ethereum">Eth</a> / <a target="_blank" href="https://play.mcp3d.com/bsc">BSC</a> / <a target="_blank" href="https://play.mcp3d.com/tron">Tron</a>.</li>
       <li>Notice will be given within our discord channel before any scheduled outage-deployment occurance. Please report any bugs within our discord channel</li>
       <li style="display:none">
@@ -71,7 +71,7 @@
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>new_releases</mat-icon>
-          <span style="margin-left:.2rem">V1.6.0 Release Notes (Latest)</span>
+          <span style="margin-left:.2rem">V1.7.0 Release Notes (Latest)</span>
         </mat-panel-title>
         <mat-panel-description>
         </mat-panel-description>
@@ -80,46 +80,44 @@
 
         <div class="infoSection">
           <div class="infoBlockImg blockRight">
-            <img src="./assets/direct_deposit.png" class="promoImg" height="300" />
+            <img src="./assets/collection_time.png" class="promoImg" height="300" />
+            <img src="./assets/collection_time_mobile.png" class="promoImg" height="300" />
           </div>
           <div class="infoBlock blockLeft">
-            <h3>Direct Deposit (Mega)</h3>
-            Reduce fee costs of Mega Deposits to MegaWorld
+            <h3>Production collection time</h3>
+            Production collection time and ready to collect status now shown
             <ul style="margin-top:.6rem">
-              <li>The following Medium article explains the feature in depth <a class="lineAnim" href="https://link.medium.com/QTboeVqriFb" target="_blank"><mat-icon class="book">library_books</mat-icon>About Article</a></li>
-              <li>In short, deposit Mega to your in-world using part of your allowance cap</li>
-              <li>Using this method reduces your overall gas fees, as less allowance signing is required</li>
-              <li>The solution uses MCP contract methods, verify contact used before signing</li>
+              <li>Sortable column using existing "Alert" column, showing countdown in days and hours until next collection time for active buildings. </li>
+              <li>Includes icon of the product material currently being manufactured. </li>
+              <li>Alert column still includes citizen low and out of stamina alerts, which can be sorted into "active view" by clicking the "Low stamina" button</li>
+              <li>Collection time also included in mission desk! as "Ready" to collection buildings typically offer higher mission rewards or track when ED missions reset for that building.</li>
+              <li>Mobile devices supported (rightmost image)</li>
+              <li>Features impacted: My Portfolio & Mission Desk</li>
             </ul>
           </div>
         </div>
 
         <div class="infoSection">
           <div class="infoBlockImg blockLeft">
-            <img src="./assets/direct_deposit_menu.png" class="promoImg" height="300" />
+            <img src="./assets/bc_office_stats.png" class="promoImg" height="300" />
           </div>
           <div class="infoBlock blockRight">
-            <h3>Direct Deposit - Menu Link</h3>
-            Shown within account popup menu
+            <h3>Global BC Office Stats</h3>
+            Additional stats shown within Ranking Tool >> Mega Office
             <ul style="margin-top:.6rem">
-              <li>hover over your avatar image within the main menu - furthest right</li>
-              <li>Shown within BNB and ETH accounts. (not supported in Tron yet)</li>              
+              <li>Improved view of actual current Mega earnings and earning potential by BC offices.</li>
+              <li>Find optimal world to build Mega BC Offices taking into account build, maintence and collection costs</li>              
             </ul>
           </div>
         </div>
 
         <div class="infoSection">
           <div class="infoBlockImg blockRight">
-            <img src="./assets/tool_links.PNG" class="promoImg" height="300" />
+            <img src="./assets/coinbase.png" class="promoImg" height="140" />
           </div>
           <div class="infoBlock blockLeft">
-            <h3>Homepage - Partner Links</h3>
-            Additional new tool/partner links added, at bottom of this homepage.
-            <ul style="margin-top:.6rem">
-              <li>MyMegaWorld</li>
-              <li>Max Headroom Charts</li>
-              <li>MetaTex</li>
-            </ul>
+            <h3>Coinbase Wallet Extension Support</h3>
+            Support connecting/linking using Coinbase wallet, and use of transactional features.
           </div>
         </div>
 
@@ -130,7 +128,7 @@
             <h3>More...</h3>
             Full List of enhancements and fixed defects found over on MetaverseMax Discord Group
             <ul style="margin-top:.6rem">
-              <li>Discord link : <div class="discordButton"><a class="widgetLogo-6zH6Nv" href="https://discord.gg/FdtTJqmZ8W" target="_blank"></a></div></li>
+              <li>Discord link : <div class="discordButton"><a class="widgetLogo-6zH6Nv" href="https://discord.gg/uFvxYA4CHv" target="_blank"></a></div></li>
               <li>Go to the Release-Note channel</li>
             </ul>
           </div>
@@ -151,6 +149,77 @@
       </mat-expansion-panel-header>
 
       <ng-template matExpansionPanelContent>
+
+        <mat-expansion-panel expanded="false" style="">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>new_releases</mat-icon>
+              <span style="margin-left:.2rem">Release Content [Version 1.6.0] (14_DEC_2023)</span>
+            </mat-panel-title>
+            <mat-panel-description>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <ng-template matExpansionPanelContent>
+
+            <div class="infoSection">
+              <div class="infoBlockImg blockRight">
+                <img src="./assets/direct_deposit.png" class="promoImg" height="300" />
+              </div>
+              <div class="infoBlock blockLeft">
+                <h3>Direct Deposit (Mega)</h3>
+                Reduce fee costs of Mega Deposits to MegaWorld
+                <ul style="margin-top:.6rem">
+                  <li>The following Medium article explains the feature in depth <a class="lineAnim" href="https://link.medium.com/QTboeVqriFb" target="_blank"><mat-icon class="book">library_books</mat-icon>About Article</a></li>
+                  <li>In short, deposit Mega to your in-world using part of your allowance cap</li>
+                  <li>Using this method reduces your overall gas fees, as less allowance signing is required</li>
+                  <li>The solution uses MCP contract methods, verify contact used before signing</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="infoSection">
+              <div class="infoBlockImg blockLeft">
+                <img src="./assets/direct_deposit_menu.png" class="promoImg" height="300" />
+              </div>
+              <div class="infoBlock blockRight">
+                <h3>Direct Deposit - Menu Link</h3>
+                Shown within account popup menu
+                <ul style="margin-top:.6rem">
+                  <li>hover over your avatar image within the main menu - furthest right</li>
+                  <li>Shown within BNB and ETH accounts. (not supported in Tron yet)</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="infoSection">
+              <div class="infoBlockImg blockRight">
+                <img src="./assets/tool_links.PNG" class="promoImg" height="300" />
+              </div>
+              <div class="infoBlock blockLeft">
+                <h3>Homepage - Partner Links</h3>
+                Additional new tool/partner links added, at bottom of this homepage.
+                <ul style="margin-top:.6rem">
+                  <li>MyMegaWorld</li>
+                  <li>Max Headroom Charts</li>
+                  <li>MetaTex</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="infoSection">
+              <div class="infoBlockImg blockRight">
+              </div>
+              <div class="infoBlock blockLeft">
+                <h3>More...</h3>
+                Full List of enhancements and fixed defects found over on MetaverseMax Discord Group
+                <ul style="margin-top:.6rem">
+                  <li>Discord link : <div class="discordButton"><a class="widgetLogo-6zH6Nv" href="https://discord.gg/FdtTJqmZ8W" target="_blank"></a></div></li>
+                  <li>Go to the Release-Note channel</li>
+                </ul>
+              </div>
+            </div>
+          </ng-template>
+        </mat-expansion-panel>
 
         <mat-expansion-panel expanded="false" style="">
           <mat-expansion-panel-header>

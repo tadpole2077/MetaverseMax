@@ -1,5 +1,5 @@
 ﻿namespace MetaverseMax.BaseClass
-{
+{        
     public enum ACTIVE_BUILDING
     {
         DAYS = 9
@@ -138,6 +138,10 @@
     {
         public static readonly string DISABLE_DISTRIBUTION_UPDATE = "DISABLE_DISTRIBUTION_UPDATE";
         public static readonly string NEW_ACCOUNT_PRO_TOOLS_FREE_DAYS = "NEW_ACCOUNT_PRO_TOOLS_FREE_DAYS";
+    }
+    public class SETTING_CODE
+    {
+        public static readonly string SHUTDOWN_PENDING = "SHUTDOWN_PENDING";
     }
 
     public class BANK_ACTION
@@ -631,7 +635,8 @@
         UNKNOWN = 0,
         TRON = 1,
         ETH = 2,
-        BNB = 3
+        BNB = 3,
+        UNIVERSE = 9
     }
 
     public class PRODUCE_IMG
@@ -743,4 +748,13 @@
     {
         SKIP = -1
     }
+
+    public enum NETWORK
+    {
+        ETHEREUM_ID = 1,
+        ROPSTEN_ID = 3,         // Ethereum Test network.
+        POLYGON_ID = 137,       //'0x89',
+        BINANCE_ID = 56,        // '0x38'
+        TRON_ID = -1            // chain id is actual 1 but eth is also matching so using -1 for internal distinction.
+    };
 }

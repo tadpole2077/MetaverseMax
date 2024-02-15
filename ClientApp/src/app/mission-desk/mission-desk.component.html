@@ -99,6 +99,12 @@
         <div class="lastAction">
           <span>{{ row.last_refresh }} mins</span>
         </div>
+        <div class="collect">
+          <i class="fas fa-bolt" title="Collection"></i>
+          <span>Collect: </span> 
+          <span *ngIf="row.c_r" class="ready">Ready</span>
+          <span *ngIf="row.c_d > 0 || row.c_h >0">{{ row.c_d }}d {{ row.c_h }}h</span>
+        </div>        
       </td>
     </ng-container>
 

@@ -6,9 +6,9 @@ import Web3 from 'web3';
 import DetectEthereumProvider from '@metamask/detect-provider';
 
 import { PlayerMenuComponent } from '../player-menu/player-menu.component';
-import { IPack, PRODUCT } from '../owner-data/owner-interface';
+import { IPack } from '../owner-data/owner-interface';
 import { Globals, WORLD } from '../common/global-var';
-import { TRANSACTION_STATUS, BLOCKCHAIN, TRANSACTION_TYPE } from '../common/enum';
+import { TRANSACTION_STATUS, BLOCKCHAIN, TRANSACTION_TYPE, PRODUCT } from '../common/enum';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 const ETHEREUM_ID_HEX = '0x4';
@@ -127,7 +127,8 @@ export class TransferAssetComponent implements OnInit {
 
     let web3: Web3 = null;
 
-    if (provider && provider.isMetaMask) {
+    // Check Metamask Provider :  Supporting Metamask & CoinbaseWallet
+    if (await this.globals.checkApprovedWalletType()) {
 
       console.log('Ethereum successfully detected!');
       this.rotateActive = true;
@@ -203,7 +204,8 @@ export class TransferAssetComponent implements OnInit {
     // Method transferSender(address _sender, address _from, address _to, uint256 _tokenId)
     
 
-    if (provider && provider.isMetaMask) {
+    // Check Metamask Provider :  Supporting Metamask & CoinbaseWallet
+    if (await this.globals.checkApprovedWalletType()) {
 
       console.log('Ethereum successfully detected!');
       this.rotateActive = true;

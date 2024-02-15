@@ -445,6 +445,10 @@ $foreground: map-get($dark-app-theme, foreground);
   .topBtnDiv i.showTick {
     color: white;
   }
+
+  .ready{
+    color:lawngreen
+  }
 }
 
 
@@ -586,6 +590,10 @@ div.districtEle {
 .shake1:before, .shake2:before, .shake1:after, .shake2:after {
   border: 0 solid transparent;
   border-top: 2px solid darkgray;
+}
+
+.ready{
+  color:limegreen
 }
 
 // Final overwrites - higher specificity then above rules

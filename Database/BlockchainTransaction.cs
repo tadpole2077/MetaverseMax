@@ -12,8 +12,8 @@ namespace MetaverseMax.Database
         [Column("hash")]
         public string hash { get; set; }
 
-        [Column("owner_matic")]
-        public string owner_matic { get; set; }
+        [Column("owner_uni_id")]
+        public int owner_uni_id{ get; set; }
 
         [Column("action")]
         public char action { get; set; }

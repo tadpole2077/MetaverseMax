@@ -27,6 +27,9 @@ namespace MetaverseMax.Database
         [Column("last_updated")]
         public DateTime last_updated { get; set; }
 
+        [Column("last_action")]
+        public DateTime last_action { get; set; }
+
         [Column("available")]
         public bool available { get; set; }
 

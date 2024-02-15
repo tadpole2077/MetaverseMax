@@ -14,14 +14,26 @@ namespace MetaverseMax.Controllers
 
     public class TransactionController : Controller
     {
-        private readonly ILogger<PlotController> _logger;
         private readonly MetaverseMaxDbContext _context;
         private ServiceCommon common = new();
 
-        public TransactionController(MetaverseMaxDbContext context, ILogger<PlotController> logger)
+        public TransactionController(MetaverseMaxDbContext context)
         {
-            _logger = logger;
             _context = context;
+        }
+
+        [HttpGet("SetSystemSetting")]
+        public IActionResult SetSystemSetting([FromQuery] QueryParametersSystemSetting parameters)
+        {            
+            if (ModelState.IsValid)
+            {
+                return Ok(
+                    common.JsendAssignJSONData(
+                        common.SetSystemSetting(parameters.secure_token, parameters.setting_name, parameters.value)
+                    ));
+            }
+
+            return BadRequest("Sync Failed");       // 400 Error     
         }
 
         [HttpGet("log")]
@@ -54,7 +66,7 @@ namespace MetaverseMax.Controllers
 
             if (ModelState.IsValid)
             {
-                return Ok(transactionManage.GetLogByMatic(parameters.owner_matic_key));
+                return Ok(transactionManage.GetLogByOwnerMatic(parameters.owner_matic_key));
             }
 
             return BadRequest("Get log Failed");       // 400 Error     

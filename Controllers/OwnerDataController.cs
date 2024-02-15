@@ -61,7 +61,7 @@ namespace MetaverseMax.Controllers
             return BadRequest("Call is invalid");       // 400 Error   
         }
 
-
+        // Key Service on initial load of Page to identify Account holder
         [HttpGet("CheckHasPortfolio")]
         public IActionResult CheckHasPortfolio([FromQuery] QueryParametersOwnerDataKey parameters)
         {
@@ -69,7 +69,11 @@ namespace MetaverseMax.Controllers
 
             if (ModelState.IsValid)
             {
-                return Ok(ownerManage.MatchOwner(parameters.owner_public_key));
+                return Ok(
+                    common.JsendAssignJSONData( 
+                        ownerManage.MatchOwner(parameters.owner_public_key) 
+                        )
+                    );
             }
 
             return BadRequest("Call is invalid");       // 400 Error   
@@ -254,7 +258,10 @@ namespace MetaverseMax.Controllers
 
             if (ModelState.IsValid)
             {
-                return Ok(alert.Get(parameters.matic_key, (ALERT_STATE)parameters.pending_alert));
+                return Ok( 
+                    common.JsendAssignJSONData(
+                        alert.Get(parameters.matic_key, (ALERT_STATE)parameters.pending_alert))
+                        );
             }
 
             return BadRequest("Call is invalid");       // 400 Error   
@@ -280,7 +287,9 @@ namespace MetaverseMax.Controllers
 
             if (ModelState.IsValid)
             {
-                return Ok(alert.Delete(parameters.matic_key, parameters.alert_pending_key));
+                return Ok(common.JsendAssignJSONData( 
+                    alert.Delete(parameters.matic_key, parameters.alert_pending_key))
+                    );
             }
 
             return BadRequest("Call is invalid");       // 400 Error   
@@ -298,6 +307,22 @@ namespace MetaverseMax.Controllers
 
             return BadRequest("Call is invalid");       // 400 Error   
         }
+
+        [HttpGet("SyncWorldOwnerAll")]
+        public IActionResult SyncWorldOwnerAll()
+        {
+            OwnerManage ownerManage = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                ownerManage.SyncWorldOwnerAll();
+
+                return Ok(string.Concat("Sync completed"));
+            }
+
+            return BadRequest("Sync invalid");       // 400 Error     
+        }
+
 
         [HttpGet("UnitTest_UpdateOwnerName")]
         public IActionResult UnitTest_UpdateOwnerName()
@@ -358,5 +383,22 @@ namespace MetaverseMax.Controllers
 
             return BadRequest("UnitTest is invalid");       // 400 Error     
         }
+
+        [HttpGet("UnitTest_AddOwnerUni")]
+        public IActionResult UnitTest_AddOwnerUni()
+        {
+            MetaverseMaxDbContext_UNI _contextUni = new();            
+            OwnerUniDB ownerUniDB = new(_contextUni);
+
+            if (ModelState.IsValid)
+            {
+                ownerUniDB.NewOwner("test123", NETWORK.BINANCE_ID, common.IdentifyWorld(Request.Path));
+
+                return Ok(string.Concat("Unit test completed"));
+            }
+
+            return BadRequest("UnitTest is invalid");       // 400 Error     
+        }
+
     }
 }

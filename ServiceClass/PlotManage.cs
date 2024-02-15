@@ -276,7 +276,7 @@ namespace MetaverseMax.ServiceClass
                     // parcel/get WS returns a checksum wallet key (Upper and lower case), as we historically use only lower case - apply lowercase conversion.
                     parcelOwner = jsonContentParcel.Value<string>("address").ToLower();                   
 
-                    OwnerAccount ownerAccount = ownerManage.FindOwnerByMatic(parcelOwner);
+                    OwnerAccount ownerAccount = ownerManage.GetOwnerAccountByMatic(parcelOwner);
                     parcelOwnerNickname = ownerAccount != null ? ownerAccount.name : "TBA";
                     parcelOwnerAvatarId = ownerAccount != null ? ownerAccount.avatar_id : 0;
 
@@ -1079,13 +1079,22 @@ namespace MetaverseMax.ServiceClass
 
             try
             {
+                BuildingManage buildingManage = new(_context, worldType);
                 missionDB = new(_context, worldType);
                 ownerManage = new(_context, worldType);
                 missionActive = missionDB.MissionActiveGet();
 
                 worldMission.mission_list = missionActive.Select(mission => {
 
-                    OwnerAccount ownerAccount = ownerManage.FindOwnerByMatic(mission.owner_matic);
+                    OwnerAccount ownerAccount = ownerManage.GetOwnerAccountByMatic(mission.owner_matic);
+                    ProductionCollection productionCollection = null;
+
+                    var buildingType = (BUILDING_TYPE)mission.building_type_id;
+                    var buildingLevel = mission.building_level;
+                    var lastActionUx = ((DateTimeOffset)(mission.last_action)).ToUnixTimeSeconds();
+
+                    // Find next collection details on active building
+                    productionCollection = buildingManage.CollectionEval(buildingType, buildingLevel, lastActionUx);                    
 
                     return new MissionWeb
                     {
@@ -1112,7 +1121,9 @@ namespace MetaverseMax.ServiceClass
                         available = mission.available,
                         balance = mission.balance,
 
-                        
+                        c_r = productionCollection == null ? false : productionCollection.ready,
+                        c_d = productionCollection == null ? 0 : productionCollection.day,
+                        c_h = productionCollection == null ? 0 : productionCollection.hour,
                     };
                 }).OrderByDescending(x => x.reward);
 
@@ -1152,7 +1163,7 @@ namespace MetaverseMax.ServiceClass
 
                 worldParcel.parcel_list = parcelList.Select(land => {
 
-                    OwnerAccount ownerAccount = ownerManage.FindOwnerByMatic(land.owner_matic);
+                    OwnerAccount ownerAccount = ownerManage.GetOwnerAccountByMatic(land.owner_matic);
 
                     return new ParcelWeb
                     {
@@ -1239,7 +1250,7 @@ namespace MetaverseMax.ServiceClass
         }
 
         // Special Case : Partial update during day - if building was recently built/upgraded, partial update of plot data found in /user/assets/lands WS calls.
-        //  assets/land WS does not return these fields:
+        // Assets/land WS does not return these fields:
         //      owner_nickname
         //      owner_avatar_id
         //      resources
@@ -1256,8 +1267,11 @@ namespace MetaverseMax.ServiceClass
         //  Custom Buildings >> parcel_id attribte is not included within Owner>>Lands WS MCP call, as such Custom Building is not identified or updated here (only within FULL Plot sync calls)
         //  Building Mission >> Find and Update Bilding Mission is Optional (Nightly Sync checks for missions, MyPortfolio loading does not for optimal perf)
         //  
+        //  Full Plot Update Identifier Logic:
+        //      If IP or Last_Action date differs from recorded in local db, mark plot for full sync - due to missing changes.
         public PlotCord UpdatePlotPartial(JToken ownerLand, bool saveEvent, bool refreshMission)
         {
+            ServiceCommon common = new();
             Plot plotMatched = null;
             List<Plot> buildingPlotList = null;
             CitizenManage citizen = new(_context, worldType);
@@ -1265,8 +1279,10 @@ namespace MetaverseMax.ServiceClass
             Building building = new();
             int tokenId = 0, buildingLevel = 0;
             int newInfluence = 0;
+            Boolean fullPlotSync = false;
+            DateTime last_action;
             decimal newRanking = -1;
-            PlotCord plotFullUpdate = null;
+            PlotCord plotFullUpdate = new() { fullUpdateRequired = false };
             bool hasMission = false;
             decimal balance = 0;
 
@@ -1299,6 +1315,16 @@ namespace MetaverseMax.ServiceClass
                     }
                     else if (buildingPlotList.Count == 1 && buildingLevel < (int)BUILDING_SIZE.HUGE)
                     {
+                        // On Influence change - tag token for full update.
+                        // MCP BUG - calulated total IP with any POI & Monument included and ALWAYS active[using this LANDS WS] 
+                        newInfluence = ownerLand.Value<int?>("influence") ?? 0;
+                        fullPlotSync = plotMatched.influence != newInfluence || fullPlotSync == true;
+
+                        last_action = (DateTime)common.UnixTimeStampUTCToDateTime(ownerLand.Value<double?>("last_action") ?? 0, plotMatched.last_action);
+                        fullPlotSync = plotMatched.last_action != last_action || fullPlotSync == true;
+                        
+                        plotMatched.last_action = last_action;
+
                         // Update 1 plot or multiple plots depending on building level, only one record returned per building with this lands WS call.
                         // Notes: for_rent is not populated by this WS call, unknown if rental data is valid.  Dont change last_updated as not all fields are updated - specifically the influance_info field is not updated which used in ranking module to allow another refresh.
                         plotMatched.update_type = (int)UPDATE_TYPE.PARTIAL;
@@ -1317,20 +1343,7 @@ namespace MetaverseMax.ServiceClass
                         plotMatched.abundance = ownerLand.Value<int?>("abundance") ?? 0;
                         plotMatched.condition = ownerLand.Value<int?>("condition") ?? 0;
                         balance = building.convertPriceMega(ownerLand.Value<decimal?>("balance") ?? 0);
-
-                        newInfluence = ownerLand.Value<int?>("influence") ?? 0;                                 // MCP calulated total IP with any POI & Monument included and ALWAYS active[using this WS]
-
-                        // Store plot data for later full update (if enabled)
-                        if (newInfluence != plotMatched.influence)
-                        {
-                            plotFullUpdate = new()
-                            {
-                                plotId = plotMatched.plot_id,
-                                posX = ownerLand.Value<int?>("x") ?? 0,
-                                posY = ownerLand.Value<int?>("y") ?? 0
-                            };
-                        }
-
+                                                 
                         plotMatched.current_influence_rank = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, buildingLevel, plotMatched.building_type_id, plotMatched.token_id, plotMatched.building_id, plotMatched.district_id, plotMatched.owner_matic);
                         plotMatched.influence = newInfluence;                                                   // Placed after ranking check, as both old and new influence needed for check                    
 
@@ -1346,20 +1359,16 @@ namespace MetaverseMax.ServiceClass
                     {
                         // On Influence change - tag token for full update.
                         newInfluence = ownerLand.Value<int?>("influence") ?? 0;
-                        if (buildingPlotList.Count > 0 && newInfluence != buildingPlotList[0].influence)
-                        {
-                            plotFullUpdate = new()
-                            {
-                                plotId = plotMatched.plot_id,
-                                posX = ownerLand.Value<int?>("x") ?? 0,
-                                posY = ownerLand.Value<int?>("y") ?? 0
-                            };
-                        }
+                        fullPlotSync = plotMatched.influence != newInfluence || fullPlotSync == true;
+
+                        last_action = (DateTime)common.UnixTimeStampUTCToDateTime(ownerLand.Value<double?>("last_action") ?? 0, plotMatched.last_action);
+                        fullPlotSync = plotMatched.last_action != last_action || fullPlotSync == true;                        
 
                         for (int i = 0; i < buildingPlotList.Count; i++)
                         {
                             plotMatched = buildingPlotList[i];
 
+                            plotMatched.last_action = last_action;
                             plotMatched.update_type = (int)UPDATE_TYPE.PARTIAL;
                             plotMatched.last_updated = DateTime.UtcNow;
                             plotMatched.unclaimed_plot = string.IsNullOrEmpty(ownerLand.Value<string>("owner"));
@@ -1393,6 +1402,17 @@ namespace MetaverseMax.ServiceClass
                         balance = building.convertPriceMega(ownerLand.Value<decimal?>("balance") ?? 0);
                     }
                 }
+
+                // Store plot data for later full update (if enabled)
+                // Identify Plot/Building that requires full Update Sync - due to changes not found in a partial update (using Lands WS)
+                if (fullPlotSync)
+                {
+                    plotFullUpdate.fullUpdateRequired = true;
+                    plotFullUpdate.plotId = plotMatched.plot_id;
+                    plotFullUpdate.posX = ownerLand.Value<int?>("x") ?? 0;
+                    plotFullUpdate.posY = ownerLand.Value<int?>("y") ?? 0;
+                }
+
 
                 if (hasMission && refreshMission)
                 {

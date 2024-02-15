@@ -84,7 +84,7 @@
   .menuContainer {
     position: absolute;
     right: 10px;
-    top: 48px;
+    bottom: 0;
   }
 
   div.dropdown-menu.show2 {

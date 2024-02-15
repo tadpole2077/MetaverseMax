@@ -17,6 +17,8 @@ using System.Security.Cryptography;
 using Nethereum.Signer;
 using System.Drawing;
 using System.ComponentModel;
+using Nethereum.Model;
+using static System.Collections.Specialized.BitVector32;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -113,15 +115,16 @@ namespace MetaverseMax.ServiceClass
 
         public decimal GetBalance(string ownerMaticKey)
         {
-            OwnerDB ownerDB = new(_context);
-
-            return ownerDB.GetOwnerBalance(ownerMaticKey);
+            OwnerManage ownerMange = new(_context, worldType);
+            OwnerAccountWeb ownerAccountWeb = ownerMange.GetOwnerAccountWebByMatic(ownerMaticKey);
+            
+            return ownerAccountWeb == null ? 0 : ownerAccountWeb.balance;
         }
 
         public string GetBalanceTest()
         {
             //var url = "http://testchain.nethereum.com:8545";            
-            var account = new Account(adminMMBankPrivateKey);
+            var account = new Nethereum.Web3.Accounts.Account(adminMMBankPrivateKey);
             var web3 = new Web3(account, networkUrl);
 
             var balanceOfFunctionMessage = new GetBalanceOfFunction()
@@ -138,11 +141,12 @@ namespace MetaverseMax.ServiceClass
 
         // Security Checks
         // Using actual deposit - check has deposit Event, with recipient MMBank, and use actual amount deposited.
-        public int ConfirmTransaction(string transactionHash)
-        {            
+        public bool ConfirmTransaction(string transactionHash)
+        {
+            bool transactoinConfirmed = false;
             try
             {
-                var account = new Account(adminMMBankPrivateKey);
+                var account = new Nethereum.Web3.Accounts.Account(adminMMBankPrivateKey);
                 var web3 = new Web3(account, networkUrl);                                                
                 DepositDTO depositDTO = null;
                 WithdrawDTO withdrawDTO = null;
@@ -157,14 +161,13 @@ namespace MetaverseMax.ServiceClass
                 if (depositEventOutput.Count > 0)
                 {
                     depositDTO = depositEventOutput[0].Event;
-                    DepositProcess(transactionReceipt, transactionHash, depositEventOutput[0]);
+                    transactoinConfirmed = DepositProcess(transactionReceipt, transactionHash, depositEventOutput[0]);
                 }
                 else if (withdrawEventOutput.Count > 0)
                 {
                     withdrawDTO = withdrawEventOutput[0].Event;
-                    WithdrawProcess(transactionReceipt, transactionHash, withdrawDTO);
+                    transactoinConfirmed = WithdrawProcess(transactionReceipt, transactionHash, withdrawDTO);
                 }
-
             }
             catch (Exception ex)
             {
@@ -172,15 +175,18 @@ namespace MetaverseMax.ServiceClass
                 dbLogger.logException(ex, String.Concat("BankManage.ConfirmTransaction() : Error on processing transaction receipt: ", transactionHash));
             }
 
-            return 0;
+            return transactoinConfirmed;
         }
 
         private bool DepositProcess(TransactionReceipt transactionReceipt, string transactionHash, EventLog<DepositDTO> eventLog)
         {
-            BlockchainTransactionDB blockchainTransactionDB = new(_context);
-            BlockchainTransaction blockchainTransaction = new();
+            using MetaverseMaxDbContext_UNI _contextUni = new();        // Auto disposed at end of scope/method C#8
+            BlockchainTransactionDB blockchainTransactionDB = new(_contextUni);
             OwnerManage ownerManage = new(_context, worldType);
             DepositDTO depositDTO = eventLog.Event;
+            bool depositProcessed = false;
+            bool alreadyProcessed = false;
+            NETWORK chain = NETWORK.BINANCE_ID;
 
             // Check Receipt - deposit recipient == Valid MMBank Contract
             bool validRecipientMMBank = transactionReceipt.To.Equals(MMBankContractAddress, StringComparison.CurrentCultureIgnoreCase);
@@ -188,35 +194,52 @@ namespace MetaverseMax.ServiceClass
             // Check MMBank issued deposit event Log entry - not a spoof deposit event
             bool validMMBankDepositEvent = eventLog.Log.Address.Equals(MMBankContractAddress, StringComparison.CurrentCultureIgnoreCase);
 
-            // Check if this transaction hash previously processed
-            bool alreadyProcessed = blockchainTransactionDB.AlreadyProcessed(transactionHash, BANK_ACTION.DEPOSIT);
-
+            // Check if this transaction hash previously processed            
+            alreadyProcessed = blockchainTransactionDB.AlreadyProcessed(transactionHash, BANK_ACTION.DEPOSIT);
+            
+            // 4 Rule Pass to processed with Recording Transaction and User Balance Change.
             if (validRecipientMMBank && validMMBankDepositEvent && alreadyProcessed == false && depositDTO != null)
             {
                 BigDecimal MegaAmount = Web3.Convert.FromWei(depositDTO.amount);
 
-                blockchainTransaction.hash = transactionHash;
-                blockchainTransaction.owner_matic = transactionReceipt.From;
-                blockchainTransaction.amount = Convert.ToDecimal(MegaAmount.ToString());
-                blockchainTransaction.action = BANK_ACTION.DEPOSIT;
-                blockchainTransaction.event_recorded_utc = DateTime.UtcNow;
+                // Owner must exist to assign a deposit to, potentially a new owner, just arrived in world today.
+                int ownerUniID = ownerManage.GetOwnerOrCreate(transactionReceipt.From);
+
+                // Atomic unit with table locking to ensure Transactoin and account balance update occurs once and as a single transaction unit.
+                depositProcessed = blockchainTransactionDB.RecordDeposit(transactionHash, transactionReceipt.From, ownerUniID, BANK_ACTION.DEPOSIT, Convert.ToDecimal(MegaAmount.ToString()), chain);
+
+                // Get new owner balance from db, and assign to local cache
+                if (depositProcessed)
+                {
+                    depositProcessed = ownerManage.UpdateOwnerBalanceFromDB(transactionReceipt.From);
+                }
+                // Old modal - using multiple db steps, not atomic open to brute force hack.
+                ///blockchainTransaction.hash = transactionHash;
+                //blockchainTransaction.owner_matic = transactionReceipt.From;
+                //blockchainTransaction.amount = Convert.ToDecimal(MegaAmount.ToString());
+                //blockchainTransaction.action = BANK_ACTION.DEPOSIT;
+                //blockchainTransaction.event_recorded_utc = DateTime.UtcNow;
 
                 // Atomic unit - dont allow balance update if transaction already completed - Protect from Brute force multiple simultaneous calls to process Transaction Hash
                 // lock table - Transaction tble, check transaction not prior processed, update transaction, update owner.balance, unlock transaction tbl (sproc).  Ensure - balance can only be updated once per transaction.
-                blockchainTransactionDB.AddOrUpdate(blockchainTransaction, transactionHash);
+                //blockchainTransactionDB.AddOrUpdate(blockchainTransaction, transactionHash);
 
-                ownerManage.UpdateBalance(blockchainTransaction.owner_matic, blockchainTransaction.amount);
+                //ownerManage.UpdateBalance(blockchainTransaction.owner_matic, blockchainTransaction.amount);
             }
 
-            return true;
+            return depositProcessed;
         }
 
         // When withdraw transaction completes on client side - this server side call occurs to check blockchain event log and record in local db.
         // Note - A call to WithdrawAllowanceApprove will occur BEFORE this receipt call occurs.
         private bool WithdrawProcess(TransactionReceipt transactionReceipt, string transactionHash, WithdrawDTO withdrawDTO)
         {
-            BlockchainTransactionDB blockchainTransactionDB = new(_context);
+            using MetaverseMaxDbContext_UNI _contextUni = new();        // Auto disposed at end of scope/method C#8
+            
+            BlockchainTransactionDB blockchainTransactionDB = new(_contextUni);
             BlockchainTransaction blockchainTransaction = new();
+            int ownerUniID = 0;
+            OwnerManage ownerManage = new(_context, worldType);
 
             // Check Receipt is Valid MMBank Contract
             bool validContract = transactionReceipt.To.Equals(MMBankContractAddress, StringComparison.CurrentCultureIgnoreCase);
@@ -228,15 +251,17 @@ namespace MetaverseMax.ServiceClass
             {
                 BigDecimal MegaAmount = -Web3.Convert.FromWei(withdrawDTO.amount);
 
+                // Map matic_key to owner_uni_key
+                ownerUniID = ownerManage.GetOwnerUniIDByMatic(transactionReceipt.From);
+
                 blockchainTransaction.hash = transactionHash;
-                blockchainTransaction.owner_matic = transactionReceipt.From;
                 blockchainTransaction.amount = Convert.ToDecimal(MegaAmount.ToString());
                 blockchainTransaction.action = BANK_ACTION.WITHDRAW;
                 blockchainTransaction.event_recorded_utc = DateTime.UtcNow;
 
-                blockchainTransactionDB.AddOrUpdate(blockchainTransaction, transactionHash);
+                blockchainTransactionDB.AddOrUpdate(blockchainTransaction, transactionHash, ownerUniID);
             }
-
+            
             return true;
         }
 
@@ -246,10 +271,9 @@ namespace MetaverseMax.ServiceClass
             decimal accountBalance = 0;
             try
             {
-                OwnerManage ownerManage = new(_context, worldType);
-                OwnerDB ownerDB = new(_context);
+                OwnerManage ownerManage = new(_context, worldType);                
                 PersonalSignDB personalSignDB = new(_context, worldType);
-                var account = new Account(adminMMBankPrivateKey);
+                var account = new Nethereum.Web3.Accounts.Account(adminMMBankPrivateKey);
                 var web3 = new Web3(account, networkUrl);                
 
                 // Get active stored sign record for this account
@@ -280,8 +304,10 @@ namespace MetaverseMax.ServiceClass
                         personalSign.signed_key = signed;
                         personalSignDB.AddOrUpdate(personalSign);
 
-                        // CHECK withdraw amount is valid 
-                        accountBalance = ownerDB.GetOwnerBalance(ownerMaticKey);
+                        // CHECK withdraw amount is valid (refresh local cache from db first)
+                        ownerManage.UpdateOwnerBalanceFromDB(ownerMaticKey);
+                        accountBalance = ownerManage.GetOwnerBalanceByMatic(ownerMaticKey);
+
 
                         if (accountBalance >= amount)
                         {

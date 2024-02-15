@@ -10,7 +10,7 @@ import DetectEthereumProvider from '@metamask/detect-provider';
 //import TronWebProvider from 'tronweb';*/    // Massive package 599kb included in main.js file - only needed on server side Tron apps i think
 import { Router, UrlSegmentGroup, PRIMARY_OUTLET, UrlSegment, UrlTree, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import { ALERT_TYPE, ALERT_ICON_TYPE, PENDING_ALERT } from '../common/enum'
+import { ALERT_TYPE, ALERT_ICON_TYPE, PENDING_ALERT,STATUS } from '../common/enum'
 import { AlertBottomComponent } from '../alert-bottom/alert-bottom.component';
 
 
@@ -26,16 +26,21 @@ interface OwnerAccount {
   dark_mode: boolean;
   alert_count: number;
   balance: number;
-  balance_visible: boolean
+  balance_visible: boolean;
+  app_shutdown_warning_alert: boolean;
 }
 interface RequestAccountsResponse {
   code: number, // 200：ok，4000：In-queue， 4001：user rejected
   message: string
 }
 
-
+interface JSend<dataObject> {
+  status: string;
+  data: dataObject;
+}
 interface AlertCollection {
-  historyCount: number,
+  history_count: number,
+  app_shutdown_warning_alert: boolean,
   alert: AlertPending[]
 }
 interface AlertPending {
@@ -90,6 +95,8 @@ export class Globals {
   public autoAlertCheckProcessing: boolean = false;
   public bottomAlertRef: MatBottomSheetRef = null;
 
+  public systemShutdownPending: boolean = false;
+
   // Flag triggers an update on any module that uses the Account Approval component
   public _requestApprove: boolean = false;
 
@@ -117,12 +124,14 @@ export class Globals {
 
   // ********** Observables ******************************
   // Service to capture when an account become active - used by components to update/enable account specific features
-  private accountActiveSubject = new Subject<boolean>()
-  public accountActive$ = this.accountActiveSubject.asObservable()
+  private accountActiveSubject = new Subject<boolean>();
+  public accountActive$ = this.accountActiveSubject.asObservable();
 
-  private balanceChangeSubject = new Subject<boolean>()
-  public balaceChange$ = this.balanceChangeSubject.asObservable()
+  private balanceChangeSubject = new Subject<boolean>();
+  public balaceChange$ = this.balanceChangeSubject.asObservable();
 
+  private systemShutdownSubject = new Subject<boolean>()
+  public systemShutdown$ = this.systemShutdownSubject.asObservable();
 
   constructor(private httpClient: HttpClient, private alertSheet: MatBottomSheet, public router: Router, private location: Location, private route: ActivatedRoute) {
     
@@ -144,7 +153,8 @@ export class Globals {
       dark_mode: false,
       alert_count: 0,
       balance: 0,
-      balance_visible: false
+      balance_visible: false,
+      app_shutdown_warning_alert: false
     };  
 
   }
@@ -179,34 +189,40 @@ export class Globals {
       this.alertSub = null;
     }
 
-    this.httpClient.get<OwnerAccount>(baseUrl + '/OwnerData/CheckHasPortfolio', { params: params })
+    this.httpClient.get<JSend<OwnerAccount>>(baseUrl + '/OwnerData/CheckHasPortfolio', { params: params })
       .subscribe({
         next: (result) => {
 
-          this.ownerAccount = result;
-          this.ownerAccount.checked = true;
+          if (result.status == STATUS.SUCCESS) {
+            this.ownerAccount = result.data;
+            this.ownerAccount.checked = true;
 
-          if (this.ownerAccount.wallet_active_in_world) {
-            this.requestApprove = false;
-            this.approvalType = APPROVAL_TYPE.NONE;
+            if (this.ownerAccount.wallet_active_in_world) {
+              this.requestApprove = false;
+              this.approvalType = APPROVAL_TYPE.NONE;
 
-            this.enableAlertChecker(baseUrl, this.ownerAccount.matic_key);               // Interval account alert checker job
-            this.accountActiveSubject.next(true);
+              this.enableAlertChecker(baseUrl, this.ownerAccount.matic_key);               // Interval account alert checker job
+              this.accountActiveSubject.next(true);
+            }
+            else {
+              this.requestApprove = true;
+              this.approvalType = APPROVAL_TYPE.ACCOUNT_WITH_NO_PLOTS;
+              this.accountActiveSubject.next(false);
+            }
+
+            this.requestApproveRefresh();
+
+            if (checkMyPortfolio) {
+              this.checkMyPortfolio();
+            }
+
+            // Apply owner stored preference for dark_mode theme
+            this.appComponentInstance.darkModeChange(this.ownerAccount.dark_mode);
+
+            // On each user accunt init check - find current system state for use with transaction feature enabling
+            this.systemShutdownPending = this.ownerAccount.app_shutdown_warning_alert;
+            this.systemShutdownSubject.next(this.systemShutdownPending);
           }
-          else {
-            this.requestApprove = true;
-            this.approvalType = APPROVAL_TYPE.ACCOUNT_WITH_NO_PLOTS;
-            this.accountActiveSubject.next(false);
-          }
-
-          this.requestApproveRefresh();
-
-          if (checkMyPortfolio) {
-            this.checkMyPortfolio();
-          }
-
-          // Apply owner stored preference for dark_mode theme
-          this.appComponentInstance.darkModeChange(this.ownerAccount.dark_mode);
         },
         error: (error) => { console.error(error) }
       });
@@ -304,19 +320,33 @@ export class Globals {
     
   }
 
+  // Check Metamask Provider :  Supporting Metamask & CoinbaseWallet
+  async checkApprovedWalletType() {
+
+    const provider = await DetectEthereumProvider();
+    const ethereum = (window as any).ethereum;
+
+    const approved = provider && (provider.isMetaMask || ethereum.isCoinbaseWallet);
+
+    if (approved) {
+
+      if (provider !== ethereum) {
+        console.log('Do you have multiple wallets installed?');
+        return false;
+      }
+    }
+
+    return approved;
+  }
+
   // Triggered by (a) Change World Type (b) On initial load of page or redirect load
   async getEthereumAccounts(baseUrl: string, checkMyPortfolio: boolean) {
 
     const provider = await DetectEthereumProvider();
     const ethereum = (window as any).ethereum;
 
-    // Check Metamask Provider
-    if (provider && provider.isMetaMask) {
-
-      if (provider !== ethereum) {
-        console.log('Do you have multiple wallets installed?');
-        return;
-      }
+    // Check Metamask Provider :  Supporting Metamask & CoinbaseWallet
+    if (await this.checkApprovedWalletType()) {
 
       const chainId = await ethereum.request({ method: 'eth_chainId' });
       const accounts = await ethereum.request({ method: 'eth_accounts' });
@@ -457,21 +487,24 @@ export class Globals {
             return;
           }
 
-          this.httpClient.get<AlertCollection>(baseUrl + '/OwnerData/GetPendingAlert', { params: params })
+          this.httpClient.get<JSend<AlertCollection>>(baseUrl + '/OwnerData/GetPendingAlert', { params: params })
             .subscribe({
               next: (result) => {
+                if (result.status == STATUS.SUCCESS) {
 
-                alertPendingManager.alert = result.alert;
-                that.ownerAccount.alert_count = result.historyCount;
-                that.autoAlertCheckProcessing = true;
+                  alertPendingManager.alert = result.data.alert;
+                  that.ownerAccount.alert_count = result.data.history_count;
+                  that.systemShutdownPending = result.data.app_shutdown_warning_alert;
+                  that.autoAlertCheckProcessing = true;
 
-                if (alertPendingManager.alert && alertPendingManager.alert.length > 0) {                  
+                  if (alertPendingManager.alert && alertPendingManager.alert.length > 0) {
 
-                  that.bottomAlertRef = that.alertSheet
-                    .open(AlertBottomComponent, {
-                      data: alertPendingManager,
-                    });
-           
+                    that.bottomAlertRef = that.alertSheet
+                      .open(AlertBottomComponent, {
+                        data: alertPendingManager,
+                      });
+
+                  }
                 }
               },
               error: (error) => {
@@ -491,5 +524,6 @@ export {
   AlertPending,
   AlertPendingManager,
   AlertCollection,
+  JSend,
   APPROVAL_TYPE
 }

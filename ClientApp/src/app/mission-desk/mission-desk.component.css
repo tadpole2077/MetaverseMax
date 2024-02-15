@@ -194,6 +194,15 @@ a {
   display: block;
 }
 
+.collect{
+  margin-top: 8px;
+}
+.fa-bolt{
+  color: gold;
+  font-size: 20px;
+  margin-right: 4px;
+}
+
 
 
 

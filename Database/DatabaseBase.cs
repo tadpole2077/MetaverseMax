@@ -14,5 +14,11 @@ namespace MetaverseMax.Database
             worldType = _parentContext.worldTypeSelected;
         }
 
+        protected DatabaseBase() : base(WORLD_TYPE.UNIVERSE)
+        {
+            
+            worldType = WORLD_TYPE.UNIVERSE;
+        }
+
     }
 }

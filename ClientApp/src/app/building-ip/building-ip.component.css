@@ -2,6 +2,9 @@
 .mobileVisible {
   display: none;
 }
+.fontNormal{
+  font-weight:400
+}
 
 .featureInstruct {
   margin-top: 1rem
@@ -33,7 +36,6 @@
     content: "";
     height: 53px;
     width: 80px;
-    display: inline-block;
     margin-top: -26px;
     left: 0;
     position: absolute;
@@ -41,12 +43,12 @@
   }
   .salepos::before {
     background: url("../../assets/red-for-sale-sign.png") no-repeat;
-    background-size: contain;
+    background-size: cover;
     background-color: white
   }
   .toRent::before {
     background: url("../../assets/red-for-rent-sign.png") no-repeat;
-    background-size: contain;
+    background-size: cover;
     background-color: white
   }
 
@@ -88,12 +90,12 @@
   margin-bottom: 1rem;
   margin-top: 0;
 }
-  .officeGlobalSummary .summaryInfo span:first-child {
-    width: 12rem;
-    padding-right: 1rem;
+  .officeGlobalSummary .summaryInfo div > span:first-child {
+    width: 175px;
+    padding-right: 16px;
   }
-  .officeGlobalSummary .summaryInfo span:nth-child(2) {
-    width: 8rem;    
+  .officeGlobalSummary .summaryInfo div > span:nth-child(2) {
+    width: 145px;    
   }
 /*** Search Component ***/
 .searchBlock {
@@ -112,25 +114,25 @@
   line-height: 1.6rem;
   margin-left: -0.6rem;
 }
-  .summaryInfo span {
+  .summaryInfo div > span {
     font-size: .9rem;
     display: inline-block;    
   }
-  .summaryInfo span:first-child {
+  .summaryInfo div > span:first-child {
     width: 8rem;
     text-align: right;
     padding-right: 0.5rem;
   }
-  .summaryInfo span:nth-child(2) {
+  .summaryInfo div > span:nth-child(2) {
     width: 4rem;
     font-weight:600
   }
-  .summaryInfo span:nth-child(3) {
+  .summaryInfo div > span:nth-child(3) {
     width: 6rem;
     text-align: right;
     padding-right: 0.5rem;
   }
-  .summaryInfo span:nth-child(4) {
+  .summaryInfo div > span:nth-child(4) {
     width: 3rem;
     font-weight: 600
   }
@@ -176,9 +178,10 @@
 
 .activeCount {
   margin-bottom: .6rem;
+  text-align: left;
 }
   .activeCount span:first-child {  
-    width: 7rem;
+    margin-right: 6px;
     display: inline-block;
   }
   .activeCount span:nth-child(2) {
@@ -337,6 +340,11 @@
 }
 
 /*** TABLE ***/
+.table-container{
+  margin-left: 20px;
+  margin-right: 10px;
+}
+
 td.mat-mdc-cell {
   font-size: .9rem;
   font-weight: 500;
@@ -477,6 +485,8 @@ td.mat-column-name {
 .rankEff{
   width: 3.5rem;
   display: inline-block;
+  line-height: 40px;
+  margin-top: 7px;
 }
 
 /* Magnifier Icon */
@@ -488,12 +498,14 @@ td.mat-column-name {
   width: 24px;
   height: 24px;
   background-color: rgba(21, 101, 192, 0.35);
-  transform: scale(1.8);
-  margin-left: 10px;
-  margin-top: -3px;
+  transform: scale(1.8);    
   transition: all .5s;
+  margin-bottom: 16px;
+  margin-top: 10%;        /* flexible margin if line height grows due to content rap*/
+  margin-left: 10px;
 }
 .officeMagify {
+  vertical-align: middle;
   margin-left: 1rem;
   margin-right: 1rem;
 }
@@ -529,7 +541,10 @@ td.mat-column-name {
     animation-delay: 75ms;
     animation-timing-function: ease-out;
   }  
-
+.ipTotal{
+  line-height: 35px;
+  display: inline-block;
+}
 
 .showIPAlertPosition {
   display: inline-block;
@@ -629,11 +644,10 @@ td.mat-column-name {
   font-size: .8rem;
 }
 
-.mat-column-rank .rowWarning {
+td.mat-column-rank .rowWarning {
   position: absolute;
-  margin-top: 10px;
   margin-left: -48px;
-  vertical-align: top;
+  margin-top: -8px;
 }
 .rowWarning .mat-icon {
   font-size: 1rem;
@@ -699,7 +713,7 @@ td.mat-column-name {
 }
   .poiBonus::before {
     background: url("../../assets/POI.png") no-repeat;
-    background-size: contain;
+    background-size: cover;
     content: "";
     height: 60px;
     width: 26px;
@@ -819,6 +833,9 @@ td.mat-column-name {
   .summaryInfo span {
     font-size: .8rem;
   }
+  .summaryInfo div > span:first-child {
+    width: 7rem;
+  }
 
   #producePredictionPanel {
     margin-top: .6rem;
@@ -826,10 +843,6 @@ td.mat-column-name {
 
   .mat-expansion-panel-body {
     padding: 0 4px 16px
-  }
-
-  .summaryInfo span:first-child {
-    width: 7rem;
   }
 
   #doubleAppBonusPanel {
@@ -852,10 +865,8 @@ td.mat-column-name {
     margin-top: .8rem;
     margin-bottom: .8rem;
   }
-
     .lastUpdated .mat-icon {
     }
-
     .lastUpdated span {
       margin-top: 0.2rem;
       display: inline-block;
@@ -910,14 +921,14 @@ td.mat-column-name {
   }
 
   .activeProduce {
-    left: -14px;
-    border-left: 1px;
-    border-right: 0;
-    border-radius: 5px 0 0 5px;
-    font-size: .9rem;
-    width: .8rem;
+    left: 4px;    
+    font-size: 26px;
+    width: 0.8rem;
     padding: 9px 2px;
     vertical-align: middle;
+    margin-top: -30px;
+    border: 0;
+    box-shadow: none;
   }
 
   .rowWarning {
@@ -992,28 +1003,35 @@ td.mat-column-name {
       line-height: 1.4rem;
     }
 
+  .magnifyHistoryPosition {
+    margin-top: 10px;
+    margin-left: 4px;
+  }
+  .magnifyHistoryIcon {
+    margin-top: -10px;  
+  }
   td.mat-mdc-cell a.officeMagify {
-    margin: 0;
-    padding: 0;
+    position: relative;
     text-align: center;
     display: block;
-    height: 1.8rem;
-    margin-right: 1.2rem;
+    margin: 8px 0 14px 12px;    
   }
-    .officeMagify .magnifyHistoryIcon {
-      margin-top: 0;
-      position: relative
-    }
+
 
 
   .table-container{
     margin-left: 3px;
   }
   th.mat-mdc-header-cell, td.mat-mdc-cell {
-    font-size: .7rem;
+    font-size: 12px;
+    padding-bottom: 4px;
+    padding-top: 4px;
   }
   th .mat-badge-content .mat-badge-active {
     top: -12px
+  }
+  .mat-mdc-table .mdc-data-table__row {
+    height: 120px;
   }
 
   td.mat-column-rank {
@@ -1021,19 +1039,10 @@ td.mat-column-name {
     min-width: 3.4rem;
   }
     td.mat-column-rank .rowWarning {
-      margin-top: 24px;
+      margin-top: -8px;
       margin-left: -42px;
     }
 
-  .magnifyHistoryPosition {
-    margin-left: -3rem;
-    margin-top: -1.6rem;
-  }
-
-  .officeMagify {
-    margin-top: 0;
-    margin-left: -3rem;
-  }
   .mobileVisible span:first-child {
     font-weight: 400;
     color: goldenrod;

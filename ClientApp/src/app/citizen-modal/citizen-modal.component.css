@@ -45,7 +45,7 @@ td.mat-mdc-cell {
     content: "";
     height: 38px;
     width: 57px;
-    background-size: contain;
+    background-size: cover;
     margin-top: -18px;
     margin-left: -14px;
     position: absolute;

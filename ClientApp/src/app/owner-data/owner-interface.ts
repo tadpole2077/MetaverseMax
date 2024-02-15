@@ -28,6 +28,10 @@ interface IOwnerLandData
   condition: number;
   active: number;
   unit: number;
+  c_r: boolean;     // Ready to collect bool
+  c_d: number;      // Days to collect int
+  c_h: number;      // Hours to collect int
+  product_id: number;
 }
 
 interface IOwnerData
@@ -161,25 +165,6 @@ interface IFilterCount {
   parcel: number;
 }
 
-const PRODUCT = {
-  WOOD: 1,
-  SAND: 2,
-  STONE: 3,
-  METAL: 4,
-  BRICK: 5,
-  GLASS: 6,
-  WATER: 7,
-  ENERGY: 8,
-  STEEL: 9,
-  CONCRETE: 10,
-  PLASTIC: 11,
-  GLUE: 12,
-  MIXES: 13,
-  COMPOSITE: 14,
-  PAPER: 15,
-  FACTORY_PRODUCT: 99
-}
-
 
 export
 {
@@ -192,7 +177,6 @@ export
   IPortfolioPet,
   ICitizen,
   IPortfolioCitizen,
-  PRODUCT,
   IFilterCount,
   IPack
 }

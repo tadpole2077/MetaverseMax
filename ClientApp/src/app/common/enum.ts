@@ -21,6 +21,10 @@ enum ALERT_ICON_TYPE {
   NEW_BUILDING = 6,
 };
 
+const STATUS = {
+  SUCCESS : "success"
+}
+
 enum ICON_TYPE_CHANGE {
   NONE = 0,
   INCREASE = 1,
@@ -71,6 +75,43 @@ enum BUILDING {
   AOI = 100
 }
 
+enum BUILDING_SUBTYPE {
+  NOT_FOUND = -1,
+  CONDOMINIUM = 1,
+  APARTMENTS = 2,
+  VILLA = 3,
+  POLICE = 4,
+  FIRE_STATION = 5,
+  HOSPITAL = 6,
+  SUPERMARKET = 7,
+  TRADE_CENTER = 8,
+  CONCRETE_PLANT = 9,
+  STEEL_PLANT = 9,
+  FACTORY = 10,
+  WATER_PLANT = 11,
+  POWER_PLANT = 12,
+  SMELTER_PLANT = 13,
+  MIXING_PLANT = 14,
+  BUSINESS_CENTER = 15,
+  OFFICE_BLOCK = 16,
+  GLASSWORKS = 17,
+  BRICKWORKS = 18,
+  CHEMICAL_PLANT = 19,
+  PAPER_FACTORY = 20,
+  OFFICE_MONUMENT = 100,
+  OFFICE_LANDMARK = 101,
+  INDUSTRY_MONUMENT = 104,
+  INDUSTRY_LANDMARK = 105,
+  PRODUCTION_MONUMENT = 106,
+  PRODUCTION_LANDMARK = 107,
+  COMMERCIAL_MONUMENT = 108,
+  RESIDENTIAL_MONUMENT = 110,
+  RESIDENTIAL_LANDMARK = 111,
+  ENERGY_MONUMENT = 112,
+  ENERGY_LANDMARK = 113,
+  SUBWAY_STATION = 200
+}
+
 enum PRODUCT_IMG {
   WOOD = "wood.png",
   SAND = "sand.png",
@@ -89,6 +130,24 @@ enum PRODUCT_IMG {
   PAPER = "paper.png",
 };
 
+const PRODUCT = {
+  WOOD: 1,
+  SAND: 2,
+  STONE: 3,
+  METAL: 4,
+  BRICK: 5,
+  GLASS: 6,
+  WATER: 7,
+  ENERGY: 8,
+  STEEL: 9,
+  CONCRETE: 10,
+  PLASTIC: 11,
+  GLUE: 12,
+  MIXES: 13,
+  COMPOSITE: 14,
+  PAPER: 15,
+  FACTORY_PRODUCT: 99
+}
 // Use: PRODUCT_NAME[productId] >> returns a string of the product name.
 const PRODUCT_NAME = {
   1: "Wood",
@@ -108,6 +167,44 @@ const PRODUCT_NAME = {
   15: "Paper",
   99: "Factory Product",
 };
+
+const FACTORY_PRODUCT = {
+  WHITE_AIR_CON: 1,
+  CCTV_WHITE: 2,
+  RED_FIRE_ALARM: 3,
+  ROUTER_BLACK: 4,
+  WHITE_SAT: 5,
+  GREEN_SAT: 6,
+  RED_SAT: 7,
+  GREEN_AIR_CON: 8,
+  RED_AIR_CON: 9,
+  CCTV_RED: 10
+}
+
+const FACTORY_PRODUCT_NAME = {
+  1: "White Air Con",
+  2: "CCTV White",
+  3: "Red Fire Alarm",
+  4: "Router Black",
+  5: "White Sat",
+  6: "Green Sat",
+  7: "Red Sat",
+  8: "Green Air Con",
+  9: "Red Air Con",
+  10: "CCTV Red"
+}
+const FACTORY_PRODUCT_IMG = {
+  1: "white_ac.png",
+  2: "white_cctv.png",
+  3: "red_alarm.png",
+  4: "black_router.png",
+  5: "white_sat.png",
+  6: "green_sat.png",
+  7: "red_sat.png",
+  8: "green_ac.png",
+  9: "red_ac.png",
+  10: "red_cctv.png"
+}
 
 // use TRANSACTION_STATUS.PENDING , converts to number.
 const TRANSACTION_STATUS = {
@@ -205,24 +302,29 @@ enum METAMASK_ERROR_CODE {
 
 
 export {
+  ALERT_ACTION,
   ALERT_TYPE,
   ALERT_ICON_TYPE,
+  BLOCKCHAIN,
+  BUILDING_TYPE,
+  BUILDING_SUBTYPE,
+  BUILDING,
+  CUSTOM_BUILDING_CATEGORY,
   EVENT_TYPE,
+  HEX_NETWORK,
   ICON_TYPE_CHANGE,
-  PENDING_ALERT,
-  ALERT_ACTION,
+  METAMASK_ERROR_CODE,  
+  MCP_CONTRACT,
+  MCP_CONTRACT_NAME,
+  MIN_STAMINA,
+  NETWORKS_DESC,
+  PENDING_ALERT, 
   PRODUCT_IMG,
   PRODUCT_NAME,
-  TRANSACTION_STATUS,
-  BLOCKCHAIN,
-  HEX_NETWORK,
-  METAMASK_ERROR_CODE,
-  NETWORKS_DESC,
-  TRANSACTION_TYPE,
-  CUSTOM_BUILDING_CATEGORY,
-  BUILDING_TYPE,
-  BUILDING,
-  MIN_STAMINA,
-  MCP_CONTRACT,
-  MCP_CONTRACT_NAME
+  FACTORY_PRODUCT,
+  FACTORY_PRODUCT_IMG,
+  PRODUCT,
+  STATUS,
+  TRANSACTION_STATUS,      
+  TRANSACTION_TYPE
 };

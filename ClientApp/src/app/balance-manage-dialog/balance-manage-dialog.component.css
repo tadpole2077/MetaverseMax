@@ -84,8 +84,24 @@
 .processMsg span {
   padding-left: 22px;
 }
+.progressInfo{
+  width: 80%;
+  margin-bottom: 2px;
+}
+.progressInfo .progressIcon{
+  display: inline-block;
+  position: relative;
+  vertical-align: text-bottom;
+}
+.progressInfo .warning{
+  margin-left: 3px;
+  position: relative;
+  height: 19px;
+  vertical-align: text-top;
+  width: 19px;
+}
 
-.hideProgress{
+.hideProgress, .progressInfo .hideProgress{
   display:none;
 }
 .showProgress {
@@ -189,7 +205,7 @@ i.rotate {
   margin-top: 6px;
 }
 
-.contractWarning, .warning, .phase1Warning, .phase2Warning {
+.contractWarning, .warning {
   font-size: 20px;
   position: absolute;
   color: darkorange;

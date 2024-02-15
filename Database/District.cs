@@ -20,12 +20,6 @@ namespace MetaverseMax.Database
         [Column("update_instance")]
         public int update_instance { get; set; }
 
-        //[Column("owner_name")]
-        //public string owner_name { get; set; }
-
-        //[Column("owner_avatar_id")]
-        //public int? owner_avatar_id { get; set; }
-
         [Column("owner_matic")]
         public string owner_matic { get; set; }
 
@@ -99,9 +93,6 @@ namespace MetaverseMax.Database
         [Column("resource_zone")]
         public int resource_zone { get; set; }
 
-        [Column("district_matic_key")]
-        public string district_matic_key { get; set; }
-
         [Column("distribution_period")]
         public int? distribution_period { get; set; }
 
@@ -110,6 +101,14 @@ namespace MetaverseMax.Database
 
         [Column("land_plot_price")]
         public int? land_plot_price{ get; set; }
+
+        [NotMapped]
+        [Column("district_owner_name")]
+        public string district_owner_name { get; set; }
+
+        [NotMapped]
+        [Column("district_avatar_id")]
+        public int district_avatar_id { get; set; }
 
     }
 }

@@ -1,4 +1,18 @@
 ﻿
+Most Common Resolution Use 2023
+1920×1080 (22.18%)
+1366×768 (14.04%)
+1440×900 (6.41%)
+1280×720 (5.45%)
+1280×1024 (4.52%)
+
+Desktop: 1920×1080, 1366×768, 1280×1024, 1024×768
+Mobile: 375×667, 414×736, 360×800, 390×844
+Tablet: 768×1024, 1024×768, 601×962
+
+
+
+
 1) Add Glow Animation on Fonts
 https://www.w3schools.com/howto/howto_css_glowing_text.asp
 

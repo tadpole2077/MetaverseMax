@@ -115,25 +115,20 @@ namespace MetaverseMax.Database
             return districtList.ToArray();
         }
 
-        public int UpdateDistrictByToken(JToken districtToken)
+        public District MapDistrictByToken(JToken districtToken)
         {
-            OwnerNameDB ownerNameDB = new(_context);
             District district = new();
             ServiceCommon common = new();
-            int returnCode = 0;
-            string districtOwnerName;
-            int districtAvatarId;
 
             try
             {
                 district.district_id = districtToken.Value<int?>("region_id") ?? 0;
-                district.district_matic_key = districtToken.Value<string>("address");
 
-                districtOwnerName = districtToken.Value<string>("owner_nickname") ?? "Not Found";
-                districtOwnerName = districtOwnerName[0..(districtOwnerName.Length > 50 ? 50 : districtOwnerName.Length)];
+                district.district_owner_name = districtToken.Value<string>("owner_nickname") ?? "Not Found";
+                district.district_owner_name = district.district_owner_name[0..(district.district_owner_name.Length > 50 ? 50 : district.district_owner_name.Length)];
 
-                districtAvatarId = districtToken.Value<int?>("owner_avatar_id") ?? 0;
-                district.owner_matic = districtToken.Value<string>("address") ?? "Not Found";
+                district.district_avatar_id = districtToken.Value<int?>("owner_avatar_id") ?? 0;
+                district.owner_matic = districtToken.Value<string>("address") ?? "";
 
                 district.active_from = common.TimeFormatStandardFromUTC(districtToken.Value<string>("active_from") ?? "", null);
                 district.plots_claimed = districtToken.Value<int?>("claimed_cnt") ?? 0;
@@ -167,27 +162,14 @@ namespace MetaverseMax.Database
                 district.insurance_commission = districtToken.Value<int?>("insurance_commission") ?? 0;
 
                 district.resource_zone = districtToken.Value<int?>("resources") ?? 0;
-                district.land_plot_price = districtToken.Value<int?>("land_plot_price") ?? 0;
-
-                returnCode = DistrictUpdate(district);
-
-                // Corner Case - Owner of a District but owns no plots - check owner exists if not create account
-                OwnerChange ownerChange = new()
-                {
-                    owner_avatar_id = districtAvatarId,
-                    owner_name = districtOwnerName,
-                    owner_matic_key = district.owner_matic,
-                };
-
-                ownerNameDB.UpdateOwnerName(ownerChange, false);
-
+                district.land_plot_price = districtToken.Value<int?>("land_plot_price") ?? 0;                
             }
             catch (Exception ex)
             {
-                logException(ex, String.Concat("UpdateDistrictByToken() : Error District_id: ", district.district_id.ToString()));
+                logException(ex, String.Concat("MapDistrictByToken() : Error District_id: ", district.district_id.ToString()));
             }
 
-            return returnCode;
+            return district;
         }
 
         public int DistrictUpdate(District district)

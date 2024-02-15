@@ -1,4 +1,6 @@
-﻿using MetaverseMax.Database;
+﻿using MetaverseMax.BaseClass;
+using MetaverseMax.Database;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using System.Transactions;
@@ -7,11 +9,14 @@ namespace MetaverseMax.Database
 {
     public class BlockchainTransactionDB : DatabaseBase
     {
-        public BlockchainTransactionDB(MetaverseMaxDbContext _parentContext) : base(_parentContext)
+        private new readonly MetaverseMaxDbContext_UNI _context;
+
+        public BlockchainTransactionDB(MetaverseMaxDbContext_UNI _parentContext) : base()
         {
+            _context = _parentContext;
         }
 
-        public BlockchainTransaction AddOrUpdate(BlockchainTransaction transactionData, string hash)
+        public BlockchainTransaction AddOrUpdate(BlockchainTransaction transactionData, string hash, int ownerUni_ID)
         {
             bool newTransaction = false;
             BlockchainTransaction blockchainTransaction = null;
@@ -35,7 +40,7 @@ namespace MetaverseMax.Database
                     }
 
                     blockchainTransaction.hash = hashCode;
-                    blockchainTransaction.owner_matic = transactionData.owner_matic;
+                    blockchainTransaction.owner_uni_id = ownerUni_ID;
                     blockchainTransaction.action = transactionData.action;
                     blockchainTransaction.event_recorded_utc = transactionData.event_recorded_utc;
                     blockchainTransaction.amount = transactionData.amount;
@@ -88,22 +93,57 @@ namespace MetaverseMax.Database
             return transactionProcessed;
         }
 
-        public List<BlockchainTransaction> GetByOwnerMatic(string ownerMaticKey)
+        public List<BlockchainTransaction> GetByOwnerUniID(int ownerUniID)
         {
             List<BlockchainTransaction> ownerTransactionList = null;
 
             try
             {
-                ownerTransactionList = _context.BlockchainTransaction.Where(x => x.owner_matic == ownerMaticKey)
+                ownerTransactionList = _context.BlockchainTransaction.Where(x => x.owner_uni_id == ownerUniID)
                     .OrderByDescending(x => x.event_recorded_utc)
                     .ToList();
             }
             catch (Exception ex)
             {
-                logException(ex, String.Concat("blockchainTransactionDB::GetByOwnerMatic() : Error getting list by ownerMaticKey ", ownerMaticKey));
+                logException(ex, String.Concat("blockchainTransactionDB::GetByOwnerUniID() : Error getting list by Owner_Uni_ID ", ownerUniID));
             }
 
             return ownerTransactionList;
+        }
+
+        public bool RecordDeposit(string hash, string ownerMatic, int ownerUniID, char action, decimal amount, NETWORK chainId)
+        {
+            int result;
+            bool processed = false;
+            try
+            {
+                SqlParameter hashParameter = new ("@hash", hash);
+                SqlParameter ownerParameter = new ("@owner_uni_id", ownerUniID);
+                SqlParameter depositorParameter = new("@depositor_matic_key", ownerMatic);
+                SqlParameter actionParameter = new ("@action", action);
+                SqlParameter amountParameter = new ("@amount", amount);
+                SqlParameter chainParameter = new("@chain_id", (int)chainId);
+                
+                SqlParameter processedResult = new()
+                {
+                    ParameterName = "@processed",
+                    SqlDbType = System.Data.SqlDbType.Bit,
+                    Direction = System.Data.ParameterDirection.Output,
+
+                };
+
+                result = _context.Database.ExecuteSqlRaw("EXEC @processed = dbo.sp_transaction_deposit @hash, @depositor_matic_key, @owner_uni_id, @action, @amount, @chain_id", 
+                    new[] { hashParameter, depositorParameter, ownerParameter, actionParameter, amountParameter, processedResult, chainParameter });
+
+                processed = (bool)processedResult.Value;
+
+            }
+            catch (Exception ex)
+            {
+                logException(ex, String.Concat("OwnerDB::RecordDeposit() : Error recording deposit for owner universe ID ", ownerUniID, " with depositer matic ", ownerMatic, " on Transaction : ", hash, " and amount ", amount));                
+            }
+
+            return processed;
         }
     }
 }

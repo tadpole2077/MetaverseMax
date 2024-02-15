@@ -5,10 +5,11 @@ import { MatSort, MatSortable, Sort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { TransferAssetComponent } from "../transfer-asset/transfer-asset.component"
-import { IPack, PRODUCT } from '../owner-data/owner-interface';
+import { IPack } from '../owner-data/owner-interface';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Globals, WORLD } from '../common/global-var';
-import { PRODUCT_IMG, PRODUCT_NAME } from '../common/enum';
+import { MapData } from '../common/map-data';
+import { PRODUCT_IMG, PRODUCT_NAME, PRODUCT } from '../common/enum';
 
 
 @Component({
@@ -44,7 +45,7 @@ export class PackModalComponent {
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumns: string[] = ['pack_id', 'product_id', 'amount'];
 
-  constructor(public globals: Globals, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private clipboard: Clipboard) {
+  constructor(public globals: Globals, public mapdata: MapData, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private clipboard: Clipboard) {
 
     this.httpClient = http;
     this.baseUrl = baseUrl + "api/" + globals.worldCode;
@@ -130,66 +131,6 @@ export class PackModalComponent {
 
 
     return;
-  }
-
-  getProductName(productId: number) {
-    return  PRODUCT_NAME[productId];
-  }
-
-  getImageName(productId: number) {
-
-    let productImg: string;
-
-    switch (productId) {
-      case PRODUCT.WOOD:
-        productImg = PRODUCT_IMG.WOOD;
-        break;      
-      case PRODUCT.SAND:
-        productImg = PRODUCT_IMG.SAND;
-        break;
-      case PRODUCT.METAL:
-        productImg = PRODUCT_IMG.METAL;
-        break;
-      case PRODUCT.STONE:
-        productImg = PRODUCT_IMG.STONE;
-        break;
-      case PRODUCT.BRICK:
-        productImg = PRODUCT_IMG.BRICK;
-        break;
-      case PRODUCT.GLASS:
-        productImg = PRODUCT_IMG.GLASS;
-        break;
-      case PRODUCT.CONCRETE:
-        productImg = PRODUCT_IMG.CONCRETE;
-        break;
-      case PRODUCT.PLASTIC:
-        productImg = PRODUCT_IMG.PLASTIC;
-        break;
-      case PRODUCT.PAPER:
-        productImg = PRODUCT_IMG.PAPER;
-        break;
-      case PRODUCT.COMPOSITE:
-        productImg = PRODUCT_IMG.COMPOSITE;
-        break;
-      case PRODUCT.GLUE:
-        productImg = PRODUCT_IMG.GLUE;
-        break;
-      case PRODUCT.MIXES:
-        productImg = PRODUCT_IMG.MIXES;
-        break;
-      case PRODUCT.ENERGY:
-        productImg = PRODUCT_IMG.ENERGY;
-        break;
-      case PRODUCT.WATER:
-        productImg = PRODUCT_IMG.WATER;
-        break;
-      default:
-        productImg = "";
-        break;
-    }
-
-    return productImg;
-    
   }
 
   setHide() {

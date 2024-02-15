@@ -39,7 +39,6 @@ namespace MetaverseMax.ServiceClass
         public int construction_residential_tax { get; set; }
 
         public int resource_zone { get; set; }
-        public int district_matic_key { get; set; }
         public int distribution_period { get; set; }
         public int insurance_commission { get; set; }
         public string promotion { get; set; }

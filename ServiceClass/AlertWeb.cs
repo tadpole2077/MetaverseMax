@@ -6,7 +6,8 @@ namespace MetaverseMax.ServiceClass
     public class AlertWeb
     {
         public IEnumerable<AlertItem> alert { get; set; }
-        public int historyCount { get; set; }
+        public int history_count { get; set; }
+        public bool app_shutdown_warning_alert { get; set; }
     }
 
     public class AlertItem

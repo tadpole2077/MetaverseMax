@@ -306,7 +306,8 @@ export class DirectDepositDialogComponent {
       this.provider = await DetectEthereumProvider();
       this.ethereum = (window as any).ethereum;
       
-      if (this.provider && this.provider.isMetaMask) {
+    // Check Metamask Provider :  Supporting Metamask & CoinbaseWallet
+    if (await this.globals.checkApprovedWalletType()) {
         this.web3 = new Web3(this.provider);
         active = true;
       }

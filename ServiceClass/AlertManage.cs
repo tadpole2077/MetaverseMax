@@ -2,10 +2,10 @@
 using MetaverseMax.BaseClass;
 
 namespace MetaverseMax.ServiceClass
-{
+{    
     public class AlertManage : ServiceBase
     {
-        private ServiceCommon common = new ServiceCommon();
+        private readonly ServiceCommon common = new();        
 
         public AlertManage(MetaverseMaxDbContext _parentContext, WORLD_TYPE worldTypeSelected) : base(_parentContext, worldTypeSelected)
         {
@@ -80,8 +80,11 @@ namespace MetaverseMax.ServiceClass
                 }).ToList();
             }
             alertWeb.alert = alertItemList;
-            alertWeb.historyCount = historyCount;
-
+            alertWeb.history_count = historyCount;
+            
+            ServiceCommon serviceCommon = new();
+            alertWeb.app_shutdown_warning_alert = serviceCommon.CheckPendingShutdownSetting();
+                        
             return alertWeb;
         }
 
@@ -201,7 +204,7 @@ namespace MetaverseMax.ServiceClass
                     allOwnerAlerts.ForEach(x =>
                     {
                         CustomBuilding customBuilding = _context.customBuilding.Where(x => x.parcel_info_id == p.parcel_info_id).FirstOrDefault();
-                        ownerAccount = ownerManage.FindOwnerByMatic(p.owner_matic);
+                        ownerAccount = ownerManage.GetOwnerAccountByMatic(p.owner_matic);
                         alert.AddNewBuildingAlert(x.matic_key, ownerAccount.name == string.Empty ? ownerAccount.matic_key : ownerAccount.name, p.token_id, p.district_id, p.parcel_info_id, customBuilding.building_name);
                     });
                 });

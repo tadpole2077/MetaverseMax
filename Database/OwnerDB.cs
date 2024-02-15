@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MetaverseMax.BaseClass;
 using MetaverseMax.ServiceClass;
+using MetaverseMax.Database;
+using NBitcoin.Secp256k1;
 
 namespace MetaverseMax.Database
 {
@@ -59,6 +61,8 @@ namespace MetaverseMax.Database
             RETURN_CODE returnCode = RETURN_CODE.ERROR;
             try
             {
+                NETWORK networkId = OwnerUniDB.GetNetworkKey(worldType);
+
                 // NOTE - each Owner account (owner_matic_key) 1 or more OwnerName records (only one will be the latest version).
                 // Using string interpolation syntax to pull in parameters
                 List<OwnerEXT> ownerDBList = _context.ownerEXT.FromSqlInterpolated($"sp_owner_get_all").AsNoTracking().ToList();
@@ -77,8 +81,7 @@ namespace MetaverseMax.Database
                         pro_tools_enabled = (o.pro_access_expiry ?? DateTime.UtcNow) > DateTime.UtcNow ? true : false,
                         pro_expiry_days = GetExpiryDays(o.pro_access_expiry, (o.pro_access_expiry ?? DateTime.UtcNow) > DateTime.UtcNow ? true : false),
                         alert_activated = o.alert_activated,
-                        balance = o.balance ?? 0,
-                        balance_visible = o.balance_visible ?? false
+                        ownerUniID = o.owner_uni_id ?? 0
                     }
                 );
 
@@ -92,45 +95,6 @@ namespace MetaverseMax.Database
             }
 
             return returnCode;
-        }
-
-        public decimal GetOwnerBalance(string ownerMaticKey)
-        {
-            decimal balance = 0;
-            try
-            {
-                Owner owner = _context.owner.Where(x => x.owner_matic_key == ownerMaticKey).FirstOrDefault();
-
-                balance = owner.balance ?? 0;
-            }
-            catch (Exception ex)
-            {
-                DBLogger dBLogger = new(_context.worldTypeSelected);
-                dBLogger.logException(ex, String.Concat("OwnerDB::GetOwnerBalance() : Error retrieving balance for owner: "+ ownerMaticKey));                
-            }
-
-            return balance;
-        }
-
-        public decimal UpdateOwnerBalance(string ownerMaticKey, decimal balance)
-        {
-            decimal oldBalance = 0;
-            try
-            {
-                Owner owner = _context.owner.Where(x => x.owner_matic_key == ownerMaticKey).FirstOrDefault();
-
-                oldBalance = owner.balance ?? 0;
-                owner.balance = balance;
-
-                _context.SaveWithRetry();
-            }
-            catch (Exception ex)
-            {
-                DBLogger dBLogger = new(_context.worldTypeSelected);
-                dBLogger.logException(ex, String.Concat("OwnerDB::UpdateOwnerBalance() : Error updating balance for owner: ", ownerMaticKey, ", Old Balance: ", oldBalance, " ,New balance: ", balance));
-            }
-
-            return balance;
         }
 
         private int GetExpiryDays(DateTime? pro_access_expiry, bool proToolsEnabled)
@@ -180,7 +144,7 @@ namespace MetaverseMax.Database
             return returnCode;
         }
 
-        public RETURN_CODE UpdateBalanceVisible(string ownerMaticKey, bool visible)
+        public RETURN_CODE UpdateOwner_UniID(string ownerMaticKey, int owner_uni_id)
         {
             RETURN_CODE returnCode = RETURN_CODE.ERROR;
             Owner owner = null;
@@ -190,18 +154,17 @@ namespace MetaverseMax.Database
 
                 if (owner != null)
                 {
-                    owner.balance_visible = visible;
+                    owner.owner_uni_id = owner_uni_id;
 
                     _context.SaveChanges();
                     returnCode = RETURN_CODE.SUCCESS;
                 }
-            }
+}
             catch (Exception ex)
             {
                 DBLogger dBLogger = new(_context.worldTypeSelected);
-                dBLogger.logException(ex, String.Concat("OwnerDB::UpdateBalanceVisible() : Error updating owner with matic Key - ", ownerMaticKey));
+                dBLogger.logException(ex, String.Concat("OwnerDB::UpdateOwner_UniID() : Error updating owner with matic Key - ", ownerMaticKey));
             }
-
 
             return returnCode;
         }
@@ -227,7 +190,6 @@ namespace MetaverseMax.Database
                 DBLogger dBLogger = new(_context.worldTypeSelected);
                 dBLogger.logException(ex, String.Concat("OwnerDB::UpdateOwnerAlertActivated() : Error updating owner with matic Key - ", ownerMaticKey));
             }
-
 
             return returnCode;
         }
@@ -314,32 +276,7 @@ namespace MetaverseMax.Database
             SyncWorld.jobInterval = oldInterval;
             SyncWorld.saveDBOverride = false;
 
-        }
-
-        public decimal UpdateOwnerBalance(decimal amount, string ownerMaticKey)
-        {
-            Owner owner = null;
-            try
-            {
-                owner = _context.owner.Where(o => o.owner_matic_key == ownerMaticKey).FirstOrDefault();
-
-                if (owner != null)
-                {
-                    owner.balance ??= 0;
-                    owner.balance += amount;
-                }                
-
-                _context.SaveWithRetry();
-            }
-            catch (Exception ex)
-            {
-                DBLogger dBLogger = new(_context.worldTypeSelected);
-                dBLogger.logException(ex, String.Concat("OwnerDB::UpdateOwnerBalance() : Error updating owner balance with matic Key - ", ownerMaticKey));
-            }
-
-
-            return owner.balance ?? 0;
-        }
+        }        
 
         public Owner NewOwner(string ownerMaticKey, bool saveCommit)
         {
@@ -366,9 +303,7 @@ namespace MetaverseMax.Database
                         alert_activated = false,
                         created_date = DateTime.Now,
                         pro_access_expiry = DateTime.Now.AddDays(freeDays),
-                        pro_access_renew_code = "test",
-                        balance = 0,
-                        balance_visible = false,
+                        pro_access_renew_code = "test"
                     }).Entity;
 
 

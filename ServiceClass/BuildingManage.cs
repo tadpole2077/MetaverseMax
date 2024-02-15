@@ -3,6 +3,8 @@ using MetaverseMax.BaseClass;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
 using System.Text;
+using System;
+using Microsoft.VisualBasic;
 
 
 namespace MetaverseMax.ServiceClass
@@ -145,10 +147,7 @@ namespace MetaverseMax.ServiceClass
                     {
                         // Visual bug caused by not including negative IP impact for POI-Monument active/deactive
                         buildingList[i].ip_warning = string.Concat("MCP [Base IP] bug : ", buildingList[i].influence_info, "[Correct] vs ", buildingList[i].influence, "[Incorrect shown in Plot History] ");
-                    }
-
-                    // Collate all recent produce 
-                    UpdateResourceTotal(resourceTotal, buildingType, buildingList[i], buildingLevel, worldType);
+                    }                   
 
                     // CHECK if application perk is active - confirm IP is correct or bugged
                     DistrictPerk districtPerk = districtPerkList.Where(x => x.district_id == buildingList[i].district_id).FirstOrDefault();
@@ -186,7 +185,11 @@ namespace MetaverseMax.ServiceClass
 
                     buildingList[i].produce_tax = AssignTaxMatch(districtList.Where(x => x.district_id == buildingList[i].district_id).FirstOrDefault(), buildingType);
 
-                    // Check if Building able to execute a run collection - then eval building history. Pass IP efficiency. 
+                    // Collate all recent produce - NOTE LIMITATION - any new building calcs wont show until next refresh - such as evals to identify recent collection.
+                    UpdateResourceTotal(resourceTotal, buildingType, buildingList[i], buildingLevel, worldType);
+
+                    // Check if Building able to execute a run collection - then eval building history. Pass IP efficiency.
+                    // PURPOSE: Full update of building details - to identify if recent collection occured and amount collected, update next prediction calc
                     if (evalHistory && (buildingType == (int)BUILDING_TYPE.INDUSTRIAL || buildingType == (int)BUILDING_TYPE.PRODUCTION || buildingType == (int)BUILDING_TYPE.ENERGY)
                         && EvalBuildingHistory(buildingList[i].last_run_produce_date, buildingLevel) == true)
                     {
@@ -239,9 +242,11 @@ namespace MetaverseMax.ServiceClass
                 {
                     activeBuildingList.Add(new ResourceActiveWeb()
                     {
+                        resource_id = resourceTotal[index].resourceId,
                         name = resourceTotal[index].name,
                         total = resourceTotal[index].buildingCount,
                         active = resourceTotal[index].buildingActive,
+                        active_total_ip = resourceTotal[index].buildingActiveIP,
                         shutdown = resourceTotal[index].buildingCount - resourceTotal[index].buildingActive,
                         building_id = resourceTotal[index].buildingId,
                         building_img = resourceTotal[index].buildingImg,
@@ -286,6 +291,13 @@ namespace MetaverseMax.ServiceClass
                     _context.LogEvent(String.Concat("Building type: " + GetBuildingTypeDesc(buildingType) + " Lvl: " + buildingLevel + " - Total : ", buildingList.Count, " with History Processed : ", buildingCanCollectCount - buildingNoCitizenCount));
                 }
 
+                if (buildingType == (int)BUILDING_TYPE.OFFICE)
+                {
+                    buildingCollection.office_summary = new();
+                    buildingCollection.office_summary.active_total_ip = 1;
+                    buildingCollection.office_summary.active_max_daily_distribution_per_ip = 1; 
+                }
+
                 buildingCollection.buildings = ConvertBuildingWeb(buildingList, ownerAlerts);
             }
             catch (Exception ex)
@@ -304,7 +316,7 @@ namespace MetaverseMax.ServiceClass
 
             foreach (BuildingTypeIP building in buildingList)
             {
-                OwnerAccount ownerAccount = ownerManage.FindOwnerByMatic(building.owner_matic);
+                OwnerAccount ownerAccount = ownerManage.GetOwnerAccountByMatic(building.owner_matic);
                 string name = string.Empty;
                 int avatarId = 0;
 
@@ -1037,13 +1049,14 @@ namespace MetaverseMax.ServiceClass
 
             buildingHistory.current_building_id = targetPlot.building_id;
             buildingHistory.current_building_type = targetPlot.building_type_id;
-            buildingHistory.current_building_product_id = GetBuildingProduce(targetPlot.building_type_id, targetPlot.building_id, targetPlot.action_id, worldType);
+            buildingHistory.current_building_product_id = GetBuildingProduct(targetPlot.building_type_id, targetPlot.building_id, targetPlot.action_id, worldType);
             buildingHistory.prediction_product = GetResourceName(buildingHistory.current_building_product_id);
 
             buildingHistory.prediction_base_min = GetBaseProduce(targetPlot.building_type_id, targetPlotLevel, buildingHistory.current_building_product_id);
             buildingHistory.prediction_max = GetMaxProduce(targetPlot.building_type_id, targetPlotLevel, buildingHistory.current_building_product_id);
             buildingHistory.prediction_range = buildingHistory.prediction_max - buildingHistory.prediction_base_min;
             buildingHistory.current_building_lvl = targetPlotLevel;
+
 
             // prediction.prediction_ip_doublebug = (int)Math.Round((decimal)targetPlot.influence * (decimal)(1 + ((evalIPbonus *2) / 100.0)), 0, MidpointRounding.AwayFromZero);
             // Standard Prediction evaluation
@@ -1058,6 +1071,12 @@ namespace MetaverseMax.ServiceClass
                 prediction.total = 0;
                 prediction.total_decimal = 0;
                 prediction.total_note = "No Cit assigned";
+            }
+
+            if (buildingHistory.damage_eff == 0)
+            {
+                prediction.total = 0;
+                changeSinceLastRun.Add(string.Concat("Building operation stopped due to damage, Repair Required!"));
             }
 
             // Check if citizen uses temp pets, if prediction is lower then actual last run & Building not upgraded & IP unchanged & POI Bonus unchanged
@@ -1169,7 +1188,7 @@ namespace MetaverseMax.ServiceClass
             int evalIPbonus = targetPlot.influence_bonus ?? 0;
             int buildingType = targetPlot.building_type_id;
 
-            prediction.product_id = GetBuildingProduce(buildingType, targetPlot.building_id, targetPlot.action_id, worldType);
+            prediction.product_id = GetBuildingProduct(buildingType, targetPlot.building_id, targetPlot.action_id, worldType);
             prediction.influance = targetPlot.influence ?? 0;   // Not Used in calc - only show in Building History module, may not match actual calculated IP - plot.influence_info (2022)
             prediction.influance_bonus = evalIPbonus;
 
@@ -1351,10 +1370,13 @@ namespace MetaverseMax.ServiceClass
                     currentResource.total += building.last_run_produce == null ? 0 : (long)building.last_run_produce;
                     currentResource.buildingCount++;
 
-                    if (CheckBuildingActive((BUILDING_TYPE)buildingType, building.citizen_count, buildingLvl))
+                    // Active Building Require (a) min citizen count assigned to building  (b) building condition > min 10%
+                    if (CheckBuildingActive((BUILDING_TYPE)buildingType, building.citizen_count, buildingLvl) 
+                        && building.condition > 10)
                     {
                         currentResource.buildingActive++;
                         building.active_building = true;
+                        currentResource.buildingActiveIP += building.total_ip;
                     }
                     else
                     {
@@ -1389,6 +1411,40 @@ namespace MetaverseMax.ServiceClass
             };
 
             return active;
+        }
+
+        public bool CheckProductiveBuildingType(BUILDING_TYPE buildingType)
+        {
+            return buildingType == BUILDING_TYPE.ENERGY || buildingType == BUILDING_TYPE.INDUSTRIAL || buildingType == BUILDING_TYPE.PRODUCTION;
+        
+        }
+
+        public ProductionCollection CollectionEval(BUILDING_TYPE buildingType, int buildingLevel, double lastActionUx)
+        {
+            ProductionCollection productionCollection = new();
+            
+            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+            System.DateTime dtLastAction = dtDateTime.AddSeconds((double)lastActionUx);
+
+            System.DateTime dtNextCollect = buildingLevel switch
+            {
+                1 => dtLastAction.AddDays(7),
+                2 => dtLastAction.AddDays(6),
+                3 => dtLastAction.AddDays(5),
+                4 => dtLastAction.AddDays(4),
+                5 => dtLastAction.AddDays(3),
+                6 => dtLastAction.AddDays(2),
+                7 => dtLastAction.AddDays(1),
+                _ => dtLastAction.AddDays(7)
+            };
+
+
+            productionCollection.ready = dtNextCollect <= DateTime.UtcNow;
+            TimeSpan timediff = dtNextCollect - DateTime.UtcNow;
+            productionCollection.day = timediff.Days;
+            productionCollection.hour = ((int)timediff.TotalHours - (productionCollection.day * 24));
+
+            return productionCollection;
         }
 
         private bool CheckProduct(int buildingType, int produceId, int buildingId)
@@ -1441,6 +1497,7 @@ namespace MetaverseMax.ServiceClass
             return false;
         }
 
+        // RULE: Damage >=90 points has 0% DamageCoeff,  buildings stops producing/working at 90 or higher damage points.
         public decimal GetDamageCoeff(int damage)
         {
             decimal damageCoeff = 100;
@@ -1448,26 +1505,18 @@ namespace MetaverseMax.ServiceClass
             // https://www.dcode.fr/function-equation-finder
             // Using Parabola / Hyperbola using curve fitting
             // f(x) = −0.00773426x2 − 0.419696x + 100.215 
-            if (damage > 0)
+            if (damage > 0 && damage <90)
             {
                 damageCoeff = 0.00773426m * (decimal)(damage * damage);
                 damageCoeff += 0.419696m * damage;
                 damageCoeff = 100.215m - damageCoeff;
             }
+            else if (damage >= 90)
+            {
+                damageCoeff = 0;
+            }
 
             return damageCoeff;
-
-            /* return damage switch
-            {
-                <= 5 => (int)DAMAGE_EFF.DMG_1_TO_5 / 100m,
-                <= 20 => (int)DAMAGE_EFF.DMG_1_TO_20 / 100m,
-                <= 35 => (int)DAMAGE_EFF.DMG_1_TO_35 / 100m,
-                <= 50 => (int)DAMAGE_EFF.DMG_1_TO_50 / 100m,
-                <= 65 => (int)DAMAGE_EFF.DMG_1_TO_65 / 100m,
-                <= 80 => (int)DAMAGE_EFF.DMG_1_TO_80 / 100m,
-                <= 90 => (int)DAMAGE_EFF.DMG_1_TO_90 / 100m,
-                _ => 0
-            }; */
         }
 
         public List<string> GetPetChanges(PetUsage predictionPetUsage, PetUsage lastRunPetUsage)
@@ -1512,7 +1561,7 @@ namespace MetaverseMax.ServiceClass
             return change;
         }
 
-        private int GetBuildingProduce(int buildingTypeId, int buildingId, int actionId, WORLD_TYPE worldType)
+        public static int GetBuildingProduct(int buildingTypeId, int buildingId, int actionId, WORLD_TYPE worldType)
         {
             // ETH WORLD ENH needed to support Steel,  uses same buildingId(9) but product is steel (need to have some check on current client system active)
             // Industry building with mult type product - plot.action_id stores product currently being made / or if inactive the last product made.  On switch of product type - action_id is updated
@@ -2346,7 +2395,8 @@ namespace MetaverseMax.ServiceClass
 
         }
 
-        private int CalculateEfficiency_MinMax(int buildingType, int buildingLvl, int amount_produced, int buildingProduct)
+        // Use: Calc efficiency % between min and max range, based on passed produce product - unit amount.
+        private static int CalculateEfficiency_MinMax(int buildingType, int buildingLvl, int amount_produced, int buildingProduct)
         {
             double efficiency = 0.0;
 
@@ -2525,6 +2575,10 @@ namespace MetaverseMax.ServiceClass
                     efficiency = 0;
                     break;
             }
+
+            // RULE : efficiency can not be negative
+            efficiency = efficiency < 0 ? 0 : efficiency;
+
             return (int)Math.Round(Double.IsNaN(efficiency) ? 0 : efficiency);
         }
 
