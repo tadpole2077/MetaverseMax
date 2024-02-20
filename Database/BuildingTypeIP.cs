@@ -104,7 +104,7 @@ namespace MetaverseMax.Database
         public bool last_run_produce_predict { get; set; }
 
         [Column("predict_produce")]
-        public int? predict_produce { get; set; }
+        public int? predict_produce { get; set; }        
 
         [NotMapped]
         [Column("predict_eval")]
@@ -114,11 +114,19 @@ namespace MetaverseMax.Database
         [Column("predict_eval_result")]
         public int? predict_eval_result { get; set; }
 
-        [Column("condition")]
-        public int condition { get; set; }
+        [NotMapped]
+        [Column("active_building")]
+        public bool active_building { get; set; }
+
+        [Column("active_stamina")]
+        public bool active_stamina { get; set; }
 
         [NotMapped]
-        public bool active_building { get; set; }
+        [Column("out_of_statina_alert")]
+        public bool out_of_statina_alert { get; set; }
+
+        [Column("condition")]
+        public int condition { get; set; }
 
         [Column("citizen_count")]
         public int citizen_count { get; set; }

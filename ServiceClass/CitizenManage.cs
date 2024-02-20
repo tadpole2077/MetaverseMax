@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System.Text;
 using MetaverseMax.Database;
 using MetaverseMax.BaseClass;
+using System;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -102,6 +103,103 @@ namespace MetaverseMax.ServiceClass
             }
 
             return count > 0;
+        }
+
+        // Iterate all owners buildings - check if building active based on citizens assigned and stamina per citizen
+        public int CheckOwnerBuildingActive(string ownerMaticKey)
+        {
+            PlotDB plotDB = new(_context);
+            bool active;
+            try
+            {
+                List<BuildingToken> buildingTokenIDList = plotDB.GetBuildingTokenIDList_ByOwnerMatic(ownerMaticKey);
+
+                foreach (BuildingToken building in buildingTokenIDList)
+                {
+                    active = CheckMinStaminaBuilding(building.token_id, building.building_level, (BUILDING_TYPE)building.building_type_id);
+
+                    plotDB.UpdateActive(building.token_id, active, false);
+                }
+
+                if (buildingTokenIDList.Count > 0)
+                {
+                    _context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                DBLogger dBLogger = new(_context.worldTypeSelected);
+                dBLogger.logException(ex, String.Concat("CitizenManage.CheckOwnerBuildingActive() : Error on WS calls for owner matic : ", ownerMaticKey));
+            }
+
+            return 0;
+        }
+
+        public bool CheckMinStaminaBuilding(int buildingTokenID, int buildingLvl, BUILDING_TYPE buildingType)
+        {
+            OwnerCitizenExtDB ownerCitizenDB = new(_context);
+            List<OwnerCitizenExt> citizenList = new();
+
+            ownerCitizenDB.GetBuildingCitizenActive(buildingTokenID, ref citizenList);
+
+            int minCitizens = GetMinCitizenToProduce(buildingLvl);
+
+            return buildingType switch
+            {
+                BUILDING_TYPE.RESIDENTIAL =>
+                    citizenList.Where(
+                        row => row.stamina >= (int)MIN_STAMINA.RESIDENTIAL
+                        ).Count() >= minCitizens,
+
+                BUILDING_TYPE.OFFICE =>
+                    citizenList.Where(
+                        row => row.stamina >= (int)MIN_STAMINA.OFFICE
+                        ).Count() >= minCitizens,
+
+                BUILDING_TYPE.COMMERCIAL =>
+                    citizenList.Where(
+                        row => row.stamina >= (int)MIN_STAMINA.COMMERCIAL
+                        ).Count() >= minCitizens,
+
+                BUILDING_TYPE.MUNICIPAL =>
+                    citizenList.Where(
+                        row => row.stamina >= (int)MIN_STAMINA.MUNICIPAL
+                        ).Count() >= minCitizens,
+
+                BUILDING_TYPE.INDUSTRIAL =>
+                    citizenList.Where(
+                        row => row.stamina >= (int)MIN_STAMINA.INDUSTRIAL
+                        ).Count() >= minCitizens,
+
+                BUILDING_TYPE.PRODUCTION =>
+                     citizenList.Where(
+                        row => row.stamina >= (int)MIN_STAMINA.PRODUCTION
+                        ).Count() >= minCitizens,
+
+                BUILDING_TYPE.ENERGY =>
+                    citizenList.Where(
+                        row => row.stamina >= (int)MIN_STAMINA.ENERGY
+                        ).Count() >= minCitizens,
+
+                _ => citizenList.Where(
+                        row => row.stamina >= (int)MIN_STAMINA.INDUSTRIAL
+                        ).Count() >= minCitizens,
+            };
+        }
+
+        public static int GetMinCitizenToProduce(int buildingLvl)
+        {
+            return buildingLvl switch
+            {
+                1 => 1,
+                2 => 2,
+                3 => 4,
+                4 => 6,
+                5 => 8,
+                6 => 11,
+                7 => 14,
+                _ => 20
+            };
         }
 
         public string GetCitizenUrl(JArray citizens)

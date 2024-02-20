@@ -91,8 +91,8 @@ export class BuildingIPComponent {
   public viewBuildings: BuildingDetail[] = null;
   public officeGlobalIp: OfficeGlobalIp = null;
   public officeBCIndex: number = -1;
-  public officeBC_MaxEarningsPer1kIP: number;
-  public officeBC_AvgEarningsPer1kIP: number;
+  public officeBC_MaxEarningsPer1kIP: number = 0;
+  public officeBC_AvgEarningsPer1kIP: number = 0;
 
 
   public hidePaginator: boolean;
@@ -135,12 +135,21 @@ export class BuildingIPComponent {
   displayedColumnsPredict: string[] = ['pos', 'rank', 'ip_t', 'ip_b', 'bon', 'name', 'con', 'pre', 'dis', 'pos_x', 'id']
   displayedColumnsOffice: string[] = ['pos', 'ip_t', 'ip_b', 'bon', 'name', 'con', 'dis', 'pos_x', 'id'];
   isLoadingResults: boolean;
-  resultsLength: any;  
+  resultsLength: any;
+  isMobileView: boolean = false;
 
   constructor(public globals: Globals, private router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string, public alert: Alert) {
 
     this.httpClient = http;
     this.baseUrl = baseUrl + "api/" + globals.worldCode;
+
+    // Mobile View - remove secondary columns
+    if (this.width < 415) {
+      this.isMobileView = true;
+    }
+    else {
+      this.isMobileView = false;
+    }
   
   }
 
@@ -164,13 +173,6 @@ export class BuildingIPComponent {
     this.buildingFilterShow = false;
     this.buildingType = type;
     this.buildingCollection = null;
-
-    // Mobile View - remove secondary columns
-    if (this.width < 415) {
-      
-    }
-    else {
-    }
 
     this.progressIcon.nativeElement.classList.add("rotate");
 
@@ -201,8 +203,10 @@ export class BuildingIPComponent {
           if (type == BUILDING.OFFICE) {
             this.displayedColumns = this.assignColumns(this.displayedColumnsOffice);
             this.officeBCIndex = this.findBCIndex(this.buildingCollection.active_buildings);
-            this.officeBC_MaxEarningsPer1kIP = this.officeGlobalIp.maxDailyDistribution / (this.buildingCollection.active_buildings[this.officeBCIndex].active_total_ip / 1000);
-            this.officeBC_AvgEarningsPer1kIP = this.officeGlobalIp.lastDistribution / (this.buildingCollection.active_buildings[this.officeBCIndex].active_total_ip / 1000);
+            if (this.officeGlobalIp) {
+              this.officeBC_MaxEarningsPer1kIP = this.officeGlobalIp.maxDailyDistribution / (this.buildingCollection.active_buildings[this.officeBCIndex].active_total_ip / 1000);
+              this.officeBC_AvgEarningsPer1kIP = this.officeGlobalIp.lastDistribution / (this.buildingCollection.active_buildings[this.officeBCIndex].active_total_ip / 1000);
+            }
           }
           else {
             this.displayedColumns = this.assignColumns(this.displayedColumnsStandard);

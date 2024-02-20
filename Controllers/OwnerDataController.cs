@@ -132,6 +132,7 @@ namespace MetaverseMax.Controllers
                 {
                     Task.Run(() => citizenManage.GetOwnerCitizenCollectionMCP(parameters.owner_matic_key)).Wait();
                     ownerCitizenDB.UpdateCitizenCount();
+                    citizenManage.CheckOwnerBuildingActive(parameters.owner_matic_key);
                     _context.SaveWithRetry();           // GetCitizenMCP call may not save datetime refresh changes due to optimisation of Datasync features.
                 }
 

@@ -147,6 +147,18 @@ namespace MetaverseMax.Controllers
             return BadRequest("Sync Failed");       // 400 Error     
         }
 
+        [HttpGet("SyncAllEnergyBuildings")]
+        public IActionResult SyncAllEnergyBuildings([FromQuery] QueryParametersPlotSync parameters)
+        {
+            SyncWorld syncWorld = new(_context, common.IdentifyWorld(Request.Path));
+
+            if (ModelState.IsValid)
+            {
+                return Ok(syncWorld.SyncAllEnergyBuildings(parameters.secure_token, parameters.interval));
+            }
+
+            return BadRequest("Sync Failed");       // 400 Error     
+        }
 
         [HttpGet("UpdatePlotSyncSingleWorld")]
         public IActionResult UpdatePlotSyncSingleWorld([FromQuery] QueryParametersPlotSync parameters)

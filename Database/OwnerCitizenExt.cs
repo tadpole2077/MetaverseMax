@@ -47,6 +47,10 @@ namespace MetaverseMax.Database
         [Column("token_id")]
         public int token_id { get; set; }
 
+
+        [Column("stamina")]
+        public int? stamina { get; set; }
+
         [Column("name")]
         public string name { get; set; }
 

@@ -229,8 +229,6 @@ namespace MetaverseMax.ServiceClass
                             alert.AddRankingAlert(x.matic_key, buildingList[i].owner_matic, buildingList[i].token_id, ipEfficiencyStored, buildingList[i].current_influence_rank, buildingLevel, building.BuildingType(buildingType, buildingList[i].building_id), buildingList[i].district_id, (ALERT_TYPE)x.key_type);
                         });
                     }
-
-
                 }
 
                 resourceTotal = resourceTotal.OrderBy(x => x.name).ToList();
@@ -345,6 +343,8 @@ namespace MetaverseMax.ServiceClass
                     name_m = building.owner_matic,
                     con = building.condition,
                     act = building.active_building ? 1 : 0,
+                    acts = building.active_stamina ? 1 : 0,
+                    oos = building.out_of_statina_alert ? 1 : 0,
                     pre = building.predict_eval_result ?? 0,
                     warn = building.ip_warning ?? "",
                     img = building.building_img,
@@ -1371,16 +1371,15 @@ namespace MetaverseMax.ServiceClass
                     currentResource.buildingCount++;
 
                     // Active Building Require (a) min citizen count assigned to building  (b) building condition > min 10%
-                    if (CheckBuildingActive((BUILDING_TYPE)buildingType, building.citizen_count, buildingLvl) 
-                        && building.condition > 10)
+                    if (building.active_stamina && building.condition > 10)
                     {
-                        currentResource.buildingActive++;
                         building.active_building = true;
+                        currentResource.buildingActive++;
                         currentResource.buildingActiveIP += building.total_ip;
                     }
                     else
                     {
-                        building.active_building = false;
+                        building.active_building = false;                        
                     }
                 }
                 else
@@ -1388,15 +1387,21 @@ namespace MetaverseMax.ServiceClass
                     currentResource.buildingCount++;
                     building.active_building = false;
                 }
+
+                if (building.condition > 10 && building.citizen_count > 0 && building.active_stamina == false)
+                {
+                    building.out_of_statina_alert = true;
+                }
             }
 
             return RETURN_CODE.SUCCESS;
         }
 
         // Check building has min set of citizens assigned
-        public bool CheckBuildingActive(BUILDING_TYPE buildingType, int citizenCount, int buildingLvl)
+        public bool CheckBuildingActive(BUILDING_TYPE buildingType, int citizenCount, int buildingLvl, int buildingTokenID)
         {
             bool active = false;
+            CitizenManage citizenManage = new(_context, worldType);
 
             active = buildingLvl switch
             {
@@ -1409,6 +1414,12 @@ namespace MetaverseMax.ServiceClass
                 7 => citizenCount >= 14,
                 _ => false
             };
+
+            // Check building citizens have min stamina + min set of active citizens
+            if (active)
+            {
+                active = citizenManage.CheckMinStaminaBuilding(buildingTokenID, buildingLvl, buildingType);
+            }
 
             return active;
         }
@@ -1443,6 +1454,12 @@ namespace MetaverseMax.ServiceClass
             TimeSpan timediff = dtNextCollect - DateTime.UtcNow;
             productionCollection.day = timediff.Days;
             productionCollection.hour = ((int)timediff.TotalHours - (productionCollection.day * 24));
+
+            productionCollection.minutes = (int)timediff.TotalMinutes;
+            if (timediff.TotalSeconds > 0 && timediff.TotalSeconds < 60)
+            {
+                productionCollection.minutes = 1;
+            }
 
             return productionCollection;
         }

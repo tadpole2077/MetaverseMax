@@ -171,7 +171,7 @@ namespace MetaverseMax.ServiceClass
             string dbWalletKey = string.Empty;
             ref Dictionary<string, OwnerAccount> ownersList = ref GetOwnersListByWorldType();
 
-            if (ownersList.TryGetValue(maticKey, out ownerAccount))
+            if (ownersList.TryGetValue(maticKey.ToLower(), out ownerAccount))
             {
                 // Matic found, but no public wallet key
                 if (ownerAccount.public_key == string.Empty)
@@ -194,6 +194,7 @@ namespace MetaverseMax.ServiceClass
         }
 
         // Finding match on maticKey as this is the key used by MCP for ownership of assets in-world and within local db's
+        // Finding a match using lower case  - note C# wont match with mix case != lower case. IMPORTANT
         public string FindOwnerNameByMatic(string maticKey)
         {
             OwnerAccount ownerAccount = null;
@@ -220,6 +221,7 @@ namespace MetaverseMax.ServiceClass
             return accountName;
         }
 
+        // Finding a match using lower case  - note C# wont match with mix case != lower case. IMPORTANT
         public OwnerAccount GetOwnerAccountByMatic(string maticKey)
         {
             OwnerAccount ownerAccount = null;
@@ -282,6 +284,9 @@ namespace MetaverseMax.ServiceClass
 
             return slowDownSeconds;
         }
+
+        // Security - System stablility - Performance feature
+        // 1 minute slowdown on refresh of key client triggered events - that calls MCP services.
         public bool SetSlowDown(string maticKey)
         {
             bool slowDownSet = false;
@@ -298,7 +303,7 @@ namespace MetaverseMax.ServiceClass
                 if (ownerAccount.pro_tools_enabled &&
                     (ownerAccount.slowdown_end == null || ownerAccount.slowdown_end <= DateTime.UtcNow))
                 {
-                    ownerAccount.slowdown_end = DateTime.UtcNow.AddMinutes(2);
+                    ownerAccount.slowdown_end = DateTime.UtcNow.AddMinutes(1);
                     slowDownSet = true;
                 }
             }
@@ -443,7 +448,7 @@ namespace MetaverseMax.ServiceClass
                             }
                             else if (offers[index].Value<bool>("is_active") == false && (offers[index].Value<int?>("is_cancelled") ?? 0) == 0)
                             {
-                                ownerOffer = new OwnerOffer();
+                                ownerOffer = new();
                                 ownerOffer.token_owner_matic_key = maticKey;
                                 ownerOffer.active = false;
 
@@ -583,16 +588,20 @@ namespace MetaverseMax.ServiceClass
                             var plot = localPlots.Where(x => x.token_id == (landInstance.Value<int?>("token_id") ?? 0)).FirstOrDefault();
 
                             var citizenCount = citizen.GetCitizenCount(landInstance.Value<JArray>("citizens"));
+                            var buildingTokenId = landInstance.Value<int?>("token_id") ?? 0;
                             var buildingTypeId = (BUILDING_TYPE)(landInstance.Value<int?>("building_type_id") ?? 0);
                             var buildingLevel = landInstance.Value<int?>("building_level") ?? 0;
                             var lastActionUx = landInstance.Value<double?>("last_action") ?? 0;
                             var buildingId = landInstance.Value<int?>("building_id") ?? 0;
                             var actionId = plot != null ? plot.action_id : 0;
+                            var resourceLevel = plot != null && plot.building_type_id == (int)BUILDING_TYPE.ENERGY ? plot.building_abundance ?? 0 : landInstance.Value<int?>("abundance") ?? 0;
                             ProductionCollection productionCollection = null;
 
                             // Find next collection details on active building : No additional WS calls required
-                            if (buildingManage.CheckBuildingActive(buildingTypeId, citizenCount, buildingLevel) &&
-                                buildingManage.CheckProductiveBuildingType(buildingTypeId))
+                            // SPECIAL CASE: Building Transfer may still show as active due to prior assigned cits, Not refreshing Citizens of 2nd account to pull from building on current account refresh. At least this will prevent building showing, but issue will percist within Prediction tool
+                            if (plot != null && plot.active && 
+                                buildingManage.CheckProductiveBuildingType(buildingTypeId) && 
+                                citizenCount >= CitizenManage.GetMinCitizenToProduce(buildingLevel))
                             {
                                 productionCollection = buildingManage.CollectionEval(buildingTypeId, buildingLevel, lastActionUx);
                             }
@@ -615,9 +624,10 @@ namespace MetaverseMax.ServiceClass
                                 c_r = productionCollection == null ? false : productionCollection.ready,
                                 c_d = productionCollection == null ? 0 : productionCollection.day,
                                 c_h = productionCollection == null ? 0 : productionCollection.hour,
+                                c_m = productionCollection == null ? 0 : productionCollection.minutes < 60 ? productionCollection.minutes : 0,
                                 token_id = landInstance.Value<int?>("token_id") ?? 0,
                                 building_level = buildingLevel,
-                                resource = landInstance.Value<int?>("abundance") ?? 0,
+                                resource = resourceLevel,
                                 citizen_count = citizenCount,
                                 citizen_url = citizen.GetCitizenUrl(landInstance.Value<JArray>("citizens")),
                                 citizen_stamina = citizen.GetLowStamina(landInstance.Value<JArray>("citizens")),
@@ -1239,7 +1249,8 @@ namespace MetaverseMax.ServiceClass
             {
                 OwnerAccount ownerAccount = FindOwnerByMatic(o.owner_matic, string.Empty);
                 o.owner_avatar_id = ownerAccount.avatar_id;
-                o.owner_name = ownerAccount.name;
+                o.owner_name = ownerAccount.name == string.Empty ?
+                    ownerAccount.discord_name ?? string.Empty : ownerAccount.name;
             });
 
             return ownerSummaryDistrictList;

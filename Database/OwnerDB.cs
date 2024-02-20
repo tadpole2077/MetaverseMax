@@ -69,10 +69,10 @@ namespace MetaverseMax.Database
 
 
                 ownerList = ownerDBList.ToDictionary(
-                    o => o.owner_matic_key,
+                    o => o.owner_matic_key.ToLower(),
                     o => new OwnerAccount()
                     {
-                        matic_key = o.owner_matic_key,
+                        matic_key = o.owner_matic_key.ToLower(),
                         public_key = o.public_key,
                         name = o.owner_name,
                         discord_name = o.discord_name,

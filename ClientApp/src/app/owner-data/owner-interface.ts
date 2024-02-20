@@ -31,6 +31,7 @@ interface IOwnerLandData
   c_r: boolean;     // Ready to collect bool
   c_d: number;      // Days to collect int
   c_h: number;      // Hours to collect int
+  c_m: number;      // minutes to collect
   product_id: number;
 }
 

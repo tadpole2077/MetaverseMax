@@ -22,6 +22,7 @@
             return citizen;
         }
 
+
         // ADD new Citizen record if none found, or UPDATE if key attributes changed (traits, name, onsale, price) - due to assignment or removal of PET
         public CitizenChange AddorUpdate(Citizen citizen, Citizen storedCitizen, bool saveFlag, bool skipPriceCheck)
         {

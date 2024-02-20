@@ -670,12 +670,12 @@ td.mat-column-rank .rowWarning {
 }
 
 
-.activeProduce {
+.staminaOutImg, .activeProduce {
   position: absolute;
   color: #28a745;
   font-size: 1.8rem;
   right: -34px;
-  margin-top: 16px;
+  margin-top: 12px;
   border: gray 1px solid;
   padding: 5px;
   box-shadow: 0 5px 10px rgb(0 0 0 / 12%);
@@ -683,6 +683,15 @@ td.mat-column-rank .rowWarning {
   border-left: none;
   padding-left: 4px
 }
+.staminaOutImg {
+  padding: 0;
+  margin-top: 10px;
+}
+.staminaOutImg img{
+  height: 33px;
+  margin-top: -6px;
+}
+
 .activeFilter{
   display: inline-block;
   margin-left: 1rem;
@@ -905,7 +914,7 @@ td.mat-column-rank .rowWarning {
     font-size: .7rem;
     width: 50px;
     margin-left: -28px;
-    margin-top: -20px;
+    margin-top: 40px;
     white-space: nowrap;
   }
 
@@ -920,7 +929,7 @@ td.mat-column-rank .rowWarning {
     margin-left: -30px;
   }
 
-  .activeProduce {
+  .staminaOutImg, .activeProduce {
     left: 4px;    
     font-size: 26px;
     width: 0.8rem;
@@ -929,6 +938,10 @@ td.mat-column-rank .rowWarning {
     margin-top: -30px;
     border: 0;
     box-shadow: none;
+  }
+  .staminaOutImg{
+    margin-top:-34px;
+    left: 0
   }
 
   .rowWarning {
@@ -996,11 +1009,15 @@ td.mat-column-rank .rowWarning {
  
   td.mat-column-ip_t {
     min-width: 5rem;
-    text-align: left;
+    text-align: left;    
   }
     td.mat-column-ip_t span {
       display: inline-block;
       line-height: 1.4rem;
+    }
+    td.mat-column-ip_t span:first-child {
+      margin-right: 4px;
+      text-wrap: nowrap;
     }
 
   .magnifyHistoryPosition {

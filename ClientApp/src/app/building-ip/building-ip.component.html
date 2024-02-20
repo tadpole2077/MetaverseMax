@@ -31,7 +31,7 @@
 
 <mat-accordion multi *ngIf="buildingCollection && buildingCollection.buildings">
 
-  <mat-expansion-panel expanded="true" class="BuildingInfoSummary" [ngClass]="{'fullWidth': buildingType != 6 }">
+  <mat-expansion-panel expanded="{{ isMobileView ? false:true}}" class="BuildingInfoSummary" [ngClass]="{'fullWidth': buildingType != 6 }">
     <mat-expansion-panel-header>
       <mat-panel-title>
         <mat-icon>info</mat-icon>
@@ -63,7 +63,7 @@
     </div>
   </mat-expansion-panel>
 
-  <mat-expansion-panel expanded="true" *ngIf="buildingCollection && buildingType == 6 && officeBCIndex != -1" class="officeGlobalSummary">
+  <mat-expansion-panel expanded="{{ isMobileView ? false:true}}" *ngIf="buildingCollection && officeGlobalIp && buildingType == 6 && officeBCIndex != -1" class="officeGlobalSummary">
     <mat-expansion-panel-header>
       <mat-panel-title>
         <mat-icon>info</mat-icon>
@@ -108,7 +108,7 @@
     </div>
   </mat-expansion-panel>
 
-  <mat-expansion-panel expanded="true" *ngIf="buildingCollection && buildingType == 6" class="officeGlobalSummary">
+  <mat-expansion-panel expanded="{{ isMobileView ? false:true}}" *ngIf="buildingCollection && buildingType == 6 && officeGlobalIp" class="officeGlobalSummary">
     <mat-expansion-panel-header>
       <mat-panel-title>
         <mat-icon>info</mat-icon>
@@ -118,7 +118,7 @@
       </mat-panel-description>
     </mat-expansion-panel-header>
 
-    <div class="summaryInfo" *ngIf="buildingCollection && buildingCollection.buildings">
+    <div class="summaryInfo" *ngIf="buildingCollection && buildingCollection.buildings && officeGlobalIp">
       <div>
         <span>Gobal Fund:</span>
         <span>{{ officeGlobalIp.globalFund.toLocaleString() }} Mega</span>
@@ -142,8 +142,7 @@
     </div>
   </mat-expansion-panel>
 
-
-  <mat-expansion-panel id="activeBuildingPanel" expanded="false" *ngIf="buildingCollection && buildingCollection.active_buildings && (buildingType == 3 || buildingType == 5 || buildingType == 7) ">
+  <mat-expansion-panel id="activeBuildingPanel" expanded="{{ isMobileView ? false:true}}" *ngIf="buildingCollection && buildingCollection.active_buildings && (buildingType == 3 || buildingType == 5 || buildingType == 7) ">
     <mat-expansion-panel-header>
       <mat-panel-title>
         <mat-icon>build</mat-icon>
@@ -169,7 +168,7 @@
     </div>
   </mat-expansion-panel>
 
-  <mat-expansion-panel id="totalProducePanel" *ngIf="buildingCollection && (buildingType == 3 || buildingType == 5 || buildingType == 7) " expanded="false">
+  <mat-expansion-panel id="totalProducePanel" expanded="{{ isMobileView ? false:true}}" *ngIf="buildingCollection && (buildingType == 3 || buildingType == 5 || buildingType == 7) ">
     <mat-expansion-panel-header>
       <mat-panel-title>
         <mat-icon>account_balance</mat-icon>
@@ -204,7 +203,7 @@
     </div>
   </mat-expansion-panel>
 
-  <mat-expansion-panel expanded="false" id="producePredictionPanel" *ngIf="buildingCollection && buildingCollection.show_prediction && buildingCollection.buildings && (buildingType == 3 || buildingType == 5 || buildingType == 7) ">
+  <mat-expansion-panel expanded="{{ isMobileView ? false:true}}" id="producePredictionPanel" *ngIf="buildingCollection && buildingCollection.show_prediction && buildingCollection.buildings && (buildingType == 3 || buildingType == 5 || buildingType == 7) ">
     <mat-expansion-panel-header>
       <mat-panel-title>
         <mat-icon>history</mat-icon>
@@ -364,12 +363,12 @@
       </th>
       <td mat-cell *matCellDef="let row">
         <span>
-          <span class="mobileVisible"><span>Total: </span></span>
+          <span class="mobileVisible"><span>Total:</span></span>
           <span class="ipTotal">{{ row.ip_t }}</span>
           <span *ngIf="row.ip_i<0" class="warnData"> ({{ row.ip_i }})</span>
         </span>
-        <span class="mobileVisible"><span>Base:</span> {{ row.ip_b }}</span>
-        <span class="mobileVisible"><span>Bonus:</span> {{ row.bon }}%</span>
+        <span class="mobileVisible"><span>Base:</span>{{ row.ip_b }}</span>
+        <span class="mobileVisible"><span>Bonus:</span>{{ row.bon }}%</span>
         <a class="magnifyHistoryPosition officeMagify" *ngIf="buildingType==6" role="button" (click)="showHistory(row.id, row.pos_x, row.pos_y, buildingType, row.rank)">
           <img src="./assets/magnify_history_dark.png" class="magnifyHistoryIcon" height="30" />
         </a>
@@ -460,6 +459,9 @@
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Type & ID </th>
       <td mat-cell *matCellDef="let row">
         <i *ngIf="row.act == 1" class="fas fa-running activeProduce"></i>
+        <div *ngIf="row.oos == 1" class="staminaOutImg">
+          <img height="30" title="Out of Stamina" src="./assets/stopped_work.png">
+        </div>
         <span *ngIf="row.poi>0" class="poiBonus">{{row.poi}}%</span>
         <div class="buildingContain">
           <span class="buildingNum">{{row.id }}</span>

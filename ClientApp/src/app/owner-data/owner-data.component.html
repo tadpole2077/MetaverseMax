@@ -241,7 +241,7 @@
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Token ID </th>
       <td mat-cell *matCellDef="let land"> {{ land.token_id }}</td>
       </ng-container>-->
-      <ng-container matColumnDef="citizen_stamina_alert">
+      <ng-container matColumnDef="alert">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Alerts</th>
         <td mat-cell *matCellDef="let land">
           
@@ -249,13 +249,14 @@
             <img src="./assets/{{ mapdata.getImageName(land.product_id) }}" height="32" title="{{ mapdata.getProductName(land.product_id) }}" />
             <span class="ready">Ready</span>
           </div>
-          <div class="collect" *ngIf="land.c_d > 0 || land.c_h >0">
+          <div class="collect" *ngIf="land.c_d > 0 || land.c_h >0 || land.c_m > 0">
             <img class="product" src="./assets/{{ mapdata.getImageName(land.product_id) }}" height="32" title="{{ mapdata.getProductName(land.product_id) }}" />
-            <span>{{ land.c_d }}d {{ land.c_h }}h</span>
+            <span *ngIf="land.c_d > 0 || land.c_h >0">{{ land.c_d }}d {{ land.c_h }}h</span>
+            <span *ngIf="land.c_m > 0" >{{ land.c_m }} min.</span>
           </div>
           <i style="display:none" *ngIf="land.active == 1" class="fas fa-running activeProduce"></i>
 
-          <div *ngIf="land.citizen_stamina_alert" class="alertContainer">
+          <div *ngIf="land.citizen_stamina_alert" [ngClass]="{'collection': land.c_r || land.c_d > 0 || land.c_h >0 || land.c_m > 0}"  class="alertContainer">
             <span class="staminaLow" [ngClass]="{'staminaStop': stoppedWork(land.citizen_stamina, land.building_type)}">S: {{ land.citizen_stamina }}</span>
             <img src="{{ getStaminaImg(land.citizen_stamina, land.building_type) }}" height="60" class="staminaOutImg" title="Out of Stamina">
           </div>

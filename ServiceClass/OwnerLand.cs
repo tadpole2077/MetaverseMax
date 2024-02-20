@@ -17,7 +17,8 @@ namespace MetaverseMax.ServiceClass
 
         public int c_d { get; set; }            // collect days
         public int c_h { get; set; }            // collect hours
-        public bool c_r { get; set; }           // collect ready
+        public int c_m { get; set; }            // collect minutes
+        public bool c_r { get; set; }           // collect ready        
 
         public int plot_ip { get; set; }
         public int ip_info { get; set; }
@@ -43,5 +44,6 @@ namespace MetaverseMax.ServiceClass
         public bool ready { get; set; }
         public int day { get; set; }
         public int hour { get; set; }
+        public int minutes { get; set; }
     }
 }

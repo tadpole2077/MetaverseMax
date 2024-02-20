@@ -78,6 +78,21 @@ namespace MetaverseMax.Database
             return citizens.Count;
         }
 
+        public int GetBuildingCitizenActive(int landTokenId, ref List<OwnerCitizenExt> citizens)
+        {
+            try
+            {
+                // Using string interpolation syntax to pull in parameters
+                citizens = _context.OwnerCitizenExt.FromSqlInterpolated($"sp_building_citizen_active_get {landTokenId}").AsNoTracking().ToList();
+            }
+            catch (Exception ex)
+            {
+                logException(ex, String.Concat("OwnerCitizenExtDB.GetBuildingCitizenActive() : Error with query to get all building citizens with land token_id : ", landTokenId));
+            }
+
+            return citizens.Count;
+        }
+
         private int CheckMaxTrait(int? petBonusLevel, int traitStrength)
         {
             return (petBonusLevel ?? 0) + traitStrength > 10 ? 10 - traitStrength : petBonusLevel ?? 0;

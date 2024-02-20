@@ -2,7 +2,7 @@
 using MetaverseMax.BaseClass;
 
 namespace MetaverseMax.ServiceClass
-{
+{    
     public class Building
     {
         //

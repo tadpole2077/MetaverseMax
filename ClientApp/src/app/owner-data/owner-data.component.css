@@ -492,6 +492,13 @@ a.lineAnim.buildingMaglink::before {
   font-weight: bold;
   text-shadow: -1px -1px 1px #fff, 1px 1px 1px #fff;
 }
+.collection .staminaLow{
+  margin-top: 20px;
+  margin-left: 32px;
+}
+.collection .staminaOutImg{
+  height: 38px
+}
 .staminaStop {
   margin-top: 3px;
   margin-left: 10px;
@@ -593,6 +600,10 @@ td.mat-column-building_level{
   height: 60px;
   margin-bottom: 10px;
   margin-top: 6px;
+}
+.collection.alertContainer{
+  height: 40px;
+  margin-top: 10px;
 }
 .collect{
   margin-top:8px;
@@ -895,11 +906,23 @@ td.mat-column-building_level{
     margin-bottom: 0px;
     height: unset;
   }
+  .collection.alertContainer{
+    margin-top: 5px;
+    margin-bottom: 3px;
+  }
   .staminaOutImg{
     height: 44px;
   }
+  .collection .staminaOutImg{
+    height: 34px
+  }
   .staminaLow{
     margin-top: 28px;
+  }
+  .collection .staminaLow{
+    margin-top: 22px;
+    font-size: 8px;
+    height: 34px;
   }
   .staminaStop{
     margin-top: 0;

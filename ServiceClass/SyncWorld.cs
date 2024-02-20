@@ -37,6 +37,22 @@ namespace MetaverseMax.ServiceClass
             return string.Concat("Custom Building Sync Started at : ", DateTime.Now.ToShortTimeString());
         }
 
+        // Sync of all Energy buildings of Huge and Mega -  Special method used to fix incorrect abundance assigned to Huge and Mega due to incorrect overwriting of resouce level matching first plot in building.
+        public string SyncAllEnergyBuildings(string secureToken, int interval)
+        {
+            // As this service could be abused as a DDOS a security token is needed.
+            if (!secureToken.Equals("JUST_SIMPLE_CHECK123"))
+            {
+                return "";
+            }
+
+            jobInterval = interval;
+
+            Task.Run(() => SyncAllEnergyBuildings_PerWorld(worldType, jobInterval));      // start the sync dont wait for result.
+
+            return string.Concat("Sync of Energy Building Started at : ", DateTime.Now.ToShortTimeString());
+        }        
+
         public async Task<RETURN_CODE> SyncCustomAndMissionRun(WORLD_TYPE worldType, int jobInterval)
         {
             RETURN_CODE response = RETURN_CODE.ERROR;
@@ -558,6 +574,9 @@ namespace MetaverseMax.ServiceClass
                     citizenManage.GetPetMCP(maticKey).Wait();
                     citizenManage.GetOwnerCitizenCollectionMCP(maticKey).Wait();
 
+                    // Update building active flag - checking min building citizens and Citizen min stamina assigned.
+                    citizenManage.CheckOwnerBuildingActive(maticKey);
+
                     ownerCount++;
                     saveCounter++;
 
@@ -646,7 +665,6 @@ namespace MetaverseMax.ServiceClass
 
                 for (int index = 0; index < parcelKeyList.Count(); index++)
                 {
-
                     JArray jsonContentBuildingUnit = await plotManage.GetBuildingUnitMCP(parcelKeyList[index].parcel_id);
 
                     // NOTE : Parcal plots have owner_avatar_id=0 and owner_nickname = ''  [Rule Handled in OwnerManage sproc's and code]
@@ -713,6 +731,46 @@ namespace MetaverseMax.ServiceClass
                 DBLogger dbLogger = new(_customContext, worldType);
                 dbLogger.logException(ex, String.Concat("SyncWorld::SyncMission_PerWorld() : Error Processing Sync"));
             }                        
+
+            return RETURN_CODE.SUCCESS;
+        }
+
+        // USE: Issue where abundance (resource level) per plot was incorrectly getting assigned matching first plot found for the building.
+        //      This required re-sync of those plots, specifically within MEGA and Huge buildings, on all worlds.
+        public async Task<RETURN_CODE> SyncAllEnergyBuildings_PerWorld(WORLD_TYPE worldType, int jobInterval)
+        {
+            MetaverseMaxDbContext _customContext = null;
+            LAND_TYPE landType = worldType switch { WORLD_TYPE.TRON => LAND_TYPE.TRON_BUILDABLE_LAND, WORLD_TYPE.BNB => LAND_TYPE.BNB_BUILDABLE_LAND, WORLD_TYPE.ETH => LAND_TYPE.TRON_BUILDABLE_LAND, _ => LAND_TYPE.TRON_BUILDABLE_LAND };
+
+            syncInProgress = true;
+
+            try
+            {
+                _customContext = new MetaverseMaxDbContext(worldType);
+                PlotManage plotManage = new(_customContext, worldType);
+
+                // Retrive 2 key fields - having district data on combined fields.
+                List<Plot> energyPlot = _customContext.plot.Where(x => x.building_level > 5 && x.building_type_id == (int)BUILDING_TYPE.ENERGY).ToList();
+
+                for (int index = 0; index < energyPlot.Count(); index++)
+                {
+                    plotManage.AddOrUpdatePlot(energyPlot[index].plot_id, energyPlot[index].pos_x, energyPlot[index].pos_y, false, false);                    
+                    await Task.Delay(jobInterval);
+                }
+
+
+                if (_customContext != null && _customContext.IsDisposed() == false)
+                {
+                    _customContext.SaveWithRetry();
+                    _customContext.Dispose();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                DBLogger dbLogger = new(_customContext, worldType);
+                dbLogger.logException(ex, String.Concat("SyncWorld::SyncCustomBuildingRun_PerWorld() : Error Processing Sync"));
+            }
 
             return RETURN_CODE.SUCCESS;
         }

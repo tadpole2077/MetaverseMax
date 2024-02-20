@@ -11,6 +11,9 @@ namespace MetaverseMax.Database
         [Column("plot_id")]
         public int plot_id { get; set; }
 
+        [Column("active")]
+        public bool active { get; set; }
+
         [Column("update_type")]
         public int? update_type { get; set; }
 

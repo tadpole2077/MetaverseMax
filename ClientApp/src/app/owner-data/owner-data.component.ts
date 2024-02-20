@@ -66,8 +66,8 @@ export class OwnerDataComponent implements AfterViewInit {
   @ViewChild('offerDetailsBtn', { static: false }) offerDetailsBtn: MatButton;
 
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
-  displayedColumns: string[] = ['district_id', 'pos_x', 'pos_y', 'building_type', 'building_level', 'last_action', 'current_influence_rank', 'condition', 'plot_ip', 'citizen_count',/* 'token_id', */'citizen_stamina_alert'];
-  displayedColumnsMobile: string[] = ['district_id', 'pos_x', 'building_type', 'building_level', 'last_action', 'current_influence_rank', 'condition', 'plot_ip', 'citizen_count',/* 'token_id', */'citizen_stamina_alert'];
+  displayedColumns: string[] = ['district_id', 'pos_x', 'pos_y', 'building_type', 'building_level', 'last_action', 'current_influence_rank', 'condition', 'plot_ip', 'citizen_count',/* 'token_id', */'alert'];
+  displayedColumnsMobile: string[] = ['district_id', 'pos_x', 'building_type', 'building_level', 'last_action', 'current_influence_rank', 'condition', 'plot_ip', 'citizen_count',/* 'token_id', */'alert'];
  
   constructor(private cdf: ChangeDetectorRef, public globals: Globals, public mapdata: MapData, private location: Location, public router: Router, private route: ActivatedRoute, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef)
   {
@@ -274,12 +274,15 @@ export class OwnerDataComponent implements AfterViewInit {
     return;
   }
 
+  // Search by Plot X and Y
   // Single parameter struct containing 2 members, pushed by component search-plot
   searchPlot(plotPos: IPlotPosition, loadBuildingHistory:boolean = false) {
 
     let params = new HttpParams();
     params = params.append('plotX', plotPos.plotX);
     params = params.append('plotY', plotPos.plotY);
+
+    this.myPortfolioRequest = false;
 
     // Check if no X Y , then skip and blink instructions.
     if (plotPos.plotX == '' || plotPos.plotY == '') {
@@ -353,12 +356,14 @@ export class OwnerDataComponent implements AfterViewInit {
 
       this.dataSource = new MatTableDataSource<IOwnerLandData>(this.owner.owner_land);
 
+      this.sort.active = "alert";
+      this.sort.direction = "desc";
       this.dataSource.sort = this.sort;
-
-      // Add custom date column sort
+      // Add custom sort callback
       this.applySortDataAsccessor(this.dataSource);
-      
-      this.sort.sort(({ id: 'last_action', start: 'desc' }) as MatSortable);        // Default sort order on date
+      this.sort.sortChange.emit(this.sort);   // trigger default sort
+
+      //this.sort.sort(({ id: 'last_action', start: 'desc' }) as MatSortable);        // Default sort order on date
 
       // Reset the URL to reflect current account matic
       if (this.myPortfolioRequest == false) {
@@ -398,7 +403,7 @@ export class OwnerDataComponent implements AfterViewInit {
         case 'building_type': return item.building_type * 10 + item.resource;
         case 'current_influence_rank': return item.building_type == 0 && this.sort.direction == "asc" ? 1000 : item.current_influence_rank;   // Only sort plots with buildings
         case 'condition': return item.building_type == 0 && this.sort.direction == "asc" ? 1000 : item.condition;   // Only sort plots with buildings
-        case 'citizen_stamina_alert': return item.c_r == true ||  item.c_d >0 || item.c_h >0 ? 1 - (item.c_d/7)  - (item.c_h/24/7)  : item.citizen_stamina_alert;
+        case 'alert': return item.c_r == true ||  item.c_d >0 || item.c_h >0 ? 1 - (item.c_d/7)  - (item.c_h/24/7) - (item.c_m/3600) : item.citizen_stamina_alert == true ? .001 : 0;
         default: return item[property];
       }
     };
@@ -442,9 +447,9 @@ export class OwnerDataComponent implements AfterViewInit {
   sortTableStaminaOld() {
 
     this.sort.direction = 'desc';
-    this.sort.active = 'citizen_stamina_alert';
+    this.sort.active = 'alert';
     this.sort.sortChange.emit(this.sort);
-    //this.sort.sort({ id: 'citizen_stamina_alert', start: 'desc', disableClear: true });
+    //this.sort.sort({ id: 'alert', start: 'desc', disableClear: true });
 
     return;
   }

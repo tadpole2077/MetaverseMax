@@ -140,6 +140,7 @@ namespace MetaverseMax.Database
             return owner;
         }
 
+        // Returns FALSE if link exists . Note doesnt check if matching owner_uni_id between World and Universe db's
         public bool CheckLink(OwnerChange ownerChange, WORLD_TYPE worldType)
         {
             bool updated = false;

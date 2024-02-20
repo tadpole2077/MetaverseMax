@@ -369,7 +369,7 @@ $foreground: map-get($dark-app-theme, foreground);
     border-color: var(--bs-gray-600);
   }
   // building-ip component
-  td .activeProduce {
+  .mat-column-id .activeProduce, .mat-column-id .staminaOutImg {
     background-color: $dark-inner-bg;
   }
 

@@ -6,6 +6,7 @@ using System.Data.SqlTypes;
 using MetaverseMax.BaseClass;
 using MetaverseMax.ServiceClass;
 using Microsoft.IdentityModel.Tokens;
+using System;
 
 
 namespace MetaverseMax.Database
@@ -70,6 +71,30 @@ namespace MetaverseMax.Database
             return plotList.ToArray();
         }
 
+        public List<BuildingToken> GetBuildingTokenIDList_ByOwnerMatic(string maticKey)
+        {
+            List<BuildingToken> buildingTokenIDlist = new();
+            try
+            {
+                buildingTokenIDlist = _context.plot.Where(x => x.owner_matic == maticKey && 
+                        x.building_type_id != (int)BUILDING_TYPE.EMPTY_LAND &&
+                        x.building_type_id != (int)BUILDING_TYPE.POI &&
+                        x.building_type_id != (int)BUILDING_TYPE.PARCEL
+                    )
+                    .Select(x => new BuildingToken { token_id = x.token_id, building_level = x.building_level, building_type_id = x.building_type_id})
+                        .Distinct().ToList();
+                    //.Select(r => r.token_id ).DistinctBy(r => ((uint)r)).ToList();
+            }
+            catch (Exception ex)
+            {
+                string log = ex.Message;
+                _context.LogEvent(String.Concat("PlotDB:getBuildingTokenIDList_ByOwnerMatic() : Error Getting plot token id list by ownerMaticKey", maticKey));
+                _context.LogEvent(log);
+            }
+
+            return buildingTokenIDlist;
+        }
+
         public Plot GetLastPlotUpdated()
         {
             Plot foundPlot = new();
@@ -81,7 +106,7 @@ namespace MetaverseMax.Database
             catch (Exception ex)
             {
                 string log = ex.Message;
-                _context.LogEvent(String.Concat("PlotDB:GetLastPlotUpdated() : Error Getting last updated Plat"));
+                _context.LogEvent(String.Concat("PlotDB:GetLastPlotUpdated() : Error Getting last updated Plot"));
                 _context.LogEvent(log);
             }
 
@@ -167,6 +192,35 @@ namespace MetaverseMax.Database
             }
 
             return globalIp;
+        }
+
+        public RETURN_CODE UpdateActive(int tokenId, bool active, bool saveEvent)
+        {
+            List<Plot> plotList;
+            RETURN_CODE returnCode = RETURN_CODE.ERROR;
+
+            try
+            {
+                plotList = GetPlotbyToken(tokenId);
+
+                for (int index = 0; index < plotList.Count; index++)
+                {
+                    plotList[index].active = active;
+                    plotList[index].last_updated = DateTime.UtcNow;
+                }
+                returnCode = RETURN_CODE.SUCCESS;
+
+                if (saveEvent)
+                {
+                    _context.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                logException(ex, String.Concat("PlotDB::UpdateActive() : Error updating Plot using token_id : ", tokenId));
+            }
+
+            return returnCode;
         }
 
         public RETURN_CODE UpdatePlot(int tokenId, decimal influenceEfficiency, int predictProduce, int lastRunProduce, int produceId, DateTime? lastRunProduceDate, bool lastRunProducePredict, int buildingAbundance, bool saveEvent)
@@ -303,6 +357,7 @@ namespace MetaverseMax.Database
             return count;
         }       
 
+        // SPECIAL CASE : Energy/Water Buildings - Huge and Mega,  may have different abundance levels on each plot.  Dont overwrite abundance.
         public int UpdateRelatedBuildingPlotLocal(Plot plotMaster)
         {
             List<Plot> buildingPlotList = null;
@@ -333,7 +388,7 @@ namespace MetaverseMax.Database
 
                     buildingPlotList[i].for_rent = plotMaster.for_rent;
                     buildingPlotList[i].rented = plotMaster.rented;
-                    buildingPlotList[i].abundance = plotMaster.abundance;
+                    //buildingPlotList[i].abundance = plotMaster.abundance;                     // dont update as each plot has unique abundance
                     buildingPlotList[i].building_abundance = plotMaster.building_abundance;
                     buildingPlotList[i].condition = plotMaster.condition;
                     buildingPlotList[i].influence_info = plotMaster.influence_info;

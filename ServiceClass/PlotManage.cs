@@ -112,7 +112,7 @@ namespace MetaverseMax.ServiceClass
 
                     // Special Cases : update related building plots (Huge, Mega, Custom, Parcel)
                     //  Huge updated to MEGA - the other huge will also get processed and its paired plot should also get updated.
-                    //  MEGA or HUGE distroyed -  all related building plots will be reset to empty, on next nightly sync will be picked up as new buildings (if built)
+                    //  MEGA or HUGE distroyed -  all related building plots will be reset to empty, on next nightly sync will be picked up as new buildings (if built)                   
                     if (plotMatched.building_level == 6 || plotMatched.building_level == 7 || plotMatched.parcel_id > 0)
                     {
                         // Update each related plot for this building - Safer to do this in code vs sproc - due to deadlock/concurrent updates
