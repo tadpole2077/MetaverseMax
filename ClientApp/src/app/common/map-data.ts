@@ -36,6 +36,9 @@ export class MapData {
         break;
       case PRODUCT.PLASTIC:
         productImg = PRODUCT_IMG.PLASTIC;
+        break
+      case PRODUCT.STEEL:
+        productImg = PRODUCT_IMG.STEEL;
         break;
       case PRODUCT.PAPER:
         productImg = PRODUCT_IMG.PAPER;

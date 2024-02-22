@@ -564,6 +564,8 @@ namespace MetaverseMax.ServiceClass
 
                 PlotDB plotDB = new(_context, worldType);
                 string landOwner;
+                int hugeCount = 0, megaCount = 0;
+
 
                 JArray lands = Task.Run(() => GetOwnerLandsMCP(ownerMaticKey)).Result;
 
@@ -571,8 +573,7 @@ namespace MetaverseMax.ServiceClass
                 {
                     JToken land = lands.Children().First();
 
-                    landOwner = land.Value<string>("owner") ?? "Not Found";
-                    ownerData.plot_count = lands.Count;
+                    landOwner = land.Value<string>("owner") ?? "Not Found";                    
 
                     if (lands.Any())
                     {
@@ -596,6 +597,10 @@ namespace MetaverseMax.ServiceClass
                             var actionId = plot != null ? plot.action_id : 0;
                             var resourceLevel = plot != null && plot.building_type_id == (int)BUILDING_TYPE.ENERGY ? plot.building_abundance ?? 0 : landInstance.Value<int?>("abundance") ?? 0;
                             ProductionCollection productionCollection = null;
+
+                            hugeCount = buildingLevel == 6 ? ++hugeCount : hugeCount;
+                            megaCount = buildingLevel == 7 ? ++megaCount : megaCount;
+
 
                             // Find next collection details on active building : No additional WS calls required
                             // SPECIAL CASE: Building Transfer may still show as active due to prior assigned cits, Not refreshing Citizens of 2nd account to pull from building on current account refresh. At least this will prevent building showing, but issue will percist within Prediction tool
@@ -646,11 +651,13 @@ namespace MetaverseMax.ServiceClass
                         .ToArray()
                         .OrderBy(row => row.district_id).ThenBy(row => row.pos_x).ThenBy(row => row.pos_y);
 
-                        AddOwnerParcel(ownerMaticKey, ownerData.owner_land, localPlots);
+                        int parcelPlotCount = AddOwnerParcel(ownerMaticKey, ownerData.owner_land, localPlots);
 
-                        ownerData.developed_plots = ownerData.owner_land.Where(
-                            row => row.last_action != "Empty Plot"
-                            ).Count();
+                        ownerData.plot_count = lands.Count + hugeCount + (megaCount *3) + parcelPlotCount;
+
+                        ownerData.developed_plots = ownerData.plot_count - ownerData.owner_land.Where(
+                            row => row.building_type == (int)BUILDING_TYPE.EMPTY_LAND
+                            ).Count() - parcelPlotCount;
 
                         // Get Last Action across all lands for target player
                         ownerData.last_action = string.Concat(common.UnixTimeStampUTCToDateTimeString(ownerData.owner_land.Max(row => row.last_actionUx), "No Lands"), " GMT");
@@ -698,24 +705,27 @@ namespace MetaverseMax.ServiceClass
             return ownerData;
         }
 
-        private RETURN_CODE AddOwnerParcel(string ownerMaticKey, IEnumerable<OwnerLand> ownerBuildingsMCP, List<Plot> storedOwnerPlotList)
+        private int AddOwnerParcel(string ownerMaticKey, IEnumerable<OwnerLand> ownerBuildingsMCP, List<Plot> storedOwnerPlotList)
         {
             Building building = new();
             BuildingParcelDB buildingParcelDB = new(_context);
             List<BuildingParcel> buildingParcelList = null;
+            int plotCount = 0;
+
             //List<int> parcelIdList = storedOwnerPlotList.Where(x => x.parcel_id > 0)
             //    .Select(r => r.parcel_id)
             //     .DistinctBy(r => ((uint)r))
             //    .ToList();
                 
             // Return only first plot within parcel (building) plot set.
-            if (storedOwnerPlotList.Where(x => x.parcel_id > 0).Count() > 0)
+            if (storedOwnerPlotList.Where(x => x.parcel_id > 0).Any())
             {
                 buildingParcelList = buildingParcelDB.ParcelGetByAccountMatic(ownerMaticKey);
 
                 foreach (BuildingParcel parcel in buildingParcelList)
                 {
                     //Plot parcel = storedOwnerPlotList.Where(x => x.parcel_id == parcelId).FirstOrDefault();
+                    plotCount += parcel.plot_count;
 
                     ownerData.owner_land = ownerData.owner_land.Append(                        
                         new OwnerLand
@@ -754,7 +764,7 @@ namespace MetaverseMax.ServiceClass
                 ownerData.owner_land = ownerData.owner_land.OrderBy(row => row.district_id).ThenBy(row => row.pos_x).ThenBy(row => row.pos_y);
             }
 
-            return RETURN_CODE.SUCCESS;
+            return plotCount;
         }
 
 

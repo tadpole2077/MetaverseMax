@@ -332,6 +332,7 @@ td.mat-column-building_type div{
   max-width: 70px;
   max-height: 60px;
   margin-top: 3px;
+  margin-bottom: 3px;
   min-width: 40px;
 }
 .buildingZoom {  
@@ -480,8 +481,11 @@ a.lineAnim.buildingMaglink::before {
   margin-top: -0.3rem;
 }
 
-.mat-column-citizen_stamina_alert {
+.mat-column-alert {
   max-width: 68px;
+}
+.staminaView{
+  opacity:0.3;
 }
 .staminaLow {
   position: absolute;
@@ -493,15 +497,22 @@ a.lineAnim.buildingMaglink::before {
   text-shadow: -1px -1px 1px #fff, 1px 1px 1px #fff;
 }
 .collection .staminaLow{
-  margin-top: 20px;
-  margin-left: 32px;
+  margin-top: 25px;
+  margin-left: 38px;
 }
 .collection .staminaOutImg{
-  height: 38px
+  height: 42px
 }
-.staminaStop {
+.collection .staminaStop .staminaOutImg{
+  margin-top: -8px;
+  height: 46px
+}
+.staminaStop span{
   margin-top: 3px;
-  margin-left: 10px;
+  margin-left: 12px;
+}
+.ready{
+  margin-left: 1px;
 }
 
 .timePart {
@@ -598,12 +609,13 @@ td.mat-column-building_level{
 
 .alertContainer{
   height: 60px;
-  margin-bottom: 10px;
-  margin-top: 6px;
+  margin-bottom: 12px;
+  margin-top: 8px;
 }
 .collection.alertContainer{
   height: 40px;
-  margin-top: 10px;
+  margin-top: 8px;
+  margin-bottom: 12px;
 }
 .collect{
   margin-top:8px;
@@ -616,10 +628,6 @@ td.mat-column-building_level{
   font-size: 20px;
   margin-right: 4px;
 }
-.ready{
-  color:lawngreen
-}
-
 
 
 
@@ -908,7 +916,7 @@ td.mat-column-building_level{
   }
   .collection.alertContainer{
     margin-top: 5px;
-    margin-bottom: 3px;
+    margin-bottom: 8px;
   }
   .staminaOutImg{
     height: 44px;
@@ -920,13 +928,28 @@ td.mat-column-building_level{
     margin-top: 28px;
   }
   .collection .staminaLow{
-    margin-top: 22px;
+    margin-top: 21px;
+    margin-left: 16px;
     font-size: 8px;
     height: 34px;
   }
-  .staminaStop{
-    margin-top: 0;
-    margin-left: 0;
+  .staminaStop span{
+    margin-top: 24px;
+    margin-left: 8px;
+  }
+  .staminaStop .staminaOutImg{
+    margin-top: -18px;
+  }
+  .collection .staminaStop{
+    margin-top:4px;
+    margin-bottom: 4px;
+  }
+  .collection .staminaStop span{
+    margin-top: 28px;
+    margin-left: 7px;
+  }
+  .collection .staminaStop .staminaOutImg{
+    height: 36px;
   }
 
 }

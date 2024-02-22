@@ -47,6 +47,7 @@ export class OwnerDataComponent implements AfterViewInit {
   private myPortfolioRequest: boolean = false;
   private checkInstance: number = 0;
   public mobileView: boolean = false;
+  public staminaView: boolean = false;
 
   // UI class flags
   public searchBlinkOnce: boolean = false;
@@ -396,8 +397,12 @@ export class OwnerDataComponent implements AfterViewInit {
 
   applySortDataAsccessor(targetDataSource: MatTableDataSource<unknown, MatTableDataSourcePaginator>) {
 
+    this.staminaView = false;
     // Add custom date column sort
     targetDataSource.sortingDataAccessor = (item: IOwnerLandData, property) => {
+
+      this.staminaView = false;
+
       switch (property) {
         case 'last_action': return item.last_action == "Empty Plot" ? new Date(0) : new Date(item.last_action);
         case 'building_type': return item.building_type * 10 + item.resource;
@@ -416,7 +421,7 @@ export class OwnerDataComponent implements AfterViewInit {
   sortTableAlertShowingStaminaFirst() {
 
     // Only assign new sorted land array if alerts found.
-    if (this.owner.stamina_alert_count > 0) {
+    if (this.owner.stamina_alert_count > 0) {      
 
       // Remove any current filters
       this.filterTable(null, 0, BUILDING.NO_FILTER);
@@ -440,6 +445,8 @@ export class OwnerDataComponent implements AfterViewInit {
       this.sort.active = "";
       this.dataSource.sort = this.sort;
       this.applySortDataAsccessor(this.dataSource);
+
+      this.staminaView = true;
 
     }
   }
