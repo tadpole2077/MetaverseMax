@@ -23,6 +23,7 @@ NOTES:
 				  acceptly to disable this.
 				  Alternatively set Recycling to a specific time each time each day.
 
+TEST
 
 Error
 ===========================
