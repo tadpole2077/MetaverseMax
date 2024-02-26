@@ -71,7 +71,7 @@ namespace MetaverseMax.Controllers
 
             if (ModelState.IsValid)
             {
-                return Ok(Task.Run(() => _context.syncHistory.ToArray()).Result);
+                return Ok(Task.Run(() => _context.syncHistory.Where(x=> x.sync_start > DateTime.Now.AddMonths(-3)).ToArray()).Result);
             }
 
             return BadRequest("Get_SyncHistory failed");       // 400 Error     

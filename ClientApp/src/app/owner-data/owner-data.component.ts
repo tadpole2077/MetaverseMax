@@ -408,7 +408,7 @@ export class OwnerDataComponent implements AfterViewInit {
         case 'building_type': return item.building_type * 10 + item.resource;
         case 'current_influence_rank': return item.building_type == 0 && this.sort.direction == "asc" ? 1000 : item.current_influence_rank;   // Only sort plots with buildings
         case 'condition': return item.building_type == 0 && this.sort.direction == "asc" ? 1000 : item.condition;   // Only sort plots with buildings
-        case 'alert': return item.c_r == true ||  item.c_d >0 || item.c_h >0 ? 1 - (item.c_d/7)  - (item.c_h/24/7) - (item.c_m/3600) : item.citizen_stamina_alert == true ? .001 : 0;
+        case 'alert': return item.c_r == true ||  item.c_d >0 || item.c_h >0 || item.c_m >0  ? 1 - (item.c_d/7)  - (item.c_h/24/7) - (item.c_m/3600) : item.citizen_stamina_alert == true ? .001 : 0;
         default: return item[property];
       }
     };

@@ -387,7 +387,7 @@ th.mat-sort-header-sorted {
     padding-left: .6rem;
   }
     .mat-column-owner_name a span {
-      width:8rem;
+      width:9rem;
       display:inline-block;
       white-space: nowrap;
       overflow: hidden !important;

@@ -27,7 +27,8 @@ export class HomeComponent {
 
     globals.homeCDF = cdf;
   }
-  
+
+  // Copy to clipboard on Clip of Wallet key link.
   copyMessage(val: string){
       const selBox = document.createElement('textarea');
       selBox.style.position = 'fixed';

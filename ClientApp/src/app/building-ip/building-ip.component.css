@@ -462,7 +462,7 @@ td.mat-column-name {
   }
 
     td.mat-column-name a span {
-      width: 8rem;
+      width: 9rem;
       display: inline-block;
       white-space: nowrap;
       overflow: hidden !important;
