@@ -8,13 +8,20 @@ a {
 .rotate {
   animation: rotation 1s 30 linear;
 }
-.rotateFan {
+.rotateFan {  
   animation: rotation 2s 120 linear;
 }
-
 .progressIcon {
   font-size: .7rem;
   z-index: 1;
+  display:none;
+}
+.progressFan {
+  margin-left: .2rem;
+  font-size: .9rem;
+  z-index: 1;
+  color: #1565c0;
+  display:none;
 }
 .progressFan {
   margin-left: .2rem;
@@ -25,7 +32,13 @@ a {
 .refreshDisable{
   color:lightgray
 }
-
+.refresh{
+  font-size: 14px;
+  display:none;
+}
+.show{
+  display: inline-block
+}
 
 
 .modalFrame {

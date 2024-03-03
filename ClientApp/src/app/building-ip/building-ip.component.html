@@ -85,13 +85,13 @@
         <span>Active BC Total IP:</span>
         <span>
           <span>{{ buildingCollection.active_buildings[officeBCIndex].active_total_ip.toLocaleString() }}</span>
-          <span class="fontNormal"> ({{ ((buildingCollection.active_buildings[officeBCIndex].active_total_ip / officeGlobalIp.totalIP) * 100).toFixed(1) }}%)</span>
+          <span class="fontNormal"> ({{ officeBC_ActiveTotalIpPercent.toFixed(1) }}%)</span>
         </span>
       </div>
       <div>
         <span>Active BC Avg IP:</span>
         <span>
-          <span>{{ (buildingCollection.active_buildings[officeBCIndex].active_total_ip / buildingCollection.active_buildings[officeBCIndex].active).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0}) }}</span>          
+          <span> {{ officeBC_ActiveAvgIP.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0}) }}</span>          
         </span>
       </div>
       <div [hidden]="selectedBuildingLvl != 7">
@@ -274,7 +274,7 @@
     </mat-form-field>
 
     <div class="filterControls">
-      <div class="activeFilter" fxLayout fxLayoutAlign="center center" [hidden]="buildingType!=5 && buildingType!=3 && buildingType!=7 && buildingType!=6">
+      <div class="activeFilter" fxLayout fxLayoutAlign="center center" [hidden]="buildingType<3 && buildingType>7">
         <div>
           <mat-checkbox #activeChkbox
                         fxFlex="30%"
@@ -342,7 +342,7 @@
       <td mat-cell *matCellDef="let row" [style.height]="row.warn != '' ? '5.1rem' :'0'">
         <span class="rankEff">{{row.rank}}%</span>
 
-        <a class="magnifyHistoryPosition" *ngIf="buildingType==5 || buildingType==3 || buildingType==7 || buildingType==6" role="button" (click)="showHistory(row.id, row.pos_x, row.pos_y, buildingType, row.rank)">
+        <a class="magnifyHistoryPosition" *ngIf="buildingType>=3 && buildingType<=7" role="button" (click)="showHistory(row.id, row.pos_x, row.pos_y, buildingType, row.rank)">
           <img src="./assets/magnify_history_dark.png" class="magnifyHistoryIcon" height="30" />
         </a>
 

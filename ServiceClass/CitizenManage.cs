@@ -367,6 +367,14 @@ namespace MetaverseMax.ServiceClass
         }
 
         // Get from MCP 3rd tier services
+        // Performance Cost:
+        //      1x  WS MCP - https://ws.mcp3d.com/user/assets/citizens  : Get all citizens for 1x owner account, may have >1k citizens,  max runtime ~250ms
+        //      ~x  WS MCP - https://ws-tron.mcp3d.com/user/assets/history :   All citizens in local db, but not longer assigned to owner account.  Maybe zero calls or for transfer account many calls.
+        //          DB - Add events per history item on "expire" citizens  : table ownerCitizenDB
+        //      ~x DB - Add or Update CitizenDB for each Citizen within user account collection
+        //      1-Many x  WS MCP - https://ws-tron.mcp3d.com/user/assets/history :  Each citizen with changed attributes (eg Pet, Land, Owner, New) Check history for events
+        //          DB - Add events changed citizen  : table ownerCitizenDB
+        //          DB - SAVE EVENT PER Citizen.
         public async Task<RETURN_CODE> GetOwnerCitizenCollectionMCP(string ownerMatic)
         {
             string content = string.Empty;
@@ -696,6 +704,7 @@ namespace MetaverseMax.ServiceClass
                 citizen.efficiency_energy_electric = GetEnergyElectricEfficiency(citizen);
                 citizen.refresh_history = false;
 
+                // KEY EVENT : DB ADD OR UPDATE CitizenDB
                 citizenChange = citizenDB.AddorUpdate(citizen, storedCitizen, false, skipPriceCheck);
 
                 // Remove existing OwnerCitizen records and refresh if problem flag recorded on last attempt.
@@ -1024,7 +1033,7 @@ namespace MetaverseMax.ServiceClass
                     // Ocassionally, an existing ownerCitizen will get though due to C# milisecond skip, AddByLinkDateTime will catch it and wont add a dup.
                     ownerCitizenActionLAST = ownerCitizenDB.AddByLinkDateTime(ownerCitizenAction, false);
 
-                    // Add the new record to the storedActions list - for use in next iternation.
+                    // Add the new record to the storedActions list - for use in next event process iteration.
                     if (ownerCitizenActionLAST != null)
                     {
                         storedActions.Add(ownerCitizenActionLAST.Entity);

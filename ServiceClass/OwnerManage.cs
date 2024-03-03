@@ -303,7 +303,7 @@ namespace MetaverseMax.ServiceClass
                 if (ownerAccount.pro_tools_enabled &&
                     (ownerAccount.slowdown_end == null || ownerAccount.slowdown_end <= DateTime.UtcNow))
                 {
-                    ownerAccount.slowdown_end = DateTime.UtcNow.AddMinutes(1);
+                    ownerAccount.slowdown_end = DateTime.UtcNow.AddMinutes(2);
                     slowDownSet = true;
                 }
             }

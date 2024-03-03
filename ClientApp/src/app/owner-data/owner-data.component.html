@@ -176,11 +176,11 @@
               </div>
             </div>
           </div>
-          <div *ngIf="land.building_type!=6 && land.building_type!=5 && land.building_type!=3 && land.building_type!=7 && land.building_type!=10" class="buildDesc">
+          <div *ngIf="land.building_type<3 && land.building_type>7 && land.building_type!=10" class="buildDesc">
             <span> {{ land.building_desc }} </span>
             <span *ngIf="land.resource>0" class="resource"> R:{{ land.resource }} </span>
           </div>
-          <div *ngIf="land.building_type==6 || land.building_type==5 || land.building_type==3 || land.building_type==7" class="buildDesc">
+          <div *ngIf="land.building_type>=3 && land.building_type<=7 " class="buildDesc">
             <a class="lineAnim buildingMaglink" role="button" (click)="showHistory(land.token_id, land.pos_x, land.pos_y, land.building_type, land.current_influence_rank)">
               <span>
                 <span> {{ land.building_desc }} <span *ngIf="land.resource>0" class="resource" [ngClass]="{'hideTag':!mobileView}"> R:{{ land.resource }} </span></span>

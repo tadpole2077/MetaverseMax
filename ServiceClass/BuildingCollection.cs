@@ -92,6 +92,7 @@ namespace MetaverseMax.ServiceClass
         public int con { get; set; }
 
         // Active Produce - flag used to control building Running icon, Also used in Predict Eval column - controls if tick is shown when column view is enabled.
+        // Active Office or Commercial, contains min citizens with min stamina.
         public int act { get; set; }
 
         // active stamina. Has min Citizens assigned, with min stamina.

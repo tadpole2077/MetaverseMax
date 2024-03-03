@@ -511,10 +511,10 @@ namespace MetaverseMax.ServiceClass
                     buildingHistory = null;
                 }
                 // OFFICE - History is processed differently then industry/production/energy
-                else if (targetPlot.building_type_id == (int)BUILDING_TYPE.OFFICE)
+                else if (targetPlot.building_type_id == (int)BUILDING_TYPE.OFFICE || targetPlot.building_type_id == (int)BUILDING_TYPE.COMMERCIAL)
                 {
                     // Get dates since citizens assigned and building_type = office
-                    historyProductionList = GetOfficeHistory(targetPlot, ownerCitizenExt);
+                    historyProductionList = GetOfficeHistory(targetPlot, ownerCitizenExt, (BUILDING_TYPE)targetPlot.building_type_id);
                     buildingHistory.detail = historyProductionList.OrderByDescending(x => x.run_datetimeDT).ToArray();
 
                 }
@@ -667,7 +667,7 @@ namespace MetaverseMax.ServiceClass
             return buildingHistory;
         }
 
-        public List<HistoryProduction> GetOfficeHistory(Plot targetPlot, List<OwnerCitizenExt> ownerCitizenList)
+        public List<HistoryProduction> GetOfficeHistory(Plot targetPlot, List<OwnerCitizenExt> ownerCitizenList, BUILDING_TYPE buildingType)
         {
             List<HistoryProduction> historyProductionList = new();
             DateTime? startDate = ownerCitizenList.Count > 0 ? ownerCitizenList.Min(x => x.create_date) : null;
@@ -679,7 +679,7 @@ namespace MetaverseMax.ServiceClass
             HistoryProduction processDay;
 
             // Filter only office IP , will only show Citizen history records for office building type (plot may have been a different building type).
-            plotIPList = plotIPList.Where(x => x.building_type_id == (int)BUILDING_TYPE.OFFICE).ToList();
+            plotIPList = plotIPList.Where(x => x.building_type_id == (int)buildingType).ToList();
 
             // Add today
             HistoryProduction currentDay = new();
@@ -1307,37 +1307,39 @@ namespace MetaverseMax.ServiceClass
             ResourceTotal currentResource = null;
             Building buildingUtl = new();
 
-            int produce = building.building_id switch
+            BUILDING_PRODUCT produce = building.building_id switch
             {
-                (int)BUILDING_SUBTYPE.FACTORY => (int)BUILDING_PRODUCT.FACTORY_PRODUCT,
-                (int)BUILDING_SUBTYPE.BRICKWORKS => (int)BUILDING_PRODUCT.BRICK,
-                (int)BUILDING_SUBTYPE.GLASSWORKS => (int)BUILDING_PRODUCT.GLASS,
+                (int)BUILDING_SUBTYPE.FACTORY => BUILDING_PRODUCT.FACTORY_PRODUCT,
+                (int)BUILDING_SUBTYPE.BRICKWORKS => BUILDING_PRODUCT.BRICK,
+                (int)BUILDING_SUBTYPE.GLASSWORKS => BUILDING_PRODUCT.GLASS,
                 (int)BUILDING_SUBTYPE.CONCRETE_PLANT => worldType switch
                 {
-                    WORLD_TYPE.TRON => (int)BUILDING_PRODUCT.CONCRETE,
-                    WORLD_TYPE.ETH => (int)BUILDING_PRODUCT.STEEL,
-                    WORLD_TYPE.BNB => (int)BUILDING_PRODUCT.PLASTIC,
-                    _ => (int)BUILDING_PRODUCT.CONCRETE
+                    WORLD_TYPE.TRON => BUILDING_PRODUCT.CONCRETE,
+                    WORLD_TYPE.ETH => BUILDING_PRODUCT.STEEL,
+                    WORLD_TYPE.BNB => BUILDING_PRODUCT.PLASTIC,
+                    _ => BUILDING_PRODUCT.CONCRETE
                 },
-                (int)BUILDING_SUBTYPE.PAPER_FACTORY => (int)BUILDING_PRODUCT.PAPER,
+                (int)BUILDING_SUBTYPE.PAPER_FACTORY => BUILDING_PRODUCT.PAPER,
                 (int)BUILDING_SUBTYPE.CHEMICAL_PLANT => worldType switch
                 {
-                    WORLD_TYPE.TRON => (int)BUILDING_PRODUCT.MIXES,
-                    WORLD_TYPE.ETH => (int)BUILDING_PRODUCT.GLUE,
-                    WORLD_TYPE.BNB => (int)BUILDING_PRODUCT.COMPOSITE,
-                    _ => (int)BUILDING_PRODUCT.MIXES
+                    WORLD_TYPE.TRON => BUILDING_PRODUCT.MIXES,
+                    WORLD_TYPE.ETH => BUILDING_PRODUCT.GLUE,
+                    WORLD_TYPE.BNB => BUILDING_PRODUCT.COMPOSITE,
+                    _ => BUILDING_PRODUCT.MIXES
                 },
-                (int)BUILDING_SUBTYPE.POWER_PLANT => (int)BUILDING_PRODUCT.ENERGY,
-                (int)BUILDING_SUBTYPE.WATER_PLANT => (int)BUILDING_PRODUCT.WATER,
-                (int)BUILDING_SUBTYPE.APARTMENTS => (int)BUILDING_PRODUCT.CITIZEN_PRODUCTION_APT,
-                (int)BUILDING_SUBTYPE.CONDOMINIUM => (int)BUILDING_PRODUCT.CITIZEN_PRODUCTION_CONDO,
-                (int)BUILDING_SUBTYPE.VILLA => (int)BUILDING_PRODUCT.CITIZEN_PRODUCTION_VILLA,
-                (int)BUILDING_SUBTYPE.OFFICE_BLOCK => (int)BUILDING_PRODUCT.MEGA_PRODUCT_LOCAL,
-                (int)BUILDING_SUBTYPE.BUSINESS_CENTER => (int)BUILDING_PRODUCT.MEGA_PRODUCT_GLOBAL,
-                (int)BUILDING_SUBTYPE.POLICE => (int)BUILDING_PRODUCT.INSURANCE_COVER_POLICE,
-                (int)BUILDING_SUBTYPE.HOSPITAL => (int)BUILDING_PRODUCT.INSURANCE_COVER_HOSPITAL,
-                (int)BUILDING_SUBTYPE.FIRE_STATION => (int)BUILDING_PRODUCT.INSURANCE_COVER_FIRESTATION,
-                _ => building.last_run_produce_id
+                (int)BUILDING_SUBTYPE.POWER_PLANT => BUILDING_PRODUCT.ENERGY,
+                (int)BUILDING_SUBTYPE.WATER_PLANT => BUILDING_PRODUCT.WATER,
+                (int)BUILDING_SUBTYPE.APARTMENTS => BUILDING_PRODUCT.CITIZEN_PRODUCTION_APT,
+                (int)BUILDING_SUBTYPE.CONDOMINIUM => BUILDING_PRODUCT.CITIZEN_PRODUCTION_CONDO,
+                (int)BUILDING_SUBTYPE.VILLA => BUILDING_PRODUCT.CITIZEN_PRODUCTION_VILLA,
+                (int)BUILDING_SUBTYPE.OFFICE_BLOCK => BUILDING_PRODUCT.MEGA_PRODUCT_LOCAL,                
+                (int)BUILDING_SUBTYPE.BUSINESS_CENTER => BUILDING_PRODUCT.MEGA_PRODUCT_GLOBAL,
+                (int)BUILDING_SUBTYPE.TRADE_CENTER => BUILDING_PRODUCT.COMMERCIAL_SERVICE,
+                (int)BUILDING_SUBTYPE.SUPERMARKET => BUILDING_PRODUCT.COMMERCIAL_SERVICE,
+                (int)BUILDING_SUBTYPE.POLICE => BUILDING_PRODUCT.INSURANCE_COVER_POLICE,
+                (int)BUILDING_SUBTYPE.HOSPITAL => BUILDING_PRODUCT.INSURANCE_COVER_HOSPITAL,
+                (int)BUILDING_SUBTYPE.FIRE_STATION => BUILDING_PRODUCT.INSURANCE_COVER_FIRESTATION,
+                _ => (BUILDING_PRODUCT)building.last_run_produce_id
             };
 
             // Building may have previously produced a product that is produced in the current building type - eg Lvl1 mixer industry Changed to lvl1 brick production.
@@ -1346,13 +1348,13 @@ namespace MetaverseMax.ServiceClass
                 // Find Stored Resource match, and increment
                 if (resourceTotal.Count > 0)
                 {
-                    currentResource = (ResourceTotal)resourceTotal.Where(row => row.resourceId == produce).FirstOrDefault();
+                    currentResource = (ResourceTotal)resourceTotal.Where(row => row.resourceId == (int)produce).FirstOrDefault();
                 }
                 if (currentResource == null)
                 {
                     currentResource = new();
-                    currentResource.resourceId = produce;
-                    currentResource.name = produce == (int)BUILDING_PRODUCT.FACTORY_PRODUCT ? "Factory" : GetResourceName(produce);
+                    currentResource.resourceId = (int)produce;
+                    currentResource.name = produce == BUILDING_PRODUCT.FACTORY_PRODUCT ? "Factory" : GetResourceName((int)produce);
                     currentResource.buildingId = building.building_id;
                     currentResource.buildingImg = building.building_img;
                     currentResource.buildingName = GetBuildingNameShort(building.building_id, worldType);
@@ -1361,8 +1363,9 @@ namespace MetaverseMax.ServiceClass
                 }
 
                 // ACTIVE BUILDING (Last 9 days produced) - Add building last run produce details - including if active or shutdown
-                if (buildingType == (int)BUILDING_TYPE.OFFICE || (
-                    building.last_run_produce_id == produce &&
+                if (buildingType == (int)BUILDING_TYPE.OFFICE || buildingType == (int)BUILDING_TYPE.COMMERCIAL ||
+                    (
+                    building.last_run_produce_id == (int)produce &&
                     building.last_run_produce != null &&
                     building.last_run_produce > 0 &&
                     building.last_run_produce_date >= DateTime.Now.AddDays(-(int)ACTIVE_BUILDING.DAYS)))
@@ -1464,49 +1467,54 @@ namespace MetaverseMax.ServiceClass
             return productionCollection;
         }
 
-        private bool CheckProduct(int buildingType, int produceId, int buildingId)
+        private bool CheckProduct(int buildingType, BUILDING_PRODUCT produceId, int buildingId)
         {
             if (buildingType == (int)BUILDING_TYPE.PRODUCTION &&
-               (produceId == (int)BUILDING_PRODUCT.BRICK
-                 || produceId == (int)BUILDING_PRODUCT.CONCRETE
-                 || produceId == (int)BUILDING_PRODUCT.STEEL
-                 || produceId == (int)BUILDING_PRODUCT.PLASTIC
-                 || produceId == (int)BUILDING_PRODUCT.GLASS
-                 || produceId == (int)BUILDING_PRODUCT.PAPER
-                 || produceId == (int)BUILDING_PRODUCT.MIXES
-                 || produceId == (int)BUILDING_PRODUCT.GLUE
-                 || produceId == (int)BUILDING_PRODUCT.COMPOSITE
+               (produceId == BUILDING_PRODUCT.BRICK
+                 || produceId == BUILDING_PRODUCT.CONCRETE
+                 || produceId == BUILDING_PRODUCT.STEEL
+                 || produceId == BUILDING_PRODUCT.PLASTIC
+                 || produceId == BUILDING_PRODUCT.GLASS
+                 || produceId == BUILDING_PRODUCT.PAPER
+                 || produceId == BUILDING_PRODUCT.MIXES
+                 || produceId == BUILDING_PRODUCT.GLUE
+                 || produceId == BUILDING_PRODUCT.COMPOSITE
                  || buildingId == (int)BUILDING_SUBTYPE.FACTORY))
             {
                 return true;
             }
             else if (buildingType == (int)BUILDING_TYPE.INDUSTRIAL &&
-                (produceId == (int)BUILDING_PRODUCT.SAND ||
-                  produceId == (int)BUILDING_PRODUCT.STONE ||
-                  produceId == (int)BUILDING_PRODUCT.WOOD ||
-                  produceId == (int)BUILDING_PRODUCT.METAL
+                (produceId == BUILDING_PRODUCT.SAND ||
+                  produceId == BUILDING_PRODUCT.STONE ||
+                  produceId == BUILDING_PRODUCT.WOOD ||
+                  produceId == BUILDING_PRODUCT.METAL
                 ))
             {
                 return true;
             }
             else if (buildingType == (int)BUILDING_TYPE.ENERGY &&
-                (produceId == (int)BUILDING_PRODUCT.ENERGY ||
-                  produceId == (int)BUILDING_PRODUCT.WATER))
+                (produceId == BUILDING_PRODUCT.ENERGY ||
+                  produceId == BUILDING_PRODUCT.WATER))
             {
                 return true;
             }
             else if (buildingType == (int)BUILDING_TYPE.OFFICE &&
-                (produceId == (int)BUILDING_PRODUCT.MEGA_PRODUCT_GLOBAL || produceId == (int)BUILDING_PRODUCT.MEGA_PRODUCT_LOCAL))
+                (produceId == BUILDING_PRODUCT.MEGA_PRODUCT_GLOBAL || produceId == BUILDING_PRODUCT.MEGA_PRODUCT_LOCAL))
+            {
+                return true;
+            }
+            else if (buildingType == (int)BUILDING_TYPE.COMMERCIAL &&
+               (produceId == BUILDING_PRODUCT.COMMERCIAL_SERVICE))
             {
                 return true;
             }
             else if (buildingType == (int)BUILDING_TYPE.RESIDENTIAL &&
-                (produceId == (int)BUILDING_PRODUCT.CITIZEN_PRODUCTION_CONDO || produceId == (int)BUILDING_PRODUCT.CITIZEN_PRODUCTION_VILLA || produceId == (int)BUILDING_PRODUCT.CITIZEN_PRODUCTION_APT))
+                (produceId == BUILDING_PRODUCT.CITIZEN_PRODUCTION_CONDO || produceId == BUILDING_PRODUCT.CITIZEN_PRODUCTION_VILLA || produceId == BUILDING_PRODUCT.CITIZEN_PRODUCTION_APT))
             {
                 return true;
             }
             else if (buildingType == (int)BUILDING_TYPE.MUNICIPAL &&
-                (produceId == (int)BUILDING_PRODUCT.INSURANCE_COVER_POLICE || produceId == (int)BUILDING_PRODUCT.INSURANCE_COVER_FIRESTATION || produceId == (int)BUILDING_PRODUCT.INSURANCE_COVER_HOSPITAL))
+                (produceId == BUILDING_PRODUCT.INSURANCE_COVER_POLICE || produceId == BUILDING_PRODUCT.INSURANCE_COVER_FIRESTATION || produceId == BUILDING_PRODUCT.INSURANCE_COVER_HOSPITAL))
             {
                 return true;
             }
@@ -1871,6 +1879,16 @@ namespace MetaverseMax.ServiceClass
                         + petUsageDifference.endurance + petUsageDifference.agility + petUsageDifference.strength + petUsageDifference.luck) / 4.0 * .1 / citizenMax
                     , 3) * 10;
             }
+            else if (buildingType == (int)BUILDING_TYPE.COMMERCIAL)
+            {
+                efficiency = filterCitizens.Count == 0 ? 0 : (decimal)Math.Round(
+                    (filterCitizens.Sum(x => x.trait_charisma) + petUsageDifference.charisma) * .3 / citizenMax +
+                    (filterCitizens.Sum(x => x.trait_luck) + petUsageDifference.luck) * .2 / citizenMax +
+                    (filterCitizens.Sum(x => x.trait_endurance + x.trait_agility + x.trait_strength + x.trait_intelligence)
+                        + petUsageDifference.endurance + petUsageDifference.agility + petUsageDifference.strength + petUsageDifference.intelligence) / 4.0 * .1 / citizenMax
+                    , 3) * 10;
+            }
+
             return efficiency;
         }
 

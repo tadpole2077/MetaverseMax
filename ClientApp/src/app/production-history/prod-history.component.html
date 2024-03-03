@@ -1,8 +1,9 @@
 <div class="modalFrame histroyframe" cdkDrag style="display:inline-table;text-align:left;">
 
   <div class="title">
-    <span *ngIf="historyBuildingType!=6">Production History</span>
+    <span *ngIf="!citizensOnlyView">Production History</span>
     <span *ngIf="historyBuildingType==6">Office History</span>
+    <span *ngIf="historyBuildingType==4">Commercial History</span>
     <div class="targetPlot">(X:{{ plot.x }} Y:{{ plot.y }})</div>
   </div>
   <a class="closeframe" (click)="setHide()"><i class="far fa-window-close fa-2x" role="button"></i></a>
@@ -11,7 +12,7 @@
 
   <div class="historySummary" [hidden]="!history">
 
-    <div class="summaryBlock" *ngIf="history && historyBuildingType!=6">
+    <div class="summaryBlock" *ngIf="history && !citizensOnlyView">
       <span class="summaryLabel">Total Produced:</span>
       <span class="summarydata produceRow">
         <span class="totalEle" *ngFor="let resource of history.totalProduced">
@@ -25,7 +26,7 @@
       </div>
     </div>
 
-    <div [hidden]="globals.ownerAccount.pro_tools_enabled == false || historyBuildingType==6" class="predict" *ngIf="history && history.prediction && ipEfficiency >-1">
+    <div [hidden]="globals.ownerAccount.pro_tools_enabled == false || citizensOnlyView " class="predict" *ngIf="history && history.prediction && ipEfficiency >-1">
       <div>
         <span class="summaryLabel">Next Run Prediction:</span>
         <span *ngIf="history.prediction.total>0" class="predictionTotal"> {{ history.prediction.total }} </span>
@@ -191,10 +192,10 @@
           <div style="margin-top:.6rem">
             <div style="font-weight:500">
               Changes since last production run:
-              <a class="lineAnim" role="button" (click)="refresh();">
-                <span>( Refresh </span>
-                <i #progressIcon class="fas fa-sync-alt progressIcon"></i>
-                <i #progressFan class="fas fa-solid fa-fan progressFan rotateFan hideLink"></i>
+              <a class="refresh lineAnim" [ngClass]="{'show':refreshVisible}" role="button" (click)="refresh();">
+                <span>( {{ refresh_state }} </span>
+                <i #progressIcon class="fas fa-sync-alt progressIcon" [ngClass]="{'show': !showFan, 'rotate': processingActive}"></i>
+                <i #progressFan class="fas fa-solid fa-fan progressFan rotateFan" [ngClass]="{'show': showFan}"></i>
                 <span> )</span>
               </a>
             </div>
@@ -207,7 +208,7 @@
       </div>
     </div>
 
-    <div class="table-container" [hidden]="!history" [ngClass]="{'officeTable': historyBuildingType==6}">
+    <div class="table-container" [hidden]="!history" [ngClass]="{'officeTable': citizensOnlyView}">
       <table mat-table [dataSource]="dataSourceHistory" matSort multiTemplateDataRows class="table mat-elevation-z8" style="display:inline-table; width:100%">
         <!--table table-striped-->
         <ng-container matColumnDef="amount_produced">
@@ -264,8 +265,8 @@
         </ng-container>
         <ng-container matColumnDef="efficiency_c">
           <th mat-header-cell *matHeaderCellDef mat-sort-header title="Citizen Efficiency %">
-            <span [hidden]="historyBuildingType==6" matBadge="A" matBadgePosition="above before" matBadgeSize="small">Eff(Cit) %</span>
-            <span [hidden]="historyBuildingType!=6">Citizen Efficiency %</span>
+            <span [hidden]="citizensOnlyView" matBadge="A" matBadgePosition="above before" matBadgeSize="small">Eff(Cit) %</span>
+            <span [hidden]="!citizensOnlyView">Citizen Efficiency %</span>
           </th>
           <td mat-cell *matCellDef="let history">
             <span style="color:red" [hidden]="!(history.efficiency_c<50)">{{ history.efficiency_c }}</span>
@@ -281,7 +282,9 @@
         </ng-container>
         <ng-container matColumnDef="run_datetime">
           <th mat-header-cell *matHeaderCellDef mat-sort-header> Date </th>
-          <td mat-cell *matCellDef="let history"> {{ history.run_datetime }}</td>
+          <td mat-cell *matCellDef="let history">
+            <span>{{ history.run_datetime }}</span>
+          </td>
         </ng-container>
         <ng-container matColumnDef="building_lvl">
           <th mat-header-cell *matHeaderCellDef mat-sort-header title="Building Lvel"> Building Level </th>
@@ -321,14 +324,14 @@
         <mat-icon>help</mat-icon>
         <span>Click row to expand and show citizens</span>
       </div>
-      <div class="helpTip" *ngIf="historyBuildingType!=6">
+      <div class="helpTip" *ngIf="!citizensOnlyView">
         <mat-icon>info</mat-icon>
         <span>Eff(P)% : Efficiency % using 0 to Max production range</span>
       </div>
-      <div class="helpTipNoIcon" style="margin-top:-.3rem" *ngIf="historyBuildingType!=6">
+      <div class="helpTipNoIcon" style="margin-top:-.3rem" *ngIf="!citizensOnlyView">
         <span>Eff(M)% : Efficiency % using Min to Max production range</span>
       </div>
-      <div [ngClass]="{'helpTipNoIcon': historyBuildingType!=6, 'helpTip': historyBuildingType==6}">
+      <div [ngClass]="{'helpTipNoIcon': !citizensOnlyView, 'helpTip': citizensOnlyView}">
         <mat-icon *ngIf="historyBuildingType==6">info</mat-icon>
         <span>Eff(Cit)% : Citizen trait Efficiency % for all citizens</span>
       </div>

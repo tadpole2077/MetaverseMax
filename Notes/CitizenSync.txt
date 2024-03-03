@@ -60,6 +60,27 @@ Ranking Feature - Manual Refresh
 			Any citizens removed/swapped log : "x Citizen removed/swapped since last run"
 
 
+===========================================
+Citizen Model - Manual Refresh
+===========================================
+	Background:
+		Refresh of all user account held Citizens
+		Performance: High expense, especially on large account holders of 100's or 1k+ citizens
+	Module: 
+		app\citizen-modal\citizen-modal.component.ts
+	Process:
+		Fn: refresh()
+		Calls: this.search(this.maticKey, true);
+		Conditions: 
+			Refresh skipped if currently processing a refresh
+			Refresh skipped if in active slowdown
+
+	Issues:
+		2024_3 : refresh link not disabled during processing, allowing multiple clicks potentially resulting in db locks and excessive ws backend calls.  [FIXED]
+
+	
+
+
 =========================================
 KEY METHODS
 =========================================

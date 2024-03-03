@@ -93,6 +93,9 @@ export class BuildingIPComponent {
   public officeBCIndex: number = -1;
   public officeBC_MaxEarningsPer1kIP: number = 0;
   public officeBC_AvgEarningsPer1kIP: number = 0;
+  public officeBC_ActiveTotalIpPercent: number = 0;
+  public officeBC_ActiveAvgIP: number = 0;
+
 
 
   public hidePaginator: boolean;
@@ -206,6 +209,9 @@ export class BuildingIPComponent {
             if (this.officeGlobalIp) {
               this.officeBC_MaxEarningsPer1kIP = this.officeGlobalIp.maxDailyDistribution / (this.buildingCollection.active_buildings[this.officeBCIndex].active_total_ip / 1000);
               this.officeBC_AvgEarningsPer1kIP = this.officeGlobalIp.lastDistribution / (this.buildingCollection.active_buildings[this.officeBCIndex].active_total_ip / 1000);
+
+              this.officeBC_ActiveTotalIpPercent = this.officeGlobalIp.totalIP > 0 ? (this.buildingCollection.active_buildings[this.officeBCIndex].active_total_ip / this.officeGlobalIp.totalIP) * 100 : 0;
+              this.officeBC_ActiveAvgIP = this.buildingCollection.active_buildings[this.officeBCIndex].active > 0 ? this.buildingCollection.active_buildings[this.officeBCIndex].active_total_ip / this.buildingCollection.active_buildings[this.officeBCIndex].active : 0;
             }
           }
           else {

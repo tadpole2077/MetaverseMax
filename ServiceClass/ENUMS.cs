@@ -251,6 +251,7 @@
 
     public enum BUILDING_PRODUCT
     {
+        UNKNOWN = 0,
         WOOD = 1,
         SAND = 2,
         STONE = 3,
@@ -269,6 +270,7 @@
         FACTORY_PRODUCT = 99,
         MEGA_PRODUCT_GLOBAL = 200,
         MEGA_PRODUCT_LOCAL = 201,
+        COMMERCIAL_SERVICE = 202,
         INSURANCE_COVER_POLICE = 210,
         INSURANCE_COVER_HOSPITAL = 211,
         INSURANCE_COVER_FIRESTATION = 212,

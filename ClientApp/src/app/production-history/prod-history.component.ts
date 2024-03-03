@@ -8,6 +8,7 @@ import { DragDrop } from '@angular/cdk/drag-drop';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { CitizenBuildingTableComponent } from '../citizen-building-table/citizen-building-table.component';
 import { Globals, WORLD } from '../common/global-var';
+import { BUILDING } from '../common/enum';
 
 interface Detail {
   run_datetime: string;
@@ -70,6 +71,13 @@ export class ProdHistoryComponent implements AfterViewInit {
   public ipEfficiency: number = -1;
   public notifySubscription: Subscription = null;
   public forceClose: boolean = false;
+  citizensOnlyView: boolean = false;
+
+  refresh_state: string = "Refresh Prediction";
+  processingActive: boolean = false;
+  showFan: boolean = false;
+  refreshActive: boolean = true;
+  refreshVisible: boolean = false;
 
   assetId: number;
   httpClient: HttpClient;
@@ -77,8 +85,6 @@ export class ProdHistoryComponent implements AfterViewInit {
   dataSourceHistory = new MatTableDataSource(null);
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
-  @ViewChild('progressIcon', { static: false }) progressIcon: ElementRef;
-  @ViewChild('progressFan', { static: false }) progressFanIcon: ElementRef;
   @ViewChild('predictControl', { static: false }) predictControl: ElementRef;
   //@ViewChild("graphDamage", { static: true }) graphDamage: GraphDamageComponent;
 
@@ -147,6 +153,17 @@ export class ProdHistoryComponent implements AfterViewInit {
 
   public searchHistory(asset_id: number, pos_x: number, pos_y: number, building_type: number, refresh: boolean) {
 
+    if (this.history && refresh == true) {
+      // Prevent repeat processing while current refresh search active
+      if (this.refreshActive == false) {
+        return;
+      }
+
+      this.history.slowdown = 120;   // apply hard 2 minute slowdown on click.
+      this.checkRefresh();
+    }
+
+
     this.showCalcDetail = refresh;  // Reset on each search
     this.history = null;
     let params = new HttpParams();
@@ -157,11 +174,11 @@ export class ProdHistoryComponent implements AfterViewInit {
 
     this.assetId = asset_id;
     this.historyBuildingType = building_type;
+
+    this.citizensOnlyView = building_type == BUILDING.OFFICE || building_type == BUILDING.COMMERCIAL ? true : false;
     this.ipEfficiency = 0;
 
     params = params.append('token_id', asset_id.toString());
-    //params = params.append('ip_efficiency', ip_efficiency.toString());
-    //params = params.append('ip_efficiency_bonus_bug', ip_efficiency_bonus_bug.toString());
     params = params.append('full_refresh', refresh ? "1" : "0");
     params = params.append('requester', this.globals.ownerAccount.matic_key);
 
@@ -170,17 +187,21 @@ export class ProdHistoryComponent implements AfterViewInit {
     this.httpClient.get<BuildingHistory>(this.baseUrl + '/assethistory', { params: params })
       .subscribe({
         next: (result) => {
-
-          //if (this.progressIcon) {
-          //  this.progressIcon.nativeElement.classList.remove("rotate");
-          //}
+          
+          // Only show the refresh link after first load of table, and Pro Tools enabled.
+          if (this.globals.ownerAccount.pro_tools_enabled) {
+            this.refreshVisible = true;
+          }
+          else {            
+            this.refreshVisible = false;
+          }     
 
           this.history = result;        
         
           if (this.history.detail != null) {
 
             //OFFICE
-            if (building_type == 6) {
+            if (this.citizensOnlyView ) {
               this.displayedColumns = this.columnsOffice;
             }
             //FACTORY
@@ -219,10 +240,12 @@ export class ProdHistoryComponent implements AfterViewInit {
           else {
             this.dataSourceHistory = new MatTableDataSource<Detail>(null);
           }
-          //plotPos.rotateEle.classList.remove("rotate");
-          //this.cdr.markForCheck();
-          //this.cdr.detectChanges();
-          setTimeout(() => this.checkRefresh());
+         
+          if (refresh == true) {
+            this.refresh_state = "Completed - Cooldown 2 mins";
+            this.showFan = true;
+            this.processingActive = false;
+          }
 
         },
         error: (error) => { console.error(error) }
@@ -235,8 +258,9 @@ export class ProdHistoryComponent implements AfterViewInit {
 
     if (this.history && this.history.slowdown >0) {
 
-      this.progressFanIcon.nativeElement.classList.remove("hideLink");
-      this.progressFanIcon.nativeElement.closest("a").classList.add("refreshDisable");
+      this.refresh_state = "Processing ...";
+      this.refreshActive = false;
+      this.processingActive = true;
 
       //Showing fan, countdown controls when to remove cooldown period
       if (this.notifySubscription == null) {
@@ -244,10 +268,10 @@ export class ProdHistoryComponent implements AfterViewInit {
         //this.notifySubscription = interval(this.history.slowdown).subscribe(x => {
         this.notifySubscription = interval(this.history.slowdown * 1000).subscribe(x => {
 
-          if (this.progressFanIcon) {
-            this.progressFanIcon.nativeElement.classList.add("hideLink");
-            this.progressFanIcon.nativeElement.closest("a").classList.remove("refreshDisable");
-          }
+          this.showFan = false;
+          this.refreshActive = true;
+
+          this.refresh_state = "Refresh Prediction";
           this.history.slowdown = 0;
 
           this.notifySubscription.unsubscribe();
@@ -284,7 +308,7 @@ export class ProdHistoryComponent implements AfterViewInit {
   toggleDetail(event: Event) {
 
     this.showCalcDetail = !this.showCalcDetail;
-    this.checkRefresh();
+    //this.checkRefresh();
     //console.log('value:', (event.target as HTMLAnchorElement).innerHTML);
     
     //(event.target as HTMLAnchorElement).innerHTML = this.showCalcDetail ? "Hide Calculation" : "Show Calculation";
@@ -302,9 +326,7 @@ export class ProdHistoryComponent implements AfterViewInit {
     // Close any open citizen child-table
     this.forceClose = true;
     this.expandedHistory = null;
-
-    // Show progress and start refresh process
-    this.progressIcon.nativeElement.classList.add("rotate");
+    
     this.searchHistory(this.assetId, this.plot.x, this.plot.y, this.historyBuildingType, true);
 
     return;

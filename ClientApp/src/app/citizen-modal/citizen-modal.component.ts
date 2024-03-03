@@ -26,6 +26,11 @@ export class CitizenModalComponent {
   public showingColumnsTraits: boolean = true;
   showTick: boolean = false;
   reset: any = null;
+  refresh_state: string = "Refresh Citizens";
+  processingActive: boolean = false;
+  showFan: boolean = false;
+  refreshActive: boolean = true;
+  refreshVisible: boolean = false;
 
   httpClient: HttpClient;
   baseUrl: string;
@@ -33,9 +38,6 @@ export class CitizenModalComponent {
 
   @ViewChild(MatSort, { static: true }) sort: MatSort;
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
-  @ViewChild('progressIcon', { static: false }) progressIcon: ElementRef;
-  @ViewChild('refreshLink', { static: false }) refreshLink: ElementRef;
-  @ViewChild('progressFan', { static: false }) progressFanIcon: ElementRef;
 
   displayedColumnsTraits: string[] = ['current_price', 'token_id', 'name', 'sex', 'generation', 'breeding', 'trait_agility', 'trait_intelligence', 'trait_charisma', 'trait_endurance', 'trait_luck', 'trait_strength', 'trait_avg'];
   displayedColumnsEfficiency: string[] = ['current_price','token_id', 'name', 'sex', 'trait_avg', 'efficiency_industry', 'efficiency_production', 'efficiency_energy_water', 'efficiency_office', 'efficiency_commercial', 'efficiency_municipal', 'building_level'];
@@ -157,7 +159,18 @@ export class CitizenModalComponent {
   max10(trait: number, pet: number) {
     return trait+pet > 10 ? 10 : trait+pet
   }
+
   search(maticKey: string, refresh: boolean) {
+
+    if (this.portfolioCitizen && refresh == true) {
+      // Prevent repeat processing while current refresh search active
+      if (this.refreshActive == false) {
+        return;
+      }
+
+      this.portfolioCitizen.slowdown = 120;   // apply hard 2 minute slowdown on click.
+      this.checkRefresh();
+    }
 
     this.maticKey = maticKey;
     let params = new HttpParams();
@@ -169,11 +182,14 @@ export class CitizenModalComponent {
       .subscribe({
         next: (result) => {
 
-          if (this.globals.ownerAccount.pro_tools_enabled && this.refreshLink) {
-            this.refreshLink.nativeElement.classList.remove("hideLink");
+          // Only show the refresh link after first load of citizen table, and Pro Tools enabled.
+          if (this.globals.ownerAccount.pro_tools_enabled) {
+            this.refreshVisible = true;
+          }
+          else {            
+            this.refreshVisible = false;
           }
 
-          this.progressIcon.nativeElement.classList.remove("rotate");
           this.portfolioCitizen = result;
 
           if (this.portfolioCitizen.citizen.length > 0) {
@@ -192,7 +208,11 @@ export class CitizenModalComponent {
             this.dataSource = new MatTableDataSource<ICitizen>(null);
           }
 
-          setTimeout(() => this.checkRefresh());
+          if (refresh == true) {
+            this.refresh_state = "Completed - Cooldown 2 mins";
+            this.showFan = true;
+            this.processingActive = false;
+          }
 
         },
         error: (error) => { console.error(error) }
@@ -226,7 +246,6 @@ export class CitizenModalComponent {
   refresh() {
 
     this.showTick = false;
-    this.progressIcon.nativeElement.classList.add("rotate");
     this.search(this.maticKey, true);
 
     return;
@@ -237,22 +256,22 @@ export class CitizenModalComponent {
   }
 
   checkRefresh() {
-
+    
     if (this.portfolioCitizen && this.portfolioCitizen.slowdown > 0) {
 
-      this.progressFanIcon.nativeElement.classList.remove("hideLink");
-      this.progressFanIcon.nativeElement.closest("a").classList.add("refreshDisable");
+      this.refresh_state = "Processing ...";
+      this.refreshActive = false;
+      this.processingActive = true;
 
-      //Showing fan, countdown controls when to remove cooldown period
+      // Showing fan, countdown controls when to remove cooldown period
       if (this.notifySubscription == null) {
 
-        //this.notifySubscription = interval(this.history.slowdown).subscribe(x => {
         this.notifySubscription = interval(this.portfolioCitizen.slowdown * 1000).subscribe(x => {
 
-          if (this.progressFanIcon) {
-            this.progressFanIcon.nativeElement.classList.add("hideLink");
-            this.progressFanIcon.nativeElement.closest("a").classList.remove("refreshDisable");
-          }
+          this.showFan = false;
+          this.refreshActive = true;
+
+          this.refresh_state = "Refresh Citizens";
           this.portfolioCitizen.slowdown = 0;
 
           this.notifySubscription.unsubscribe();
