@@ -1,5 +1,7 @@
 ﻿using MetaverseMax.BaseClass;
+using MetaverseMax.Database;
 using Microsoft.EntityFrameworkCore;
+using Nethereum.Contracts.Standards.ERC20.TokenList;
 using Newtonsoft.Json.Linq;
 
 namespace MetaverseMax.Database
@@ -12,6 +14,23 @@ namespace MetaverseMax.Database
             worldType = worldTypeSelected;
             _parentContext.worldTypeSelected = worldType;
         }
+
+        public bool CheckHasMission(int tokenId)
+        {
+            bool hasMission = false;
+            try
+            {
+                hasMission = _context.mission.Where(x => x.token_id == tokenId && x.balance > 0 && x.available).Any();
+
+            }
+            catch (Exception ex)
+            {
+                logException(ex, String.Concat("MissionDB::CheckHasMission() : Error checking if existing mission for token_id : ", tokenId));
+            }
+
+            return hasMission;
+        }
+
 
         public Mission AddOrUpdate(JObject missionData, int tokenId, decimal balance)
         {

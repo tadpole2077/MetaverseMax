@@ -1283,12 +1283,12 @@ namespace MetaverseMax.ServiceClass
             DateTime last_action;
             decimal newRanking = -1;
             PlotCord plotFullUpdate = new() { fullUpdateRequired = false };
-            bool hasMission = false;
+            bool hasMission = false, newMission = false;
             decimal balance = 0;
 
             try
             {
-
+                MissionDB missionDB = new(_context, worldType);
                 tokenId = ownerLand.Value<int?>("token_id") ?? 0;
                 buildingPlotList = _context.plot.Where(x => x.token_id == tokenId).ToList();
 
@@ -1322,7 +1322,7 @@ namespace MetaverseMax.ServiceClass
 
                         last_action = (DateTime)common.UnixTimeStampUTCToDateTime(ownerLand.Value<double?>("last_action") ?? 0, plotMatched.last_action);
                         fullPlotSync = plotMatched.last_action != last_action || fullPlotSync == true;
-                        
+
                         plotMatched.last_action = last_action;
 
                         // Update 1 plot or multiple plots depending on building level, only one record returned per building with this lands WS call.
@@ -1342,8 +1342,7 @@ namespace MetaverseMax.ServiceClass
                         plotMatched.for_rent = plotMatched.rented == false ? building.GetRentPrice(ownerLand.Value<JToken>("rent_info"), worldType) : 0;    // Only get rent price if not currently rented
                         plotMatched.abundance = ownerLand.Value<int?>("abundance") ?? 0;
                         plotMatched.condition = ownerLand.Value<int?>("condition") ?? 0;
-                        balance = building.convertPriceMega(ownerLand.Value<decimal?>("balance") ?? 0);
-                                                 
+
                         plotMatched.current_influence_rank = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, buildingLevel, plotMatched.building_type_id, plotMatched.token_id, plotMatched.building_id, plotMatched.district_id, plotMatched.owner_matic);
                         plotMatched.influence = newInfluence;                                                   // Placed after ranking check, as both old and new influence needed for check                    
 
@@ -1351,8 +1350,6 @@ namespace MetaverseMax.ServiceClass
 
                         plotMatched.citizen_count = ownerLand.Value<JArray>("citizens") == null ? 0 : ownerLand.Value<JArray>("citizens").Count;
                         plotMatched.low_stamina_alert = citizen.CheckCitizenStamina(ownerLand.Value<JArray>("citizens"), plotMatched.building_type_id);
-
-                        hasMission = ownerLand.Value<bool?>("has_mission") ?? false;
 
                     }
                     else if ((ownerLand.Value<int?>("building_level") == (int)BUILDING_SIZE.HUGE || ownerLand.Value<int?>("building_level") == (int)BUILDING_SIZE.MEGA) || buildingPlotList.Count > 1)
@@ -1362,7 +1359,7 @@ namespace MetaverseMax.ServiceClass
                         fullPlotSync = plotMatched.influence != newInfluence || fullPlotSync == true;
 
                         last_action = (DateTime)common.UnixTimeStampUTCToDateTime(ownerLand.Value<double?>("last_action") ?? 0, plotMatched.last_action);
-                        fullPlotSync = plotMatched.last_action != last_action || fullPlotSync == true;                        
+                        fullPlotSync = plotMatched.last_action != last_action || fullPlotSync == true;
 
                         for (int i = 0; i < buildingPlotList.Count; i++)
                         {
@@ -1397,10 +1394,16 @@ namespace MetaverseMax.ServiceClass
 
                             plotMatched.citizen_count = ownerLand.Value<JArray>("citizens") == null ? 0 : ownerLand.Value<JArray>("citizens").Count;
                             plotMatched.low_stamina_alert = citizen.CheckCitizenStamina(ownerLand.Value<JArray>("citizens"), plotMatched.building_type_id);
-                        }
-                        hasMission = ownerLand.Value<bool?>("has_mission") ?? false;
-                        balance = building.convertPriceMega(ownerLand.Value<decimal?>("balance") ?? 0);
+                        }                        
                     }
+
+                    balance = building.convertPriceMega(ownerLand.Value<decimal?>("balance") ?? 0);
+                    hasMission = ownerLand.Value<bool?>("has_mission") ?? false;
+                }
+
+                if (hasMission && balance > 0)
+                {                    
+                    newMission = missionDB.CheckHasMission(tokenId) == false;                                               
                 }
 
                 // Store plot data for later full update (if enabled)
@@ -1413,11 +1416,10 @@ namespace MetaverseMax.ServiceClass
                     plotFullUpdate.posY = ownerLand.Value<int?>("y") ?? 0;
                 }
 
-
-                if (hasMission && refreshMission)
-                {
-                    JObject buildingMission = Task.Run(() => GetBuildingMissionMCP(tokenId)).Result;
-                    MissionDB missionDB = new(_context, worldType);
+                // Refresh mission requires MCP WS call,  always pull in new missions - dont refresh existing active missions unless flagged to do so.
+                if ((hasMission && refreshMission) || newMission)
+                {                    
+                    JObject buildingMission = Task.Run(() => GetBuildingMissionMCP(tokenId)).Result;                    
                     missionDB.AddOrUpdate(buildingMission, tokenId, balance);
                 }
 
