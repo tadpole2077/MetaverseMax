@@ -176,5 +176,7 @@ namespace MetaverseMax.Database
         public int plotId { get; set; }
         public int posX { get; set; }
         public int posY { get; set; }
+        public int localTokenID { get; set; }       // As stored in local db
+        public int currentTokenID { get; set; }         // As retrieved from MCP WS
     }
 }

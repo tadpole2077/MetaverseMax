@@ -552,7 +552,7 @@ namespace MetaverseMax.ServiceClass
             }
             return lands;
         }
-
+        
         public OwnerData GetOwnerLands(string ownerMaticKey, bool updatePlotflag, bool processFullUpdate)
         {
             try
@@ -604,7 +604,7 @@ namespace MetaverseMax.ServiceClass
 
                             // Find next collection details on active building : No additional WS calls required
                             // SPECIAL CASE: Building Transfer may still show as active due to prior assigned cits, Not refreshing Citizens of 2nd account to pull from building on current account refresh. At least this will prevent building showing, but issue will percist within Prediction tool
-                            if (plot != null && plot.active && 
+                            if (plot != null && plot.active && lastActionUx != 0 &&
                                 buildingManage.CheckProductiveBuildingType(buildingTypeId) && 
                                 citizenCount >= CitizenManage.GetMinCitizenToProduce(buildingLevel))
                             {

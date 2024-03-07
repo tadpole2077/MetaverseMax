@@ -247,20 +247,20 @@ namespace MetaverseMax.ServiceClass
             return dateFormated;
         }
 
-        public DateTime? UnixTimeStampUTCToDateTime(double? unixTimeStamp, DateTime? noTime)
+        public static DateTime? UnixTimeStampUTCToDateTime(double? unixTimeStamp, DateTime? noTime)
         {
-            DateTime dateFormated;
+            DateTime? dateFormated;
 
             // Unix timestamp is seconds past epoch
             if (unixTimeStamp != null || unixTimeStamp == 0)
             {
                 dateFormated = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
-                dateFormated = dateFormated.AddSeconds((double)unixTimeStamp);
+                dateFormated = ((DateTime)dateFormated).AddSeconds((double)unixTimeStamp);
 
             }
             else
             {
-                dateFormated = noTime ?? DateTime.UtcNow;
+                dateFormated = noTime;
             }
             return dateFormated;
         }

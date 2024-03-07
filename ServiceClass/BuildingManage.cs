@@ -1433,6 +1433,8 @@ namespace MetaverseMax.ServiceClass
         
         }
 
+        // lastActionUx (Building) : Used to identify collection time, on collection event, last_action is updated
+        //                           Updates also triggered on : Citizen change, Industry production change, building transfer. It is not trigger on: building Repair, or IP change
         public ProductionCollection CollectionEval(BUILDING_TYPE buildingType, int buildingLevel, double lastActionUx)
         {
             ProductionCollection productionCollection = new();

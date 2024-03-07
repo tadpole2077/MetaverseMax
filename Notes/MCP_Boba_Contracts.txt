@@ -1,0 +1,30 @@
+﻿Summary:
+https://boba.network/
+
+Explorer: https://bobascan.com/
+
+Boba Token Investment eval 2023: https://www.youtube.com/watch?v=NBcHwc_vXSY
+** Too much token unlock expected over next 2 year period, major sell pressure likely. Token distribution is questionable. FTX held Boba, may dump it.
+
+2024/03/05 :  Price USD .3812USD
+
+BNB Boba L2 Use:
+	Pets
+	Venicles
+	Appliances
+
+Pets: https://bobascan.com/token/0x592bDBcD9B605bbE7E2A356A4f04fe8f0351fe1b?chainId=56288#inventory
+Contract Create Trx : https://bobascan.com/tx/0x9c04230a9420f379dd1ad0ac3b83316ddac712dcae884a7b239fa4d18e472db7?chainId=56288
+Method Sig:  0x62015180
+
+Creator: 0xB4E85C0039AA053e55DC2DEfDBb3EA341A13DDa6
+List of Created contract: https://bobascan.com/address/0xB4E85C0039AA053e55DC2DEfDBb3EA341A13DDa6?sort=asc&page=2&methods=0x60806040
+
+
+My Account - has 322 NFT Tokens on Boba
+https://bobascan.com/address/0xb197dC47fCbE7D7734B60fA87FD3b0BA0ACaf441/tokentxnsErc721
+Genearted 195 days to 446 days ago.
+
+
+Event: 2023-08-24 00:57:35
+>> All assignment of NFT to MCP players wallets stopped.

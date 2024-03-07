@@ -5,6 +5,7 @@ using MetaverseMax.BaseClass;
 using MetaverseMax.Database;
 using System.Net.Http.Json;
 using static Azure.Core.HttpHeader;
+using System.Reflection.Metadata;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -316,7 +317,7 @@ namespace MetaverseMax.ServiceClass
                         land_type = jsonContent.Value<int?>("land_type") ?? 0,
 
                         last_action_type = (int)lastActionType,
-                        last_action = parcelLastAction ?? common.UnixTimeStampUTCToDateTime(jsonContent.Value<int?>("last_action") ?? 0, null),
+                        last_action = parcelLastAction ?? ServiceCommon.UnixTimeStampUTCToDateTime(jsonContent.Value<int?>("last_action"), null),
                         last_updated = DateTime.UtcNow,
                         unclaimed_plot = string.IsNullOrEmpty(jsonContent.Value<string>("owner")),
 
@@ -391,7 +392,7 @@ namespace MetaverseMax.ServiceClass
                         plotMatched.current_price = plotMatched.on_sale ? building.GetSalePrice(jsonContent.Value<JToken>("sale_data"), worldType) : 0;
                         plotMatched.building_type_id = jsonContent.Value<int?>("building_type_id") ?? 0;
                         plotMatched.condition = jsonContent.Value<int?>("condition") ?? 0;
-                        plotMatched.last_action = common.UnixTimeStampUTCToDateTime(jsonContent.Value<int?>("last_action") ?? 0, null);
+                        plotMatched.last_action = ServiceCommon.UnixTimeStampUTCToDateTime(jsonContent.Value<double?>("last_action"), null);
                     }
                     else
                     {
@@ -655,6 +656,9 @@ namespace MetaverseMax.ServiceClass
 
             return jsonContent;
         }
+
+        // Parcel_id is not unique across worlds 
+        // Parcel_info_id is unique identifier across world
         public async Task<JObject> GetParcelMCP(int parcelId)
         {
             string content = string.Empty;
@@ -719,7 +723,7 @@ namespace MetaverseMax.ServiceClass
             List<Plot> filteredPlotsMegaHuge = plotList.Where(x => x.building_level == 7 || x.building_level == 6).ToList();
             List<int> tokenIdList = filteredPlotsMegaHuge.GroupBy(x => x.token_id).Select(grp => grp.Key).ToList();
 
-            //List<Plot> filteredPlots1to5 = plotList.Where(x => x.building_level < 6).ToList();
+            // Remove all L6 and L7 plots that are not in the fullProcessTokenList of Token_id's : POSSIBLE PROBLEM - plots related to old token (dropped after upgrade) may not get processed.
             plotList.RemoveAll(x => (x.building_level == 7 || x.building_level == 6) && !fullProcessTokenIdList.Contains(x.token_id));
 
             // Add one plot for each L6 and L7 back into FULL PROCESS Plot list.  Dont add dups hence check against fullProcessTokenIdList.
@@ -799,9 +803,11 @@ namespace MetaverseMax.ServiceClass
             CitizenManage citizen = new(_context, worldType);
             bool refreshMission = true;
 
-            int buildingTypeId = 0, districtId = 0, tokenId = 0, buildingLevel = 0, storedInfluenceBonus = 0, influenceBonus = 0, storedInfluence = 0, influence = 0, staminaAlertCount =0 , citizenAssignedCount = 0, actionId = 0;
+            int buildingTypeId = 0, districtId = 0, tokenId = 0, buildingLevel = 0, storedInfluenceBonus = 0, influenceBonus = 0, storedInfluence = 0, influence = 0, staminaAlertCount =0 , citizenAssignedCount = 0;
             int buildingUpdatedCount = 0, emptyPlotsUpdatedCount = 0;
             int storedApp123bonus = 0, storedApp4 = 0, storedApp5 = 0, storedInfluenceInfo = 0;
+            DateTime? last_action;
+            bool lastActionChanged = false, influanceChange = false;
 
             // Need to process min of 1 plot per account, only filter accounts with 2 or more plots.
             List<string> accountWithMin2Plot = plotList.Where(r => r.owner_matic is not null)
@@ -857,8 +863,7 @@ namespace MetaverseMax.ServiceClass
                         buildingTypeId = lands[landIndex].Value<int?>("building_type_id") ?? 0;
                         //parcelId = lands[landIndex].Value<int?>("building_type_id") ?? 0;
                         tokenId = lands[landIndex].Value<int?>("token_id") ?? 0;
-                        buildingLevel = lands[landIndex].Value<int?>("building_level") ?? 0;
-                        actionId = lands[landIndex].Value<int?>("action_id") ?? 0;
+                        buildingLevel = lands[landIndex].Value<int?>("building_level") ?? 0;                        
                         citizenAssignedCount = citizen.GetCitizenCount(lands[landIndex].Value<JArray>("citizens"));
 
                         buildingPlotList = _context.plot.Where(x => x.token_id == tokenId).ToList();
@@ -866,6 +871,14 @@ namespace MetaverseMax.ServiceClass
                         {
                             continue;   // if newly minted plot with new token OR plot sold/transfer, then get/process full plot - not partial.
                         }
+
+                        last_action = ServiceCommon.UnixTimeStampUTCToDateTime(lands[landIndex].Value<double?>("last_action"), null);
+                        lastActionChanged = buildingPlotList[0].last_action != last_action;
+                        
+
+                        districtId = lands[landIndex].Value<int?>("region_id") ?? 0;
+                        districtName = districtListMCPBasic.Where(x => x.district_id == districtId).FirstOrDefault();
+                        districtPOIStateChanged = districtName != null && (districtName.poi_activated || districtName.poi_deactivated);
 
                         influenceBonus = lands[landIndex].Value<int?>("influence_bonus") ?? 0;
                         influence = lands[landIndex].Value<int?>("influence") ?? 0;
@@ -876,19 +889,24 @@ namespace MetaverseMax.ServiceClass
                         storedApp4 = buildingPlotList[0].app_4_bonus ?? 0;
                         storedApp5 = buildingPlotList[0].app_5_bonus ?? 0;
 
-                        districtId = lands[landIndex].Value<int?>("region_id") ?? 0;
-                        districtName = districtListMCPBasic.Where(x => x.district_id == districtId).FirstOrDefault();
-                        districtPOIStateChanged = districtName == null ? false : districtName.poi_activated || districtName.poi_deactivated;
+                        // CHECK: if no Plot IP change(due to POI or Monument state change)
+                        //  AND no IP bonus change - or anomoly found with stored_app_bonus components vs influenceBonus,
+                        //  AND no change in IP due to nearby building (as influence_info would need to be recalculated)
+                        influanceChange = influenceBonus != storedInfluenceBonus || influence != storedInfluence || influenceBonus != (storedApp123bonus + storedApp4 + storedApp5);
+
 
                         // NOTE: Empty plot needs to be updated on each nighly sync - as empty plot can be set For_sale or sale price changed.
                         // NOTE_2: Newly build POI and monuments wont trigger a state change until next sync, unless account manually viewed and plots updated before sync
                         // NOTE_3: The influence attributes check is needed as building may be destroyed reverting back to empty plot, plot influance fields will need full sync to all reflect current 0 value.
-                        
-                        // Check if building demolished in last 24 hours, then run full plot sync process on all building plots.  if current building level is less stored or type has changed then building was demolished (and maybe rebuild as different type)
+
+                        // IDENTIFY & REMOVE PLOTS FROM FULL PROCESS LIST 
+                        // A) Check if building demolished in last 24 hours, then run full plot sync process on all building plots.
+                        //      If current building level is less stored or type has changed then building was demolished (and maybe rebuild as different type)
                         if (buildingLevel < buildingPlotList[0].building_level || buildingTypeId != buildingPlotList[0].building_type_id)
                         {
                             fullProcessTokenIdList.Add(tokenId);
                         }
+                        // B) REMOVE EMPTY LAND PLOTS - Checking & Saving "For Sale" via UpdatePlotPartial() Process.
                         else if ((buildingTypeId == (int)BUILDING_TYPE.EMPTY_LAND || buildingTypeId == (int)BUILDING_TYPE.POI)
                             && influence == 0 && influenceBonus == 0 && storedInfluenceInfo == 0)
                         {
@@ -899,25 +917,22 @@ namespace MetaverseMax.ServiceClass
                                x.owner_matic == accountWithMin2Plot[i] &&
                                x.token_id == tokenId);
                         }
-                        else if (buildingTypeId == (int)BUILDING_TYPE.INDUSTRIAL && actionId == 0 && citizenAssignedCount > 0)
+                        // C) SKIP INDUSTRY BUILDING - If an action change has been registered. Rule: Need to identify Production run type (action_id from Plot Full Process Sync)    
+                        // CHECK: if no building IP changed due to (a) POI or Monument state change,  (b) MCP building influence differs to local stored influence        
+                        //  THEN skip Full update and use Partial update.
+                        else if (ownerMonumentStateChanged == false && districtPOIStateChanged == false && influanceChange == false &&
+                            (buildingTypeId != (int)BUILDING_TYPE.INDUSTRIAL || (buildingTypeId == (int)BUILDING_TYPE.INDUSTRIAL && lastActionChanged == false)))
                         {
-                            
-                            // Do FULL plot update on this building, to find current product being produced for industry (assigned to actionId)
-                            // This scenario can occur if (a) plot industry is build but no cits assigned (b) nightly run occurs assigning action_id=0  (c) citizens then assigned to plot and active production run starts.
-
-                        }
-                        // CHECK: if no Plot IP change (due to POI or Monument state change)
-                        //  AND no IP bonus change - or anomoly found with stored_app_bonus components vs influenceBonus,
-                        //  AND no change in IP due to nearby building (as influence_info would need to be recalculated)
-                        //  THEN partial update can proceed. (no full update required)
-                        else if (ownerMonumentStateChanged == false && districtPOIStateChanged == false
-                            && storedInfluenceBonus == influenceBonus
-                            && influence == storedInfluence
-                            && influenceBonus == (storedApp123bonus + storedApp4 + storedApp5)                            
-                            )
-                        {                            
-                            UpdatePlotPartial(lands[landIndex], false, refreshMission);
-                            buildingUpdatedCount++;
+                            PlotCord fullUpdate = UpdatePlotPartial(lands[landIndex], false, refreshMission);
+                            // Safety measure - UpdatePlotPartial may identify that a full update is preferred for this building.
+                            if (fullUpdate != null && fullUpdate.fullUpdateRequired)
+                            {
+                                fullProcessTokenIdList.Add(tokenId);
+                            }
+                            else
+                            {
+                                buildingUpdatedCount++;
+                            }
 
                             // Newly purchased will be handled correctly in UpdatePlotPartial triggering a full plot process. Any sold plots wont get filtered.
                             totalPlotsRemoved += plotList.RemoveAll(x =>
@@ -1250,7 +1265,7 @@ namespace MetaverseMax.ServiceClass
         }
 
         // Special Case : Partial update during day - if building was recently built/upgraded, partial update of plot data found in /user/assets/lands WS calls.
-        // Assets/land WS does not return these fields:
+        // Assets/land WS does NOT return these fields:
         //      owner_nickname
         //      owner_avatar_id
         //      resources
@@ -1261,7 +1276,7 @@ namespace MetaverseMax.ServiceClass
         //      app_4_bonus
         //      app_5_bonus
         //      app_123_bonus
-        //      action_id     >>> Industry buildings (type=5),  action_id indicates what the current production type is as industry building can run 2 different production type runs - needed for Ranking prediction eval.
+        //      action_id     >>> Industry buildings (type=5),  action_id indicates what the current production type, ONLY INDUSTRY building can run 2 different production run types - USED BY Ranking prediction eval.
         //      for_rent      >>> bool flag is not provided, BUT can infer if plot is currently rented by renter (matic) field and if not currently rented - if a rent price is assigned (0 =  not available for rent)
         //
         //  Custom Buildings >> parcel_id attribte is not included within Owner>>Lands WS MCP call, as such Custom Building is not identified or updated here (only within FULL Plot sync calls)
@@ -1277,10 +1292,10 @@ namespace MetaverseMax.ServiceClass
             CitizenManage citizen = new(_context, worldType);
             BuildingManage buildingManage = new(_context, worldType);
             Building building = new();
-            int tokenId = 0, buildingLevel = 0;
+            int tokenId = 0, buildingLevel = 0, oldTokenId = 0;
             int newInfluence = 0;
             Boolean fullPlotSync = false;
-            DateTime last_action;
+            DateTime? last_action;
             decimal newRanking = -1;
             PlotCord plotFullUpdate = new() { fullUpdateRequired = false };
             bool hasMission = false, newMission = false;
@@ -1289,7 +1304,7 @@ namespace MetaverseMax.ServiceClass
             try
             {
                 MissionDB missionDB = new(_context, worldType);
-                tokenId = ownerLand.Value<int?>("token_id") ?? 0;
+                oldTokenId = tokenId = ownerLand.Value<int?>("token_id") ?? 0;
                 buildingPlotList = _context.plot.Where(x => x.token_id == tokenId).ToList();
 
                 // CHECK local db shows unclaimed.
@@ -1320,9 +1335,8 @@ namespace MetaverseMax.ServiceClass
                         newInfluence = ownerLand.Value<int?>("influence") ?? 0;
                         fullPlotSync = plotMatched.influence != newInfluence || fullPlotSync == true;
 
-                        last_action = (DateTime)common.UnixTimeStampUTCToDateTime(ownerLand.Value<double?>("last_action") ?? 0, plotMatched.last_action);
-                        fullPlotSync = plotMatched.last_action != last_action || fullPlotSync == true;
-
+                        last_action = ServiceCommon.UnixTimeStampUTCToDateTime(ownerLand.Value<double?>("last_action"), null);
+                        //fullPlotSync = plotMatched.last_action != last_action || fullPlotSync == true;
                         plotMatched.last_action = last_action;
 
                         // Update 1 plot or multiple plots depending on building level, only one record returned per building with this lands WS call.
@@ -1352,14 +1366,22 @@ namespace MetaverseMax.ServiceClass
                         plotMatched.low_stamina_alert = citizen.CheckCitizenStamina(ownerLand.Value<JArray>("citizens"), plotMatched.building_type_id);
 
                     }
+                    else if ((ownerLand.Value<int?>("building_level") == (int)BUILDING_SIZE.HUGE && buildingPlotList.Count != 2)|| (ownerLand.Value<int?>("building_level") == (int)BUILDING_SIZE.MEGA && buildingPlotList.Count != 4))
+                    {
+                        // Recent upgraded huge or mega, complete full refresh on plot. local bulding amount of plots has changed versus current building level.
+                        // NOTE : On Huge to Mega upgrade, will only be able to update 2 plots out of 4, as unknown from data we have as to which other huge used in upgrade. TO_DO find a smart way...  It will get picked up on Nighly sync
+                        fullPlotSync = true;
+                        oldTokenId = plotMatched.token_id;
+
+                    }
                     else if ((ownerLand.Value<int?>("building_level") == (int)BUILDING_SIZE.HUGE || ownerLand.Value<int?>("building_level") == (int)BUILDING_SIZE.MEGA) || buildingPlotList.Count > 1)
                     {
                         // On Influence change - tag token for full update.
                         newInfluence = ownerLand.Value<int?>("influence") ?? 0;
                         fullPlotSync = plotMatched.influence != newInfluence || fullPlotSync == true;
 
-                        last_action = (DateTime)common.UnixTimeStampUTCToDateTime(ownerLand.Value<double?>("last_action") ?? 0, plotMatched.last_action);
-                        fullPlotSync = plotMatched.last_action != last_action || fullPlotSync == true;
+                        last_action = ServiceCommon.UnixTimeStampUTCToDateTime(ownerLand.Value<double?>("last_action") ?? 0, null);
+                        //fullPlotSync = plotMatched.last_action != last_action || fullPlotSync == true;
 
                         for (int i = 0; i < buildingPlotList.Count; i++)
                         {
@@ -1414,6 +1436,8 @@ namespace MetaverseMax.ServiceClass
                     plotFullUpdate.plotId = plotMatched.plot_id;
                     plotFullUpdate.posX = ownerLand.Value<int?>("x") ?? 0;
                     plotFullUpdate.posY = ownerLand.Value<int?>("y") ?? 0;
+                    plotFullUpdate.localTokenID = oldTokenId;
+                    plotFullUpdate.currentTokenID = tokenId;
                 }
 
                 // Refresh mission requires MCP WS call,  always pull in new missions - dont refresh existing active missions unless flagged to do so.
