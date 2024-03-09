@@ -1,14 +1,14 @@
 .containerDialog {
   height: 478px;
-  background-color: dimgray;
+
 }
 
 .tabHeaderBank{
   height: 52px;
   background-color: dimgray;
   padding-top: 4px;
-  margin-left: 2px;
-  margin-right: 2px;
+  padding-left: 2px;
+  padding-right: 2px;
 }
 ::ng-deep .containerDialog .mdc-tab{
   margin-left: 4px;
@@ -18,15 +18,11 @@
 ::ng-deep .containerDialog .mat-mdc-tab:hover{
   border-top-right-radius: 12px;
   border-top-left-radius: 12px;
-  background: gray;
 }
-::ng-deep .containerDialog .mdc-tab--active:hover{
-  background: white;
-}
+
 ::ng-deep .containerDialog .mdc-tab--active{
   border-top-right-radius: 12px;
   border-top-left-radius: 12px;  
-  background: white;
 }
 ::ng-deep .containerDialog .mat-mdc-tab .mdc-tab__text-label{
   color:white;
@@ -34,17 +30,8 @@
   font-weight: 500;
 }
 
-::ng-deep .containerDialog .mat-mdc-tab:not(.mat-mdc-tab-disabled) .mdc-tab-indicator__content--underline{
-  margin-left: 3px;
-  margin-right: 3px;
-  background: linear-gradient(to left, rgb(255, 255, 255), rgb(21, 101, 192,.3), rgb(21, 101, 192), rgb(21, 101, 192,.3), rgb(255, 255, 255));
-  height: 1px;
-  border: 0px;
-}
-
 .tab1Content,.tab2Content{
   display:none;
-  background-color: white;
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
   height: 396px;

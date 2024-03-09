@@ -53,8 +53,15 @@ namespace MetaverseMax.Database
                     // This may occur if owner owns no plots, but owns other tracked assets such as a District.
                     if (_context.ownerName.Where(o => o.owner_matic_key == ownerChange.owner_matic_key).Any() == false)
                     {
+                        int freeDays = 0;
+                        using (MetaverseMaxDbContext_UNI contextUNI = new())
+                        {
+                            SettingDB settingDB = new(contextUNI);
+                            freeDays = settingDB.GetSettingValue(JOB_SETTING_CODE.NEW_ACCOUNT_PRO_TOOLS_FREE_DAYS);
+                        }
+
                         OwnerDB ownerDB = new(_context);
-                        ownerDB.NewOwner(ownerChange.owner_matic_key, false);
+                        ownerDB.NewOwner(ownerChange.owner_matic_key, false, freeDays);
                     }
 
                     // TEMP CODE - Future Enh : Assign same name and avatar_id to all plots owned by this account

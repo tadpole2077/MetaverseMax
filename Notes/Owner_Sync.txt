@@ -44,9 +44,13 @@ Objective:
 * MaticLink table -  linking global account to matic key  paired with blockchain env.
 
 Process:
-- When: nightly sync, and (anything) NewOwner method call 
-- Rule_1 : Check owner id (OwnerUni.owner_uni_id) has at least one link record - MaticKeyLink,  Create link record if none found
-- Rule_2 : Check each world db (owner) has a matching link record. if not create one per world. link to existing OwnerUni record, if none then create a new record and assign key to link (owner_uni_id) 
+- When: nightly sync, and any NewOwner method call
+- Rule_1 : Check owner id (OwnerUni.owner_uni_id) has at least one link record - MaticKeyLink.
+		   Action: Create link record if none found
+		   When: (1)Nightly Sync, (2)Update District, (3)Owner balance change
+
+- Rule_2 : Check each world db (owner) has a matching link record. if not create one per world. 
+		   link to existing OwnerUni record. if none exists, then create a new record and assign key to link (owner_uni_id) 
 
 Account Owner - Use Cases:
 - Owner can wallet sign to attach related world account to a designated OwnerUni record.   
@@ -64,3 +68,15 @@ Calls:
 4) OwnerManage.UpdateBalance() >> OwnerManage.UpdateBalance() >> OwnerUniDB.CheckLink()	
 
 
+Universal Owner Account Behaviours
+1) Control visibility of Balance within main toolbar, from single switch user setting
+   Service: api/bnb/OwnerData/SetBalanceVisible?owner_matic_key=0xb197dc47fcbe7d7734b60fa87fd3b0ba0acaf441&balance_visible=true
+
+
+Issues:
+1) Out of Sync : Owner (owner_uni_id) does not match those found in MetaverseMax_UNI database - OwnerUni table
+	How does it occur:  when restoring a copy of live database for use within dev env for testing.
+	How to resolve: Call WS https://localhost:44360/api/bnb/ownerdata/SyncWorldOwnerAll
+	Reolve Details: 
+		One side effect of this call is that linked_wallet_count will increment by 1, not an issue in dev env but in live it would show incorrect count of linked wallets (dont expect this WS to be run in list beyond the initial runs)
+		Typically this WS is ran once on release within each world. No future live db use envisaged at this time. Check logic again before using multiple times within live env.

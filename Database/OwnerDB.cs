@@ -74,8 +74,8 @@ namespace MetaverseMax.Database
                     {
                         matic_key = o.owner_matic_key.ToLower(),
                         public_key = o.public_key,
-                        name = o.owner_name,
-                        discord_name = o.discord_name,
+                        name = o.owner_name ?? string.Empty,
+                        discord_name = o.discord_name ?? string.Empty,
                         avatar_id = o.avatar_id ?? 0,
                         dark_mode = o.dark_mode,
                         pro_tools_enabled = (o.pro_access_expiry ?? DateTime.UtcNow) > DateTime.UtcNow ? true : false,
@@ -278,15 +278,11 @@ namespace MetaverseMax.Database
 
         }        
 
-        public Owner NewOwner(string ownerMaticKey, bool saveCommit)
+        public Owner NewOwner(string ownerMaticKey, bool saveCommit, int freeDays)
         {
             Owner owner = null;
             try
-            {
-                JobSettingDB jobSettingDB = new(_context);
-
-                int freeDays = jobSettingDB.GetSettingValue(JOB_SETTING_CODE.NEW_ACCOUNT_PRO_TOOLS_FREE_DAYS);
-
+            {                
                 owner = _context.owner.Add(
                     new Owner()
                     {

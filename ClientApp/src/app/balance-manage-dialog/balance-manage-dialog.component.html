@@ -18,7 +18,7 @@
   </mat-tab-group>
 
   <div class="tab1Content" [ngClass]="{'visible':tab1Visible}">
-    <div class="topSection">
+    <div class="topSection activePanel">
       <div class="balanceSection">
         <div class="balanceInfo">
           <div class="balanceLabel"><span>Account MM Balance:</span></div>
@@ -54,7 +54,7 @@
     </div>
 
     <div class="containerAction">
-      <div class="actionMega" [ngClass]="{'backgroundNoFocus': !depositFocus}" (click)="withdrawFocus = false; depositFocus = true;">
+      <div class="actionMega activePanel" [ngClass]="{'backgroundNoFocus': !depositFocus}" (click)="withdrawFocus = false; depositFocus = true;">
         <div class="balanceLabel"><span>Deposit into your MM Account</span></div>
 
         <mat-form-field [style.width.rem]=14 class="notchAdjust inputAmount" appearance="outline" floatLabel="auto" subscriptSizing="dynamic">
@@ -92,7 +92,7 @@
 
       </div>
 
-      <div class="actionMega" [ngClass]="{'backgroundNoFocus': !withdrawFocus}" (click)="withdrawFocus = true; depositFocus = false;" (focus)="withdrawFocus = true; depositFocus = false;">
+      <div class="actionMega activePanel" [ngClass]="{'backgroundNoFocus': !withdrawFocus}" (click)="withdrawFocus = true; depositFocus = false;" (focus)="withdrawFocus = true; depositFocus = false;">
         <div class="balanceLabel"><span>Withdraw from your MM Account</span></div>
         <mat-form-field [style.width.rem]=14 class="notchAdjust inputAmount" appearance="outline" floatLabel="auto" subscriptSizing="dynamic">
           <mat-label>Mega</mat-label>
@@ -132,7 +132,7 @@
 
   </div>
 
-  <div class="tab2Content" [ngClass]="{'visible':tab2Visible}">
-    <app-balance-log  />
+  <div class="tab2Content activePanel" [ngClass]="{'visible':tab2Visible}">
+    <app-balance-log  class="activePanel" />
   </div>
 </div>

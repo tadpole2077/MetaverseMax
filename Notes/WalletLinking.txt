@@ -1,11 +1,13 @@
 ﻿
 Overview
 =============
-All MegaWorld types support player swap of wallet account linked to in-world account.
-This requires mapping a Public Wallet key to an existing L2 account (Matic).
-A new L2 account is not generated during this process.
-Thus, it is no longer possible to find a matching L1 wallet key from L2 account after this switch occurs.
-Outstanding problem - a few account have switched (Example: Noblus)
+
+PRE 2024 :  The following is no longer a concern, players can not change wallet linked to Polygon - uses the same key.
+	All MegaWorld types support player swap of wallet account linked to in-world account.
+	This requires mapping a Public Wallet key to an existing L2 account (Matic).
+	A new L2 account is not generated during this process.
+	Thus, it is no longer possible to find a matching L1 wallet key from L2 account after this switch occurs.
+	Outstanding problem - a few account have switched (Example: Noblus)
 
 Components:
 =============

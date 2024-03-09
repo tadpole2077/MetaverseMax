@@ -1,4 +1,11 @@
-﻿Process Steps:
+﻿
+Related Features:
+* Wallet linking feature : See Owner_Sync.txt  : Used to link multiple wallets across worlds to ONE Universal account (and balance)
+
+
+===========================================
+Deposit/Withdraw Process Steps:
+===========================================
 Deposit:
 1) depositMegaToMMBankWithAllowance()			>> File: balance-manage-dialog.component.ts
 	calls ABI MCPMegaContract.methods.approve()

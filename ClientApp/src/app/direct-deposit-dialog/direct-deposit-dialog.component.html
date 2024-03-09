@@ -49,7 +49,7 @@
 
 
   <div class="containerAction">
-    <div class="actionMega" [ngClass]="{'backgroundNoFocus': !depositFocus}" (click)="withdrawFocus = false; depositFocus = true;">
+    <div class="actionMega activePanel" [ngClass]="{'backgroundNoFocus': !depositFocus}" (click)="withdrawFocus = false; depositFocus = true;">
       <div class="balanceLabel"><span>Deposit Direct into your MCP Account</span></div>
 
       <mat-form-field [style.width.rem]=14 class="notchAdjust inputAmount" appearance="outline" floatLabel="auto" subscriptSizing="dynamic">

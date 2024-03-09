@@ -6,6 +6,7 @@ using MetaverseMax.Database;
 using System.Net.Http.Json;
 using static Azure.Core.HttpHeader;
 using System.Reflection.Metadata;
+using Microsoft.IdentityModel.Tokens;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -1118,7 +1119,7 @@ namespace MetaverseMax.ServiceClass
                         pos_y = mission.pos_y,
                         district_id = mission.district_id,                 
                         owner_matic = mission.owner_matic,
-                        owner_name = ownerAccount == null ? "" : ownerAccount.name,
+                        owner_name = ownerAccount == null ? "" : ownerAccount.name.IsNullOrEmpty() ? ownerAccount.discord_name ?? string.Empty : String.Empty,
                         owner_avatar_id = ownerAccount == null ? 0 : ownerAccount.avatar_id,
                         building_id = mission.building_id,
                         building_level = mission.building_level,

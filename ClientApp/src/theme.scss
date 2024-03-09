@@ -417,16 +417,16 @@ $foreground: map-get($dark-app-theme, foreground);
   .containerDialog {
     color: white
   }
-  .actionMega{
-    background-color: rgba($dark-outer-bg, .9);    
+  .activePanel{
+    background-color: rgba($dark-outer-bg, .95);    
   }
-  .actionMega .balanceLabel{
+  .activePanel .balanceLabel{
     color: lightgray;
   }
   .backgroundNoFocus {
     background-color: $dark-outer-bg;    
   }
-  .actionMega.backgroundNoFocus .balanceLabel{
+  .activePanel.backgroundNoFocus .balanceLabel{
     color: lightslategray
   }
   .mat-mdc-dialog-container .mdc-dialog__surface {
@@ -449,6 +449,35 @@ $foreground: map-get($dark-app-theme, foreground);
   .ready{
     color:lawngreen
   }
+
+  // tab
+  .containerDialog .mat-mdc-tab:hover{
+    background: gray;
+  }
+  .containerDialog .mdc-tab{
+    opacity: .4;
+  }
+    .containerDialog .mdc-tab:hover{
+      opacity: 1;
+    }
+  .containerDialog .mdc-tab--active{
+    background-color: rgba($dark-outer-bg, .9);
+    opacity: 1;
+  }
+    .containerDialog .mdc-tab--active:hover{
+      background: rgba($dark-outer-bg, .9);
+    }
+
+  // tab gradient underline
+  .containerDialog .mat-mdc-tab:not(.mat-mdc-tab-disabled) .mdc-tab-indicator__content--underline{
+    margin-left: 3px;
+    margin-right: 3px;
+    background: linear-gradient(to left, rgba($dark-outer-bg, .9), rgb(21, 101, 192,.3), rgb(21, 101, 192), rgb(21, 101, 192,.3), rgba($dark-outer-bg, .9));
+    height: 1px;
+    border: 0px;
+  }
+  
+
 }
 
 
@@ -550,6 +579,28 @@ a.closeframe:hover {
 div.districtEle {
   background-color: white;
 }
+
+// tab
+.containerDialog .mdc-tab--active{
+  background-color: white
+}
+.containerDialog .mat-mdc-tab:hover{
+  background: gray;
+}
+.containerDialog .mdc-tab--active:hover{
+  background: white;
+}
+  // tab gradient underline
+  .containerDialog .mat-mdc-tab:not(.mat-mdc-tab-disabled) .mdc-tab-indicator__content--underline{
+    margin-left: 3px;
+    margin-right: 3px;
+    background: linear-gradient(to left, rgb(255, 255, 255), rgb(21, 101, 192,.3), rgb(21, 101, 192), rgb(21, 101, 192,.3), rgb(255, 255, 255));
+    height: 1px;
+    border: 0px;
+  }
+
+
+
 //table tab icons
 .typeFilter{  
   border-color: #d3d3d3;
