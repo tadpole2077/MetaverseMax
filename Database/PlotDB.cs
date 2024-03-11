@@ -371,6 +371,9 @@ namespace MetaverseMax.Database
                     buildingPlotList[i].update_type = (int)UPDATE_TYPE.COPY_MASTER;
                     buildingPlotList[i].last_updated = plotMaster.last_updated;
 
+                    buildingPlotList[i].last_action = plotMaster.last_action;
+                    buildingPlotList[i].last_action_type = plotMaster.last_action_type;
+
                     buildingPlotList[i].unclaimed_plot = plotMaster.unclaimed_plot;
 #nullable enable
                     buildingPlotList[i].owner_nickname = plotMaster.owner_nickname;

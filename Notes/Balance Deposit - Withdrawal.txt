@@ -7,6 +7,7 @@ Related Features:
 Deposit/Withdraw Process Steps:
 ===========================================
 Deposit:
+-----------------------
 1) depositMegaToMMBankWithAllowance()			>> File: balance-manage-dialog.component.ts
 	calls ABI MCPMegaContract.methods.approve()
 
@@ -21,10 +22,53 @@ Deposit:
 		and (3) Event using MMBank Contract address ( Prevent spoofing of deposit event log - using fake MMBank contract )
 
 
+
 Withdrawal:
-1)
-2)
-3)
+-----------------------
+1) withdrawAllowanceApprove()					>> File: balance-manage-dialog.component.ts
+	Called by withdraw button CLICK
+
+
+2) walletSign(withdrawMegaAmountNumber)			>> File: balance-manage-dialog.component.ts
+	Desc: Wallet sign matching amount and using : encrypted code combined with account details + amount + salt, produces a hashed signed code.
+		This code is later used to approve the withdraw - unique to this transactoin.
+	Calls:
+		getWithdrawSignCode(amount)				>> File: balance-manage-dialog.component.ts  >> WS call to server returns long code chunk
+	Requires: 
+		Wallet confirm by user (no 1)
+
+3) WS >> /bank/WithdrawAllowanceApprove
+	Desc: passed the signed key - backend server checks key is valid and proceeds to approve the withdraw amount.
+		
+
+4) updateUserBankBalance()  
+	Desc: calls WS /bank/GetBalance  and update the top manu balance component relating to total MM Mega balance user holds.
+
+5) withdrawMegaFromMMBank()
+	Desc: calls the MMBankContract.methods.withdrawMega(),  
+	Requires: Wallet confirm by user (no 2)
+
+6) confirmTransaction(transactionHash) : 
+	Desc: calls WS /bank/confirmTransaction , which checks the transaction events on the server
+		if transaction is correct contract, not processed before, then the withdraw transaction is recorded in the local db, and will show in the user [log tab]
+
+7) checkBalances(true)
+	Desc: update component balances, includes check to Mega contract to get new total held on owners wallet - used within deposit panal for max deposit range and display.
+
+
+What-if Notes
+a) User may cancal transaction at point 5 - causing transaction to freeze in intermediate state, MM balance will reduce, but user wallet will not receive tokens.
+	User will need to Claim or Cancel to proceed with the withdraw transaction completion
+
+
+
+Potential hack
+- brute force multi signs for same withdraw amount, could result in duplicate allowance increase.  
+	To protect against this, SPROC is used to table locks on OwnerUni, check table has sufficient balance, deduct withdraw and add new transaction record.
+
+Improvement:
+using locked stored sproc
+- get 
 
 
 

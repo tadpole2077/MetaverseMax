@@ -147,8 +147,8 @@
     public class BANK_ACTION
     {
         public static readonly char DEPOSIT = 'D';
-        public static readonly char WITHDRAW = 'W';
-        public static readonly char PENDING = 'P';
+        public static readonly char WITHDRAW = 'W';        
+        public static readonly char WITHDRAW_PENDING = 'P';
     }
 
     public enum ALERT_STATE

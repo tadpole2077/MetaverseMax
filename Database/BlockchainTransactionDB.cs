@@ -3,6 +3,7 @@ using MetaverseMax.Database;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Transactions;
 
 namespace MetaverseMax.Database
@@ -144,6 +145,60 @@ namespace MetaverseMax.Database
             }
 
             return processed;
+        }
+
+        public int RecordWithdrawApproval(string ownerMatic, int ownerUniID, char action, decimal amount, NETWORK chainId)
+        {
+            int result;
+            int transaction = 0;
+            try
+            {
+                SqlParameter ownerParameter = new("@owner_uni_id", ownerUniID);
+                SqlParameter withdrawMaticKeyParameter = new("@withdrawal_matic_key", ownerMatic);
+                SqlParameter actionParameter = new("@action", action);
+                SqlParameter amountParameter = new("@amount", amount);
+                SqlParameter chainParameter = new("@chain_id", (int)chainId);
+
+                SqlParameter transactionResult = new()
+                {
+                    ParameterName = "@transaction",
+                    SqlDbType = System.Data.SqlDbType.Bit,
+                    Direction = System.Data.ParameterDirection.Output,
+
+                };
+
+                result = _context.Database.ExecuteSqlRaw("EXEC @transaction = dbo.sp_transaction_withdraw @withdrawal_matic_key, @owner_uni_id, @action, @amount, @chain_id",
+                    new[] { withdrawMaticKeyParameter, ownerParameter, actionParameter, amountParameter, transactionResult, chainParameter });
+
+                transaction = (int)transactionResult.Value;
+            }
+            catch (Exception ex)
+            {
+                logException(ex, String.Concat("OwnerDB::RecordWithdrawApproval() : Error recording withdrawal approval for owner universial ID ", ownerUniID, " with matic ", ownerMatic, " and amount ", amount));
+            }
+
+            return transaction;
+        }
+
+        public RETURN_CODE AssignHash(int transaction, string hashApproval)
+        {
+            RETURN_CODE returnCode = RETURN_CODE.ERROR;
+            try
+            {
+                BlockchainTransaction  approveTransaction = _context.BlockchainTransaction.Find(transaction);
+                approveTransaction.hash = hashApproval;
+                approveTransaction.approval_recorded_utc = DateTime.Now;
+
+                _context.SaveChanges();
+                returnCode = RETURN_CODE.SUCCESS;
+
+            }
+            catch (Exception ex)
+            {
+                logException(ex, String.Concat("blockchainTransactionDB::AssignHash() : Error assigning approval hash: ", hashApproval, " to transaction id : ", transaction));
+            }
+
+            return returnCode;
         }
     }
 }

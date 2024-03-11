@@ -1329,66 +1329,23 @@ namespace MetaverseMax.ServiceClass
                         _context.LogEvent(String.Concat("Plot sold/transfer - Get full plot details and store - due to change of owner_matic, avatar, name.  Plot tokenID - ", tokenId));
 
                     }
-                    else if (buildingPlotList.Count == 1 && buildingLevel < (int)BUILDING_SIZE.HUGE)
+                    else
                     {
                         // On Influence change - tag token for full update.
-                        // MCP BUG - calulated total IP with any POI & Monument included and ALWAYS active[using this LANDS WS] 
+                        //    Related to : MCP BUG - calulated total IP with any POI & Monument included and ALWAYS active[using this LANDS WS] 
                         newInfluence = ownerLand.Value<int?>("influence") ?? 0;
                         fullPlotSync = plotMatched.influence != newInfluence || fullPlotSync == true;
 
-                        last_action = ServiceCommon.UnixTimeStampUTCToDateTime(ownerLand.Value<double?>("last_action"), null);
-                        //fullPlotSync = plotMatched.last_action != last_action || fullPlotSync == true;
-                        plotMatched.last_action = last_action;
+                        // Full Refresh if (A) newly build Building, or (B) industry and recent action change - may have changed production type can only find change in FUll building update
+                        last_action = ServiceCommon.UnixTimeStampUTCToDateTime(ownerLand.Value<double?>("last_action"), null);                        
+                        fullPlotSync = plotMatched.last_action != last_action && plotMatched.building_type_id == (int)BUILDING_TYPE.EMPTY_LAND || plotMatched.building_type_id == (int)BUILDING_TYPE.INDUSTRIAL || fullPlotSync == true;
 
-                        // Update 1 plot or multiple plots depending on building level, only one record returned per building with this lands WS call.
-                        // Notes: for_rent is not populated by this WS call, unknown if rental data is valid.  Dont change last_updated as not all fields are updated - specifically the influance_info field is not updated which used in ranking module to allow another refresh.
-                        plotMatched.update_type = (int)UPDATE_TYPE.PARTIAL;
-                        plotMatched.last_updated = DateTime.UtcNow;
-                        plotMatched.unclaimed_plot = string.IsNullOrEmpty(ownerLand.Value<string>("owner"));
-                        plotMatched.owner_matic = ownerLand.Value<string>("owner");
-
-                        plotMatched.building_id = ownerLand.Value<int?>("building_id") ?? 0;
-                        plotMatched.building_level = buildingLevel;
-                        plotMatched.building_type_id = ownerLand.Value<int?>("building_type_id") ?? 0;
-                        plotMatched.token_id = tokenId;
-                        plotMatched.on_sale = ownerLand.Value<bool?>("on_sale") ?? false;
-                        plotMatched.current_price = plotMatched.on_sale ? building.GetSalePrice(ownerLand.Value<JToken>("sale_data"), worldType) : 0;
-                        plotMatched.rented = ownerLand.Value<string>("renter") != null;
-                        plotMatched.for_rent = plotMatched.rented == false ? building.GetRentPrice(ownerLand.Value<JToken>("rent_info"), worldType) : 0;    // Only get rent price if not currently rented
-                        plotMatched.abundance = ownerLand.Value<int?>("abundance") ?? 0;
-                        plotMatched.condition = ownerLand.Value<int?>("condition") ?? 0;
-
-                        plotMatched.current_influence_rank = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, buildingLevel, plotMatched.building_type_id, plotMatched.token_id, plotMatched.building_id, plotMatched.district_id, plotMatched.owner_matic);
-                        plotMatched.influence = newInfluence;                                                   // Placed after ranking check, as both old and new influence needed for check                    
-
-                        //plotMatched.influence_bonus = ownerLand.Value<int?>("influence_bonus") ?? 0;          // Missing assign bonus per app slot
-
-                        plotMatched.citizen_count = ownerLand.Value<JArray>("citizens") == null ? 0 : ownerLand.Value<JArray>("citizens").Count;
-                        plotMatched.low_stamina_alert = citizen.CheckCitizenStamina(ownerLand.Value<JArray>("citizens"), plotMatched.building_type_id);
-
-                    }
-                    else if ((ownerLand.Value<int?>("building_level") == (int)BUILDING_SIZE.HUGE && buildingPlotList.Count != 2)|| (ownerLand.Value<int?>("building_level") == (int)BUILDING_SIZE.MEGA && buildingPlotList.Count != 4))
-                    {
-                        // Recent upgraded huge or mega, complete full refresh on plot. local bulding amount of plots has changed versus current building level.
-                        // NOTE : On Huge to Mega upgrade, will only be able to update 2 plots out of 4, as unknown from data we have as to which other huge used in upgrade. TO_DO find a smart way...  It will get picked up on Nighly sync
-                        fullPlotSync = true;
-                        oldTokenId = plotMatched.token_id;
-
-                    }
-                    else if ((ownerLand.Value<int?>("building_level") == (int)BUILDING_SIZE.HUGE || ownerLand.Value<int?>("building_level") == (int)BUILDING_SIZE.MEGA) || buildingPlotList.Count > 1)
-                    {
-                        // On Influence change - tag token for full update.
-                        newInfluence = ownerLand.Value<int?>("influence") ?? 0;
-                        fullPlotSync = plotMatched.influence != newInfluence || fullPlotSync == true;
-
-                        last_action = ServiceCommon.UnixTimeStampUTCToDateTime(ownerLand.Value<double?>("last_action") ?? 0, null);
-                        //fullPlotSync = plotMatched.last_action != last_action || fullPlotSync == true;
-
-                        for (int i = 0; i < buildingPlotList.Count; i++)
+                        if (buildingPlotList.Count == 1 && buildingLevel < (int)BUILDING_SIZE.HUGE)
                         {
-                            plotMatched = buildingPlotList[i];
-
                             plotMatched.last_action = last_action;
+
+                            // Update 1 plot or multiple plots depending on building level, only one record returned per building with this lands WS call.
+                            // Notes: for_rent is not populated by this WS call, unknown if rental data is valid.  Dont change last_updated as not all fields are updated - specifically the influance_info field is not updated which used in ranking module to allow another refresh.
                             plotMatched.update_type = (int)UPDATE_TYPE.PARTIAL;
                             plotMatched.last_updated = DateTime.UtcNow;
                             plotMatched.unclaimed_plot = string.IsNullOrEmpty(ownerLand.Value<string>("owner"));
@@ -1397,29 +1354,71 @@ namespace MetaverseMax.ServiceClass
                             plotMatched.building_id = ownerLand.Value<int?>("building_id") ?? 0;
                             plotMatched.building_level = buildingLevel;
                             plotMatched.building_type_id = ownerLand.Value<int?>("building_type_id") ?? 0;
-                            plotMatched.token_id = ownerLand.Value<int?>("token_id") ?? 0;
+                            plotMatched.token_id = tokenId;
                             plotMatched.on_sale = ownerLand.Value<bool?>("on_sale") ?? false;
                             plotMatched.current_price = plotMatched.on_sale ? building.GetSalePrice(ownerLand.Value<JToken>("sale_data"), worldType) : 0;
                             plotMatched.rented = ownerLand.Value<string>("renter") != null;
-                            plotMatched.for_rent = plotMatched.rented == false ? building.GetRentPrice(ownerLand.Value<JToken>("rent_info"), worldType) : 0;
-                            //plotMatched.abundance = ownerLand.Value<int?>("abundance") ?? 0;                  // dont update abundance for related building plots - each plot can have own abundance
+                            plotMatched.for_rent = plotMatched.rented == false ? building.GetRentPrice(ownerLand.Value<JToken>("rent_info"), worldType) : 0;    // Only get rent price if not currently rented
+                            plotMatched.abundance = ownerLand.Value<int?>("abundance") ?? 0;
                             plotMatched.condition = ownerLand.Value<int?>("condition") ?? 0;
 
-                            // Only apply ranking calc on first plot of multiplot building
-                            if (newRanking == -1)
-                            {
-                                newRanking = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, buildingLevel, plotMatched.building_type_id, plotMatched.token_id, plotMatched.building_id, plotMatched.district_id, plotMatched.owner_matic);
-                            }
-                            plotMatched.current_influence_rank = newRanking;                                    // Reuse ranking if already identified on prior related plot
-                            plotMatched.influence = newInfluence;                                               // Placed after ranking check, as both old and new influence needed for check
+                            plotMatched.current_influence_rank = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, buildingLevel, plotMatched.building_type_id, plotMatched.token_id, plotMatched.building_id, plotMatched.district_id, plotMatched.owner_matic);
+                            plotMatched.influence = newInfluence;                                                   // Placed after ranking check, as both old and new influence needed for check                    
 
-                            //plotMatched.influence_bonus = ownerLand.Value<int?>("influence_bonus") ?? 0;      // MCP calulated total IP with any POI & Monument included and ALWAYS active
+                            //plotMatched.influence_bonus = ownerLand.Value<int?>("influence_bonus") ?? 0;          // Missing assign bonus per app slot
 
                             plotMatched.citizen_count = ownerLand.Value<JArray>("citizens") == null ? 0 : ownerLand.Value<JArray>("citizens").Count;
                             plotMatched.low_stamina_alert = citizen.CheckCitizenStamina(ownerLand.Value<JArray>("citizens"), plotMatched.building_type_id);
-                        }                        
-                    }
 
+                        }
+                        else if ((ownerLand.Value<int?>("building_level") == (int)BUILDING_SIZE.HUGE && buildingPlotList.Count != 2) || (ownerLand.Value<int?>("building_level") == (int)BUILDING_SIZE.MEGA && buildingPlotList.Count != 4))
+                        {
+                            // Recent upgraded huge or mega, complete full refresh on plot. local bulding amount of plots has changed versus current building level.
+                            // NOTE : On Huge to Mega upgrade, will only be able to update 2 plots out of 4, as unknown from data we have as to which other huge used in upgrade. TO_DO find a smart way...  It will get picked up on Nighly sync
+                            fullPlotSync = true;
+                            oldTokenId = plotMatched.token_id;
+
+                        }
+                        else if ((ownerLand.Value<int?>("building_level") == (int)BUILDING_SIZE.HUGE || ownerLand.Value<int?>("building_level") == (int)BUILDING_SIZE.MEGA) || buildingPlotList.Count > 1)
+                        {
+                            for (int i = 0; i < buildingPlotList.Count; i++)
+                            {
+                                plotMatched = buildingPlotList[i];
+
+                                plotMatched.last_action = last_action;
+                                plotMatched.update_type = (int)UPDATE_TYPE.PARTIAL;
+                                plotMatched.last_updated = DateTime.UtcNow;
+                                plotMatched.unclaimed_plot = string.IsNullOrEmpty(ownerLand.Value<string>("owner"));
+                                plotMatched.owner_matic = ownerLand.Value<string>("owner");
+
+                                plotMatched.building_id = ownerLand.Value<int?>("building_id") ?? 0;
+                                plotMatched.building_level = buildingLevel;
+                                plotMatched.building_type_id = ownerLand.Value<int?>("building_type_id") ?? 0;
+                                plotMatched.token_id = ownerLand.Value<int?>("token_id") ?? 0;
+                                plotMatched.on_sale = ownerLand.Value<bool?>("on_sale") ?? false;
+                                plotMatched.current_price = plotMatched.on_sale ? building.GetSalePrice(ownerLand.Value<JToken>("sale_data"), worldType) : 0;
+                                plotMatched.rented = ownerLand.Value<string>("renter") != null;
+                                plotMatched.for_rent = plotMatched.rented == false ? building.GetRentPrice(ownerLand.Value<JToken>("rent_info"), worldType) : 0;
+
+                                // dont update abundance for related building plots - each plot can have own abundance
+                                //plotMatched.abundance = ownerLand.Value<int?>("abundance") ?? 0;                  
+                                plotMatched.condition = ownerLand.Value<int?>("condition") ?? 0;
+
+                                // Only apply ranking calc on first plot of multiplot building
+                                if (newRanking == -1)
+                                {
+                                    newRanking = buildingManage.CheckInfluenceRankChange(newInfluence, plotMatched.influence ?? 0, plotMatched.influence_bonus ?? 0, plotMatched.current_influence_rank ?? 0, buildingLevel, plotMatched.building_type_id, plotMatched.token_id, plotMatched.building_id, plotMatched.district_id, plotMatched.owner_matic);
+                                }
+                                plotMatched.current_influence_rank = newRanking;                                    // Reuse ranking if already identified on prior related plot
+                                plotMatched.influence = newInfluence;                                               // Placed after ranking check, as both old and new influence needed for check
+
+                                //plotMatched.influence_bonus = ownerLand.Value<int?>("influence_bonus") ?? 0;      // MCP calulated total IP with any POI & Monument included and ALWAYS active
+
+                                plotMatched.citizen_count = ownerLand.Value<JArray>("citizens") == null ? 0 : ownerLand.Value<JArray>("citizens").Count;
+                                plotMatched.low_stamina_alert = citizen.CheckCitizenStamina(ownerLand.Value<JArray>("citizens"), plotMatched.building_type_id);
+                            }
+                        }
+                    }
                     balance = building.convertPriceMega(ownerLand.Value<decimal?>("balance") ?? 0);
                     hasMission = ownerLand.Value<bool?>("has_mission") ?? false;
                 }

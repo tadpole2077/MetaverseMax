@@ -1,4 +1,4 @@
-import {Component, Inject, NgZone, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, Inject, NgZone, ViewChild} from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { AbstractControl, FormControl, Validators } from '@angular/forms';
 import { HttpClient, HttpParams } from '@angular/common/http';
@@ -30,8 +30,10 @@ export class BalanceManageDialogComponent {
   readonly CONTRACT_MMBank = "0x9Adf2de8c24c25B3EB1fc542598b69C51eE558A7";
   readonly CONTRACT_MEGA_MOCK = "0x4Dd0308aE43e56439D026E3f002423E9A982aeaF";
 
-  readonly CONTRACT_MCPMEGATOKEN_BNB = MCP_CONTRACT.MW_BSC;
+  readonly CONTRACT_MCPMEGATOKEN_BNB = this.CONTRACT_MEGA_MOCK // MCP_CONTRACT.MW_BSC;
   readonly CONTRACT_MCPMEGATOKEN_ETH = MCP_CONTRACT.MW_ETHEREUM;
+
+  readonly networkType = HEX_NETWORK.BINANCE_TESTNET_ID;
 
   insufficientMsg: string = "Insufficient Allowance";
   httpClient: HttpClient;
@@ -74,7 +76,7 @@ export class BalanceManageDialogComponent {
   @ViewChild(MatProgressBar, { static: true } as any) progressBar: MatProgressBar;
   @ViewChild(BalanceLogComponent, { static: false }) balanceLog: BalanceLogComponent;
 
-  constructor(public dialog: MatDialog, public globals: Globals, private zone: NgZone, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
+  constructor(public dialog: MatDialog, public globals: Globals, private zone: NgZone, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string, private cdf: ChangeDetectorRef) {
 
     this.httpClient = http;
     this.baseUrl = rootBaseUrl + "api/" + globals.worldCode;
@@ -170,8 +172,8 @@ export class BalanceManageDialogComponent {
   async checkBalances(MCPMegaCheck) {
 
     if (MCPMegaCheck) {
-
-      this.manageNetwork().then((networkActive) => {
+      
+      this.manageNetwork(this.networkType).then((networkActive) => {
 
         // Network Active check.
         if (networkActive) {
@@ -181,7 +183,7 @@ export class BalanceManageDialogComponent {
             this.accountActive = true;
 
             this.zone.run(() => {
-              this.accountMCPMegaBalance = 100;// megaBalance;
+              this.accountMCPMegaBalance = megaBalance;
               let orgValue = this.amountDepositControl.value;
 
               // Update validation rules - max and min.
@@ -222,8 +224,15 @@ export class BalanceManageDialogComponent {
       this.globals.selectedWorld == WORLD.BNB ? MCPMegaAbiBNB : MCPMegaAbiETH,
       this.globals.selectedWorld == WORLD.BNB ? this.CONTRACT_MCPMEGATOKEN_BNB : this.CONTRACT_MCPMEGATOKEN_ETH);
 
-    // Get balance matching correct contract
-    const balanceReturned = await contractMCPMega.methods.balanceOf(this.currentPlayerWalletKey).call();
+    let balanceReturned = 0;
+
+    try {
+      // Get balance matching correct contract
+      balanceReturned = await contractMCPMega.methods.balanceOf(this.currentPlayerWalletKey).call();
+    }
+    catch (error) {
+      console.error(error);
+    }
 
     return this.convertFromEVMtoCoinLocale(balanceReturned, 0);
   }
@@ -427,13 +436,13 @@ export class BalanceManageDialogComponent {
     return;
   }  
 
+  // Controls enable/disable of Deposit button
   get checkInvalidDeposit(): boolean {
     return this.amountDepositControl.hasError('max') ||
       this.amountDepositControl.hasError('min') ||
       this.amountDepositControl.hasError('required') ||
       this.accountActive == false ||
       this.systemShutdownPending; 
-
   }
   // ************************************************************
 
@@ -651,31 +660,53 @@ export class BalanceManageDialogComponent {
 
   //*******************************************************************
   // NETWORK Fn's
-  async manageNetwork() {
+  async manageNetwork(selectedChain: HEX_NETWORK) {
 
     let chainIdHex: string;
     let networkCorrect: boolean = false;
     let connected: boolean = false;
-    let selectedChain: HEX_NETWORK;
+    //let selectedChain: HEX_NETWORK;
 
-    if (this.globals.selectedWorld == WORLD.BNB) {
-      selectedChain = HEX_NETWORK.BINANCE_ID;
+    if (selectedChain == HEX_NETWORK.APP_SELECTED) {
+      switch (this.globals.selectedWorld) {
+				case WORLD.BNB:
+          selectedChain = HEX_NETWORK.BINANCE_ID;
+          break;
+        case WORLD.ETH:
+          selectedChain = HEX_NETWORK.ETHEREUM_ID;
+          break;
+        case WORLD.TRON:
+          selectedChain = HEX_NETWORK.POLYGON_ID;
+          break;
+				default:
+					selectedChain = HEX_NETWORK.BINANCE_ID;
+			}
+    }
+
+    if (selectedChain == HEX_NETWORK.BINANCE_ID) {
       connected = await this.checkNetwork(selectedChain, "Binance Smart Chain");
     }
-    else if (this.globals.selectedWorld == WORLD.ETH) {
-      selectedChain = HEX_NETWORK.ETHEREUM_ID;
-      connected = await this.checkNetwork(HEX_NETWORK.ETHEREUM_ID, "Ethereum Mainnet");
+    else if (selectedChain == HEX_NETWORK.ETHEREUM_ID) {
+      connected = await this.checkNetwork(selectedChain, "Ethereum Mainnet");
+    }
+    else if (selectedChain == HEX_NETWORK.POLYGON_ID) {
+      connected = await this.checkNetwork(selectedChain, "Polygon Mainnet");
+    }
+    else {
+      connected = await this.checkNetwork(selectedChain, "network");
     }
 
-    chainIdHex = await this.ethereum.request({ method: "eth_chainId", params: [] });
-
-    if (connected && chainIdHex == selectedChain && this.provider) {
-      networkCorrect = true;
+    if (connected && this.provider) {
+      // Must be wallet connected to request network active (chain type).
+      chainIdHex = await this.ethereum.request({ method: "eth_chainId", params: [] });
+      networkCorrect = chainIdHex == selectedChain;     
     }
     else {
       this.networkMsg = "Network Not Changed, unable to proceed..";
       this.networkWarning = true;
     }
+
+    this.cdf.detectChanges();
 
     return networkCorrect;
   }
@@ -698,7 +729,7 @@ export class BalanceManageDialogComponent {
 
         this.networkCheckActive = true;
         this.networkChange = true;
-        this.networkMsg = "Change Network Required";
+        this.networkMsg = "Change Network Required ("+ networkDesc + ")";
         this.networkWarning = false;
 
         if (chainIdHex == HEX_NETWORK.ETHEREUM_ID) {
@@ -721,7 +752,6 @@ export class BalanceManageDialogComponent {
   async switchNetwork(chainIdHex: string) {
 
     const ethereum = (window as any).ethereum;
-    const provider = await DetectEthereumProvider();
     let networkSwitched = false;
 
     if (ethereum && ethereum.isConnected()) {

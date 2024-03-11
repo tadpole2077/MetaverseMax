@@ -19,6 +19,7 @@ using System.Drawing;
 using System.ComponentModel;
 using Nethereum.Model;
 using static System.Collections.Specialized.BitVector32;
+using System.Security.Cryptography.Xml;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -213,18 +214,6 @@ namespace MetaverseMax.ServiceClass
                 {
                     depositProcessed = ownerManage.UpdateOwnerBalanceFromDB(transactionReceipt.From);
                 }
-                // Old modal - using multiple db steps, not atomic open to brute force hack.
-                ///blockchainTransaction.hash = transactionHash;
-                //blockchainTransaction.owner_matic = transactionReceipt.From;
-                //blockchainTransaction.amount = Convert.ToDecimal(MegaAmount.ToString());
-                //blockchainTransaction.action = BANK_ACTION.DEPOSIT;
-                //blockchainTransaction.event_recorded_utc = DateTime.UtcNow;
-
-                // Atomic unit - dont allow balance update if transaction already completed - Protect from Brute force multiple simultaneous calls to process Transaction Hash
-                // lock table - Transaction tble, check transaction not prior processed, update transaction, update owner.balance, unlock transaction tbl (sproc).  Ensure - balance can only be updated once per transaction.
-                //blockchainTransactionDB.AddOrUpdate(blockchainTransaction, transactionHash);
-
-                //ownerManage.UpdateBalance(blockchainTransaction.owner_matic, blockchainTransaction.amount);
             }
 
             return depositProcessed;
@@ -239,7 +228,7 @@ namespace MetaverseMax.ServiceClass
             BlockchainTransactionDB blockchainTransactionDB = new(_contextUni);
             BlockchainTransaction blockchainTransaction = new();
             int ownerUniID = 0;
-            OwnerManage ownerManage = new(_context, worldType);
+            OwnerManage ownerManage = new(_context, worldType);            
 
             // Check Receipt is Valid MMBank Contract
             bool validContract = transactionReceipt.To.Equals(MMBankContractAddress, StringComparison.CurrentCultureIgnoreCase);
@@ -268,13 +257,17 @@ namespace MetaverseMax.ServiceClass
         public bool WithdrawAllowanceApprove(decimal amount, string ownerMaticKey, string signed)
         {
             bool approvalAllowed = false;
+            int transaction;
             decimal accountBalance = 0;
             try
             {
+                using MetaverseMaxDbContext_UNI _contextUni = new();        // Auto disposed at end of scope/method C#8
+                BlockchainTransactionDB blockchainTransactionDB = new(_contextUni);
                 OwnerManage ownerManage = new(_context, worldType);                
                 PersonalSignDB personalSignDB = new(_context, worldType);
                 var account = new Nethereum.Web3.Accounts.Account(adminMMBankPrivateKey);
-                var web3 = new Web3(account, networkUrl);                
+                var web3 = new Web3(account, networkUrl);
+                NETWORK chain = NETWORK.BINANCE_ID;
 
                 // Get active stored sign record for this account
                 PersonalSign personalSign = personalSignDB.GetUnsignedByMaticKey(ownerMaticKey);
@@ -298,33 +291,48 @@ namespace MetaverseMax.ServiceClass
                     byte[] bytesMsg = GetCombinedBlurbCodeByte(amount, ownerMaticKey, personalSign.salt);
                     var signedSignature = signer.EcRecover(bytesMsg, signed);
 
-                    if (signedSignature.ToLower() == ownerMaticKey.ToLower() && ownerMaticKey != string.Empty)
+                    OwnerAccount ownerAccount = ownerManage.GetOwnerAccountByMatic(ownerMaticKey);
+
+                    if (signedSignature.ToLower() == ownerMaticKey.ToLower() && ownerMaticKey != string.Empty && ownerAccount != null)
                     {                        
                         // Sign is valid - store sign hash key, record can not be Reused. SECURITY STEP
                         personalSign.signed_key = signed;
                         personalSignDB.AddOrUpdate(personalSign);
 
-                        // CHECK withdraw amount is valid (refresh local cache from db first)
+                        // SPROC locking owner table - getting current balance, reducing balance, returning result - success = balance reduced, fail = balance change failed, do not proceed with withdraw
+                        // Requirement for success : (A) Owner must exist,  (B) owner balance must be >= withdraw amount
+                        // Atomic unit with table locking to ensure Transactoin and account balance update occurs once and as a single transaction unit.
+                        transaction = blockchainTransactionDB.RecordWithdrawApproval(ownerMaticKey, ownerAccount.ownerUniID, BANK_ACTION.WITHDRAW_PENDING, amount, chain);
+
+                        // Update local Owner account balance.
                         ownerManage.UpdateOwnerBalanceFromDB(ownerMaticKey);
                         accountBalance = ownerManage.GetOwnerBalanceByMatic(ownerMaticKey);
 
 
-                        if (accountBalance >= amount)
+                        if (transaction > 0)
                         {
-                            approvalAllowed = true;
-
                             var increaseAllowanceFunctionMessage = new BankWithdrawIncreaseAllowanceFunction()
                             {
                                 recipient = ownerMaticKey,
                                 amount = Web3.Convert.ToWei(amount),
                             };
 
-                            // TODO Add improved hander for blockchain contract call, on error log and prevent transaction proceeding.
-                            var balanceHandler = web3.Eth.GetContractQueryHandler<BankWithdrawIncreaseAllowanceFunction>();
-                            var result = balanceHandler.QueryAsync<BigInteger>(MMBankContractAddress, increaseAllowanceFunctionMessage).Result;
+                            // Option: using a QueryHandler
+                            //var balanceHandler = web3.Eth.GetContractQueryHandler<BankWithdrawIncreaseAllowanceFunction>();
+                            //var result = balanceHandler.QueryAsync<BigInteger>(MMBankContractAddress, increaseAllowanceFunctionMessage).Result;
 
-                            // Update account balance - reduce by withdraw amount, include update of local cache accounts.
-                            ownerManage.UpdateBalance(ownerMaticKey, -amount);
+                            // Option: using a TransactionHandler - allows lookup of transaction properties
+                            var allowanceHandler = web3.Eth.GetContractTransactionHandler<BankWithdrawIncreaseAllowanceFunction>();
+                            var transactionReceipt = allowanceHandler.SendRequestAndWaitForReceiptAsync(MMBankContractAddress, increaseAllowanceFunctionMessage).Result;
+                            var transactionHash = transactionReceipt.TransactionHash;
+
+                            // Check Transaction was sucessful
+                            approvalAllowed = transactionReceipt.Status.Value == BigInteger.One;      // bool value - true if successful
+
+                            if (approvalAllowed)
+                            {
+                                blockchainTransactionDB.AssignHash(transaction, transactionHash);
+                            }
                         }
                         else
                         {

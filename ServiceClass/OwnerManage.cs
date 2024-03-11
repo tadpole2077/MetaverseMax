@@ -789,7 +789,8 @@ namespace MetaverseMax.ServiceClass
                 {
                     // ADDITIONAL EVAL NEEDED - As not saving to db until all account is updated - potential here for incorrct IPRanking calc - as prior buildings in set may change max-min for that league table. Not sure if EntityFramework using mix both local (context) and db records
                     // Set to save to db as a batch later due to increased Performance.
-                    // KNOWN WEAKNESS - Does not update/reEval all other buildings IP Ranking - this building may impact the max-min which would then impact ranking for all other buidlings in that league level (but the performance hit means its not currently worth it - potential solution -  a ranking async task to update ranking changes on all building in respective league - if new min or max change identified)
+                    // MISSIONS: Dont update existing missions, only newly identify Missions
+                    // KNOWN WEAKNESS - Does not update/reEval all other buildings IP Ranking - this building may impact other buildings due to max-min change - which would then impact ranking for all other buidlings in that league level (but the performance hit means its not currently worth it - potential solution -  a ranking async task to update ranking changes on all building in respective league - if new min or max change identified)
                     currentPlotFullUpdate = plotManage.UpdatePlotPartial(ownerLandList[i], false, refreshMission);
 
                     if (currentPlotFullUpdate != null && currentPlotFullUpdate.fullUpdateRequired)

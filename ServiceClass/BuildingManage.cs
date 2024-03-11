@@ -189,9 +189,11 @@ namespace MetaverseMax.ServiceClass
                     UpdateResourceTotal(resourceTotal, buildingType, buildingList[i], buildingLevel, worldType);
 
                     // Check if Building able to execute a run collection - then eval building history. Pass IP efficiency.
+                    // Limiters:
+                    //   TO_DO  [2024/03] Only check buildings that HAVE been recently collected, many building may be READY to collect, but uncollected for extended periods of time. Without this check, those buildings would be proceeded EVERY NIGHTLY SYNC
                     // PURPOSE: Full update of building details - to identify if recent collection occured and amount collected, update next prediction calc
                     if (evalHistory && (buildingType == (int)BUILDING_TYPE.INDUSTRIAL || buildingType == (int)BUILDING_TYPE.PRODUCTION || buildingType == (int)BUILDING_TYPE.ENERGY)
-                        && EvalBuildingHistory(buildingList[i].last_run_produce_date, buildingLevel) == true)
+                        && EvalBuildingHistory(buildingList[i].last_run_produce_date, buildingLevel) == true )
                     {
                         // Save each building's evaluated IP efficiency, latest run and predicted produce.
                         buildingHistory = GetHistory(buildingList[i].token_id, waitPeriodMS, false, false, buildingList[i].owner_matic, buildingList[i].current_influence_rank, string.Empty, skipNoActiveCitizen);
