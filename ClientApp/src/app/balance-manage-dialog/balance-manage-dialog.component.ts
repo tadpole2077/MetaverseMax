@@ -249,7 +249,8 @@ export class BalanceManageDialogComponent implements OnInit{
 
     try {
       // Get balance matching correct contract
-      balanceReturned = await contractMCPMega.methods.balanceOf(this.currentPlayerWalletKey).call();
+      //balanceReturned = await contractMCPMega.methods.balanceOf(this.currentPlayerWalletKey).call();
+      contractMCPMega.methods.balanceOf(this.currentPlayerWalletKey).call();
     }
     catch (error) {
       console.error(error);
@@ -723,9 +724,7 @@ export class BalanceManageDialogComponent implements OnInit{
     else if (selectedChain == HEX_NETWORK.POLYGON_ID) {
       connected = await this.checkNetwork(selectedChain, "Polygon Mainnet");
     }
-    else {
-      connected = await this.checkNetwork(selectedChain, "network");
-    }
+
 
     if (connected && this.provider) {
       // Must be wallet connected to request network active (chain type).

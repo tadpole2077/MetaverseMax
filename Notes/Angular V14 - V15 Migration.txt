@@ -145,6 +145,106 @@ Issue (outstanding - none blocking - as of 2023/09/15)
 //		Only occuring on component load,  not reloading the graph with new data - ie changing district
 
 
+
+
+=====================================================================================
+Issue:  2024/03/19  Github Email Report:   Json-schema   Critical Severity Vulnerability Detected
+Final Action: No change - issue only exists within development box when testing E2E, which i do not use.  Angular V16 drops E2E testing, so resolved on upgrade
+
+Package: json-schema
+Version: 0.2.3
+Recommendation:  Upgrade to ~> 0.4.0
+Issue: CVE-2021-3918
+Issue Detail: json-schema is vulnerable to Improperly Controlled Modification of Object Prototype Attributes ('Prototype Pollution')
+		In a prototype pollution attack, threat actors inject properties into existing JavaScript construct prototypes, attempting to compromise the application.
+
+	Dependencies:
+	1) jsprim-1.4.1.tgz    json-schema >> 0.2.3
+	   - Utilities for primitive JavaScript Types
+	   - Node: https://www.npmjs.com/package/jsprim?activeTab=versions
+	   - V1.4.1 is a 7 years old module
+
+Update:
+	Node Package: https://www.npmjs.com/package/jsonschema
+	Latest Version:  V1.4.1
+
+Dependency tree of a package
+	npm ls json-schema
+	Dependency Tree Output:
+		-- protractor@7.0.0
+			-- webdriver-manager@12.1.8
+				-- http-signature@1.2.0
+					-- jsprim@1.4.1
+						-- json-schema@0.2.3
+
+Checking upgrade of package protractor@7.0.0
+	npm ls protractor
+	Dependency Tree Output:
+	-- @angular-devkit/build-angular@15.2.8
+		-- protractor@7.0.0
+
+Build-angular Dependencies:
+	- "protractor": "^7.0.0"   // Can upgrade to all minor releases from V7.x  to below V8 (major version)
+	What is Protractor: end-to-end test framework for [Angular] , Webdriver E2E test wrapper for Angular
+	Github: https://github.com/angular/protractor
+	Node: https://www.npmjs.com/package/protractor
+	NOTE: Package deprecated, end-of-life in Summer 2023
+	Read more : 
+	- https://goo.gle/state-of-e2e-in-angular
+	- By Angular V16 : Protractor is fully deprecated, use 3 alternative e2e (end-to-end) testing solutions.
+
+	Final Analysis:
+	- https://github.com/angular/angular-cli/issues/25298
+	- No action required, on upgrade to V16 it will be removed.  
+	- Protractor should only be used within development environment for testing E2E.
+
+
+
+=====================================================================================
+Issue:  2024/03/24  Github Email Report:   webpack-dev-middleware Package :  High Severity Vulnerability Detected
+Issue Detail:  Potential Unauthorised access to files on server  (note also limited by pool user - rights)
+Additional Detail: https://github.com/advisories/GHSA-wr3j-pwj9-hqq6
+With Angular V15
+	Using webpack-dev-middleware V6.0.1 and V5.3.3
+
+Webpack-dev-middleware : 
+	An express-style development middleware for use with webpack bundles and allows for serving of the files emitted from webpack. 
+	This should be used for development only.
+
+Cmd:
+	cd D:\0_Development\2_Applications\GitHub\MetaverseMax\MetaverseMax\ClientApp
+	npm ls webpack-dev-middleware
+
+Dependencies:
+`-- @angular-devkit/build-angular@15.2.8
+  +-- webpack-dev-middleware@6.0.1
+  `-- webpack-dev-server@4.11.1
+    `-- webpack-dev-middleware@5.3.3
+
+
+Fix:
+	https://github.com/angular/angular-cli/pull/27337
+	Action: Upgrade @angular-devkit/build-angular from V15.2.8 to V15.2.10  >> npm i @angular-devkit/build-angular@15.2.10
+	Action: Update webpack-dev-middleware from V6.0.1 to 6.1.2 >> npm i webpack-dev-middleware@6.1.2
+	Action: Updated @angular-devkit/build-angular >> package.json :  changed :   webpack-dev-middleware from V6.0.1 to 6.1.2jh
+	https://www.npmjs.com/package/@angular-devkit/build-angular/v/15.2.10
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 =====================================================================================
 VISUAL STUDIO UPGRADE : 2023/11/20
 Action: Update to 17.8.0
