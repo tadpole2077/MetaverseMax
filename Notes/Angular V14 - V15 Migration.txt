@@ -200,6 +200,11 @@ Build-angular Dependencies:
 
 
 
+
+
+
+=====================================================================================
+Github Dependabot Alerts - Node package warnings.
 =====================================================================================
 Issue:  2024/03/24  Github Email Report:   webpack-dev-middleware Package :  High Severity Vulnerability Detected
 Issue Detail:  Potential Unauthorised access to files on server  (note also limited by pool user - rights)
@@ -231,15 +236,92 @@ Fix:
 
 
 
+============================================================
+Issue: 2024/04/16 json-schema : CVE-2021-3918 Critical severity
+Current Version: < 0.4.0 
+Upgrade To: ~> 0.4.0
+
+Summary:
+- Only used by Protractor Testing Tool, which is not used by MetaverseMax, and should not be deployed to Production.
+- Protractor has reached end-of-life support, and will be removed from >V15 Angular deploys.
+
+Cmd:
+	cd D:\0_Development\2_Applications\GitHub\MetaverseMax\MetaverseMax\ClientApp
+	npm ls json-schema
+
+Dependencies:
+`-- protractor@7.0.0
+  `-- webdriver-manager@12.1.8
+    `-- request@2.88.2
+      `-- http-signature@1.2.0
+        `-- jsprim@1.4.1
+          `-- json-schema@0.2.3
+
+Protractor used by:
++-- @angular-devkit/build-angular@15.2.10
+| `-- protractor@7.0.0 deduped
+`-- protractor@7.0.0
+
+Protractor Details:
+- Webdriver E2E test wrapper for Angular
+- https://github.com/angular/protractor
+- https://www.protractortest.org/#/
+- Protractor reached end-of-life in August 2023
+- How to remove protractor from Angular 15 : https://github.com/angular/angular-cli/issues/25298
 
 
+==============================================================
+Issue: 2024/04/16 loader-utils	CVE-2022-37601 Critical severity
+Current Version: < 2.0.3  
+Upgrade To: ~> 2.0.3
+
+Links:
+	https://www.npmjs.com/package/loader-utils  : Latest 3.2.1 && 2.0.4
+
+Cmd:
+	cd D:\0_Development\2_Applications\GitHub\MetaverseMax\MetaverseMax\ClientApp
+	npm ls loader-utils
 
 
+Dependencies:
+`-- @angular-devkit/build-angular@15.2.10
+  +-- loader-utils@3.2.1
+  `-- resolve-url-loader@5.0.0
+    +-- adjust-sourcemap-loader@4.0.0
+    | `-- loader-utils@2.0.0 deduped
+    `-- loader-utils@2.0.0
+
+Action: 
+- Upgrade loader-utils from 2.0.0 to 2.0.4  >> npm i loader-utils@2.0.4
 
 
+==============================================================
+Issue: 2024/04/16 crypto-js	CVE-2023-45133 Critical severity
+Current Version: < 4.2.0  
+Upgrade To: ~> 4.2.0
+
+Ref:
+- Bug Details : issue relates to Babel compiler : https://nvd.nist.gov/vuln/detail/CVE-2023-45133
+- oidc-client : Library to provide OpenID Connect (OIDC) and OAuth2 protocol. This was original added to support VS in V13. Not sure if its even used.
+- https://www.npmjs.com/package/oidc-client  : 1.11.5 is latest version from 3 years ago!!
+- using oidc-client with .net angular : https://medium.com/@jorge.cotillo/asp-net-core-angular2-openid-connect-using-visual-studio-code-ed10327bb31a
+- OpenID User Authentication : https://auth0.com/blog/add-oidc-to-angular-apps-quickly/
+- Crypto-js - no longer maintained suggests using native browser crypto library : https://www.npmjs.com/package/crypto-js
+
+Summary:
+- I dont use OpenID (at present), its still in use by the community, no harm keeping it and upgrading the crypto javascript project.
+
+Cmd:
+	cd D:\0_Development\2_Applications\GitHub\MetaverseMax\MetaverseMax\ClientApp
+	npm ls crypto-js
 
 
+Dependencies:
+`-- oidc-client@1.11.5
+  `-- crypto-js@4.1.1
 
+Action: 
+- Upgrade crypto-js from 4.1.1 to 4.2.0 (last version)  >> npm i crypto-js@4.2.0
 
 
 
