@@ -25,14 +25,15 @@ Package Updates:
 * 2023-01-24 : 4.2.4 to 4.9.4  >>  Required for Angular V15x
 
 
+
+
 3) Nethereum.Web3
 Current Version: 4.17.1
 Link: https://nethereum.com/
 Background: 2023/11 installed (plus many supporting packages) to add Web3 integration into backend server
 
 Package Updates:
-None
-
+* 2023-03-12 : 4.17.1 to 4.19.0  >>  Wanted to use new features
 
 4)
 5)

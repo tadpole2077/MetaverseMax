@@ -1,8 +1,8 @@
-import {ChangeDetectorRef, Component, Inject, NgZone, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, Inject, NgZone, OnInit, ViewChild} from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { AbstractControl, FormControl, Validators } from '@angular/forms';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { firstValueFrom, Subscription } from 'rxjs';
+import { firstValueFrom, interval, Subscription } from 'rxjs';
 import DetectEthereumProvider from '@metamask/detect-provider';
 import Web3 from 'web3';
 import { Web3Utils } from '../common/web3Utils';
@@ -23,11 +23,12 @@ import { BalanceLogComponent } from '../balance-log/balance-log.component';
   styleUrls: ['./balance-manage-dialog.component.css'],
   templateUrl: './balance-manage-dialog.component.html',
 })
-export class BalanceManageDialogComponent {
+export class BalanceManageDialogComponent implements OnInit{
+
   readonly MEGA_DECIMALS = 1e18;
   readonly MEGA_DECIMALS_COUNT = 18;
   readonly CONTRACT_MCPMEGA = "0x0af8c016620d3ed0c56381060e8ab2917775885e";
-  readonly CONTRACT_MMBank = "0x9Adf2de8c24c25B3EB1fc542598b69C51eE558A7";
+  readonly CONTRACT_MMBank = "0xd743E6A6de491Bbe89D262186AD4403aBb410707";
   readonly CONTRACT_MEGA_MOCK = "0x4Dd0308aE43e56439D026E3f002423E9A982aeaF";
 
   readonly CONTRACT_MCPMEGATOKEN_BNB = this.CONTRACT_MEGA_MOCK // MCP_CONTRACT.MW_BSC;
@@ -72,6 +73,7 @@ export class BalanceManageDialogComponent {
 
   tab1Visible: boolean = true;
   tab2Visible: boolean = false;
+  balanceRecheckSubscription$: Subscription;
 
   @ViewChild(MatProgressBar, { static: true } as any) progressBar: MatProgressBar;
   @ViewChild(BalanceLogComponent, { static: false }) balanceLog: BalanceLogComponent;
@@ -81,6 +83,8 @@ export class BalanceManageDialogComponent {
     this.httpClient = http;
     this.baseUrl = rootBaseUrl + "api/" + globals.worldCode;
 
+    // force refresh of change dedection to display tab content, as initial load both tab hidden due to ngClass rules.
+    //this.cdf.detectChanges();
   }
 
   ngOnInit() {
@@ -104,10 +108,11 @@ export class BalanceManageDialogComponent {
       }
 
     });
-
+    
   }
 
   ngOnDestroy() {
+
     if (this.subscriptionAccountActive$) {
       this.subscriptionAccountActive$.unsubscribe();
     }
@@ -116,6 +121,9 @@ export class BalanceManageDialogComponent {
     }
     if (this.subscriptionSystemShutdown$) {
       this.subscriptionSystemShutdown$.unsubscribe();
+    }
+    if (this.balanceRecheckSubscription$) {
+      this.balanceRecheckSubscription$.unsubscribe();
     }
   }
 
@@ -161,7 +169,7 @@ export class BalanceManageDialogComponent {
 
     });
 
-    this.subscriptionBalanceChange$ = this.globals.balaceChange$.subscribe(balanceChange => {
+    this.subscriptionBalanceChange$ = this.globals.balanceChange$.subscribe(balanceChange => {
       if (balanceChange) {
         console.log("account balance updated");
         this.checkBalances(false);
@@ -205,7 +213,7 @@ export class BalanceManageDialogComponent {
     // Trigger zone update event, refresh balance
     this.zone.run(() => {
       
-      this.balance = this.globals.ownerAccount.balance;
+      this.balance = Math.floor(this.globals.ownerAccount.balance);
       let orgValue = this.amountWithdrawControl.value;
       
       this.amountWithdrawControl = new FormControl(orgValue == "0" ? "0.1" : orgValue, [
@@ -215,6 +223,19 @@ export class BalanceManageDialogComponent {
       ]);
     });
   }
+  
+  delayBalanceRecheck() {
+    // Due to delays in contract log updates - check the balance again in a few seconds time.
+    this.balanceRecheckSubscription$ = interval(3000)
+      .subscribe(
+        async (val) => {
+          this.checkBalances(true);
+          this.balanceRecheckSubscription$.unsubscribe();
+          this.balanceRecheckSubscription$ = null;
+        }
+      );
+  }
+
 
   // Read View - Get MCPMega Balance for current account.
   async getMCPMegaBalance() {
@@ -469,13 +490,13 @@ export class BalanceManageDialogComponent {
 
     this.withdrawRotateActive = true;
     this.transactionStarted = true;
-    this.setProgressBarMsg("1. Sign Withdraw Approval (Security Check)", true, 10, false);
+    this.setProgressBarMsg("1. Sign Withdraw Approval (Security Check)", true, 25, false);
 
     let signResult = await this.walletSign(withdrawMegaAmountNumber);
 
     if (signResult != "") {
 
-      this.setProgressBarMsg("2. Checking Balance Allowed (Security Check)", true, 25, false);
+      this.setProgressBarMsg("2. Checking Balance Allowed (Security Check)", true, 50, false);
 
       params = params.append('amount', withdrawMegaAmount);
       params = params.append('ownerMaticKey', ownerMaticKey);
@@ -486,13 +507,22 @@ export class BalanceManageDialogComponent {
           next: (result) => {
 
             if (result == true) {
-              this.setProgressBarMsg("2. Withdraw allowed Confirmed", true, 35, false);
+              this.setProgressBarMsg("3. Withdraw Completed, balance updated", false, 100, false);
+              console.log('Withdrawal of mega from bank : ' + result);
+                       
+              // Check wallet for change in BB Mega Balance [internal call] , due to subscribed change event - this will also trigger local checkBalances() but with false parameter meaning it wont update the MCP 
+              this.globals.updateUserBankBalance(this.baseUrl, this.currentPlayerWalletKey);
 
-              this.globals.updateUserBankBalance(this.baseUrl, ownerMaticKey);
-              this.withdrawMegaFromMMBank(withdrawMegaAmountNumber);
+              // Check all balance changes : both on-chain wallet from Mega Balance Contract (MCP contract view call), and internal BB balance
+              this.checkBalances(true);  
+
+              this.delayBalanceRecheck();
+
+              //this.withdrawMegaFromMMBank(withdrawMegaAmountNumber);
+              this.withdrawRotateActive = false;
             }
             else {
-              this.setProgressBarMsg("2. Invalid Withdraw - balance issue (Contact Support)", false, 35, false);              
+              this.setProgressBarMsg("3. Invalid Withdraw - balance issue (Contact Support)", false, 75, true);              
               this.withdrawRotateActive = false;
             }
 
@@ -500,7 +530,7 @@ export class BalanceManageDialogComponent {
           error: (error) => {
             console.error(error);
             this.withdrawRotateActive = false;
-            this.setProgressBarMsg("2. Invalid Withdraw - balance error (Contact Support)", false, 35, true);
+            this.setProgressBarMsg("2. Invalid Withdraw - balance error (Contact Support)", false, 75, true);
           }
         });
     }
@@ -551,7 +581,8 @@ export class BalanceManageDialogComponent {
     return code;
   }
 
-  async withdrawMegaFromMMBank(megaValue: number) {
+  // Not Used - Client side withdraw invoked call - done on server, owner only call design choice
+  /*async withdrawMegaFromMMBank(megaValue: number) {
 
     const addressFrom = this.currentPlayerWalletKey;
 
@@ -604,7 +635,7 @@ export class BalanceManageDialogComponent {
     }
 
     return;    
-  }
+  }*/
 
   checkWithdrawMax(valueEntered: number) {
     if (valueEntered > this.balance) {

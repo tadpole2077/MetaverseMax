@@ -32,5 +32,14 @@ namespace MetaverseMax.Database
 
         [Column("note")]
         public string note { get; set; }
+
+        [Column("contract_owner")]
+        public string? contract_owner { get; set; }
+
+        [Column("contract_owner_nonce")]
+        public int? contract_owner_nonce { get; set; }
+
+        [Column("verified")]
+        public bool? verified { get; set; }           // Transaction Receipt received or Event log checked
     }
 }

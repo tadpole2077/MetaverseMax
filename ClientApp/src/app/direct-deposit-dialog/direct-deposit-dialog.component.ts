@@ -13,6 +13,12 @@ import { Globals, WORLD } from '../common/global-var';
 import { HEX_NETWORK, METAMASK_ERROR_CODE, MCP_CONTRACT, MCP_CONTRACT_NAME } from "../common/enum";
 import { MatProgressBar } from '@angular/material/progress-bar';
 
+// Highlight Process
+// MCP use 2 step process to add mega to internal account, its not just a simple transfer call
+//  1) approve 999 amount of Mega allowed to transfer between requester and MegaBank
+//  2) call the addMega fn within DEPOSIT_BSC contract to then call the MegaBank.transferFrom method to move the amount, and log events that trigger the T2 Matic actions.
+
+
 @Component({
   selector: 'app-direct-deposit-dialog',
   styleUrls: ['./direct-deposit-dialog.component.css'],
@@ -112,7 +118,7 @@ export class DirectDepositDialogComponent {
 
     });
 
-    this.subscriptionBalanceChange$ = this.globals.balaceChange$.subscribe(balanceChange => {
+    this.subscriptionBalanceChange$ = this.globals.balanceChange$.subscribe(balanceChange => {
       if (balanceChange) {
         console.log("account balance updated");
         this.checkBalances(false);

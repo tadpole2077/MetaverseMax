@@ -40,7 +40,7 @@ export class TESTBankManageComponent {
   addressReceiver = new FormControl('');
   currentPlayerWalletKey: string;
 
-  readonly CONTRACT_MMBank = "0x9Adf2de8c24c25B3EB1fc542598b69C51eE558A7";
+  readonly CONTRACT_MMBank = "0xd743E6A6de491Bbe89D262186AD4403aBb410707";
   readonly CONTRACT_ADMIN = "0xFA87a94a37Ffd3e7d6Ae35FF33eB5d15A5A87467";
   readonly CONTRACT_MEGA = "0x4Dd0308aE43e56439D026E3f002423E9A982aeaF";
   readonly MEGA_DECIMALS = 1e18;
@@ -53,6 +53,7 @@ export class TESTBankManageComponent {
 
     this.ethereum = (window as any).ethereum;
     this.currentPlayerWalletKey = globals.ownerAccount.public_key;
+    
    
   }
 
@@ -62,6 +63,7 @@ export class TESTBankManageComponent {
     this.subscriptionAccountActive$ = this.globals.accountActive$.subscribe(active => {
       if (active) {
         this.currentPlayerWalletKey = this.globals.ownerAccount.public_key;
+        this.currentPlayerWalletKey = "0xFA87a94a37Ffd3e7d6Ae35FF33eB5d15A5A87467";
       }
       else {
         this.currentPlayerWalletKey = "";
@@ -132,7 +134,7 @@ export class TESTBankManageComponent {
 
             if (result == true) {
               this.globals.updateUserBankBalance(this.baseUrl, ownerMaticKey);
-              this.withdrawMegaFromMMBank(amount);
+              //this.withdrawMegaFromMMBank(amount);
             }
 
           },
@@ -415,43 +417,6 @@ export class TESTBankManageComponent {
     //let transferData =
     //  contractMethod +
     //  token_uint256;
-
-    //transferData = token_uint256;
-
-    try {
-      if (isAddress(addressFrom) == false) {
-        this.progressCaption = "invalid Address"
-      }
-
-      let from_address = this.utils.padLeft(addressFrom, 64).substring(2);
-      const test_uint256 = this.utils.toBigInt(123);
-      const test2_uint256 = this.utils.toHex(123);
-
-      //const arg:arguments = [
-      //  test_uint256
-      //];
-
-      // Get the current value of my number
-      //const balance = await testContract.methods.read()
-      //const balance = await testContract.methods.balancesTest3({ data: test2_uint256 })
-      //const balance = await testContract.methods.balancesTest3(test2_uint256)
-      //  .call()
-      const balance = await testContract.methods.write(test2_uint256)
-        .send({
-          from: addressFrom
-        })
-        .catch((error) => {
-          console.log(error);
-          this.progressCaption = "Error occured blocking Transaction";
-          this.rotateActive = false;
-          // If the request fails, the Promise rejects with an error.
-        });
-      this.contractRead = "Account Balance: " + balance;
-    }
-    catch (error) {
-      console.error(error);
-    }
-    return;
 
     try {
       const newNumber_uint256 = this.utils.padLeft(this.utils.toHex(14), 64).substring(2);
@@ -919,6 +884,52 @@ export class TESTBankManageComponent {
     return;    
   }
 
+
+  async withdraw(withdrawAmount: number, currentPlayerWalletKey: string) {
+
+    // Create a new contract object using the ABI and bytecode
+    const testContract = new this.web3.eth.Contract(
+      MMBankAbi,
+      this.CONTRACT_MMBank
+    );
+
+    try {
+
+      const recipient = "0xb197dC47fCbE7D7734B60fA87FD3b0BA0ACaf441";
+      const gasPrice = await this.web3.eth.getGasPrice();
+      const megaValueBN = this.convertToCoinNumber(withdrawAmount);
+     
+      await testContract.methods.withdrawMega(recipient, megaValueBN)        
+        .send({
+          from: this.CONTRACT_ADMIN,
+          gasPrice: this.utils.toHex(gasPrice),
+          gas: "100000"
+        })
+        .then((result) => {
+          console.log('Withdrawal of mega from bank : ' + result);
+          this.progressCaption = "Transaction Completed";
+          this.contractWrite =  currentPlayerWalletKey + " Withdrawal "+ withdrawAmount +" mega from bank";
+          this.rotateActive = false;
+
+          //this.confirmTransaction(result.transactionHash);
+        })
+        .catch((error) => {
+          console.log(error);
+          this.progressCaption = "Error occured blocking Transaction";
+          this.contractWrite = error;
+          this.rotateActive = false;
+        });
+
+    }
+    catch (error) {
+      console.error(error);
+      this.progressCaption = error;
+      this.rotateActive = false;
+    }
+    return;   
+  }
+
+  /*
   async withdrawMegaFromMMBank(megaValue: number) {
 
     let allowanceApproved: boolean = false;
@@ -966,7 +977,7 @@ export class TESTBankManageComponent {
     }
     return;    
   }
-
+*/
 
   async depositMegaToMMBankWithAllowance(megaValue: number) {
 
@@ -1217,83 +1228,6 @@ export class TESTBankManageComponent {
       this.rotateActive = false;
     }
     return;    
-  }
-
-  async contractTestWriteRequest(addressFrom: string) {
- 
-    const valuePara1 = 666;
-
-    this.rotateActive = true;
-    this.progressCaption = "Transaction in Progress"
-
-    // Create a new contract object using the ABI and bytecode
-    const testContract = new this.web3.eth.Contract(
-      MMBankAbi,
-      this.CONTRACT_MMBank
-    );
-
-    //var ContractMod = require('web3-eth-contract');
-    //ContractMod.Contract.setProvider(this.provider);
-    //const testContract = new ContractMod.Contract(
-    //const testContract = new Contract(
-    //  MMBankAbi,
-    //  this.CONTRACT_ADDRESS,
-    //  this.provider
-    //);
-    //testContract.setProvider(this.provider);
-
-    // Matic MCP Contract Call
-    let token_uint256 = this.utils.padLeft(this.utils.toHex(valuePara1), 64).substring(2);
-
-    try {
-      if (isAddress(addressFrom) == false) {
-        this.progressCaption = "invalid Address"
-      }
-
-      let from_address = this.utils.padLeft(addressFrom, 64).substring(2);      
-      const test2_uint256 = this.utils.toHex(123);
-      const test_uint256 = this.utils.toBigInt(123);
-
-      //const arg:arguments = [
-      //  test_uint256
-      //];
-      //  Failed:
-      //    52 byte string
-      //    bigInt(123)
-      //    toHex(123)
-      // Transaction has been reverted by the EVM: {"type":"2"
-      // MM: We noticed that the current website tried to use the removed window.web3 API
-
-      const gasPrice = await this.web3.eth.getGasPrice();
-
-      await testContract.methods.write(4)        
-        .send({
-          from: addressFrom,
-          gasPrice: this.utils.toHex(gasPrice),
-          gas: "100000"
-        })
-        .then((result) => {
-            console.log('result: ' + result);
-            this.progressCaption = "Transaction Completed";
-            this.contractWrite = "number assigned";
-            this.rotateActive = false;
-          })
-        .catch((error) => {
-          console.log(error);
-          this.progressCaption = "Error occured blocking Transaction";
-          this.contractWrite = error;
-          this.rotateActive = false;
-          // If the request fails, the Promise rejects with an error.
-        });
-      //this.contractRead = "Account Balance: " + balance;
-    }
-    catch (error) {
-      console.error(error);
-      this.progressCaption = error;
-      this.rotateActive = false;
-    }
-    return;
-    
   }
 
   // Using : transferFrom(address src, address dst, uint256 rawAmount)

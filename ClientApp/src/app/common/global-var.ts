@@ -128,7 +128,7 @@ export class Globals {
   public accountActive$ = this.accountActiveSubject.asObservable();
 
   private balanceChangeSubject = new Subject<boolean>();
-  public balaceChange$ = this.balanceChangeSubject.asObservable();
+  public balanceChange$ = this.balanceChangeSubject.asObservable();
 
   private systemShutdownSubject = new Subject<boolean>()
   public systemShutdown$ = this.systemShutdownSubject.asObservable();

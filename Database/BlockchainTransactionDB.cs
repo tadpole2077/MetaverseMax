@@ -141,7 +141,7 @@ namespace MetaverseMax.Database
             }
             catch (Exception ex)
             {
-                logException(ex, String.Concat("OwnerDB::RecordDeposit() : Error recording deposit for owner universe ID ", ownerUniID, " with depositer matic ", ownerMatic, " on Transaction : ", hash, " and amount ", amount));                
+                logException(ex, String.Concat("BlockchainTransactionDB::RecordDeposit() : Error recording deposit for owner universe ID ", ownerUniID, " with depositer matic ", ownerMatic, " on Transaction : ", hash, " and amount ", amount));                
             }
 
             return processed;
@@ -162,7 +162,7 @@ namespace MetaverseMax.Database
                 SqlParameter transactionResult = new()
                 {
                     ParameterName = "@transaction",
-                    SqlDbType = System.Data.SqlDbType.Bit,
+                    SqlDbType = System.Data.SqlDbType.Int,
                     Direction = System.Data.ParameterDirection.Output,
 
                 };
@@ -174,20 +174,24 @@ namespace MetaverseMax.Database
             }
             catch (Exception ex)
             {
-                logException(ex, String.Concat("OwnerDB::RecordWithdrawApproval() : Error recording withdrawal approval for owner universial ID ", ownerUniID, " with matic ", ownerMatic, " and amount ", amount));
+                logException(ex, String.Concat("BlockchainTransactionDB::RecordWithdrawApproval() : Error recording withdrawal approval for owner universial ID ", ownerUniID, " with matic ", ownerMatic, " and amount ", amount));
             }
 
             return transaction;
         }
 
-        public RETURN_CODE AssignHash(int transaction, string hashApproval)
+        public RETURN_CODE AssignHash(int transaction, string hash, string contractOwnerPublicKey, int nonce, bool verified)
         {
             RETURN_CODE returnCode = RETURN_CODE.ERROR;
             try
             {
                 BlockchainTransaction  approveTransaction = _context.BlockchainTransaction.Find(transaction);
-                approveTransaction.hash = hashApproval;
+                approveTransaction.hash = hash;
+                approveTransaction.action = BANK_ACTION.WITHDRAW;
                 approveTransaction.approval_recorded_utc = DateTime.Now;
+                approveTransaction.contract_owner = contractOwnerPublicKey;
+                approveTransaction.contract_owner_nonce = nonce;
+                approveTransaction.verified = verified;
 
                 _context.SaveChanges();
                 returnCode = RETURN_CODE.SUCCESS;
@@ -195,7 +199,7 @@ namespace MetaverseMax.Database
             }
             catch (Exception ex)
             {
-                logException(ex, String.Concat("blockchainTransactionDB::AssignHash() : Error assigning approval hash: ", hashApproval, " to transaction id : ", transaction));
+                logException(ex, String.Concat("blockchainTransactionDB::AssignHash() : Error assigning approval hash: ", hash, " to transaction id : ", transaction));
             }
 
             return returnCode;

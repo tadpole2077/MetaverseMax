@@ -1,5 +1,6 @@
 ﻿using MetaverseMax.BaseClass;
 using MetaverseMax.Database;
+using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Web3;
 using Nethereum.ABI.FunctionEncoding.Attributes;
 using Nethereum.Contracts.CQS;
@@ -8,18 +9,19 @@ using Nethereum.Web3.Accounts;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Contracts;
 using Nethereum.Contracts.Extensions;
+using Nethereum.RPC.NonceServices;
+using Nethereum.Contracts.TransactionHandlers;
+using Nethereum.Signer;
 using System.Numerics;
-using Nethereum.RPC.Eth.DTOs;
-using System;
+using Nethereum.Model;
 using Nethereum.BlockchainProcessing.BlockStorage.Entities;
 using System.Text;
 using System.Security.Cryptography;
-using Nethereum.Signer;
-using System.Drawing;
-using System.ComponentModel;
-using Nethereum.Model;
 using static System.Collections.Specialized.BitVector32;
 using System.Security.Cryptography.Xml;
+using Nethereum.Hex.HexTypes;
+using System.Net.Http.Headers;
+
 
 namespace MetaverseMax.ServiceClass
 {
@@ -32,6 +34,16 @@ namespace MetaverseMax.ServiceClass
 
     [Function("increaseAllowance")]
     public class BankWithdrawIncreaseAllowanceFunction : FunctionMessage
+    {
+        [Parameter("address", "recipient", 1)]
+        public string recipient { get; set; }
+
+        [Parameter("uint256", "amount", 2)]
+        public BigInteger amount { get; set; }
+    }
+
+    [Function("withdrawMega")]
+    public class WithdrawMegaFunction : FunctionMessage
     {
         [Parameter("address", "recipient", 1)]
         public string recipient { get; set; }
@@ -105,7 +117,7 @@ namespace MetaverseMax.ServiceClass
     {
         const string networkUrl = "https://data-seed-prebsc-1-s1.binance.org:8545";
         const string adminMMBankPrivateKey = "103ba2145001498e81add461fc9c60b56412b3dbcc177ff1a733f91646527dec";       // Admin Account: 0xFA87a94a37Ffd3e7d6Ae35FF33eB5d15A5A87467
-        const string MMBankContractAddress = "0x9Adf2de8c24c25B3EB1fc542598b69C51eE558A7";
+        const string MMBankContractAddress = "0xd743E6A6de491Bbe89D262186AD4403aBb410707"; //"0x9Adf2de8c24c25B3EB1fc542598b69C51eE558A7";
         const int MEGA_DECIMALS_COUNT = 18;   // also 18 places matches wei(1e18) to eth conversion.
 
         public BankManage(MetaverseMaxDbContext _parentContext, WORLD_TYPE worldTypeSelected) : base(_parentContext, worldTypeSelected)
@@ -127,7 +139,7 @@ namespace MetaverseMax.ServiceClass
             //var url = "http://testchain.nethereum.com:8545";            
             var account = new Nethereum.Web3.Accounts.Account(adminMMBankPrivateKey);
             var web3 = new Web3(account, networkUrl);
-
+           
             var balanceOfFunctionMessage = new GetBalanceOfFunction()
             {
                 account = account.Address,
@@ -219,56 +231,28 @@ namespace MetaverseMax.ServiceClass
             return depositProcessed;
         }
 
-        // When withdraw transaction completes on client side - this server side call occurs to check blockchain event log and record in local db.
-        // Note - A call to WithdrawAllowanceApprove will occur BEFORE this receipt call occurs.
-        private bool WithdrawProcess(TransactionReceipt transactionReceipt, string transactionHash, WithdrawDTO withdrawDTO)
-        {
-            using MetaverseMaxDbContext_UNI _contextUni = new();        // Auto disposed at end of scope/method C#8
-            
-            BlockchainTransactionDB blockchainTransactionDB = new(_contextUni);
-            BlockchainTransaction blockchainTransaction = new();
-            int ownerUniID = 0;
-            OwnerManage ownerManage = new(_context, worldType);            
-
-            // Check Receipt is Valid MMBank Contract
-            bool validContract = transactionReceipt.To.Equals(MMBankContractAddress, StringComparison.CurrentCultureIgnoreCase);
-
-            // Check previously recorded blockchain - hacker may try to rerun the transaction event check.
-            bool alreadyProcessed = blockchainTransactionDB.AlreadyProcessed(transactionHash, BANK_ACTION.WITHDRAW);
-
-            if (validContract && alreadyProcessed == false && withdrawDTO != null)
-            {
-                BigDecimal MegaAmount = -Web3.Convert.FromWei(withdrawDTO.amount);
-
-                // Map matic_key to owner_uni_key
-                ownerUniID = ownerManage.GetOwnerUniIDByMatic(transactionReceipt.From);
-
-                blockchainTransaction.hash = transactionHash;
-                blockchainTransaction.amount = Convert.ToDecimal(MegaAmount.ToString());
-                blockchainTransaction.action = BANK_ACTION.WITHDRAW;
-                blockchainTransaction.event_recorded_utc = DateTime.UtcNow;
-
-                blockchainTransactionDB.AddOrUpdate(blockchainTransaction, transactionHash, ownerUniID);
-            }
-            
-            return true;
-        }
-
-        public bool WithdrawAllowanceApprove(decimal amount, string ownerMaticKey, string signed)
+       
+        // To_DO :  Gas_price is currently hard coded, not sure if this is only required for BNB testnet, or all networks.  If all networks, will need to improve solution to find current gas_price and assign a suitable value below max - or cancel/pend the withdraw attempt as gas is currently "too high"
+        // TO_DO :  If a transaction is added to the block but fails (for whatever reason, isnt picked up by miner, dropped), the nonce and transaction is recorded as P(Pending) in DB,  no retry occurs. This failed transaction may block any further transactions on this owner account, until that nonce number is processed.
+        //          May need (a) ability to retry failed transaction - UI feature admin or player (b) push a filler nonce transaction to allow newer queued block transactions to process.
+        public bool WithdrawApprove(decimal amount, string ownerMaticKey, string signed)
         {
             bool approvalAllowed = false;
             int transaction;
-            decimal accountBalance = 0;
+            int retryReceiptCheck = 0;
+            decimal accountBalance;
             try
             {
                 using MetaverseMaxDbContext_UNI _contextUni = new();        // Auto disposed at end of scope/method C#8
                 BlockchainTransactionDB blockchainTransactionDB = new(_contextUni);
+                ContractOwnerNonceDB contractOwnerNonceDB = new(_contextUni);
                 OwnerManage ownerManage = new(_context, worldType);                
                 PersonalSignDB personalSignDB = new(_context, worldType);
                 var account = new Nethereum.Web3.Accounts.Account(adminMMBankPrivateKey);
                 var web3 = new Web3(account, networkUrl);
                 NETWORK chain = NETWORK.BINANCE_ID;
-
+                int nonce = 0;
+                
                 // Get active stored sign record for this account
                 PersonalSign personalSign = personalSignDB.GetUnsignedByMaticKey(ownerMaticKey);
 
@@ -301,7 +285,7 @@ namespace MetaverseMax.ServiceClass
 
                         // SPROC locking owner table - getting current balance, reducing balance, returning result - success = balance reduced, fail = balance change failed, do not proceed with withdraw
                         // Requirement for success : (A) Owner must exist,  (B) owner balance must be >= withdraw amount
-                        // Atomic unit with table locking to ensure Transactoin and account balance update occurs once and as a single transaction unit.
+                        // Atomic unit with table locking to ensure Transaction and account balance update occurs once and as a single transaction unit.
                         transaction = blockchainTransactionDB.RecordWithdrawApproval(ownerMaticKey, ownerAccount.ownerUniID, BANK_ACTION.WITHDRAW_PENDING, amount, chain);
 
                         // Update local Owner account balance.
@@ -311,10 +295,19 @@ namespace MetaverseMax.ServiceClass
 
                         if (transaction > 0)
                         {
-                            var increaseAllowanceFunctionMessage = new BankWithdrawIncreaseAllowanceFunction()
+                            account.NonceService = new InMemoryNonceService(account.Address, web3.Client);
+                            var currentNonce =  web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(account.Address, BlockParameter.CreatePending()).Result;
+                            var futureNonce = account.NonceService.GetNextNonceAsync().Result;                            
+                            web3.Eth.TransactionManager.CalculateOrSetDefaultGasPriceFeesIfNotSet = true;
+
+                           //var transactionSigner = new Nethereum.Signer.LegacyTransactionSigner();
+                           //var encoded = transactionSigner.SignTransaction(adminMMBankPrivateKey, MMBankContractAddress, 0, 303);
+
+
+                           var WithdrawMegaMessage = new WithdrawMegaFunction()
                             {
                                 recipient = ownerMaticKey,
-                                amount = Web3.Convert.ToWei(amount),
+                                amount = Web3.Convert.ToWei(amount),                                
                             };
 
                             // Option: using a QueryHandler
@@ -322,23 +315,73 @@ namespace MetaverseMax.ServiceClass
                             //var result = balanceHandler.QueryAsync<BigInteger>(MMBankContractAddress, increaseAllowanceFunctionMessage).Result;
 
                             // Option: using a TransactionHandler - allows lookup of transaction properties
-                            var allowanceHandler = web3.Eth.GetContractTransactionHandler<BankWithdrawIncreaseAllowanceFunction>();
-                            var transactionReceipt = allowanceHandler.SendRequestAndWaitForReceiptAsync(MMBankContractAddress, increaseAllowanceFunctionMessage).Result;
-                            var transactionHash = transactionReceipt.TransactionHash;
+                            var withdrawHandler = web3.Eth.GetContractTransactionHandler<WithdrawMegaFunction>();
+
+                            // Create Transaction Input with Gas Estimate
+                            var transactionInput = withdrawHandler.CreateTransactionInputEstimatingGasAsync(MMBankContractAddress, WithdrawMegaMessage).Result;
+                            
+                            nonce = contractOwnerNonceDB.GetNextNonce(account.Address, NETWORK.BINANCE_TESTNET_ID);
+                            futureNonce.Value = nonce;            // overriding nonce sequence due to prior stuck nonce in local transaction cache.
+                            transactionInput.Nonce = futureNonce;
+
+                            //transactionInput.Gas.Value = 400000;
+                            transactionInput.GasPrice = Web3.Convert.ToWei(5, UnitConversion.EthUnit.Gwei).ToHexBigInteger();                            
+
+                            //var timePreferenceFeeSuggesionStrategy = web3.FeeSuggestion.GetTimePreferenceFeeSuggestionStrategy();
+                            //web3.TransactionManager.Fee1559SuggestionStrategy = timePreferenceFeeSuggesionStrategy;
+                            //var fee = timePreferenceFeeSuggesionStrategy.SuggestFeeAsync().Result;
+
+                            var estimate = withdrawHandler.EstimateGasAsync(MMBankContractAddress, WithdrawMegaMessage).Result;
+
+                            // Sign for the widthdraw
+                            //var signedTransaction = withdrawHandler.SignTransactionAsync(MMBankContractAddress, WithdrawMegaMessage).Result;
+
+
+                            var transactionHash = web3.TransactionManager.SendTransactionAsync(transactionInput).Result;
+
+                            // Execute the withdraw
+                            //TransactionReceipt transactionReceipt = withdrawHandler.SendRequestAndWaitForReceiptAsync(transactionResponse).Result;
+                            //var transactionHash = transactionReceipt.TransactionHash;
+
+                            // Execute the withdraw
+                            //var buildRequest = web3.Eth.Transactions.SendRawTransaction.BuildRequest(signedTransaction);
+
+                            var transactionTest = web3.Eth.Transactions.GetTransactionByHash.SendRequestAsync(transactionHash).Result;
+
+
+                            //var signedTransaction = web3.TransactionManager.SignTransactionAsync(transactionInput).Result;
+
+                            //transactionTest = web3.Eth.Transactions.GetTransactionByHash.SendRequestAsync(transactionHash).Result;
+
+                            // Getting the transaction Receipt from the chain
+                            var transactionReceipt = web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(transactionHash).Result;
+
+                            while (transactionReceipt == null && retryReceiptCheck < 4)
+                            {
+                                Thread.Sleep(2000);
+                                transactionReceipt = web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(transactionHash).Result;
+                                retryReceiptCheck++;
+                            }
+
+                            //var transactionReceipt = withdrawHandler.SendRequestAndWaitForReceiptAsync(signedTransaction).Result;
+                            //var transactionHash = transactionReceipt.TransactionHash;
 
                             // Check Transaction was sucessful
-                            approvalAllowed = transactionReceipt.Status.Value == BigInteger.One;      // bool value - true if successful
+                            approvalAllowed = transactionReceipt != null && transactionReceipt.Status.Value == BigInteger.One;      // bool value - true if successful
 
-                            if (approvalAllowed)
-                            {
-                                blockchainTransactionDB.AssignHash(transaction, transactionHash);
-                            }
+                            // Record transaction, included if receipt retried and transaction has proceeded sucessfully 
+                            blockchainTransactionDB.AssignHash(transaction, transactionHash, account.Address, nonce, approvalAllowed);
+                            
                         }
                         else
                         {
-                            _context.LogEvent(String.Concat("BankManage.WithdrawAllowanceApprove() : Attempting to withdraw using [invalid signature] for ownerMaticKey: ", ownerMaticKey, " amount: ", amount));
+                            _context.LogEvent(String.Concat("BankManage.WithdrawApprove() : unable to approve withdrawal for : ", ownerMaticKey, " amount: ", amount, ". Issue due to insufficient owner balance"));
                             approvalAllowed = false;
                         }
+                    }
+                    else if (signedSignature.ToLower() != ownerMaticKey.ToLower()){
+                        _context.LogEvent(String.Concat("BankManage.WithdrawApprove() : PersonalSign check is invalid - unable to approve withdrawal for : ", ownerMaticKey, " amount: ", amount));
+                        approvalAllowed = false;
                     }
                 }
             }
@@ -425,6 +468,42 @@ namespace MetaverseMax.ServiceClass
 
             //new RandomNumberGenerator()
             return saltHex;
+        }
+
+
+        // When withdraw transaction completes on client side - this server side call occurs to check blockchain event log and record in local db.
+        // Note - A call to WithdrawAllowanceApprove will occur BEFORE this receipt call occurs.
+        private bool WithdrawProcess(TransactionReceipt transactionReceipt, string transactionHash, WithdrawDTO withdrawDTO)
+        {
+            using MetaverseMaxDbContext_UNI _contextUni = new();        // Auto disposed at end of scope/method C#8
+
+            BlockchainTransactionDB blockchainTransactionDB = new(_contextUni);
+            BlockchainTransaction blockchainTransaction = new();
+            int ownerUniID = 0;
+            OwnerManage ownerManage = new(_context, worldType);
+
+            // Check Receipt is Valid MMBank Contract
+            bool validContract = transactionReceipt.To.Equals(MMBankContractAddress, StringComparison.CurrentCultureIgnoreCase);
+
+            // Check previously recorded blockchain - hacker may try to rerun the transaction event check.
+            bool alreadyProcessed = blockchainTransactionDB.AlreadyProcessed(transactionHash, BANK_ACTION.WITHDRAW);
+
+            if (validContract && alreadyProcessed == false && withdrawDTO != null)
+            {
+                BigDecimal MegaAmount = -Web3.Convert.FromWei(withdrawDTO.amount);
+
+                // Map matic_key to owner_uni_key
+                ownerUniID = ownerManage.GetOwnerUniIDByMatic(transactionReceipt.From);
+
+                blockchainTransaction.hash = transactionHash;
+                blockchainTransaction.amount = Convert.ToDecimal(MegaAmount.ToString());
+                blockchainTransaction.action = BANK_ACTION.WITHDRAW;
+                blockchainTransaction.event_recorded_utc = DateTime.UtcNow;
+
+                blockchainTransactionDB.AddOrUpdate(blockchainTransaction, transactionHash, ownerUniID);
+            }
+
+            return true;
         }
     }
 }

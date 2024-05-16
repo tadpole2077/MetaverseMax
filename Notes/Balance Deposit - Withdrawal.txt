@@ -76,5 +76,16 @@ using locked stored sproc
 Test Settings:
 ==============================
 Deposit: 
-* Step 1 >> Contract used is : CONTRACT_MEGA_MOCK & MegaCoinMOCKAbi    [ swap to using BNB contract on release ]
-* Step 2 >> MMBankContract (MetaverseMax contract on BNB network) points to MEGA_MOCK Contract on testnet  [BNB>MMContract needs to be updated to use the BNB Mega contract on release]
+* Step 1 >> FRONT-END 
+	Contract used is : CONTRACT_MMBank && CONTRACT_MEGA_MOCK    [ swap to using BNB contract on release ]
+	ABI : MegaCoinMOCKAbi, MMBankAbi
+	File: balance-manager-dialog.component.ts  Ln 30 & 31
+
+	Note: MMBankContract (MetaverseMax contract on BNB network) points to MEGA_MOCK Contract on testnet  [BNB>MMContract needs to be updated to use the BNB Mega contract on release]
+
+
+* Step 2 >> BACK-END
+	Contract used is : MMBankContractAddress
+	ABI: in-file  bank-manage.cs > header section
+
+

@@ -130,5 +130,8 @@ namespace MetaverseMax.Database
 
         [Column("citizen_count")]
         public int citizen_count { get; set; }
+
+        [Column("last_action")]
+        public DateTime? last_action { get; set; }
     }
 }

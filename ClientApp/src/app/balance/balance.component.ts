@@ -39,10 +39,15 @@ export class BalanceComponent{
     }
   }
 
+  get formatBalance() {
+    // No decimal 
+    return Math.floor(this.globals.ownerAccount.balance);
+  }
+
   startBalanceMonitor() {
 
     this.currentPlayerWalletKey = this.globals.ownerAccount.public_key;
-    this.balance = this.globals.ownerAccount.balance;
+    this.balance = this.formatBalance;
 
     // Monitor using service - when account status changes - active / inactive.
     this.subscriptionAccountActive$ = this.globals.accountActive$.subscribe(active => {
@@ -51,28 +56,35 @@ export class BalanceComponent{
       this.currentPlayerWalletKey = this.globals.ownerAccount.public_key;
       console.log("account status : " + active);
       this.zone.run(() => {
-        this.balance = this.globals.ownerAccount.balance;
+        this.balance = this.formatBalance;
       });
 
     });
 
-    this.subscriptionBalanceChange$ = this.globals.balaceChange$.subscribe(balanceChange => {
+    this.subscriptionBalanceChange$ = this.globals.balanceChange$.subscribe(balanceChange => {
       if (balanceChange) {
         console.log("account balance updated");
         this.zone.run(() => {
-          this.balance = this.globals.ownerAccount.balance;
+          this.balance = this.formatBalance;
         });
       }
     });
   }
 
   openDialog(enterAnimationDuration: string, exitAnimationDuration: string): void {
-    this.dialog.open(BalanceManageDialogComponent, {    
-      width: '600px',
-      enterAnimationDuration,
-      exitAnimationDuration,
-      autoFocus: 'false'
+
+    // Need to run a change detect due to MatDialog not firing the lifecycle ngOnInit, when Menu > balance control component is initially hidden.
+    this.zone.run(() => {
+
+      this.dialog.open(BalanceManageDialogComponent, {
+        width: '600px',
+        enterAnimationDuration,
+        exitAnimationDuration,
+        autoFocus: 'false'
+      });
+
     });
+
   }
   
 }

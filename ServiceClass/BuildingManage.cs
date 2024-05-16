@@ -190,10 +190,11 @@ namespace MetaverseMax.ServiceClass
 
                     // Check if Building able to execute a run collection - then eval building history. Pass IP efficiency.
                     // Limiters:
-                    //   TO_DO  [2024/03] Only check buildings that HAVE been recently collected, many building may be READY to collect, but uncollected for extended periods of time. Without this check, those buildings would be proceeded EVERY NIGHTLY SYNC
+                    //      Only check buildings that HAVE been recently collected.  Logic: many building may be READY to collect, but uncollected for extended periods of time. Without this check, those buildings would be proceeded EVERY NIGHTLY SYNC
+                    //      if a building ranking has changed - the impact on prediction wont be calculated until (a) after next collection (b) player opens building history to evaluate.
                     // PURPOSE: Full update of building details - to identify if recent collection occured and amount collected, update next prediction calc
                     if (evalHistory && (buildingType == (int)BUILDING_TYPE.INDUSTRIAL || buildingType == (int)BUILDING_TYPE.PRODUCTION || buildingType == (int)BUILDING_TYPE.ENERGY)
-                        && EvalBuildingHistory(buildingList[i].last_run_produce_date, buildingLevel) == true )
+                        && EvalBuildingHistory(buildingList[i].last_run_produce_date, buildingLevel, buildingList[i].last_action) == true )
                     {
                         // Save each building's evaluated IP efficiency, latest run and predicted produce.
                         buildingHistory = GetHistory(buildingList[i].token_id, waitPeriodMS, false, false, buildingList[i].owner_matic, buildingList[i].current_influence_rank, string.Empty, skipNoActiveCitizen);
@@ -2777,18 +2778,19 @@ namespace MetaverseMax.ServiceClass
             };
         }
 
-        private bool EvalBuildingHistory(DateTime? lastRunProduceDate, int buildingLevel)
+        // Only evaluate history if last production run collection is (a) less then collection time period (b) an actual collection occured in that period
+        private bool EvalBuildingHistory(DateTime? lastRunProduceDate, int buildingLevel, DateTime? buildingLastAction)
         {
             bool result = false;
 
-            if (lastRunProduceDate == null ||
-               (buildingLevel == 1 && lastRunProduceDate < DateTime.Now.AddDays(-7)) ||
-               (buildingLevel == 2 && lastRunProduceDate < DateTime.Now.AddDays(-6)) ||
-               (buildingLevel == 3 && lastRunProduceDate < DateTime.Now.AddDays(-5)) ||
-               (buildingLevel == 4 && lastRunProduceDate < DateTime.Now.AddDays(-4)) ||
-               (buildingLevel == 5 && lastRunProduceDate < DateTime.Now.AddDays(-3)) ||
-               (buildingLevel == 6 && lastRunProduceDate < DateTime.Now.AddDays(-2)) ||
-               (buildingLevel == 7 && lastRunProduceDate < DateTime.Now.AddDays(-1)))
+            if (buildingLastAction != null && (lastRunProduceDate == null ||
+               (buildingLevel == 1 && lastRunProduceDate < DateTime.Now.AddDays(-7) && buildingLastAction >= DateTime.Now.AddDays(-7)) ||
+               (buildingLevel == 2 && lastRunProduceDate < DateTime.Now.AddDays(-6) && buildingLastAction >= DateTime.Now.AddDays(-6)) ||
+               (buildingLevel == 3 && lastRunProduceDate < DateTime.Now.AddDays(-5) && buildingLastAction >= DateTime.Now.AddDays(-5)) ||
+               (buildingLevel == 4 && lastRunProduceDate < DateTime.Now.AddDays(-4) && buildingLastAction >= DateTime.Now.AddDays(-4)) ||
+               (buildingLevel == 5 && lastRunProduceDate < DateTime.Now.AddDays(-3) && buildingLastAction >= DateTime.Now.AddDays(-3)) ||
+               (buildingLevel == 6 && lastRunProduceDate < DateTime.Now.AddDays(-2) && buildingLastAction >= DateTime.Now.AddDays(-2)) ||
+               (buildingLevel == 7 && lastRunProduceDate < DateTime.Now.AddDays(-1) && buildingLastAction >= DateTime.Now.AddDays(-1))))
             {
                 result = true;
             }

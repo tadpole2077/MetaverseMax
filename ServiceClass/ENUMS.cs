@@ -757,6 +757,7 @@
         ROPSTEN_ID = 3,         // Ethereum Test network.
         POLYGON_ID = 137,       //'0x89',
         BINANCE_ID = 56,        // '0x38'
+        BINANCE_TESTNET_ID = 97,   // '0x61'
         TRON_ID = -1            // chain id is actual 1 but eth is also matching so using -1 for internal distinction.
     };
 }

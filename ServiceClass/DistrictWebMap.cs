@@ -151,7 +151,7 @@ namespace MetaverseMax.ServiceClass
             districtWeb.last_updateFormated = common.LocalTimeFormatStandardFromUTC("", district.last_update);
             districtWeb.district_id = district.district_id;
             districtWeb.owner_name = ownerAccount == null ? "Not Found" : 
-                ownerAccount.name.IsNullOrEmpty() ? ownerAccount.discord_name ?? string.Empty : String.Empty;
+                ownerAccount.name.IsNullOrEmpty() ? ownerAccount.discord_name ?? string.Empty : ownerAccount.name;
             districtWeb.owner_avatar_id = ownerAccount == null ? 0 : ownerAccount.avatar_id;
             districtWeb.owner_url = citizen.AssignDefaultOwnerImg(districtWeb.owner_avatar_id.ToString());
             districtWeb.owner_matic = district.owner_matic ?? "Not Found";

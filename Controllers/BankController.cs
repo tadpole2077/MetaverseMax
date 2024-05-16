@@ -61,7 +61,7 @@ namespace MetaverseMax.Controllers
             if (ModelState.IsValid)
             {
 
-                return Ok(bankManage.WithdrawAllowanceApprove(parameters.amount, parameters.ownerMaticKey, parameters.personalSign));
+                return Ok(bankManage.WithdrawApprove(parameters.amount, parameters.ownerMaticKey, parameters.personalSign));
             }
 
             return BadRequest("Withdraw Approve is invalid");       // 400 Error  
