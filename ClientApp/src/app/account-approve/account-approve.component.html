@@ -5,6 +5,13 @@
       <i class="fas fa-hand-point-right moveLeftRight"></i>
       <span class="promptText">
 
+        <span [hidden]="!showEthConnectFlag" (click)="clickAccountLink()" class="approve">
+          <button class="walletButton buttonEffect" mat-raised-button color="primary">
+            <span class="buttonText">Connect Wallet</span>
+          </button>
+          <span>Click to Approve account link to enable MyAccount and Ranking features</span>
+        </span>
+
         <span [hidden]="!showEthApproveFlag" (click)="clickAccountLink()" class="approve">
           <button class="walletButton buttonEffect" mat-raised-button color="primary">
             <span class="buttonText">Wallet Site Approve</span>

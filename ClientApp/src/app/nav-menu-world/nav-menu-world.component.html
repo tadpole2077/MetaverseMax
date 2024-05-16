@@ -4,12 +4,15 @@
   <div style="margin-bottom:6px;">
 
     <div ngbDropdown class="d-inline-block;display:none">
-      <button mat-raised-button color="primary" class="buttonEffect" id="dropdownBasic1" ngbDropdownToggle>{{selectedWorldName}}</button>
+      <button mat-raised-button color="primary" class="buttonEffect" [ngClass]="{'expandHeight':globals.walletKeyFormated!=''}" ngbDropdownToggle>
+        <span class="worldText">{{selectedWorldName}}</span>
+        <span [ngClass]="{'formatedKey':globals.walletKeyFormated!=''}" >{{ globals.walletKeyFormated }} </span>
+      </button>
 
       <div ngbDropdownMenu aria-labelledby="dropdownBasic1">     
         <button class="worldBtn" *ngFor="let world of worldNamelist" ngbDropdownItem (click)="setWorldVar(world.id, world.name)">
-          <span class="iconContain"><img class="coinIcon" src="./assets/{{world.id==1 ? 'tron' : world.id==2 ? 'bnb' : 'eth' }}.png" /></span>
-          <span>{{world.name}}</span>
+          <span class="iconContain"><img class="coinIcon" src="./assets/{{ world.id === WORLD.TRON ? 'tron' : world.id === WORLD.BNB ? 'bnb' : 'eth' }}.png" /></span>
+          <span>{{ world.name }}</span>          
         </button>
       </div>
     </div>

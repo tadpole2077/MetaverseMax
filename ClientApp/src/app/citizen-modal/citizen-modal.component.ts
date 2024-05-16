@@ -6,7 +6,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { DragDrop } from '@angular/cdk/drag-drop';
 import { ICitizen, IPortfolioCitizen } from '../owner-data/owner-interface';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Globals, WORLD } from '../common/global-var';
+import { Application, WORLD } from '../common/global-var';
 import { interval, Subscription } from 'rxjs';
 
 @Component({
@@ -45,7 +45,7 @@ export class CitizenModalComponent {
   displayedColumns: string[] = this.displayedColumnsTraits;
   tableHeader: string = "Traits";
 
-  constructor(public globals: Globals, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private clipboard: Clipboard, private zone: NgZone) {
+  constructor(public globals: Application, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private clipboard: Clipboard, private zone: NgZone) {
 
     this.httpClient = http;
     this.baseUrl = baseUrl + "api/" + globals.worldCode;

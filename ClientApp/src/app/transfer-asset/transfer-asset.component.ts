@@ -7,7 +7,7 @@ import DetectEthereumProvider from '@metamask/detect-provider';
 
 import { PlayerMenuComponent } from '../player-menu/player-menu.component';
 import { IPack } from '../owner-data/owner-interface';
-import { Globals, WORLD } from '../common/global-var';
+import { Application, WORLD } from '../common/global-var';
 import { TRANSACTION_STATUS, BLOCKCHAIN, TRANSACTION_TYPE, PRODUCT } from '../common/enum';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
@@ -54,7 +54,7 @@ export class TransferAssetComponent implements OnInit {
   baseUrl: string;
   addressKeyControl = new FormControl('');
   
-  constructor(public globals: Globals, public router: Router, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
+  constructor(public globals: Application, public router: Router, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
 
     this.httpClient = http;
     this.baseUrl = rootBaseUrl + "api/" + globals.worldCode;    

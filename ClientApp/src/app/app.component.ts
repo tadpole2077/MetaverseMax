@@ -1,6 +1,6 @@
-import { Component, HostBinding } from '@angular/core';
+import { Component, HostBinding, NgZone } from '@angular/core';
 import { OverlayContainer } from '@angular/cdk/overlay';
-import { Globals, WORLD } from './common/global-var';
+import { Application, WORLD } from './common/global-var';
 
 @Component({
   selector: 'app-root',
@@ -10,7 +10,7 @@ export class AppComponent {
   title = 'app';
   @HostBinding('class') className = '';
 
-  constructor(public globals: Globals, private overlay: OverlayContainer) {
+  constructor(public globals: Application, private overlay: OverlayContainer, private zone: NgZone) {
     globals.appComponentInstance = this;
   }
 
@@ -21,11 +21,14 @@ export class AppComponent {
     const darkClassName = "darkMode";
     this.className = darkModeEnabled ? darkClassName : '';
 
-    // Need to apply class to root body - as no material root control used.
-    if (darkModeEnabled) {
-      this.overlay.getContainerElement().parentElement.classList.add(darkClassName);
-    } else {
-      this.overlay.getContainerElement().parentElement.classList.remove(darkClassName);
-    }
+    // apply theme change to parent and all child components.
+    this.zone.run(() => {
+      // Need to apply class to root body - as no material root control used.
+      if (darkModeEnabled) {
+        this.overlay.getContainerElement().parentElement.classList.add(darkClassName);
+      } else {
+        this.overlay.getContainerElement().parentElement.classList.remove(darkClassName);
+      }
+    });
   }
 }

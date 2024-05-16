@@ -3,7 +3,7 @@ import { Component, Output, EventEmitter, Inject, ViewChild, Input } from '@angu
 import { Router } from '@angular/router';
 
 import { Alert } from '../common/alert';
-import { Globals, WORLD } from '../common/global-var';
+import { Application, WORLD } from '../common/global-var';
 import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { ALERT_TYPE, ALERT_ACTION } from '../common/enum'
 
@@ -25,14 +25,14 @@ export class AlertMenuComponent {
   baseUrl: string;
   ownerAlert: OwnerAlert[];
 
-  @ViewChild("ilvSlide", { static: true } as any) ilvSlide: MatSlideToggle;
-  @ViewChild("constructSlide", { static: true } as any) constructSlide: MatSlideToggle;
-  @ViewChild("produceSlide", { static: true } as any) produceSlide: MatSlideToggle;
-  @ViewChild("distributeSlide", { static: true } as any) distributeSlide: MatSlideToggle;
+  @ViewChild("ilvSlide", { static: true }) ilvSlide: MatSlideToggle;
+  @ViewChild("constructSlide", { static: true }) constructSlide: MatSlideToggle;
+  @ViewChild("produceSlide", { static: true }) produceSlide: MatSlideToggle;
+  @ViewChild("distributeSlide", { static: true }) distributeSlide: MatSlideToggle;
 
   @Input() districtId: number;
 
-  constructor(public globals: Globals, public router: Router, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string, public alert: Alert) {
+  constructor(public globals: Application, public router: Router, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string, public alert: Alert) {
 
     this.httpClient = http;
     this.baseUrl = rootBaseUrl + "api/" + globals.worldCode;

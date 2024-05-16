@@ -6,7 +6,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { DragDrop } from '@angular/cdk/drag-drop';
 import { IPortfolioPet, IPet } from '../owner-data/owner-interface';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Globals, WORLD } from '../common/global-var';
+import { Application, WORLD } from '../common/global-var';
 
 //let HISTORY_ASSETS: Detail[] = null;
 
@@ -32,7 +32,7 @@ export class PetModalComponent implements AfterViewInit {
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumns: string[] = ['token_id', 'name', 'trait', 'level'];
 
-  constructor(public globals: Globals, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private clipboard: Clipboard) {
+  constructor(public globals: Application, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private clipboard: Clipboard) {
 
     this.httpClient = http;
     this.baseUrl = baseUrl + "api/" + globals.worldCode;

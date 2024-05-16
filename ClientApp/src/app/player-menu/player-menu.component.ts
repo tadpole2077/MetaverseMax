@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { MatAutocompleteSelectedEvent, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Globals, WORLD } from '../common/global-var';
+import { Application, WORLD } from '../common/global-var';
 
 interface OwnerName {
   public_key: string;
@@ -36,7 +36,7 @@ export class PlayerMenuComponent implements OnInit {
   @ViewChild(MatAutocompleteTrigger, { static: true }) _auto: MatAutocompleteTrigger;
   @Output() selectPlayerEvent = new EventEmitter<any>();
 
-  constructor(public globals: Globals, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
+  constructor(public globals: Application, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
 
     this.httpClient = http;
     this.baseUrl = baseUrl + "api/" + globals.worldCode;

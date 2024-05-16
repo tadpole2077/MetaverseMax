@@ -40,10 +40,11 @@
   animation-direction: alternate;
   animation-duration: 2s;
 }
-.promptText{
+.promptText {
   display: inline;
   padding-left: 32px;
-  margin-top: 1px
+  margin-top: 3px;
+  margin-bottom: 2px;
 }
 button.walletButton {
   height: 26px;

@@ -2,7 +2,7 @@ import { Injectable, Inject} from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-toggle';
 
-import { Globals, WORLD } from '../common/global-var';
+import { Application, WORLD } from '../common/global-var';
 import { ALERT_TYPE, ALERT_ACTION } from '../common/enum'
 
 interface OwnerAlert {
@@ -15,7 +15,7 @@ export class Alert {
   baseUrl: string;
   private ownerAlert: OwnerAlert[];
 
-  constructor(public globals: Globals, private httpClient: HttpClient, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
+  constructor(public globals: Application, private httpClient: HttpClient, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
     this.httpClient = http;    
   }
 

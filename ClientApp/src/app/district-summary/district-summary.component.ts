@@ -14,7 +14,7 @@ import { TaxChangeComponent } from '../tax-change/tax-change.component';
 import { CustomBuildingComponent } from '../custom-building/custom-building.component';
 import { OwnerSummary, District } from './data-district-interface';
 import { MatExpansionPanel } from '@angular/material/expansion';
-import { Globals, WORLD } from '../common/global-var';
+import { Application, WORLD } from '../common/global-var';
 import { Subscription } from 'rxjs';
 
 
@@ -61,13 +61,13 @@ export class DistrictSummaryComponent implements AfterViewInit {
   @ViewChild("graphProduce", { static: true }) childGraphProduce: GraphTaxComponent;
   @ViewChild("graphFund", { static: true }) childGraphFund: GraphFundComponent;
   @ViewChild("graphDistribute", { static: true }) childGraphDistribute: GraphFundComponent;
-  @ViewChild("arrivalsWeek", { static: true } as any) arrivalsWeek: MatCheckbox;
-  @ViewChild("arrivalsMonth", { static: true } as any) arrivalsMonth: MatCheckbox;
+  @ViewChild("arrivalsWeek", { static: true }) arrivalsWeek: MatCheckbox;
+  @ViewChild("arrivalsMonth", { static: true }) arrivalsMonth: MatCheckbox;
 
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumnsOwners: string[] = ['owner_name', 'owned_plots', 'energy_count', 'industry_count', 'production_count', 'residential_count', 'office_count', 'poi_count', 'commercial_count', 'municipal_count'];
 
-  constructor(public globals: Globals, private activedRoute: ActivatedRoute, private router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef) {
+  constructor(public globals: Application, private activedRoute: ActivatedRoute, private router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef) {
 
     this.httpClient = http;
     this.worldCode = (globals.selectedWorld == WORLD.TRON ? "trx" : globals.selectedWorld == WORLD.BNB ? "bnb" : "eth")

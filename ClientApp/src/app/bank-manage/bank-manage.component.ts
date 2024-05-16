@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Component, Inject } from "@angular/core";
 import { HEX_NETWORK, METAMASK_ERROR_CODE } from "../common/enum";
-import { Globals } from "../common/global-var";
+import { Application } from "../common/global-var";
 import { FormControl } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 
@@ -46,7 +46,7 @@ export class TESTBankManageComponent {
   readonly MEGA_DECIMALS = 1e18;
   readonly MEGA_DECIMALS_COUNT = 18;
 
-  constructor(public globals: Globals, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
+  constructor(public globals: Application, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
 
     this.httpClient = http;
     this.baseUrl = rootBaseUrl + "api/" + globals.worldCode;

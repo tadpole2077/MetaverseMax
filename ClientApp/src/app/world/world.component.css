@@ -146,6 +146,7 @@
 }
 .summaryTitle {
   font-weight: 500;
+  text-wrap: nowrap;
 }
 .mega{
   width: 18px;
@@ -329,7 +330,8 @@ a {
     text-align: center;
   }
   .missionExtraSection {
-    margin-right: unset;
+    margin-right: 20px;
+    font-size: 14px;
   }
   .padLeft{
     padding-left: 4px

@@ -6,7 +6,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatTabGroup } from '@angular/material/tabs';
 import { DragDrop } from '@angular/cdk/drag-drop';
 import { IOffer } from '../owner-data/owner-interface';
-import { Globals, WORLD } from '../common/global-var';
+import { Application, WORLD } from '../common/global-var';
 
 @Component({
   selector: 'app-offer-modal',
@@ -39,7 +39,7 @@ export class OfferModalComponent implements AfterViewInit {
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumns: string[] = ['offer_date', 'buyer_matic_key', 'buyer_offer', 'token_type', 'token_district'];
 
-  constructor(public globals: Globals, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {//, cdr: ChangeDetectorRef) {
+  constructor(public globals: Application, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {//, cdr: ChangeDetectorRef) {
 
     this.httpClient = http;
     this.baseUrl = baseUrl + "api/" + globals.worldCode;

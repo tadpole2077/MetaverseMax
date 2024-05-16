@@ -209,7 +209,7 @@ h3{
 
 
 
-@media only screen and (max-width: 426px) {
+@media only screen and (max-width: 430px) {
   H2 {
     font-size: 1.5rem;
   }
@@ -225,7 +225,7 @@ h3{
   .logoImg {
     right: .3rem;
     height: 80px;
-    margin-top: -110px;
+    margin-top: -140px;
   }
 
   .homeContent {

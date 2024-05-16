@@ -1,7 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "resolveJsonModule": true,              /* used to import JSON files */
+    "resolveJsonModule": true, /* used to import JSON files */
     "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
     "declaration": false,
@@ -24,13 +24,13 @@
     "paths": {
       "web3": [ "node_modules/web3" ],
       "crypto": [ "node_modules/crypto-js" ],
-      "tronweb": ["node_modules/tronweb"]
+      "tronweb": [ "node_modules/tronweb" ]
     }
   },
   "angularCompilerOptions": {
     /*"allowSyntheticDefaultImports": true,
     "esModuleInterop": true*/
-    "strictInjectionParameters": true,  // taken from test vs2022 template - not set before
+    "strictInjectionParameters": true // taken from test vs2022 template - not set before
     //"strictInputAccessModifiers": true, // taken from test vs2022 template - not set before
     //"strictTemplates": true             // taken from test vs2022 template - not set before
   }

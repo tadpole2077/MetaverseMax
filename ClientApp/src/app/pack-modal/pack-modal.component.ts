@@ -7,7 +7,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { TransferAssetComponent } from "../transfer-asset/transfer-asset.component"
 import { IPack } from '../owner-data/owner-interface';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Globals, WORLD } from '../common/global-var';
+import { Application, WORLD } from '../common/global-var';
 import { MapData } from '../common/map-data';
 import { PRODUCT_IMG, PRODUCT_NAME, PRODUCT } from '../common/enum';
 
@@ -45,7 +45,7 @@ export class PackModalComponent {
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumns: string[] = ['pack_id', 'product_id', 'amount'];
 
-  constructor(public globals: Globals, public mapdata: MapData, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private clipboard: Clipboard) {
+  constructor(public globals: Application, public mapdata: MapData, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private clipboard: Clipboard) {
 
     this.httpClient = http;
     this.baseUrl = baseUrl + "api/" + globals.worldCode;

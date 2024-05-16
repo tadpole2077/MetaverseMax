@@ -1,5 +1,5 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { Injectable, ElementRef, ChangeDetectorRef, Inject } from '@angular/core';
 import { Subscription, interval, Subject } from 'rxjs';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { AccountApproveComponent } from '../account-approve/account-approve.component';
@@ -10,8 +10,11 @@ import DetectEthereumProvider from '@metamask/detect-provider';
 //import TronWebProvider from 'tronweb';*/    // Massive package 599kb included in main.js file - only needed on server side Tron apps i think
 import { Router, UrlSegmentGroup, PRIMARY_OUTLET, UrlSegment, UrlTree, ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import { ALERT_TYPE, ALERT_ICON_TYPE, PENDING_ALERT,STATUS } from '../common/enum'
+import { ALERT_TYPE, ALERT_ICON_TYPE, PENDING_ALERT,STATUS, HEX_NETWORK } from '../common/enum'
 import { AlertBottomComponent } from '../alert-bottom/alert-bottom.component';
+import { PublicHashPipe } from '../pipe/public-hash-pipe';
+import Web3, { EIP1193Provider } from 'web3';
+import { EIP6963ProviderDetail } from 'web3/lib/commonjs/web3_eip6963';
 
 
 interface OwnerAccount {
@@ -59,12 +62,11 @@ interface AlertPendingManager {
   alert: AlertPending[]
 }
 
-
-const WORLD = {
-  UNKNOWN: 0,
-  TRON: 1,
-  BNB: 2,
-  ETH: 3
+enum WORLD {
+  UNKNOWN = 0,
+  TRON = 1,
+  BNB = 2,
+  ETH = 3
 }
 
 const APPROVAL_TYPE = {
@@ -75,15 +77,16 @@ const APPROVAL_TYPE = {
 
 
 @Injectable()
-export class Globals {
+export class Application {
+
+  metaMask: EIP1193Provider<unknown> = null;
 
   public ownerAccount: OwnerAccount;
   public windowTron: any;
-  public selectedWorld: number = WORLD.UNKNOWN;   // Default Tron
-  public worldCode: string = "trx";  // Default Tron
-  public worldName: string = "Tron";
-  public worldURLPath: string = "https://mcp3d.com/tron/api/image/";   //Default Tron
-  public firstCitizen: number = 0;   // Default Tron  
+  public _selectedWorld: WORLD = WORLD.BNB;   // Default BNB
+  public worldName: string = "BSC";
+  public worldURLPath: string = "https://mcp3d.com/bsc/api/image/";   //Default BNB
+  public firstCitizen: number = 24;   // Default BNB
   public approveSwitchComponent: AccountApproveComponent;
   public homeCDF: ChangeDetectorRef = null;
   public menuCDF: ChangeDetectorRef = null;
@@ -100,6 +103,42 @@ export class Globals {
   // Flag triggers an update on any module that uses the Account Approval component
   public _requestApprove: boolean = false;
 
+  // Flag tracks wallet allowed access to this site
+  private _walletApproved: boolean = false;
+  private _connectWallet: boolean = false;
+  private _networkChainId: string;
+  private _walletKeyFormated: string = '';
+
+  public public_key: string;
+
+  private _worldCode: string  = "bnb";  // Default Bnb - Smartnet
+  private rootBaseUrl: string;
+
+  public approvalType: number = APPROVAL_TYPE.NONE;
+
+  // ********** Observables ******************************
+  // Service to capture when an account become active - used by components to update/enable account specific features
+  private accountActiveSubject = new Subject<boolean>();
+  public accountActive$ = this.accountActiveSubject.asObservable();
+
+  private balanceChangeSubject = new Subject<boolean>();
+  public balanceChange$ = this.balanceChangeSubject.asObservable();
+
+  private systemShutdownSubject = new Subject<boolean>()
+  public systemShutdown$ = this.systemShutdownSubject.asObservable();
+
+  // Observable event - triggered on blockchain network change
+  private networkChangeSubject = new Subject<string>();
+  public networkChange$ = this.networkChangeSubject.asObservable();
+
+  constructor(private httpClient: HttpClient, private alertSheet: MatBottomSheet, public router: Router, private location: Location, private route: ActivatedRoute, @Inject('BASE_URL') rootBaseUrl: string) {
+
+    this.rootBaseUrl = rootBaseUrl;     // Unknow world type at this point, checkWorldFromURL will identify.
+    this.initAccount();
+    this.getProviders();
+  }
+
+  // Wallet site link Approval flag
   set requestApprove(value) {    
 
     let changed = this._requestApprove != value;
@@ -120,23 +159,61 @@ export class Globals {
     return this._requestApprove;
   }
 
-  public approvalType: number = APPROVAL_TYPE.NONE;
+  set connectWallet(value) {
+    this._connectWallet = value;
+    if (value) {
+      this.approveSwitchComponent.show();
+    }
+    else {
+      this.approveSwitchComponent.hide();
+    }
+  }
+  get connectWallet() {
+    return this._connectWallet
+  }
 
-  // ********** Observables ******************************
-  // Service to capture when an account become active - used by components to update/enable account specific features
-  private accountActiveSubject = new Subject<boolean>();
-  public accountActive$ = this.accountActiveSubject.asObservable();
+  set worldCode(value) {
+    this._worldCode = value;
+  }
+  get worldCode() {
+    return this._worldCode;
+  }
 
-  private balanceChangeSubject = new Subject<boolean>();
-  public balanceChange$ = this.balanceChangeSubject.asObservable();
+  set selectedWorld(value) {
+    this._selectedWorld = value;
+  }
+  get selectedWorld() {
+    return this._selectedWorld;
+  }
 
-  private systemShutdownSubject = new Subject<boolean>()
-  public systemShutdown$ = this.systemShutdownSubject.asObservable();
+  // Check Metamask Provider :  Supporting Metamask & CoinbaseWallet
+  set walletApproved(value) {
 
-  constructor(private httpClient: HttpClient, private alertSheet: MatBottomSheet, public router: Router, private location: Location, private route: ActivatedRoute) {
-    
-    this.initAccount();
-    
+    let changed = this._walletApproved != value;
+    this._walletApproved = value;
+    let publicHashPipe = new PublicHashPipe();
+
+    if (this._walletApproved) {
+      this._walletKeyFormated = publicHashPipe.transform( this.public_key );
+    }
+    else {
+      this._walletKeyFormated = "";
+    }
+  }
+
+  // Get formated Public key in shorthand text for use within Markup UI.
+  get walletKeyFormated() {
+    return this._walletKeyFormated;
+  }
+  get walletApproved() {
+    return this._walletApproved;
+  }
+  get networkChainId() {
+    return this._networkChainId;
+  }
+
+  get baseUrl() {
+    return this.rootBaseUrl + "api/" + this.worldCode;
   }
 
   initAccount() {
@@ -150,14 +227,161 @@ export class Globals {
       checked: false,
       pro_tools_enabled: false,
       avatar_id: 0,
-      dark_mode: false,
+      dark_mode: true,        // default mode
       alert_count: 0,
       balance: 0,
       balance_visible: false,
       app_shutdown_warning_alert: false
-    };  
+    };    
 
   }
+
+  getProviders = async (system: number = WORLD.ETH) => {
+
+    // Call and wait for the promise to resolve - Typescript requires mapping to type
+    let providers = await Web3.requestEIP6963Providers() as Map<string, EIP6963ProviderDetail>;
+
+    for (const [key, value] of providers) {
+      console.log(value);
+
+      /* Based on your DApp's logic show use list of providers and get selected provider's UUID from user for injecting its EIP6963ProviderDetail.provider EIP1193 object into web3 object */
+
+      if (value.info.name === 'MetaMask') {
+
+        const web3 = new Web3(value.provider);
+
+        this.metaMask = value.provider;
+
+        this.setEventListeners(system);
+      }
+    }
+
+    // Web3 feature does seems to work -  lock & unlock Metamask
+    Web3.onNewProviderDiscovered((provider) => {
+      // Log the populated providers map object, provider.detail has Map of all providers yet discovered
+      console.log("New Provider Identified: ", provider.detail);
+
+      // add logic here for updating UI of your DApp
+    });
+
+  }
+
+  // Only set once to avoid dups, remove listeners when switching worlds.
+  setEventListeners = async (system: number) => {
+
+    // On wallet account change - recheck linked account    
+    const provider = await DetectEthereumProvider();      // incudes 3 second timeout - useful to initiate ethereum object on client load.
+    const ethereum = globalThis.ethereum;
+
+    // Remove all prior listeners
+    if (this.metaMask) {
+      this.metaMask.removeListener("accountsChanged", this.ethAccountsChanged);
+      this.metaMask.removeListener("chainChanged", this.ethNetworkChanged);
+    }
+    if (ethereum) {
+      ethereum.removeListener("accountsChanged", this.ethAccountsChanged);
+      ethereum.removeListener("networkChanged", this.ethNetworkChanged);
+    }
+    window.removeEventListener("message", this.trxAccountsChanged);
+
+    // Add new Listeners
+    if (system === WORLD.ETH || system === WORLD.BNB) {
+      // Ensure only one instance of Eth event handler - remove any existing ethereum obj using Node.js EventEmitter tech
+      // Metamask using EIP6963Providers
+      if (this.metaMask) {
+
+        this.metaMask.on("accountsChanged", this.ethAccountsChanged);
+        this.metaMask.on("chainChanged", this.ethNetworkChanged);
+      }
+      else {
+        ethereum.on("accountsChanged", this.ethAccountsChanged);
+
+        // metamask : networkChanged depreciated on 3/2024 : https://docs.metamask.io/whats-new/#march-2024
+        ethereum.on("networkChanged", this.ethNetworkChanged);
+      }
+    }
+    else if (system === WORLD.TRON) {
+
+      globalThis.addEventListener("message", this.trxAccountsChanged);
+
+      const ethereum = (window as any).ethereum;
+      if (ethereum) {
+        ethereum.removeListener("accountsChanged", this.trxAccountsChanged);     // ethereum obj using Node.js EventEmitter
+      }
+    }
+
+  }  
+
+  // Check Metamask Provider :  Supporting Metamask & CoinbaseWallet
+  checkApprovedWalletType = async () => {
+
+    const ethereum = globalThis.ethereum;
+
+    const approved = (this.metaMask || ethereum.isTrustWallet || ethereum.isCoinbaseWallet);
+
+    //const provider = await DetectEthereumProvider();
+    //const ethereum = (window as any).ethereum;
+
+    //const approved = provider && (provider.isMetaMask || ethereum.isTrustWallet || ethereum.isCoinbaseWallet);
+
+    if (approved) {
+
+      if (this.metaMask && ethereum.isTrustWallet) {
+        console.log('Do you have multiple wallets installed?');
+        return false;
+      }
+    }
+
+    return approved;
+  }
+
+  // Using named function var with [ES6 Arrow Function] - allows use of [this] pointing to the original caller class, otherwise the eventEmitter class will be used.
+  private ethAccountsChanged = (accounts) => {
+    
+    console.log("Ethereum Account Changed");
+
+    let priorDarkModeStatus = this.ownerAccount.dark_mode;      // retain existing mode
+    this.initAccount();
+    this.ownerAccount.dark_mode = priorDarkModeStatus;
+
+    this.getEthereumAccounts(this.baseUrl, true);
+
+  };
+
+  private ethNetworkChanged = (chainId: string) => {
+    console.log("Network change to " + chainId);
+
+    this._networkChainId = chainId;
+    this.networkChangeSubject.next(chainId);
+
+    // Get Hex value of chain and push to subject - any observables listeners will pick up and react.
+    //const ethereum = (window as any).ethereum;
+    //ethereum.request({ method: "eth_chainId", params: [] }).then((chainIdHex) => {
+    //  this.networkChangeSubject.next(chainIdHex);
+    //});    
+  }
+
+  // Using [ES6 Arrow Function], to support (a) using (component) this obj ref (b)support  window.removeEventListener()
+  private trxAccountsChanged = (e) => {
+    /*if (e.data.message && e.data.message.action == "setAccount") {
+      console.log("setAccount event", e.data.message);
+      console.log("current address:", e.data.message.data.address);
+
+      this.globals.checkTronAccountKey(this.baseUrl, this.cdf);
+    }*/
+
+    if (e.data.message && e.data.message.action == "accountsChanged") {
+      console.log("Tron accountsChanged event", e.data.message);
+      console.log("Tron current address:", e.data.message.data.address);
+
+      let priorDarkModeStatus = this.ownerAccount.dark_mode;      // retain existing mode
+      this.initAccount();
+      this.ownerAccount.dark_mode = priorDarkModeStatus;
+
+      this.checkTronAccountKey(this.baseUrl, true);
+    }
+
+  };
 
   // Trigger check on user balance
   updateUserBankBalance(baseUrl: string, maticKey: string) {
@@ -197,15 +421,14 @@ export class Globals {
             this.ownerAccount = result.data;
             this.ownerAccount.checked = true;
 
+            this.requestApprove = false;
             if (this.ownerAccount.wallet_active_in_world) {
-              this.requestApprove = false;
+              
               this.approvalType = APPROVAL_TYPE.NONE;
-
               this.enableAlertChecker(baseUrl, this.ownerAccount.matic_key);               // Interval account alert checker job
               this.accountActiveSubject.next(true);
             }
-            else {
-              this.requestApprove = true;
+            else {              
               this.approvalType = APPROVAL_TYPE.ACCOUNT_WITH_NO_PLOTS;
               this.accountActiveSubject.next(false);
             }
@@ -216,13 +439,13 @@ export class Globals {
               this.checkMyPortfolio();
             }
 
-            // Apply owner stored preference for dark_mode theme
-            this.appComponentInstance.darkModeChange(this.ownerAccount.dark_mode);
-
             // On each user accunt init check - find current system state for use with transaction feature enabling
             this.systemShutdownPending = this.ownerAccount.app_shutdown_warning_alert;
             this.systemShutdownSubject.next(this.systemShutdownPending);
           }
+
+          // Apply owner stored preference for dark_mode theme
+          this.appComponentInstance.darkModeChange(this.ownerAccount.dark_mode);
         },
         error: (error) => { console.error(error) }
       });
@@ -232,7 +455,7 @@ export class Globals {
   }
 
 
-  async getTronAccounts(baseUrl: string) {
+  getTronAccounts = async (baseUrl: string) => {
 
     let attempts: number = 0;
     let subTron: Subscription;
@@ -251,10 +474,12 @@ export class Globals {
    //   if (res.code === 200) {
    //     tronWeb = (window as any).tronLink.tronWeb;
    //   }
-   // }    
+   // }
     //const tronLink = TronLink();
     //const accounts = await TronLink.request({method:"tron_requestAccounts"})
 
+    // reset wallet key format - updates UI markup usage
+    this.walletApproved =false;
 
 
     // Delay check on Tron Widget load and init, must be a better way of hooking into it.  Try to find Tron account 5 times - 1 per 500ms, on find run WS or end.
@@ -263,7 +488,7 @@ export class Globals {
         async (val) => {
 
           attempts++;
-          const tronWeb = (window as any).tronWeb;
+          const tronWeb = globalThis.tronWeb;
           let ownerPublicKey: any = tronWeb == null ? null : tronWeb.defaultAddress;          
 
           // iterate 5 attempts to find tron account, even with tronWeb lib loaded, account may not yet be initiated.
@@ -300,6 +525,10 @@ export class Globals {
     
     if (ownerPublicKey != null && ownerPublicKey.base58 != false) {
 
+      this.public_key = ownerPublicKey.base58;
+      this.walletApproved = true;
+      this._networkChainId = HEX_NETWORK.TRON;
+
       this.checkUserAccountKey(ownerPublicKey.base58, baseUrl, checkMyPortfolio);
      
     }
@@ -316,47 +545,42 @@ export class Globals {
       if (checkMyPortfolio) {
         this.checkMyPortfolio();
       }
+
+      this.appComponentInstance.darkModeChange(this.ownerAccount.dark_mode);
     }
     
   }
 
-  // Check Metamask Provider :  Supporting Metamask & CoinbaseWallet
-  async checkApprovedWalletType() {
-
-    const provider = await DetectEthereumProvider();
-    const ethereum = (window as any).ethereum;
-
-    const approved = provider && (provider.isMetaMask || ethereum.isTrustWallet || ethereum.isCoinbaseWallet);
-
-    if (approved) {
-
-      if (provider !== ethereum) {
-        console.log('Do you have multiple wallets installed?');
-        return false;
-      }
-    }
-
-    return approved;
-  }
-
   // Triggered by (a) Change World Type (b) On initial load of page or redirect load
-  async getEthereumAccounts(baseUrl: string, checkMyPortfolio: boolean) {
+  getEthereumAccounts = async (baseUrl: string, checkMyPortfolio: boolean) => {
 
     const provider = await DetectEthereumProvider();
     const ethereum = (window as any).ethereum;
+    const walletExtension = this.metaMask != null ? this.metaMask : ethereum;
+
+    // Reset approval settings - if valid wallet found/active will be initialized.
+    this.walletApproved = false;
 
     // Check Metamask Provider :  Supporting Metamask & CoinbaseWallet
     if (await this.checkApprovedWalletType()) {
 
-      const chainId = await ethereum.request({ method: 'eth_chainId' });
-      const accounts = await ethereum.request({ method: 'eth_accounts' });
+      const chainId = await walletExtension.request({ method: 'eth_chainId' });
+      const accounts = await walletExtension.request({ method: 'eth_accounts' });
 
       if (accounts && accounts.length) {
 
         const selectedAddress = accounts[0];
         console.log(">>>Ethereum Account linked<<<");
         console.log("Key = ", selectedAddress);    // previously using depreciated ethereum.selectedAddress
-        this.requestApprove = false;        
+
+        this.requestApprove = false;
+        this.public_key = selectedAddress;
+        this.walletApproved = true;
+        this.connectWallet = false;
+        this._networkChainId = chainId;
+
+        // trigger subscribed event handlers
+        this.accountActiveSubject.next(true);
 
         this.checkUserAccountKey(selectedAddress, baseUrl, checkMyPortfolio);
       }
@@ -367,28 +591,40 @@ export class Globals {
         //this.appComponentInstance.darkModeChange(false);
         this.accountActiveSubject.next(false);              // Mark account status as false to any monitors of this observable
 
-        this.requestApprove = true;
+        // Zone update components impacted by no connected wallet        
+        this.connectWallet = true;
         this.requestApproveRefresh();
 
         if (checkMyPortfolio) {
           this.checkMyPortfolio();
         }
+
+        this.appComponentInstance.darkModeChange(this.ownerAccount.dark_mode);
       }      
     }
 
     return;
   }
 
-  async approveTronAccountLink(httpClient: HttpClient, baseUrl: string) {
+  approveTronAccountLink = async (ttpClient: HttpClient, baseUrl: string) => {
 
-    const tronWeb = (window as any).tronWeb;
+    const tronWeb = (globalThis).tronWeb;
     let ownerPublicKey: any = tronWeb.defaultAddress;
 
+    if (tronWeb && tronWeb.isTronLink) {
+      try {
+        const accountsApproved = await tronWeb.request({ method: 'tron_requestAccounts', params: { websiteName: 'MetaverseMax.com' } });
+        console.log("tron approved:", accountsApproved);
+      }
+      catch (err) {
+        console.log(err);
+      }
+    }
   }
 
-  async approveEthereumAccountLink(httpClient: HttpClient, baseUrl: string) {
+  approveEthereumAccountLink = async (httpClient: HttpClient, baseUrl: string) => {
 
-    const ethereum = (window as any).ethereum;
+    const ethereum = globalThis.ethereum;
 
     const accountsApproved = await ethereum.request({ method: 'eth_requestAccounts' });
     const accountAddress = accountsApproved != null ? accountsApproved[0] : "";

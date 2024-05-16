@@ -71,6 +71,7 @@ td.mat-column-district_id a {
   border-color: orange;
   border-style: dashed;
   padding: 10px;
+  text-align: center;
 }
 
 
@@ -319,6 +320,7 @@ a {
     text-align: right;
     margin-top: -4px;
   }
-
-
+  .reward{
+    margin-left: -14px;
+  }
 }

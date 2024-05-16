@@ -10,7 +10,7 @@ import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { Alert } from '../common/alert';
 import { ProdHistoryComponent } from '../production-history/prod-history.component';
 import { BuildingFilterComponent } from '../building-filter/building-filter.component';
-import { Globals, WORLD } from '../common/global-var';
+import { Application, WORLD } from '../common/global-var';
 import { Router } from '@angular/router';
 import { ALERT_TYPE, ALERT_ACTION, BUILDING, BUILDING_TYPE, BUILDING_SUBTYPE } from '../common/enum'
 
@@ -128,9 +128,9 @@ export class BuildingIPComponent {
   @ViewChild(ProdHistoryComponent, { static: true }) prodHistory: ProdHistoryComponent;
   @ViewChild(BuildingFilterComponent, { static: true }) buildingFilter: BuildingFilterComponent;
   @ViewChild('progressIcon', { static: false }) progressIcon: ElementRef;
-  @ViewChild("activeChkbox", { static: true } as any) activeChkbox: MatCheckbox;
-  @ViewChild("toRentChkbox", { static: true } as any) toRentChkbox: MatCheckbox;
-  @ViewChild("forSaleChkbox", { static: true } as any) forSaleChkbox: MatCheckbox;
+  @ViewChild("activeChkbox", { static: true }) activeChkbox: MatCheckbox;
+  @ViewChild("toRentChkbox", { static: true }) toRentChkbox: MatCheckbox;
+  @ViewChild("forSaleChkbox", { static: true }) forSaleChkbox: MatCheckbox;
 
   displayedColumns: string[];
   displayColumnFull: string[] = ['pos', 'rank', 'ip_t', 'ip_b', 'bon', 'name', 'con', 'dis', 'pos_x', 'id'];
@@ -141,7 +141,7 @@ export class BuildingIPComponent {
   resultsLength: any;
   isMobileView: boolean = false;
 
-  constructor(public globals: Globals, private router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string, public alert: Alert) {
+  constructor(public globals: Application, private router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string, public alert: Alert) {
 
     this.httpClient = http;
     this.baseUrl = baseUrl + "api/" + globals.worldCode;

@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Component, Output, EventEmitter, Inject } from '@angular/core';
 import { NgbDropdown } from '@ng-bootstrap/ng-bootstrap';
 import { Router, ActivatedRoute, Params } from '@angular/router';
-import { Globals, WORLD } from '../common/global-var';
+import { Application, WORLD } from '../common/global-var';
 
 
 @Component({
@@ -18,7 +18,7 @@ export class SearchDistrictComponent {
 
   @Output() searchDistrictEvent = new EventEmitter<any>();    // Need to insure only one event triggered - 2 buttons with this EventEmitter mapping on parent.
 
-  constructor(public globals: Globals, public router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
+  constructor(public globals: Application, public router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
 
     this.httpClient = http;
     this.baseUrl = baseUrl + "api/" + globals.worldCode;

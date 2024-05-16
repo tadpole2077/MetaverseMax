@@ -4,7 +4,7 @@ https://update.angular.io/?l=2&v=14.0-15.0
 https://angular.io/guide/versions
 
 Node:
-	* (using)NPM V18.10.0					- (cmd)nvm list >> V18.10.0 or higher is latest node version required for V15x Angular,  alt is ^V16.13.0 or higher within V16.x tier also supported (see guide link for more info)
+	* (using)NPM V16.20.2					- (cmd)nvm list >> V18.10.0 or higher is latest node version required for V15x Angular,  alt is ^V16.13.0 or higher within V16.x tier also supported (see guide link for more info)
 	* previously using with V14 Angular : V16.10.0
 
 
@@ -43,17 +43,6 @@ Actions:
 	** RXJS is fine no updated need - using prior verion rxjs@7.5.5	
 
 	npm i @swimlane/ngx-charts@20.3.0 https://www.npmjs.com/package/@swimlane/ngx-charts
-
-	npm i web3@4.0.1
-
-	[2023/10/20] Updated Packages:
-	npm i web3@4.2.0  
-	Using Packages:
-		web3-core
-		web3-utils
-		web3.eth
-		web3-validator
-	[2023/10/23] Problem :  using method.send() with any arguments,  reverting back to V4.0.1 works.
 
 
 
@@ -96,6 +85,31 @@ UPDATE src/app/tax-change/tax-change.component.ts (3998 bytes)
 UPDATE src/app/district-list/district-list.component.ts (3504 bytes)
 UPDATE src/app/district-notification/district-notification.component.ts (4289 bytes)
 UPDATE src/app/search-plot/search-plot.component.ts (606 bytes)
+
+
+======================================================================================
+WEB 3
+
+	npm i web3@4.0.1
+
+	[2023/10/20] Updated Packages:
+	npm i web3@4.2.0  
+	Using Packages:
+		web3-core
+		web3-utils
+		web3.eth
+		web3-validator
+	[2023/10/23] Problem :  using method.send() with any arguments,  reverting back to V4.0.1 works.
+
+
+	[2024/05/06] Updated Packages:
+	npm i web3@4.7
+
+	Notes:  Supports Multi-Wallet EIP-6963 - resolves race condition when using multiple wallets.  Issue with Tron extension using Ethereum DOM object interferance with Metamask usage.
+
+
+	Updates:  web3 4.x : rewritten in typescript and is strongly typed.
+
 
 
 
@@ -346,3 +360,28 @@ Warnings:
 	- Microsoft Windows Desktop Runtime - 3.1.32
 
 	NOTE - I am not using these in active development, potential old projects like Transforms.
+
+=====================================================================================
+VISUAL STUDIO UPGRADE : 2024/05/02
+Action: Upgrade from .Net V6 to .Net V8
+Steps:
+1) https://dotnet.microsoft.com/en-us/download/dotnet/8.0
+Already Installed:
+- SDK 8.0.204 :  Needed to Build Apps and Run V8 .Net Apps (Included in V17.9.6 VS - latest as of 2/5/2024)
+
+On Server (Windows 2019 Standard) - already installed:
+- ASP.NET Core 7.0.2 - Shared Framework
+- MS .NET Runtime - 7.0.2 (x86)
+Change:
+- Recommended to installed "ASP.NET Core Runtime 8.0.4" >>Hosting Bundle
+  includes .Net Runtime and IIS Support.
+- Installed "Hosting Bundle" >> https://dotnet.microsoft.com/en-us/download/dotnet/8.0
+- Restart of IIS required
+- Showing "MS ASP.NET Core 8.04" & "MS .NET Runtime - 8.0.4" : now installed.
+
+OS Compatibility List: https://github.com/dotnet/core/blob/main/release-notes/8.0/supported-os.md
+
+Steps to Upgrade V6 to V8
+https://devblogs.microsoft.com/dotnet/upgrade-assistant-now-in-visual-studio/
+- Right click on target project >> Upgrade >> Install upgrade Assistant
+

@@ -11,7 +11,7 @@ import { MMBankAbi } from "../Contract/contractMMBankAbi";
 import { MCPMegaAbiBNB } from "../Contract/contractMCPMegaAbiBNB";
 import { MCPMegaAbiETH } from "../Contract/contractMCPMegaAbiETH";
 import { MegaCoinMOCKAbi } from "../Contract/contractMockMegaCoinAbi";
-import { Globals, WORLD } from '../common/global-var';
+import { Application, WORLD } from '../common/global-var';
 import { HEX_NETWORK, METAMASK_ERROR_CODE, MCP_CONTRACT, MCP_CONTRACT_NAME } from "../common/enum";
 import { maxBalanceValidator } from '../validator/max-balance.validator'
 import { MatProgressBar } from '@angular/material/progress-bar';
@@ -75,10 +75,10 @@ export class BalanceManageDialogComponent implements OnInit{
   tab2Visible: boolean = false;
   balanceRecheckSubscription$: Subscription;
 
-  @ViewChild(MatProgressBar, { static: true } as any) progressBar: MatProgressBar;
+  @ViewChild(MatProgressBar, { static: true }) progressBar: MatProgressBar;
   @ViewChild(BalanceLogComponent, { static: false }) balanceLog: BalanceLogComponent;
 
-  constructor(public dialog: MatDialog, public globals: Globals, private zone: NgZone, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string, private cdf: ChangeDetectorRef) {
+  constructor(public dialog: MatDialog, public globals: Application, private zone: NgZone, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string, private cdf: ChangeDetectorRef) {
 
     this.httpClient = http;
     this.baseUrl = rootBaseUrl + "api/" + globals.worldCode;

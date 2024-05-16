@@ -7,6 +7,8 @@ a.navbar-brand {
 html {
   font-size: 14px;
 }
+
+
 @media (min-width: 768px) {
   html {
     font-size: 16px;
@@ -79,7 +81,10 @@ a.nav-link {
   margin-top: 42px;  
 }
 
-@media only screen and (max-width: 426px) {
+@media only screen and (max-width: 430px) {
+  .navbar{
+    margin-right:2px;
+  }
   .nav-item{
     width: 50%;
   }

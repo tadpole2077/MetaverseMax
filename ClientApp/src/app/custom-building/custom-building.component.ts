@@ -2,7 +2,7 @@ import { Component, Inject, ViewChild, EventEmitter, ElementRef, Input } from '@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 
-import { Globals, WORLD } from '../common/global-var';
+import { Application, WORLD } from '../common/global-var';
 import { CUSTOM_BUILDING_CATEGORY, ALERT_TYPE, ALERT_ACTION, EVENT_TYPE } from '../common/enum';
 import { Parcel, ParcelCollection } from '../common/interface';
 
@@ -24,10 +24,10 @@ export class CustomBuildingComponent {
   isMobileView: boolean = false;
   currentPage: number = 1;
 
-  @ViewChild("buildingFilter", { static: true } as any) buildingFilter: MatCheckbox;
-  @ViewChild("parcelFilter", { static: true } as any) parcelFilter: MatCheckbox;
+  @ViewChild("buildingFilter", { static: true }) buildingFilter: MatCheckbox;
+  @ViewChild("parcelFilter", { static: true }) parcelFilter: MatCheckbox;
 
-  constructor(public globals: Globals, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
+  constructor(public globals: Application, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
 
     this.httpClient = http;
     this.baseUrl = baseUrl + "api/" + globals.worldCode;

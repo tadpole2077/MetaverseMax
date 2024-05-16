@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from "@angular/common/http";
 import { Component, Inject, ViewChild } from "@angular/core";
 import { MatSort } from "@angular/material/sort";
 import { MatTableDataSource } from "@angular/material/table";
-import { Globals } from "../common/global-var";
+import { Application } from "../common/global-var";
 import { TransactionCollection, Transaction } from '../common/interface';
 
 
@@ -23,7 +23,7 @@ export class BalanceLogComponent {
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumns: string[] = ['event_recorded_gmt', 'action', 'hash', 'amount'];
 
-  constructor(public globals: Globals, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
+  constructor(public globals: Application, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
 
     this.httpClient = http;
     this.baseUrl = rootBaseUrl + "api/" + globals.worldCode;

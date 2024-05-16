@@ -27,10 +27,20 @@ div.dropdown-menu {
   height: 22px;
   margin-right: 0.4rem;
 }
+.expandHeight{
+  height: 46px;
+}
+.formatedKey {
+  display: block;
+  font-size: 10px;
+  margin-top: 1px;
+}
+.worldText{
+  margin-right: 2px;
+}
 
 @media only screen and (max-width: 426px) {
-
-  div.dropdown-menu {
+  div .dropdown-menu {
     margin-left: -10px;
     min-width: 90px;
   }

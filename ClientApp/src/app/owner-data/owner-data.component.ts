@@ -13,8 +13,8 @@ import { PetModalComponent } from '../pet-modal/pet-modal.component';
 import { PackModalComponent } from '../pack-modal/pack-modal.component';
 import { CitizenModalComponent } from '../citizen-modal/citizen-modal.component';
 import { MatButton } from '@angular/material/button';
-import { IOwnerLandData, IOwnerData, IPlotPosition, IFilterCount } from './owner-interface';
-import { Globals, WORLD } from '../common/global-var';
+import { IOwnerLandData, ILandType, IOwnerData, IFilterCount, ICoordinates } from './owner-interface';
+import { Application, WORLD } from '../common/global-var';
 import { MapData } from '../common/map-data';
 import { CUSTOM_BUILDING_CATEGORY, BUILDING, MIN_STAMINA } from '../common/enum';
 import { SearchPlotComponent } from '../search-plot/search-plot.component';
@@ -70,7 +70,7 @@ export class OwnerDataComponent implements AfterViewInit {
   displayedColumns: string[] = ['district_id', 'pos_x', 'pos_y', 'building_type', 'building_level', 'last_action', 'current_influence_rank', 'condition', 'plot_ip', 'citizen_count',/* 'token_id', */'alert'];
   displayedColumnsMobile: string[] = ['district_id', 'pos_x', 'building_type', 'building_level', 'last_action', 'current_influence_rank', 'condition', 'plot_ip', 'citizen_count',/* 'token_id', */'alert'];
  
-  constructor(private cdf: ChangeDetectorRef, public globals: Globals, public mapdata: MapData, private location: Location, public router: Router, private route: ActivatedRoute, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef)
+  constructor(private cdf: ChangeDetectorRef, public globals: Application, public mapdata: MapData, private location: Location, public router: Router, private route: ActivatedRoute, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef)
   {
     this.httpClient = http;    
     this.baseUrl = baseUrl + "api/" + globals.worldCode;
@@ -175,7 +175,7 @@ export class OwnerDataComponent implements AfterViewInit {
     else if (plotX && plotY)
     {
       this.searchPlotComponent.rotateActive = true;
-      this.searchPlot({ plotX: plotX, plotY: plotY }, true);
+      this.searchPlot({ pos_x: plotX, pos_y: plotY }, true);
     }
     else {
       resetFields = true;
@@ -277,16 +277,16 @@ export class OwnerDataComponent implements AfterViewInit {
 
   // Search by Plot X and Y
   // Single parameter struct containing 2 members, pushed by component search-plot
-  searchPlot(plotPos: IPlotPosition, loadBuildingHistory:boolean = false) {
+  searchPlot(plotPos: ICoordinates, loadBuildingHistory:boolean = false) {
 
     let params = new HttpParams();
-    params = params.append('plotX', plotPos.plotX);
-    params = params.append('plotY', plotPos.plotY);
+    params = params.append('plotX', plotPos.pos_x);
+    params = params.append('plotY', plotPos.pos_y);
 
     this.myPortfolioRequest = false;
 
     // Check if no X Y , then skip and blink instructions.
-    if (plotPos.plotX == '' || plotPos.plotY == '') {
+    if (plotPos.pos_x === 0 || plotPos.pos_y === 0) {
 
       this.searchBlinkOnce = true;
       this.searchPlotComponent.rotateActive = false;
@@ -309,8 +309,6 @@ export class OwnerDataComponent implements AfterViewInit {
           // Auto load building History if search on specific building by URL parameters
           if (loadBuildingHistory && result && result.owner_land) {
 
-            const x: number = Number(plotPos.plotX);
-            const y: number = Number(plotPos.plotY);
             let assetId: number = 0;
             let buildingType: number = 0;
 
@@ -324,7 +322,7 @@ export class OwnerDataComponent implements AfterViewInit {
             }
 
             if (buildingType == BUILDING.ENERGY || buildingType == BUILDING.INDUSTRIAL || buildingType == BUILDING.PRODUCTION || buildingType == BUILDING.OFFICE) {
-              this.showHistory(assetId, x, y, buildingType, 0);
+              this.showHistory(assetId, plotPos.pos_x, plotPos.pos_y, buildingType, 0);
             }
           }
 
@@ -558,7 +556,8 @@ export class OwnerDataComponent implements AfterViewInit {
   }
 
   // Called to reset the building filter buttons to match the current search - typically called on a new search instance.
-  hideBuildingFilter(ownerLand: IOwnerLandData[]) {
+  // Using generic, more dynamic, and extends to access in just the properties used in fn.
+  hideBuildingFilter<T extends ILandType>(ownerLand: T[]): boolean {
 
     this.initFilterCount();
     
@@ -636,7 +635,8 @@ export class OwnerDataComponent implements AfterViewInit {
   
       }
     }
-    return;
+
+    return true;
   }
 
   showHistory(asset_id: number, pos_x: number, pos_y: number, building_type: number, ip_efficiency: number) {

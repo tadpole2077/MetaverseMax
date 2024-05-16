@@ -4,7 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { TaxChange } from '../district-summary/data-district-interface';
-import { Globals, WORLD } from '../common/global-var';
+import { Application, WORLD } from '../common/global-var';
 
 
 @Component({
@@ -30,7 +30,7 @@ export class TaxChangeComponent implements AfterViewInit {
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumns: string[] = ['change_date', 'tax_type', 'tax', 'change_desc', 'change_owner'];
 
-  constructor(public globals: Globals, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {//, cdr: ChangeDetectorRef) {
+  constructor(public globals: Application, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {//, cdr: ChangeDetectorRef) {
 
     this.httpClient = http;
     this.baseUrl = baseUrl + "api/" + globals.worldCode;

@@ -1022,7 +1022,7 @@ namespace MetaverseMax.ServiceClass
             List<WorldName> worldNames = new();
 
             worldNames.Add(new WorldName() { id = 1, name = "Tron" });
-            worldNames.Add(new WorldName() { id = 2, name = "BNB" });
+            worldNames.Add(new WorldName() { id = 2, name = "BSC" });
             worldNames.Add(new WorldName() { id = 3, name = "ETH" });
 
             worldNameCollection.world_name = worldNames;

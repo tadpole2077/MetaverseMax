@@ -4,7 +4,7 @@ import { MatBottomSheet, MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angul
 import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-toggle';
 
 import { Alert } from '../common/alert';
-import { JSend, AlertCollection, AlertPending, AlertPendingManager, Globals, WORLD } from '../common/global-var';
+import { JSend, AlertCollection, AlertPending, AlertPendingManager, Application, WORLD } from '../common/global-var';
 import { ALERT_TYPE, ALERT_ICON_TYPE, ICON_TYPE_CHANGE, ALERT_ACTION, PENDING_ALERT } from '../common/enum'
 import { RouterEvent } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -26,7 +26,7 @@ export class AlertBottomComponent{
   afterDismissSubscription: Subscription = null;
 
   // only one bottom sheet can be open at a time, use the Ref to close the currently opened sheet
-  constructor(private bottomSheetRef: MatBottomSheetRef<AlertBottomComponent>, @Inject(MAT_BOTTOM_SHEET_DATA) public callerAlertPendingManager: AlertPendingManager, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string, public globals: Globals, public alert: Alert) {
+  constructor(private bottomSheetRef: MatBottomSheetRef<AlertBottomComponent>, @Inject(MAT_BOTTOM_SHEET_DATA) public callerAlertPendingManager: AlertPendingManager, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string, public globals: Application, public alert: Alert) {
 
     this.managerEnabled = callerAlertPendingManager.manage;
     this.alertPendingManager = callerAlertPendingManager;

@@ -4,7 +4,7 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { AfterViewInit } from '@angular/core';
-import { Globals, WORLD } from '../common/global-var';
+import { Application, WORLD } from '../common/global-var';
 
 
 interface District {
@@ -61,7 +61,7 @@ export class DistrictListComponent implements AfterViewInit {
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
   displayedColumns: string[] = ['district_id', 'district_name', 'owner_name', 'land_count', 'plots_claimed', 'construction_energy_tax', 'construction_industry_production_tax', 'construction_commercial_tax', 'construction_municipal_tax', 'construction_residential_tax', 'energy_tax', 'production_tax', 'commercial_tax', 'citizen_tax'];
  
-  constructor(public globals: Globals, public router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef)
+  constructor(public globals: Application, public router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef)
   {
     this.httpClient = http; 
     this.baseUrl = baseUrl + "api/" + globals.worldCode;

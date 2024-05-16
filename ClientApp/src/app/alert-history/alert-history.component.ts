@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { AlertBottomComponent } from '../alert-bottom/alert-bottom.component';
-import { JSend, AlertCollection, AlertPendingManager, AlertPending, Globals, WORLD } from '../common/global-var';
+import { JSend, AlertCollection, AlertPendingManager, AlertPending, Application, WORLD } from '../common/global-var';
 import { ALERT_TYPE, ALERT_ICON_TYPE, PENDING_ALERT, STATUS } from '../common/enum'
 
 @Component({
@@ -20,7 +20,7 @@ export class AlertHistoryComponent {
   private bottomAlertRef: MatBottomSheetRef = null;
   private alertPendingManager: AlertPendingManager;  
 
-  constructor(public globals: Globals, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string, private alertSheet: MatBottomSheet) {
+  constructor(public globals: Application, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string, private alertSheet: MatBottomSheet) {
 
     this.alertCount = globals.ownerAccount.alert_count;
     this.httpClient = http;

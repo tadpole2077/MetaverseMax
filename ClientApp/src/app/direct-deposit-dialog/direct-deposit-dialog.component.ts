@@ -9,7 +9,7 @@ import { Web3Utils } from '../common/web3Utils';
 
 import { MCPMegaAbiBNB } from "../Contract/contractMCPMegaAbiBNB";
 import { MCPMegaAbiETH } from "../Contract/contractMCPMegaAbiETH";
-import { Globals, WORLD } from '../common/global-var';
+import { Application, WORLD } from '../common/global-var';
 import { HEX_NETWORK, METAMASK_ERROR_CODE, MCP_CONTRACT, MCP_CONTRACT_NAME } from "../common/enum";
 import { MatProgressBar } from '@angular/material/progress-bar';
 
@@ -68,9 +68,9 @@ export class DirectDepositDialogComponent {
   withdrawFocus: boolean = false;
   insufficientMsg: string = "Insufficient Allowance";
 
-  @ViewChild(MatProgressBar, { static: true } as any) progressBar: MatProgressBar;
+  @ViewChild(MatProgressBar, { static: true }) progressBar: MatProgressBar;
 
-  constructor(public dialog: MatDialog, public globals: Globals, private zone: NgZone, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
+  constructor(public dialog: MatDialog, public globals: Application, private zone: NgZone, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
 
     this.httpClient = http;
     this.baseUrl = rootBaseUrl + "api/" + globals.worldCode;

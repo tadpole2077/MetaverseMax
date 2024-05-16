@@ -9,7 +9,7 @@ import { Subscription } from 'rxjs';
 
 import { CustomBuildingTableComponent } from '../custom-building-table/custom-building-table.component';
 import { MissionDeskComponent } from '../mission-desk/mission-desk.component';
-import { Globals, WORLD } from '../common/global-var';
+import { Application, WORLD } from '../common/global-var';
 import { Alert } from '../common/alert';
 import { ALERT_TYPE, ALERT_ACTION } from '../common/enum';
 import { TabContainerLazyComponent } from '../tab-container-lazy/tab-container-lazy.component';
@@ -47,15 +47,15 @@ export class WorldComponent {
   searchMissionTable = new FormControl('');
   filterMissionByReward = new FormControl('');  
 
-  @ViewChild("buildingFilter", { static: true } as any) buildingFilter: MatCheckbox;
-  @ViewChild("parcelFilter", { static: true } as any) parcelFilter: MatCheckbox;
-  @ViewChild("alertSlide", { static: true } as any) alertSlide: MatSlideToggle;
+  @ViewChild("buildingFilter", { static: true }) buildingFilter: MatCheckbox;
+  @ViewChild("parcelFilter", { static: true }) parcelFilter: MatCheckbox;
+  @ViewChild("alertSlide", { static: true }) alertSlide: MatSlideToggle;
 
   @ViewChild(CustomBuildingTableComponent, { static: false }) customComponent: CustomBuildingTableComponent;
   @ViewChild(MissionDeskComponent, { static: false }) missionComponent: MissionDeskComponent;
   
 
-  constructor(public globals: Globals, public alert: Alert,  public router: Router, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
+  constructor(public globals: Application, public alert: Alert,  public router: Router, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
 
     this.httpClient = http;
     this.baseUrl = rootBaseUrl + "api/" + globals.worldCode;

@@ -3,7 +3,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { Subscription } from "rxjs";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { BalanceManageDialogComponent } from "../balance-manage-dialog/balance-manage-dialog.component";
-import { Globals, WORLD } from '../common/global-var';
+import { Application, WORLD } from '../common/global-var';
 
 @Component({
   selector: 'app-balance',
@@ -20,7 +20,7 @@ export class BalanceComponent{
   currentPlayerWalletKey: string;
 
 
-  constructor(public globals: Globals, private zone: NgZone, public dialog: MatDialog) {
+  constructor(public globals: Application, private zone: NgZone, public dialog: MatDialog) {
 
   }
   

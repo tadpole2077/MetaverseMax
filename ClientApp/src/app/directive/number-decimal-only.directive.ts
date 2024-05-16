@@ -1,6 +1,7 @@
 import { Directive, ElementRef, HostListener } from '@angular/core';
 
 @Directive({
+  standalone: true,
   selector: 'input[numbersDecimalOnly]'
 })
 export class NumberDecimalDirective {
@@ -15,7 +16,6 @@ export class NumberDecimalDirective {
   @HostListener('keydown', ['$event'])
   @HostListener('input', ['$event'])
   onInputChange(event) {
-
 
     switch (event.type) {
       case 'keydown': return this.keydownEvent(event);

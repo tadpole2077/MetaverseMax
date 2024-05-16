@@ -73,10 +73,11 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatListModule } from '@angular/material/list';
 import { MatDialogModule } from '@angular/material/dialog';
 
-import { Globals } from './common/global-var';
+import { Application } from './common/global-var';
 import { MapData } from './common/map-data';
 import { Alert } from './common/alert';
 
+import { PublicHashPipe } from './pipe/public-hash-pipe';
 
 @NgModule({
   declarations: [
@@ -115,7 +116,6 @@ import { Alert } from './common/alert';
     CustomBuildingTableComponent,
     MissionDeskComponent,
     NumberDirective,
-    NumberDecimalDirective,
     TabExtractedBodyDirective,
     ImageFallbackDirective,
     TabContainerLazyComponent,
@@ -123,7 +123,8 @@ import { Alert } from './common/alert';
     BalanceComponent,
     BalanceLogComponent,
     BalanceManageDialogComponent,
-    DirectDepositDialogComponent
+    DirectDepositDialogComponent,
+    PublicHashPipe
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -196,7 +197,7 @@ import { Alert } from './common/alert';
     ClipboardModule
   ],
   providers: [
-    Globals,
+    Application,
     MapData,
     Alert,
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } }

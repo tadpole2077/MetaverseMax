@@ -4,7 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { ICitizen } from '../owner-data/owner-interface';
-import { Globals, WORLD } from '../common/global-var';
+import { Application, WORLD } from '../common/global-var';
 import { BUILDING, PRODUCT } from '../common/enum'
 
 
@@ -31,7 +31,7 @@ export class CitizenBuildingTableComponent {
 
   displayedColumns: string[] = ['token_id', 'name', 'trait_agility', 'trait_intelligence', 'trait_charisma', 'trait_endurance', 'trait_luck', 'trait_strength', 'trait_avg'];
 
-  constructor(public globals: Globals, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
+  constructor(public globals: Application, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
 
     this.httpClient = http;
     this.baseUrl = baseUrl + "api/" + globals.worldCode;

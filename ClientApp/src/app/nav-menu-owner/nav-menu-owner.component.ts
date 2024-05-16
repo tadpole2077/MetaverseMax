@@ -3,7 +3,7 @@ import { Component, Output, EventEmitter, Inject, ViewChild, Input, NgZone } fro
 import { NgbDropdown } from '@ng-bootstrap/ng-bootstrap';
 import { Router } from '@angular/router';
 import { DirectDepositDialogComponent } from "../direct-deposit-dialog/direct-deposit-dialog.component";
-import { Globals, WORLD } from '../common/global-var';
+import { Application, WORLD } from '../common/global-var';
 import { ThemePalette } from '@angular/material/core';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { MatDialog } from '@angular/material/dialog';
@@ -39,7 +39,7 @@ export class NavMenuOwnerComponent {
   @ViewChild(NgbDropdown, { static: true }) ownerDropdown: NgbDropdown;
   @Output() darkModeChangeEvent = new EventEmitter<any>();
 
-  constructor(private zone: NgZone, public globals: Globals, public router: Router, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string, public dialog: MatDialog) {
+  constructor(private zone: NgZone, public globals: Application, public router: Router, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string, public dialog: MatDialog) {
 
     this.httpClient = http;
     this.baseUrl = rootBaseUrl + "api/" + globals.worldCode;

@@ -3,14 +3,14 @@
   <div>
     <mat-form-field [style.width.rem]=6 appearance="outline"> 
       <mat-label>Plot X</mat-label>
-      <input matInput class="plotx" type='text' numbersOnly #plotX (keyup.enter)="getPlotData({plotX: plotX.value, plotY: plotY.value})" [(ngModel)]="valueX" />
+      <input matInput class="plotx" type='text' numbersOnly #plotX (keyup.enter)="getPlotData(plotX.value, plotY.value)" [(ngModel)]="valueX" />
       <button *ngIf="valueX" matSuffix mat-icon-button aria-label="Clear" (click)="valueX=''">
         <mat-icon>close</mat-icon>
       </button>
     </mat-form-field>
     <mat-form-field [style.margin-left.rem]=1 [style.width.rem]=6 appearance="outline">
       <mat-label>Plot Y</mat-label>
-      <input matInput class="ploty" type='text' numbersOnly #plotY (keyup.enter)="getPlotData({plotX: plotX.value, plotY: plotY.value})" [(ngModel)]="valueY" />
+      <input matInput class="ploty" type='text' numbersOnly #plotY (keyup.enter)="getPlotData(plotX.value, plotY.value)" [(ngModel)]="valueY" />
       <button *ngIf="valueY" matSuffix mat-icon-button aria-label="Clear" (click)="valueY=''">
         <mat-icon>close</mat-icon>
       </button>
@@ -18,6 +18,6 @@
   </div>
   <div class="buttonContainer">
     <i id="searchIcon" [ngClass]="{'rotate': rotateActive }" class="fas fa-sync-alt searchIcon" style=""></i>
-    <button mat-raised-button color="primary" id="buttonfind" class="buttonEffect" (click)="getPlotData({plotX: plotX.value, plotY: plotY.value})">Find Owner</button>
+    <button mat-raised-button color="primary" id="buttonfind" class="buttonEffect" (click)="getPlotData(plotX.value, plotY.value)">Find Owner</button>
   </div>
 </div>

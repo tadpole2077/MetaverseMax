@@ -1,5 +1,5 @@
 import { Component, Inject, ViewChild, EventEmitter, ElementRef, Output, ChangeDetectorRef } from '@angular/core';
-import { Globals, WORLD } from '../common/global-var';
+import { Application, WORLD } from '../common/global-var';
 
 interface ResourceActive {
   name: string;
@@ -30,7 +30,7 @@ export class BuildingFilterComponent {
   public buildingTypeActive: number[] = new Array;
   public processing: boolean = false;
 
-  constructor(public globals: Globals, private elem: ElementRef, private cdf: ChangeDetectorRef) {
+  constructor(public globals: Application, private elem: ElementRef, private cdf: ChangeDetectorRef) {
 
     this.initFilterIcons();
 

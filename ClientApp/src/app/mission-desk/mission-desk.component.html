@@ -20,7 +20,7 @@
     <ng-container matColumnDef="reward">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Reward </th>
       <td mat-cell *matCellDef="let row">
-        <span class="reward">{{ row.reward }}<img class="mega" src="./images/coin-m.png" /></span>
+        <span class="reward">{{ row.reward | number : '1.0-4' }}<img class="mega" src="./images/coin-m.png" /></span>
       </td>
     </ng-container>
 
@@ -80,8 +80,8 @@
         <a class="lineAnim maticLinkCol" [routerLink]="['/', globals.worldCode, 'owner-data']" [queryParams]="{matic: row.owner_matic}" title="{{ row.owner_name }}">
           <span *ngIf="row.owner_name!=''">{{ row.owner_name }}</span>
 
-          <span class="long-text" *ngIf="row.owner_name==''">{{ row.owner_matic.substring(0,14) }}</span>
-          <span class="short-text" *ngIf="row.owner_name==''">{{ row.owner_matic.substring(0,10) }}</span>
+          <span class="long-text" *ngIf="row.owner_name==''">{{ row.owner_matic | slice: 0:14 }}</span>
+          <span class="short-text" *ngIf="row.owner_name==''">{{ row.owner_matic| slice: 0:10 }}</span>
         </a>
         <div class="mobileView lastAction">
           <mat-icon>update</mat-icon>
@@ -97,7 +97,7 @@
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Last Refresh Mins </th>
       <td mat-cell *matCellDef="let row">
         <div class="lastAction">
-          <span>{{ row.last_refresh }} mins</span>
+          <span>{{ row.last_refresh | number }} mins</span>
         </div>
         <div class="collect">
           <i class="fas fa-bolt" title="Collection"></i>

@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, Inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Subscription, Observable } from 'rxjs';
-import { OwnerAccount, Globals, WORLD } from '../common/global-var';
+import { OwnerAccount, Application, WORLD } from '../common/global-var';
 
 
 @Component({
@@ -18,7 +18,7 @@ export class HomeComponent {
   public worldCode: string;
 
 
-  constructor(private cdf: ChangeDetectorRef, public globals: Globals, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
+  constructor(private cdf: ChangeDetectorRef, public globals: Application, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
     
     this.httpClient = http;
     this.worldCode = (globals.selectedWorld == WORLD.TRON ? "trx" : globals.selectedWorld == WORLD.BNB ? "bnb" : "eth")

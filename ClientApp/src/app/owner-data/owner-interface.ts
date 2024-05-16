@@ -1,11 +1,10 @@
 
 // Service Interfaces
-interface IOwnerLandData
+
+// Owner with inheritance of 2 child types.
+interface IOwnerLandData extends ICoordinates, ILandType
 {
-  district_id: number;
-  pos_x: number;
-  pos_y: number;
-  building_type: number;
+  district_id: number;  
   building_category: number;
   building_desc: string;
   building_img: string;
@@ -34,6 +33,15 @@ interface IOwnerLandData
   c_m: number;      // minutes to collect
   product_id: number;
 }
+
+interface ILandType {
+  building_type: number;
+}
+interface ICoordinates {
+  pos_x: number;
+  pos_y: number;
+}
+
 
 interface IOwnerData
 {
@@ -82,12 +90,6 @@ interface IOffer
   token_pos_y: number;
 }
 
-
-interface IPlotPosition
-{
-  plotX: string,
-  plotY: string,
-}
 
 interface IDistrictPlot
 {
@@ -172,12 +174,13 @@ export
   IOwnerLandData,
   IOwnerData,
   IOffer,
-  IPlotPosition,
+  ICoordinates,
   IDistrictPlot,
   IPet,
   IPortfolioPet,
   ICitizen,
   IPortfolioCitizen,
   IFilterCount,
-  IPack
+  IPack,
+  ILandType
 }

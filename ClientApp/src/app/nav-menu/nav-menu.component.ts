@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Inject, NgZone, Output, ViewChild } from '@angular/core';
 import { PRIMARY_OUTLET, UrlSegment, UrlSegmentGroup, UrlTree, ActivatedRoute, NavigationEnd, RouterEvent, Router, Params } from '@angular/router';
-import { OwnerAccount, Globals, WORLD } from '../common/global-var';
+import { OwnerAccount, Application, WORLD } from '../common/global-var';
 import { NavMenuWorldComponent } from '../nav-menu-world/nav-menu-world.component';
 import { Location } from '@angular/common';
 
@@ -27,7 +27,7 @@ export class NavMenuComponent {
   @ViewChild('menuOwner', { static: false }) menuOwner: ElementRef;
 
 
-  constructor(private zone: NgZone, private cdf: ChangeDetectorRef, private location: Location, public globals: Globals, public activatedRoute: ActivatedRoute, private router: Router, http: HttpClient, @Inject('BASE_URL') rootBaseUrl: string) {
+  constructor(private zone: NgZone, private cdf: ChangeDetectorRef, private location: Location, public globals: Application, public activatedRoute: ActivatedRoute, private router: Router, http: HttpClient, @Inject('BASE_URL') rootBaseUrl: string) {
 
     this.rootBaseUrl = rootBaseUrl;     // Unknow world type at this point, checkWorldFromURL will identify.
     this.httpClient = http;
@@ -49,7 +49,7 @@ export class NavMenuComponent {
     const routeTree: UrlTree = this.router.parseUrl(this.location.path());
     const routeSegmentGroup: UrlSegmentGroup = routeTree.root.children[PRIMARY_OUTLET];
     var segmentList: UrlSegment[] = [];
-    let worldType: number = WORLD.UNKNOWN;    
+    let worldType: WORLD = WORLD.UNKNOWN;    
 
     if (routeSegmentGroup != undefined) {
       segmentList = routeSegmentGroup.segments;
@@ -70,8 +70,8 @@ export class NavMenuComponent {
       }
     }
 
-    worldType = worldType == 0 ? WORLD.TRON : worldType;    // Default Tron if no world identified - using old URL with no world segment.    
-    //worldType = WORLD.TRON;  -- force world use of tron during dev mode
+    worldType = worldType == WORLD.UNKNOWN ? this.globals.selectedWorld : worldType;    // Use default world assigned in Globals if no world selected.    
+
     this.selectWorld(worldType);
 
     return;
@@ -153,9 +153,11 @@ export class NavMenuComponent {
   }
 
   registerOwnerKey()
-  {    
-    if (this.globals.selectedWorld == WORLD.TRON) {
+  {
+    this.globals.getProviders(this.globals.selectedWorld);
 
+    if (this.globals.selectedWorld == WORLD.TRON) {
+      
       this.globals.requestApprove = false;
       this.globals.getTronAccounts(this.baseUrl);
       
@@ -167,40 +169,8 @@ export class NavMenuComponent {
 
     }
 
-    this.setEventListeners(this.globals.selectedWorld);
+    //this.setEventListeners(this.globals.selectedWorld);
   }
-
-  // Only set once to avoid dups, remove listeners when switching worlds.
-  setEventListeners(worldId: number) {
-
-    if (this.globals.selectedWorld == WORLD.TRON) {
-
-      window.removeEventListener("message", this.trxAccountsChanged);
-      window.addEventListener("message", this.trxAccountsChanged);
-
-
-      const ethereum = (window as any).ethereum;
-      if (ethereum) {
-        ethereum.removeListener("accountsChanged", this.ethAccountsChanged);     // ethereum obj using Node.js EventEmitter
-      }
-
-    }
-    else if (this.globals.selectedWorld == WORLD.ETH || this.globals.selectedWorld == WORLD.BNB )
-    {
-      window.removeEventListener("message", this.trxAccountsChanged);           // Remove Tron event listener
-
-      // On wallet account change - recheck linked account
-      const ethereum = (window as any).ethereum;
-      if (ethereum) {
-
-        var that = this;
-
-        // ethereum obj using Node.js EventEmitter tech
-        ethereum.removeListener("accountsChanged", this.ethAccountsChanged);     // ensure only one instance of Eth event handler - remove any existing, might occur during a world change
-        ethereum.on("accountsChanged", this.ethAccountsChanged);
-      }
-    }
-  }  
 
   collapse() {
     this.isExpanded = false;
@@ -222,38 +192,4 @@ export class NavMenuComponent {
     });
   }
 
-
-  // Using named function var with [ES6 Arrow Function] - allows use of [this] pointing to the original caller class, otherwise the eventEmitter class will be used.
-  private ethAccountsChanged = (accounts) => {
-    console.log("Ethereum Account Changed");
-
-    let priorDarkModeStatus = this.globals.ownerAccount.dark_mode;      // retain existing mode
-    this.globals.initAccount();
-    this.globals.ownerAccount.dark_mode = priorDarkModeStatus;
-
-    this.globals.getEthereumAccounts(this.baseUrl, true);
-
-  };
-
-  // Using [ES6 Arrow Function], to support (a) using (component) this obj ref (b)support  window.removeEventListener()
-  private trxAccountsChanged = (e) => {
-    /*if (e.data.message && e.data.message.action == "setAccount") {
-      console.log("setAccount event", e.data.message);
-      console.log("current address:", e.data.message.data.address);
-
-      this.globals.checkTronAccountKey(this.baseUrl, this.cdf);
-    }*/
-
-    if (e.data.message && e.data.message.action == "accountsChanged") {
-      console.log("Tron accountsChanged event", e.data.message);
-      console.log("Tron current address:", e.data.message.data.address);
-
-      let priorDarkModeStatus = this.globals.ownerAccount.dark_mode;      // retain existing mode
-      this.globals.initAccount();
-      this.globals.ownerAccount.dark_mode = priorDarkModeStatus;
-
-      this.globals.checkTronAccountKey(this.baseUrl, true);
-    }
-
-  };
 }

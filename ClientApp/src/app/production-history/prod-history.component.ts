@@ -7,7 +7,7 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { DragDrop } from '@angular/cdk/drag-drop';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { CitizenBuildingTableComponent } from '../citizen-building-table/citizen-building-table.component';
-import { Globals, WORLD } from '../common/global-var';
+import { Application, WORLD } from '../common/global-var';
 import { BUILDING } from '../common/enum';
 
 interface Detail {
@@ -100,7 +100,7 @@ export class ProdHistoryComponent implements AfterViewInit {
   columnsFactory: string[] =['amount_produced', 'building_product', 'efficiency_c', 'building_ip', 'run_datetime'];
   
 
-  constructor(public globals: Globals, public _elementRef: ElementRef, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {//, cdr: ChangeDetectorRef) {
+  constructor(public globals: Application, public _elementRef: ElementRef, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {//, cdr: ChangeDetectorRef) {
 
     this.httpClient = http;
     this.baseUrl = baseUrl + "api/" + globals.worldCode;

@@ -5,7 +5,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 
-import { Globals, WORLD } from '../common/global-var';
+import { Application, WORLD } from '../common/global-var';
 import { Parcel, ParcelCollection } from '../common/interface';
 import { CUSTOM_BUILDING_CATEGORY, EVENT_TYPE } from '../common/enum';
 
@@ -41,7 +41,7 @@ export class CustomBuildingTableComponent {
   @Output() buildingFilterChange = new EventEmitter<any>();
 
 
-  constructor(public globals: Globals, public router: Router, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
+  constructor(public globals: Application, public router: Router, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
 
     this.httpClient = http;
     this.baseUrl = rootBaseUrl + "api/" + globals.worldCode;

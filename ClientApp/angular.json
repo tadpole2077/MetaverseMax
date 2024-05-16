@@ -26,7 +26,7 @@
                 "src/assets"
               ],
               "styles": [
-                "./node_modules/@fortawesome/fontawesome-free/css/all.min.css",
+                "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
                 /*"./node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",*/
                 "node_modules/bootstrap/dist/css/bootstrap.min.css",
                 "src/styles.css",
@@ -94,10 +94,10 @@
               },
               "development": { // new from Angular V12
                 "browserTarget": "MetaverseMax:build:development",
-                "proxyConfig": "proxy.config.js"    // development mode uses AspNetCore.SpaProxy to redirect, not used in Production.                
+                "proxyConfig": "proxy.config.js" // development mode uses AspNetCore.SpaProxy to redirect, not used in Production.                
               }
             },
-            "defaultConfiguration": "development"   // development | production, change to production for optimal performance if not explictly adding option to ng serve script command
+            "defaultConfiguration": "development" // development | production, change to production for optimal performance if not explictly adding option to ng serve script command
           },
           "extract-i18n": {
             "builder": "@angular-devkit/build-angular:extract-i18n",
@@ -108,12 +108,14 @@
           "test": {
             "builder": "@angular-devkit/build-angular:karma",
             "options": {
-              "main": "src/test.ts",
-              "polyfills": "src/polyfills.ts",
+              "polyfills": [ "zone.js", "zone.js/testing" ],
+              //"include": [ "**/*.spec.ts" ], // added line based on --code-coverage test assertion error https://stackoverflow.com/questions/74671214/assertionerror-err-assertion-compilation-cannot-be-undefined-after-updating-t              
               "tsConfig": "tsconfig.spec.json",
-              "karmaConfig": "src/karma.conf.js",
+              "karmaConfig": "karma.conf.js",
               "styles": [
-                "./node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
+                "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
+                /*"./node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",*/
+                "node_modules/bootstrap/dist/css/bootstrap.min.css",
                 "src/styles.css",
                 "src/theme.scss"
               ],
@@ -136,7 +138,7 @@
               "development": {
                 "optimization": true,
                 "outputHashing": "all",
-                "sourceMap": true,      /* Needed to debug ts components*/
+                "sourceMap": true, /* Needed to debug ts components*/
                 "namedChunks": false,
                 "extractLicenses": true
               },
@@ -151,9 +153,10 @@
             "defaultConfiguration": ""
           }
         }
-      }      
+      }
     },
     "cli": {
       "analytics": "f460fdcd-c656-4252-b2b5-878b480c4273"
     }
   }
+}
