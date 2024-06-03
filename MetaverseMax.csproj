@@ -78,6 +78,7 @@
     <None Remove="ClientApp\src\app\graph-fund\data-fund-test.ts" />
     <None Remove="ClientApp\src\app\mission-desk\mission-desk.component.ts" />
     <None Remove="ClientApp\src\app\numberonly.directive.ts" />
+    <None Remove="ClientApp\src\app\owner-data\owner-data-filter.service.ts" />
     <None Remove="ClientApp\src\app\owner-data\owner-data.component.css" />
     <None Remove="ClientApp\src\app\graph-tax\data-construct.ts" />
     <None Remove="ClientApp\src\app\graph-tax\data-produce.ts" />

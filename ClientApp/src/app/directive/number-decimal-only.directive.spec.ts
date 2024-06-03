@@ -15,7 +15,7 @@ class TestNumberDecimalComponent {}
 describe('NumberDecimalDirective', () => {
   let component: TestNumberDecimalComponent;
   let fixture: ComponentFixture<TestNumberDecimalComponent>;
-  let des: DebugElement[]; // only one elements w/ the directive
+  let des: DebugElement[]; // only one element w/ the directive
 
   beforeEach(() => {
     fixture = TestBed.createComponent(TestNumberDecimalComponent);
@@ -114,7 +114,7 @@ describe('NumberDecimalDirective', () => {
   });
 
   // Interesting test case of checking for preventDefault triggered by keypress of period char.
-  it('keydown should preventDefault when . is pressed and input contains a .', () => {
+  it('keydown should preventDefault when char(.) is pressed and input already contains a char(.)', () => {
 
     const input = des[0].nativeElement as HTMLInputElement;
     input.value = '1.2';

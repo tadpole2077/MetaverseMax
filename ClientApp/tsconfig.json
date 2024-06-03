@@ -6,7 +6,8 @@
     "baseUrl": "./",
     "declaration": false,
     "esModuleInterop": true,
-    "experimentalDecorators": true,
+    "experimentalDecorators": true,     /* Decorators TS feature */
+    /*"emitDecoratorMetadata": true,      /* Decorator Metadata support - false by default */
     "lib": [
       "ES2022",
       "dom"

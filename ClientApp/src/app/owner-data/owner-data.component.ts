@@ -18,6 +18,7 @@ import { Application, WORLD } from '../common/global-var';
 import { MapData } from '../common/map-data';
 import { CUSTOM_BUILDING_CATEGORY, BUILDING, MIN_STAMINA } from '../common/enum';
 import { SearchPlotComponent } from '../search-plot/search-plot.component';
+import { OwnerDataFilterService } from './owner-data-filter.service';
 
 
 @Component({
@@ -70,7 +71,7 @@ export class OwnerDataComponent implements AfterViewInit {
   displayedColumns: string[] = ['district_id', 'pos_x', 'pos_y', 'building_type', 'building_level', 'last_action', 'current_influence_rank', 'condition', 'plot_ip', 'citizen_count',/* 'token_id', */'alert'];
   displayedColumnsMobile: string[] = ['district_id', 'pos_x', 'building_type', 'building_level', 'last_action', 'current_influence_rank', 'condition', 'plot_ip', 'citizen_count',/* 'token_id', */'alert'];
  
-  constructor(private cdf: ChangeDetectorRef, public globals: Application, public mapdata: MapData, private location: Location, public router: Router, private route: ActivatedRoute, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef)
+  constructor(private ownerDataFilter: OwnerDataFilterService, private cdf: ChangeDetectorRef, public globals: Application, public mapdata: MapData, private location: Location, public router: Router, private route: ActivatedRoute, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef)
   {
     this.httpClient = http;    
     this.baseUrl = baseUrl + "api/" + globals.worldCode;
@@ -416,13 +417,13 @@ export class OwnerDataComponent implements AfterViewInit {
     //const data = this.owner;    
   }
 
-  sortTableAlertShowingStaminaFirst() {
+  sortTableAlertShowingStaminaFirst = async() => {
 
     // Only assign new sorted land array if alerts found.
     if (this.owner.stamina_alert_count > 0) {      
 
       // Remove any current filters
-      this.filterTable(null, 0, BUILDING.NO_FILTER);
+      await this.filterTable(null, 0, BUILDING.NO_FILTER);
 
       // Generate a table list with all stamina alert buildings shown first.
       const sortbyAlert: IOwnerLandData[] = [];
@@ -464,7 +465,7 @@ export class OwnerDataComponent implements AfterViewInit {
   }
   
   // Filter By District, and By Building Type [Storing pior District filter and using if found]
-  filterTable(event, filterValue: number, buildingType: number) {
+  async filterTable(event, filterValue: number, buildingType: number) {
 
     let filterbyMulti: IOwnerLandData[] = [];
 
@@ -473,26 +474,19 @@ export class OwnerDataComponent implements AfterViewInit {
       this.removeLinkHighlight(".districtEleActive, .activeFilter");
     }
 
-
     // CHECK If filter is BuildingType and already active, then this click is to disable it
     if (buildingType > BUILDING.NO_FILTER && event.srcElement.closest("div").classList.contains("activeFilter")) {
       
       filterbyMulti = this.currentDistrictFilter == 0 ? this.owner.owner_land : this.filterLandByDistrict;
       event.srcElement.closest("div").classList.remove("activeFilter");
-      //event.srcElement.classList.remove("activeFilter");
 
     }
     // Filter by District
     else if (filterValue > 0 && this.currentDistrictFilter != filterValue) {
-      
-      this.filterLandByDistrict.length = 0;     // Dont create new array, as reference to may be lost
+   
       this.currentDistrictFilter = filterValue;
 
-      this.owner.owner_land.forEach(land => {
-        if (land.district_id == filterValue) {
-          this.filterLandByDistrict.push(land);
-        }
-      });
+      this.filterLandByDistrict = await this.ownerDataFilter.filterBy(this.owner.owner_land, "district_id", filterValue);      
 
       this.buttonShowAll = true;
       event.currentTarget.classList.add("districtEleActive");
@@ -506,15 +500,10 @@ export class OwnerDataComponent implements AfterViewInit {
       // Remove Any Prior Building Highlight - but maintain district highlight if active
       this.removeLinkHighlight(".activeFilter");
 
-      // Filter by Building Type      
-      let filterbyType : IOwnerLandData[] = null;
-      filterbyType = this.filterLandByDistrict.length == 0 ? this.owner.owner_land : this.filterLandByDistrict;
-
-      filterbyType.forEach(land => {
-        if (land.building_type == buildingType) {
-          filterbyMulti.push(land);
-        }
-      });
+      filterbyMulti = await this.ownerDataFilter.filterBy(
+        this.filterLandByDistrict.length == 0 ? this.owner.owner_land : this.filterLandByDistrict,
+        "building_type",
+        buildingType);  
 
       this.buttonShowAll = true;
       event.srcElement.parentElement.parentElement.parentElement.classList.add("activeFilter");

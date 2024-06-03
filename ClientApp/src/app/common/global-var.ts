@@ -15,6 +15,7 @@ import { AlertBottomComponent } from '../alert-bottom/alert-bottom.component';
 import { PublicHashPipe } from '../pipe/public-hash-pipe';
 import Web3, { EIP1193Provider } from 'web3';
 import { EIP6963ProviderDetail } from 'web3/lib/commonjs/web3_eip6963';
+import { environment } from '../../environments/environment';
 
 
 interface OwnerAccount {
@@ -186,7 +187,7 @@ export class Application {
     return this._selectedWorld;
   }
 
-  // Check Metamask Provider :  Supporting Metamask & CoinbaseWallet
+  // Check Metamask Provider :  Supporting Metamask & CoinbaseWallet  
   set walletApproved(value) {
 
     let changed = this._walletApproved != value;
@@ -236,13 +237,13 @@ export class Application {
 
   }
 
+ 
   getProviders = async (system: number = WORLD.ETH) => {
 
     // Call and wait for the promise to resolve - Typescript requires mapping to type
     let providers = await Web3.requestEIP6963Providers() as Map<string, EIP6963ProviderDetail>;
 
     for (const [key, value] of providers) {
-      console.log(value);
 
       /* Based on your DApp's logic show use list of providers and get selected provider's UUID from user for injecting its EIP6963ProviderDetail.provider EIP1193 object into web3 object */
 
@@ -336,6 +337,7 @@ export class Application {
   }
 
   // Using named function var with [ES6 Arrow Function] - allows use of [this] pointing to the original caller class, otherwise the eventEmitter class will be used.
+  //@log
   private ethAccountsChanged = (accounts) => {
     
     console.log("Ethereum Account Changed");
@@ -384,6 +386,7 @@ export class Application {
   };
 
   // Trigger check on user balance
+  @log()
   updateUserBankBalance(baseUrl: string, maticKey: string) {
 
     let params = new HttpParams();
@@ -402,6 +405,7 @@ export class Application {
     
   }
 
+  @log("trace")
   checkUserAccountKey(OwnerPublicKey: string, baseUrl: string, checkMyPortfolio: boolean) {
 
     let params = new HttpParams();
@@ -753,6 +757,65 @@ export class Application {
   }
 
 }
+
+export type LOG_TYPE = "console" | "file" | "rest" | "trace";
+// TS Decorators, factory pattern
+export function log(logType: LOG_TYPE = "console") {
+
+  return function logDecorator(target: any, property: string, descriptor?: PropertyDescriptor) {
+    //const DEBUG = true;   // must be defined before initialization stage of TS compile
+    const PROD = environment.production;
+
+    if (!PROD) {
+      const wrapped = descriptor.value;        // copy of method wrapped by decorator
+
+      if (logType === "console" || logType ==="trace") {
+        descriptor.value = function () {
+
+          if (logType === "trace") {
+            console.trace(`${property} method started`);
+          }
+          else { 
+            console.log(`${property} method started`);
+          }
+
+          try {
+            wrapped.apply(this, arguments);
+          }
+          catch (err) {
+            console.log(`${property} method error: `, err);
+          }
+
+          console.log(`${property} method completed`);
+        };
+      }      
+    }
+  }
+}
+
+export function log2(target: any, property: string, descriptor?: PropertyDescriptor){
+ 
+  //const DEBUG = true;   // must be defined before initialization stage of TS compile
+  const PROD = environment.production;
+
+  if (!PROD) {
+    const wrapped = descriptor.value;        // copy of method wrapped by decorator.  descriptor.value returns undefined - syntax change when using angular.
+
+    descriptor.value = function () {
+
+      console.log(`${property} method started`);
+      try {
+        wrapped.apply(this, arguments);
+      }
+      catch (err) {
+        console.log(`${property} method error: `, err);
+      }
+      console.log(`${property} method completed`);
+    };
+  }
+  
+}
+
 
 export {
   OwnerAccount,
