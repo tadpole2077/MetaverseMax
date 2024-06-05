@@ -1,10 +1,18 @@
 ﻿WHEN: 27/05/2023
+Angular Version: 15.2.9
+
 Links:
 https://update.angular.io/?l=2&v=14.0-15.0
 https://angular.io/guide/versions
 
 Node:
-	* (using)NPM V16.20.2					- (cmd)nvm list >> V18.10.0 or higher is latest node version required for V15x Angular,  alt is ^V16.13.0 or higher within V16.x tier also supported (see guide link for more info)
+	* (2024-06 active using) Node V18.20.3	- Node 18.20.3 Uses NPM V10.7.0
+												Security Issue with older version of NPM (see below for details) https://www.npmjs.com/package/npm/v/10.7.0
+												(cmd) nvm 18.20.3 ,  nvm use 18.20.3
+	* (Older) Node V16.20.2					- (cmd)nvm list >> V18.10.0 or higher is latest node version required for V15x Angular
+												alt is ^V16.13.0 or higher within V16.x tier also supported (see guide link for more info) https://nodejs.org/en/download/package-manager
+												V16.20.2 Node uses NPM V8.19.4 : https://www.npmjs.com/package/npm/v/8.19.4
+
 	* previously using with V14 Angular : V16.10.0
 
 
@@ -336,6 +344,19 @@ Dependencies:
 
 Action: 
 - Upgrade crypto-js from 4.1.1 to 4.2.0 (last version)  >> npm i crypto-js@4.2.0
+
+
+
+
+==============================================================
+Issue: NPM - Vulnerability Issue - ip SSRF improper categorization in isPublic
+https://github.com/advisories/GHSA-2p57-rm9w-gvfp
+https://github.com/indutny/node-ip/issues/150
+Issue: 
+	NPM 8.19.4   :  2023/Feb/14 https://github.com/npm/cli/releases/tag/v8.19.4
+	NPM Dependency with IP package, which is not activity maintained and contains a security vulnerability to SSRS (Server side Request Forgery)
+Resolve:
+	update NodeJS to V18.20.3 LTS(long term support june-2024),  which updates npm to V10.7.0 (Released 2024/Apr/30) https://github.com/npm/cli/releases/tag/v10.7.0
 
 
 

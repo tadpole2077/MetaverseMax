@@ -78,10 +78,12 @@
     <None Remove="ClientApp\src\app\graph-fund\data-fund-test.ts" />
     <None Remove="ClientApp\src\app\mission-desk\mission-desk.component.ts" />
     <None Remove="ClientApp\src\app\numberonly.directive.ts" />
+    <None Remove="ClientApp\src\app\owner-data\owner-data-filter.service.spec.ts" />
     <None Remove="ClientApp\src\app\owner-data\owner-data-filter.service.ts" />
     <None Remove="ClientApp\src\app\owner-data\owner-data.component.css" />
     <None Remove="ClientApp\src\app\graph-tax\data-construct.ts" />
     <None Remove="ClientApp\src\app\graph-tax\data-produce.ts" />
+    <None Remove="ClientApp\src\app\owner-data\owner-data.component.spec.ts" />
     <None Remove="ClientApp\src\app\pack-modal\pack-modal.component.ts" />
     <None Remove="ClientApp\src\app\pipe\public-hash-pipe.ts" />
     <None Remove="ClientApp\src\app\player-menu\player-menu.component.ts" />

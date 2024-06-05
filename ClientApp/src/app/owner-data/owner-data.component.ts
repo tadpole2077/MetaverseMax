@@ -133,7 +133,7 @@ export class OwnerDataComponent implements AfterViewInit {
     let requestOwnerMatic = this.route.snapshot.queryParams["matic"];
     const plotX = this.route.snapshot.queryParams["plotx"];
     const plotY = this.route.snapshot.queryParams["ploty"];
-   
+
     if (requestOwnerMatic) {
 
       if (requestOwnerMatic.toLowerCase() == "myportfolio") {
@@ -546,7 +546,7 @@ export class OwnerDataComponent implements AfterViewInit {
 
   // Called to reset the building filter buttons to match the current search - typically called on a new search instance.
   // Using generic, more dynamic, and extends to access in just the properties used in fn.
-  hideBuildingFilter<T extends ILandType>(ownerLand: T[]): boolean {
+  hideBuildingFilter<T extends { building_type: number }>(ownerLand: T[]): boolean {
 
     this.initFilterCount();
     
@@ -554,12 +554,6 @@ export class OwnerDataComponent implements AfterViewInit {
 
       // Reset all filter to hide - then enable/show applicable filters based on matching buildings/land
       this.hideEmptyFilter = this.hideIndFilter = this.hideProdFilter = this.hideEngFilter = this.hideOffFilter = this.hideResFilter = this.hideComFilter = this.hideMuniFilter = this.hideAOIFilter = this.hideParcelFilter = true;      
-      //var buildingFilters = this.elem.nativeElement.querySelectorAll(".typeFilter div");
-      //if (buildingFilters.length >0) {
-      //  for (var index = 0, element; element = buildingFilters[index]; index++) {
-      //    element.classList.add("hideFilter");
-      //  }
-      //}
 
       for (let index = 0; index < ownerLand.length; index++) {
 

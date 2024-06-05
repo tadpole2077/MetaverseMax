@@ -1,11 +1,12 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, ErrorHandler } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppComponent } from './app.component';
+import { ErrorMetadataService } from './service/error-metadata.service';
 import { AccountApproveComponent } from './account-approve/account-approve.component';
 import { AlertMenuComponent } from './alert-menu/alert-menu.component';
 import { AlertBottomComponent } from './alert-bottom/alert-bottom.component';
@@ -200,7 +201,13 @@ import { PublicHashPipe } from './pipe/public-hash-pipe';
     Application,
     MapData,
     Alert,
-    { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } }
+    {
+      provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' }
+    },
+    {
+      provide: ErrorHandler, useClass: ErrorMetadataService   // Overriding with custom service.
+    }
+
   ],
   bootstrap: [AppComponent]
 })
