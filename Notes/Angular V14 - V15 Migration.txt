@@ -353,8 +353,10 @@ Issue: NPM - Vulnerability Issue - ip SSRF improper categorization in isPublic
 https://github.com/advisories/GHSA-2p57-rm9w-gvfp
 https://github.com/indutny/node-ip/issues/150
 Issue: 
+	Package : "IP" <= 2.0.1
 	NPM 8.19.4   :  2023/Feb/14 https://github.com/npm/cli/releases/tag/v8.19.4
 	NPM Dependency with IP package, which is not activity maintained and contains a security vulnerability to SSRS (Server side Request Forgery)
+	Dependency { "ip": "^2.0.0" } is referenced within package-lock.json as a dependency of "node_modules/socks" V2.7.1
 Resolve:
 	update NodeJS to V18.20.3 LTS(long term support june-2024),  which updates npm to V10.7.0 (Released 2024/Apr/30) https://github.com/npm/cli/releases/tag/v10.7.0
 
