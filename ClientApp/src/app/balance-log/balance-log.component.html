@@ -18,9 +18,9 @@
         <span class="short-text">Action</span>
       </th>
       <td mat-cell *matCellDef="let row">
-        <i class="fas fa-minus" [ngClass]="{'enabled': row.action == 'W' }"></i>
-        <i class="fas fa-plus" [ngClass]="{'enabled': row.action == 'D' }"></i>
-        <span>{{ row.action == 'W' ? "Widthdraw" : row.action == 'D' ? 'Deposit' : row.action }}</span>
+        <i class="fas fa-minus" [ngClass]="{'enabled': row.action === 'W' }"></i>
+        <i class="fas fa-plus" [ngClass]="{'enabled': row.action === 'D' }"></i>
+        <span>{{ row.action === 'W' ? "Widthdraw" : row.action === 'D' ? 'Deposit' : row.action }}</span>
       </td>
     </ng-container>
 

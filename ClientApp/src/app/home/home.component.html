@@ -22,7 +22,7 @@
       <!--<i class="fa-solid fa-tower-control"></i>-->
     </a>
 
-    <a [hidden]="globals.ownerAccount.matic_key == 'Not Found'" [routerLink]="['/', worldCode, 'owner-data']" [queryParams]="{matic: 'myportfolio'}" class="action">
+    <a [hidden]="globals.ownerAccount.matic_key === 'Not Found'" [routerLink]="['/', worldCode, 'owner-data']" [queryParams]="{matic: 'myportfolio'}" class="action">
       <i class="fas fa-city"></i>
       <span>My Portfolio</span>
       <!--<i class="fa-solid fa-house-building" style=""></i>-->

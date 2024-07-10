@@ -1,0 +1,115 @@
+{
+  "root": true,
+  "ignorePatterns": [
+    "projects/**/*"
+  ],
+  "overrides": [
+    {
+        "files": [
+            "*.ts"
+        ],
+        "extends": [
+            "eslint:recommended",
+            "plugin:@typescript-eslint/recommended",
+            "plugin:@angular-eslint/recommended",
+            "plugin:@angular-eslint/template/process-inline-templates",
+            "plugin:import/errors",
+            "plugin:import/warnings",
+            "plugin:import/typescript"
+        ],
+        "plugins": [
+            "@typescript-eslint",
+            "prefer-arrow",
+            "jsdoc",
+            "@angular-eslint"
+        ],
+        "rules": {
+            "@angular-eslint/directive-selector": [
+                "error",
+                {
+                    "type": "attribute",
+                    "prefix": "app",
+                    "style": "camelCase"
+                }
+            ],
+            "@angular-eslint/component-selector": [
+                "error",
+                {
+                    "type": "element",
+                    "prefix": "app",
+                    "style": "kebab-case"
+                }
+            ],
+            // turn on errors for missing imports
+            "import/no-unresolved": [
+                "warn",
+                {
+                    //"ignore": [ "^@angular.*$" ], /*regex - ignore all imports starting with '@angular' */
+                    //"caseSensitive": false,
+                    //"amd": true,
+                    "commonjs": true
+                }
+            ],
+            "import/no-deprecated": "warn",
+
+            "@typescript-eslint/no-explicit-any": "warn",
+            "@typescript-eslint/no-empty-function": "warn",
+            "@angular-eslint/no-empty-lifecycle-method": "warn",
+            "indent": [
+                "error",
+                4
+            ],
+            "linebreak-style": [
+                "error",
+                "windows"
+            ],
+            "quotes": [
+                "error",
+                "single"
+            ],
+            "semi": [
+                "error",
+                "always"
+            ]
+        },
+        "settings": {
+            "import/resolver": {
+                "node": {
+                    "extensions": [ ".js", ".jsx", ".ts", ".tsx", ".d.ts" ]
+                }
+            },
+            "import/docstyle": [ "jsdoc", "tomdoc" ]
+        }
+
+        /* "parser": "@typescript-eslint/parser",
+        "parserOptions": {
+            //"project": [ "tsconfig.json" ],
+            "createDefaultProgram": true
+        },
+        "settings": {
+            "import/parsers": {
+                "@typescript-eslint/parser": [ ".ts", ".tsx", ".d.ts" ]
+            },
+            "import/resolver": {
+                "typescript": {
+                    // "alwaysTryTypes": true, // always try to resolve types under `<root>@types` directory even it doesn't contain any source code, like `@types/unist`
+
+                    // use <root>/path/to/folder/tsconfig.json
+                    //                    "project": "D:/0_Development/2_Applications/GitHub/MetaverseMax/MetaverseMax/ClientApp"                    
+        //      }
+        //   }
+        //} */
+    },
+    {
+        "files": [
+            "*.html"
+        ],
+        "extends": [
+            "plugin:@angular-eslint/template/recommended"
+        ],
+        "rules": {
+
+        }
+    }
+  ]
+}

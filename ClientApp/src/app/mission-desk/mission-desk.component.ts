@@ -15,31 +15,31 @@ interface IDistrictInfo {
 }
 
 @Component({
-  selector: 'app-mission-desk',
-  templateUrl: './mission-desk.component.html',
-  styleUrls: ['./mission-desk.component.css']
+    selector: 'app-mission-desk',
+    templateUrl: './mission-desk.component.html',
+    styleUrls: ['./mission-desk.component.css']
 })
 
 export class MissionDeskComponent {
 
-  hidePaginator: boolean = true;
-  private tableView: Mission[] = null;
-  httpClient: HttpClient;
-  baseUrl: string;
-  worldMission: MissionCollection; 
-  activeTextFilter: string = "";
-  isMobileView: boolean = false;
-  showCustom: boolean = true;
-  missionCount: number = 0;
-  missionReward: number = 0;
-  allMissionCount: number = 0;
-  allMissionAvailableCount: number = 0;
-  allMissionReward: number = 0;
-  allMissionAvailableReward: number = 0;
-  repeatableDailyReward: number = 0
-  districtList: IDistrictInfo[];
+    hidePaginator = true;
+    private tableView: Mission[] = null;
+    httpClient: HttpClient;
+    baseUrl: string;
+    worldMission: MissionCollection; 
+    activeTextFilter = '';
+    isMobileView = false;
+    showCustom = true;
+    missionCount = 0;
+    missionReward = 0;
+    allMissionCount = 0;
+    allMissionAvailableCount = 0;
+    allMissionReward = 0;
+    allMissionAvailableReward = 0;
+    repeatableDailyReward = 0;
+    districtList: IDistrictInfo[];
 
-  dataSource = new MatTableDataSource(null);
+    dataSource = new MatTableDataSource(null);
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
@@ -51,15 +51,15 @@ export class MissionDeskComponent {
   
   constructor(public globals: Application, public router: Router, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
 
-    this.httpClient = http;
-    this.baseUrl = rootBaseUrl + "api/" + globals.worldCode;
+      this.httpClient = http;
+      this.baseUrl = rootBaseUrl + 'api/' + globals.worldCode;
 
-    if (this.width < 768) {
-      this.isMobileView = true;
-      this.displayedColumns = this.displayedColumnsMobile;
-    }
+      if (this.width < 768) {
+          this.isMobileView = true;
+          this.displayedColumns = this.displayedColumnsMobile;
+      }
 
-    this.searchAllMissions();
+      this.searchAllMissions();
 
   }
 
@@ -70,147 +70,147 @@ export class MissionDeskComponent {
   }
 
   public get width() {
-    return window.innerWidth;
+      return window.innerWidth;
   }
 
   searchAllMissions() {
 
-    let params = new HttpParams();
-    //params = params.append('opened', 'true');
+      const params = new HttpParams();
+      //params = params.append('opened', 'true');
 
-    this.httpClient.get<MissionCollection>(this.baseUrl + '/plot/get_worldmission', { params: params })
-      .subscribe({
-        next: (result) => {
+      this.httpClient.get<MissionCollection>(this.baseUrl + '/plot/get_worldmission', { params: params })
+          .subscribe({
+              next: (result) => {
           
-          this.worldMission = result;
-          if (this.worldMission) {
+                  this.worldMission = result;
+                  if (this.worldMission) {
 
-            this.missionCount = this.worldMission.mission_count;
-            this.missionReward = this.worldMission.mission_reward;
-            this.allMissionCount = this.worldMission.all_mission_count;
-            this.allMissionAvailableCount = this.worldMission.all_mission_available_count;
-            this.allMissionReward = this.worldMission.all_mission_reward;
-            this.allMissionAvailableReward = this.worldMission.all_mission_available_reward;
-            this.repeatableDailyReward = this.worldMission.repeatable_daily_reward;
+                      this.missionCount = this.worldMission.mission_count;
+                      this.missionReward = this.worldMission.mission_reward;
+                      this.allMissionCount = this.worldMission.all_mission_count;
+                      this.allMissionAvailableCount = this.worldMission.all_mission_available_count;
+                      this.allMissionReward = this.worldMission.all_mission_reward;
+                      this.allMissionAvailableReward = this.worldMission.all_mission_available_reward;
+                      this.repeatableDailyReward = this.worldMission.repeatable_daily_reward;
 
-            if (this.worldMission.mission_list) {
+                      if (this.worldMission.mission_list) {
 
-              let change = new MatCheckboxChange();
-              change.checked = true;
+                          const change = new MatCheckboxChange();
+                          change.checked = true;
 
-              this.dataSource = new MatTableDataSource<Mission>(this.worldMission.mission_list);
-              this.dataSource.sort = this.sort;
-              this.dataSource.filter = this.activeTextFilter;
+                          this.dataSource = new MatTableDataSource<Mission>(this.worldMission.mission_list);
+                          this.dataSource.sort = this.sort;
+                          this.dataSource.filter = this.activeTextFilter;
 
-              this.evalDistrict(this.worldMission.mission_list);
-            }
-          }
-        },
-        error: (error) => { console.error(error) }
-      });
+                          this.evalDistrict(this.worldMission.mission_list);
+                      }
+                  }
+              },
+              error: (error) => { console.error(error); }
+          });
 
 
-    return;
+      return;
   }
 
   // Eval all filtered missions in passed list - group count by district
   evalDistrict(missionList: Mission[]) {
 
-    let districtInfo: IDistrictInfo;
-    this.districtList = new Array;
+      let districtInfo: IDistrictInfo;
+      this.districtList = [];
 
-    for (var index = 0; index < missionList.length; index++) {
-      let found = false;
+      for (let index = 0; index < missionList.length; index++) {
+          let found = false;
 
-      for (var index2 = 0; index2 < this.districtList.length; index2++) {
-        if (this.districtList[index2].id == missionList[index].district_id) {
-          this.districtList[index2].total++;
-          found = true;
-        }
-      }
+          for (let index2 = 0; index2 < this.districtList.length; index2++) {
+              if (this.districtList[index2].id == missionList[index].district_id) {
+                  this.districtList[index2].total++;
+                  found = true;
+              }
+          }
 
-      if (found == false) {
-        this.districtList.push(
+          if (found == false) {
+              this.districtList.push(
           {
-            id: missionList[index].district_id,
-            total: 1
+              id: missionList[index].district_id,
+              total: 1
           } as IDistrictInfo
-        );
+              );
+          }
+
       }
 
-    }
+      // Keep top 4 districts with most missions drop the rest, first sort by total
+      this.districtList = this.districtList.sort(function (a, b) { return (a.total > b.total) ? -1 : ((b.total > a.total) ? 1 : 0); }).slice(0,4);    
 
-    // Keep top 4 districts with most missions drop the rest, first sort by total
-    this.districtList = this.districtList.sort(function (a, b) { return (a.total > b.total) ? -1 : ((b.total > a.total) ? 1 : 0); }).slice(0,4);    
-
-    return;
+      return;
   }
 
   applyFilter(value: string){
 
-    this.activeTextFilter = value.trim().toLocaleLowerCase();
-    this.dataSource.filter = value.trim().toLocaleLowerCase();
+      this.activeTextFilter = value.trim().toLocaleLowerCase();
+      this.dataSource.filter = value.trim().toLocaleLowerCase();
 
   }
 
   applyFilterMissionReward(rewardValue: number) {
 
-    let missionList: Mission[] = new Array;
-    let missionReward: number = 0;
+      const missionList: Mission[] = [];
+      let missionReward = 0;
 
-    // Use current building view with any applied filters
-    if (this.tableView == null) {
-      this.tableView = this.worldMission.mission_list;
-    }
-
-    for (var index = 0; index < this.tableView.length; index++) {
-
-      if (this.tableView[index].reward >= rewardValue) {
-        missionList.push(this.tableView[index]);
-        missionReward += this.tableView[index].reward;
+      // Use current building view with any applied filters
+      if (this.tableView == null) {
+          this.tableView = this.worldMission.mission_list;
       }
-    }
-    this.missionCount = missionList.length;
-    this.missionReward = Number(missionReward.toFixed(2));
-    this.evalDistrict( missionList);
 
-    this.dataSource = new MatTableDataSource<Mission>(missionList);
-    this.dataSource.sort = this.sort;
-    this.dataSource.filter = this.activeTextFilter;
+      for (let index = 0; index < this.tableView.length; index++) {
 
-    return;
+          if (this.tableView[index].reward >= rewardValue) {
+              missionList.push(this.tableView[index]);
+              missionReward += this.tableView[index].reward;
+          }
+      }
+      this.missionCount = missionList.length;
+      this.missionReward = Number(missionReward.toFixed(2));
+      this.evalDistrict( missionList);
+
+      this.dataSource = new MatTableDataSource<Mission>(missionList);
+      this.dataSource.sort = this.sort;
+      this.dataSource.filter = this.activeTextFilter;
+
+      return;
   }
 
   removeFilterMissionReward() {
 
-    this.tableView == null;
+      this.tableView == null;
 
-    this.dataSource = new MatTableDataSource<Mission>(this.worldMission.mission_list);
-    this.dataSource.sort = this.sort;
-    this.dataSource.filter = this.activeTextFilter;
+      this.dataSource = new MatTableDataSource<Mission>(this.worldMission.mission_list);
+      this.dataSource.sort = this.sort;
+      this.dataSource.filter = this.activeTextFilter;
 
-    this.missionCount = this.worldMission.mission_count;
-    this.missionReward = this.worldMission.mission_reward;
-    this.evalDistrict( this.worldMission.mission_list );
+      this.missionCount = this.worldMission.mission_count;
+      this.missionReward = this.worldMission.mission_reward;
+      this.evalDistrict( this.worldMission.mission_list );
 
-    return;
+      return;
   }
 
 
   applyFilterPredicate() {
-    this.dataSource.filterPredicate = function (data: Mission, filter: string): boolean {
-      return data.district_id.toString().includes(filter)
+      this.dataSource.filterPredicate = function (data: Mission, filter: string): boolean {
+          return data.district_id.toString().includes(filter)
         || data.owner_name.toLowerCase().includes(filter)
         || data.owner_matic.toString().includes(filter)
         || data.reward.toString().includes(filter);
-    };
+      };
   }
 
   getLastActionType(lastActionType: number) {
-    return EVENT_TYPE[lastActionType];
+      return EVENT_TYPE[lastActionType];
   }
   getBuildingType(typeId: number) {
-    return  BUILDING_TYPE[typeId];
+      return  BUILDING_TYPE[typeId];
   }
 
 

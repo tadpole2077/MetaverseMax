@@ -1,7 +1,7 @@
 enum ALERT_ACTION {  
   ADD = 1,
   REMOVE = 2,
-};
+}
 
 enum ALERT_TYPE {
   INITIAL_LAND_VALUE = 1,
@@ -10,7 +10,7 @@ enum ALERT_TYPE {
   DISTRIBUTION = 4,
   BUILDING_RANKING = 5,
   NEW_BUILDING = 6,
-};
+}
 
 enum ALERT_ICON_TYPE {
   INFO = 1,
@@ -19,22 +19,22 @@ enum ALERT_ICON_TYPE {
   NEW_OFFER = 4,
   RANKING = 5,
   NEW_BUILDING = 6,
-};
+}
 
 const STATUS = {
-  SUCCESS : "success"
-}
+    SUCCESS : 'success'
+};
 
 enum ICON_TYPE_CHANGE {
   NONE = 0,
   INCREASE = 1,
   DECREASE = 2
-};
+}
 
 enum PENDING_ALERT {
   ALL = 1,
   UNREAD = 2,
-};
+}
 
 enum MIN_STAMINA
 {
@@ -49,16 +49,16 @@ enum MIN_STAMINA
 
 // Use BUILDING_TYPE[typeId] - return a string matching id.
 const BUILDING_TYPE = {
-  1: "Empty Plot",
-  2: "Residential",
-  3: "Energy",
-  4: "Commercial",
-  5: "Industry",
-  6: "Office",
-  7: "Production",
-  8: "Municipal",
-  10: "Parcel",
-  100: "AOI"
+    1: 'Empty Plot',
+    2: 'Residential',
+    3: 'Energy',
+    4: 'Commercial',
+    5: 'Industry',
+    6: 'Office',
+    7: 'Production',
+    8: 'Municipal',
+    10: 'Parcel',
+    100: 'AOI'
 };
 
 enum BUILDING {
@@ -113,103 +113,103 @@ enum BUILDING_SUBTYPE {
 }
 
 enum PRODUCT_IMG {
-  WOOD = "wood.png",
-  SAND = "sand.png",
-  STONE = "stone.png",
-  METAL = "metal.png",
-  BRICK = "brick.png",
-  GLASS = "glass.png",
-  WATER = "water.png",
-  ENERGY = "energy.png",
-  STEEL = "steel.png",
-  CONCRETE = "concrete.png",
-  PLASTIC = "plastic.png",
-  GLUE = "glue.png",
-  MIXES = "mixes.png",
-  COMPOSITE = "composite.png",
-  PAPER = "paper.png",
-};
+  WOOD = 'wood.png',
+  SAND = 'sand.png',
+  STONE = 'stone.png',
+  METAL = 'metal.png',
+  BRICK = 'brick.png',
+  GLASS = 'glass.png',
+  WATER = 'water.png',
+  ENERGY = 'energy.png',
+  STEEL = 'steel.png',
+  CONCRETE = 'concrete.png',
+  PLASTIC = 'plastic.png',
+  GLUE = 'glue.png',
+  MIXES = 'mixes.png',
+  COMPOSITE = 'composite.png',
+  PAPER = 'paper.png',
+}
 
 const PRODUCT = {
-  WOOD: 1,
-  SAND: 2,
-  STONE: 3,
-  METAL: 4,
-  BRICK: 5,
-  GLASS: 6,
-  WATER: 7,
-  ENERGY: 8,
-  STEEL: 9,
-  CONCRETE: 10,
-  PLASTIC: 11,
-  GLUE: 12,
-  MIXES: 13,
-  COMPOSITE: 14,
-  PAPER: 15,
-  FACTORY_PRODUCT: 99
-}
+    WOOD: 1,
+    SAND: 2,
+    STONE: 3,
+    METAL: 4,
+    BRICK: 5,
+    GLASS: 6,
+    WATER: 7,
+    ENERGY: 8,
+    STEEL: 9,
+    CONCRETE: 10,
+    PLASTIC: 11,
+    GLUE: 12,
+    MIXES: 13,
+    COMPOSITE: 14,
+    PAPER: 15,
+    FACTORY_PRODUCT: 99
+};
 // Use: PRODUCT_NAME[productId] >> returns a string of the product name.
 const PRODUCT_NAME = {
-  1: "Wood",
-  2: "Sand",
-  3: "Stone",
-  4: "Metal",
-  5: "Brick",
-  6: "Glass",
-  7: "Water",
-  8: "Energy",
-  9: "Steel",
-  10: "Concrete",
-  11: "Plastic",
-  12: "Glue",
-  13: "Mixes",
-  14: "Composite",
-  15: "Paper",
-  99: "Factory Product",
+    1: 'Wood',
+    2: 'Sand',
+    3: 'Stone',
+    4: 'Metal',
+    5: 'Brick',
+    6: 'Glass',
+    7: 'Water',
+    8: 'Energy',
+    9: 'Steel',
+    10: 'Concrete',
+    11: 'Plastic',
+    12: 'Glue',
+    13: 'Mixes',
+    14: 'Composite',
+    15: 'Paper',
+    99: 'Factory Product',
 };
 
 const FACTORY_PRODUCT = {
-  WHITE_AIR_CON: 1,
-  CCTV_WHITE: 2,
-  RED_FIRE_ALARM: 3,
-  ROUTER_BLACK: 4,
-  WHITE_SAT: 5,
-  GREEN_SAT: 6,
-  RED_SAT: 7,
-  GREEN_AIR_CON: 8,
-  RED_AIR_CON: 9,
-  CCTV_RED: 10
-}
+    WHITE_AIR_CON: 1,
+    CCTV_WHITE: 2,
+    RED_FIRE_ALARM: 3,
+    ROUTER_BLACK: 4,
+    WHITE_SAT: 5,
+    GREEN_SAT: 6,
+    RED_SAT: 7,
+    GREEN_AIR_CON: 8,
+    RED_AIR_CON: 9,
+    CCTV_RED: 10
+};
 
 const FACTORY_PRODUCT_NAME = {
-  1: "White Air Con",
-  2: "CCTV White",
-  3: "Red Fire Alarm",
-  4: "Router Black",
-  5: "White Sat",
-  6: "Green Sat",
-  7: "Red Sat",
-  8: "Green Air Con",
-  9: "Red Air Con",
-  10: "CCTV Red"
-}
+    1: 'White Air Con',
+    2: 'CCTV White',
+    3: 'Red Fire Alarm',
+    4: 'Router Black',
+    5: 'White Sat',
+    6: 'Green Sat',
+    7: 'Red Sat',
+    8: 'Green Air Con',
+    9: 'Red Air Con',
+    10: 'CCTV Red'
+};
 const FACTORY_PRODUCT_IMG = {
-  1: "white_ac.png",
-  2: "white_cctv.png",
-  3: "red_alarm.png",
-  4: "black_router.png",
-  5: "white_sat.png",
-  6: "green_sat.png",
-  7: "red_sat.png",
-  8: "green_ac.png",
-  9: "red_ac.png",
-  10: "red_cctv.png"
-}
+    1: 'white_ac.png',
+    2: 'white_cctv.png',
+    3: 'red_alarm.png',
+    4: 'black_router.png',
+    5: 'white_sat.png',
+    6: 'green_sat.png',
+    7: 'red_sat.png',
+    8: 'green_ac.png',
+    9: 'red_ac.png',
+    10: 'red_cctv.png'
+};
 
 // use TRANSACTION_STATUS.PENDING , converts to number.
 const TRANSACTION_STATUS = {
-  PENDING: 1,
-  COMPLETED: 2
+    PENDING: 1,
+    COMPLETED: 2
 };
 
 enum MCP_CONTRACT {
@@ -238,43 +238,43 @@ enum MCP_CONTRACT_NAME{
 }
 
 const CUSTOM_BUILDING_CATEGORY = {
-  0: "Parcel",
-  1: "Downtown",
-  2: "Housing",
-  3: "Shopping",
-  4: "Retreat",
-  5: "Eco",
-  6: "Luxury",
-  7: "Midtown",
-  8: "Headquarters",
-  9: "Countryside",
-  10: "Rural",
-  100: "Main Tower"
+    0: 'Parcel',
+    1: 'Downtown',
+    2: 'Housing',
+    3: 'Shopping',
+    4: 'Retreat',
+    5: 'Eco',
+    6: 'Luxury',
+    7: 'Midtown',
+    8: 'Headquarters',
+    9: 'Countryside',
+    10: 'Rural',
+    100: 'Main Tower'
 };
 
 const EVENT_TYPE =
 {
-  0: "Unknown event",       
-  1: "Created",
-  2: "Listed On Market",
-  3: "Purchased On Market", 
-  4: "New Owner Transfer",
-  5: "Minted Units",
-  6: "Custom Built",
-}
+    0: 'Unknown event',       
+    1: 'Created',
+    2: 'Listed On Market',
+    3: 'Purchased On Market', 
+    4: 'New Owner Transfer',
+    5: 'Minted Units',
+    6: 'Custom Built',
+};
 
 
 // Blockchain
 const BLOCKCHAIN = {
-  ETHEREUM: 1,
-  TRON: 2,
-  BNB: 3,
-  POLYGON: 4
+    ETHEREUM: 1,
+    TRON: 2,
+    BNB: 3,
+    POLYGON: 4
 };
 
 const TRANSACTION_TYPE = {
-  TRANSFER: 1,
-  DEPOSIT: 2
+    TRANSFER: 1,
+    DEPOSIT: 2
 };
 
 enum HEX_NETWORK {
@@ -285,48 +285,48 @@ enum HEX_NETWORK {
   BINANCE_ID = '0x38',      // 56 decimal
   BINANCE_TESTNET_ID = '0x61',
   TRON = '',
-};
+}
 
 const NETWORKS_DESC = {
-  1: "Ethereum Main Network",
-  3: "Ropsten Test Network",
-  4: "Rinkeby Test Network",
-  5: "Goerli Test Network",
-  42: "Kovan Test Network",
-  56: "Binance Smart Chain",
-  1337: "Ganache",
+    1: 'Ethereum Main Network',
+    3: 'Ropsten Test Network',
+    4: 'Rinkeby Test Network',
+    5: 'Goerli Test Network',
+    42: 'Kovan Test Network',
+    56: 'Binance Smart Chain',
+    1337: 'Ganache',
 };
 
 enum METAMASK_ERROR_CODE {
   UNRECOGNISED_CHAIN = 4902, 
-};
+}
 
 
 
 export {
-  ALERT_ACTION,
-  ALERT_TYPE,
-  ALERT_ICON_TYPE,
-  BLOCKCHAIN,
-  BUILDING_TYPE,
-  BUILDING_SUBTYPE,
-  BUILDING,
-  CUSTOM_BUILDING_CATEGORY,
-  EVENT_TYPE,
-  HEX_NETWORK,
-  ICON_TYPE_CHANGE,
-  METAMASK_ERROR_CODE,  
-  MCP_CONTRACT,
-  MCP_CONTRACT_NAME,
-  MIN_STAMINA,
-  NETWORKS_DESC,
-  PENDING_ALERT, 
-  PRODUCT_IMG,
-  PRODUCT_NAME,
-  FACTORY_PRODUCT,
-  FACTORY_PRODUCT_IMG,
-  PRODUCT,
-  STATUS,
-  TRANSACTION_STATUS,      
-  TRANSACTION_TYPE
+    ALERT_ACTION,
+    ALERT_TYPE,
+    ALERT_ICON_TYPE,
+    BLOCKCHAIN,
+    BUILDING_TYPE,
+    BUILDING_SUBTYPE,
+    BUILDING,
+    CUSTOM_BUILDING_CATEGORY,
+    EVENT_TYPE,
+    HEX_NETWORK,
+    ICON_TYPE_CHANGE,
+    METAMASK_ERROR_CODE,  
+    MCP_CONTRACT,
+    MCP_CONTRACT_NAME,
+    MIN_STAMINA,
+    NETWORKS_DESC,
+    PENDING_ALERT, 
+    PRODUCT_IMG,
+    PRODUCT_NAME,
+    FACTORY_PRODUCT,
+    FACTORY_PRODUCT_IMG,
+    PRODUCT,
+    STATUS,
+    TRANSACTION_STATUS,      
+    TRANSACTION_TYPE
 };

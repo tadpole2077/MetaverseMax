@@ -1,11 +1,10 @@
-import { Component, Inject, ViewChild, EventEmitter, ElementRef } from '@angular/core';
+import { Component, Inject, ViewChild, ElementRef } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Router, ActivatedRoute, Params } from '@angular/router';
+import { Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { AfterViewInit } from '@angular/core';
-import { Application, WORLD } from '../common/global-var';
 
+import { Application } from '../common/global-var';
 
 interface District {
   update_instance: number;
@@ -43,65 +42,60 @@ interface District {
 
 }
 
-
 @Component({
-  selector: 'district-list-data',
-  templateUrl: './district-list.component.html',
-  styleUrls: ['./district-list.component.css']
+    selector: 'app-district-list',
+    templateUrl: './district-list.component.html',
+    styleUrls: ['./district-list.component.css']
 })
-export class DistrictListComponent implements AfterViewInit {
+export class DistrictListComponent {
 
-  httpClient: HttpClient;
-  baseUrl: string;
-  public districtList: District [] = new Array();
+    httpClient: HttpClient;
+    baseUrl: string;
+    public districtList: District [] = [];
 
-  dataSource = new MatTableDataSource(null);
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
+    dataSource = new MatTableDataSource(null);
+    @ViewChild(MatSort, { static: true }) sort: MatSort;
 
-  // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
-  displayedColumns: string[] = ['district_id', 'district_name', 'owner_name', 'land_count', 'plots_claimed', 'construction_energy_tax', 'construction_industry_production_tax', 'construction_commercial_tax', 'construction_municipal_tax', 'construction_residential_tax', 'energy_tax', 'production_tax', 'commercial_tax', 'citizen_tax'];
+    // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
+    displayedColumns: string[] = ['district_id', 'district_name', 'owner_name', 'land_count', 'plots_claimed', 'construction_energy_tax', 'construction_industry_production_tax', 'construction_commercial_tax', 'construction_municipal_tax', 'construction_residential_tax', 'energy_tax', 'production_tax', 'commercial_tax', 'citizen_tax'];
  
-  constructor(public globals: Application, public router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef)
-  {
-    this.httpClient = http; 
-    this.baseUrl = baseUrl + "api/" + globals.worldCode;
+    constructor(public globals: Application, public router: Router, http: HttpClient, @Inject('BASE_URL') baseUrl: string, private elem: ElementRef)
+    {
+        this.httpClient = http; 
+        this.baseUrl = baseUrl + 'api/' + globals.worldCode;
 
-    this.searchAllDistrict();
-  }
+        this.searchAllDistrict();
+    }
 
-  ngAfterViewInit() {
-    //this.dataSource.sort = this.sort;
-  }
+    // 
+    searchAllDistrict() {
 
-  // 
-  searchAllDistrict() {
+        let params = new HttpParams();
+        params = params.append('opened', 'true');
+        params = params.append('includeTaxHistory', 'false');
 
-    let params = new HttpParams();
-    params = params.append('opened', 'true');
-    params = params.append('includeTaxHistory', 'false');
+        this.httpClient.get<District[]>(this.baseUrl + '/district/get_all', { params: params })
+            .subscribe({
+                next: (result) => {
 
-    this.httpClient.get<District[]>(this.baseUrl + '/district/get_all', { params: params })
-      .subscribe({
-        next: (result) => {
+                    this.districtList = result;
 
-          this.districtList = result;
+                    if (this.districtList) {
+                        this.dataSource = new MatTableDataSource<District>(this.districtList);
 
-          if (this.districtList) {
-            this.dataSource = new MatTableDataSource<District>(this.districtList);
-
-            this.dataSource.sort = this.sort;
-          }
-        },
-        error: (error) => { console.error(error) }
-      });
+                        this.dataSource.sort = this.sort;
+                    }
+                },
+                error: (error) => { console.error(error); }
+            });
 
     
-    return;
-  }  
+        return;
+    }  
 
-  // Single parameter struct containing 2 members, pushed by component search-plot
-  searchDistrict(district_id: number) {
-    this.router.navigate(['/' + this.globals.worldCode + '/district-summary'], { queryParams: { district_id: district_id } });
-  }
+    // Single parameter struct containing 2 members, pushed by component search-plot
+    searchDistrict(district_id: number) {
+        this.router.navigate(['/' + this.globals.worldCode + '/district-summary'], { queryParams: { district_id: district_id } });
+    }
 
 }

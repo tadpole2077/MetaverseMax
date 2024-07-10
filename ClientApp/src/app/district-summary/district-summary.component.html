@@ -38,7 +38,7 @@
     <div class="ownerdata">
       <div>
         Owner:
-        <a class="districtOwnerLink text-dark lineAnim" [routerLink]="['/', worldCode, 'owner-data']" [queryParams]="{matic: district.owner_matic}" title="{{ district.owner_name }}"><strong>{{ district.owner_name == "" ? 'Unknown (' + district.owner_matic.substring(0,15) + '...)' : district.owner_name  }}</strong></a>
+        <a class="districtOwnerLink text-dark lineAnim" [routerLink]="['/', worldCode, 'owner-data']" [queryParams]="{matic: district.owner_matic}" title="{{ district.owner_name }}"><strong>{{ district.owner_name === "" ? 'Unknown (' + district.owner_matic.substring(0,15) + '...)' : district.owner_name  }}</strong></a>
       </div>
       <div *ngIf="district.owner_matic">
         District Owner Key:
@@ -177,7 +177,7 @@
         <mat-panel-description>
         </mat-panel-description>
       </mat-expansion-panel-header>
-      <div class="districtPlotSection" *ngIf="district.owner_matic !=''">
+      <div class="districtPlotSection" *ngIf="district.owner_matic !==''">
         <div class="districtInfoBlock">
           <div>
             <span class="plotCountFieldA">Total: <strong>{{ district.land_count }}</strong></span>
@@ -243,8 +243,8 @@
         <img *ngIf="ownerSummary.owner_avatar_id==0" src="./images/MysteryOwner.png" class="mysteryImg" height="50" />
 
         <a class="lineAnim" [routerLink]="['/', worldCode, 'owner-data']" [queryParams]="{matic: ownerSummary.owner_matic}" title="{{ ownerSummary.owner_name }}">
-          <span *ngIf="ownerSummary.owner_name!=''">{{ ownerSummary.owner_name }}</span>
-          <span class="maticLink" *ngIf="ownerSummary.owner_name==''">{{ ownerSummary.owner_matic.substring(0,14) }}</span>
+          <span *ngIf="ownerSummary.owner_name!==''">{{ ownerSummary.owner_name }}</span>
+          <span class="maticLink" *ngIf="ownerSummary.owner_name===''">{{ ownerSummary.owner_matic.substring(0,14) }}</span>
         </a>
       </td>
     </ng-container>

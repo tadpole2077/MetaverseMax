@@ -11,26 +11,26 @@ import { CUSTOM_BUILDING_CATEGORY, EVENT_TYPE } from '../common/enum';
 
 
 @Component({
-  selector: 'app-custom-building-table',
-  templateUrl: './custom-building-table.component.html',
-  styleUrls: ['./custom-building-table.component.css']
+    selector: 'app-custom-building-table',
+    templateUrl: './custom-building-table.component.html',
+    styleUrls: ['./custom-building-table.component.css']
 })
 
 
 export class CustomBuildingTableComponent {
 
-  hidePaginator: boolean = true;
-  private tableView: Parcel[] = null;
-  httpClient: HttpClient;
-  baseUrl: string;
-  worldParcel: ParcelCollection; 
-  activeTextFilter: string = "";
-  isMobileView: boolean = false;
-  showCustom: boolean = true;
-  buildingCount: number = 0;
-  parcelCount: number = 0;
+    hidePaginator = true;
+    private tableView: Parcel[] = null;
+    httpClient: HttpClient;
+    baseUrl: string;
+    worldParcel: ParcelCollection; 
+    activeTextFilter = '';
+    isMobileView = false;
+    showCustom = true;
+    buildingCount = 0;
+    parcelCount = 0;
 
-  dataSource = new MatTableDataSource(null);
+    dataSource = new MatTableDataSource(null);
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
   // Must match fieldname of source type for sorting to work, plus match the column matColumnDef
@@ -43,15 +43,15 @@ export class CustomBuildingTableComponent {
 
   constructor(public globals: Application, public router: Router, http: HttpClient, @Inject('BASE_URL') public rootBaseUrl: string) {
 
-    this.httpClient = http;
-    this.baseUrl = rootBaseUrl + "api/" + globals.worldCode;
+      this.httpClient = http;
+      this.baseUrl = rootBaseUrl + 'api/' + globals.worldCode;
 
-    if (this.width < 768) {
-      this.isMobileView = true;
-      this.displayedColumns = this.displayedColumnsMobile;
-    }    
+      if (this.width < 768) {
+          this.isMobileView = true;
+          this.displayedColumns = this.displayedColumnsMobile;
+      }    
 
-    this.searchAllParcels();
+      this.searchAllParcels();
   }
 
   ngOnInit() {
@@ -61,153 +61,153 @@ export class CustomBuildingTableComponent {
   }
 
   public get width() {
-    return window.innerWidth;
+      return window.innerWidth;
   }
 
   searchAllParcels() {
 
-    let params = new HttpParams();
-    //params = params.append('opened', 'true');
+      const params = new HttpParams();
+      //params = params.append('opened', 'true');
 
-    this.httpClient.get<ParcelCollection>(this.baseUrl + '/plot/get_worldparcel', { params: params })
-      .subscribe({
-        next: (result) => {
+      this.httpClient.get<ParcelCollection>(this.baseUrl + '/plot/get_worldparcel', { params: params })
+          .subscribe({
+              next: (result) => {
           
-          this.worldParcel = result;
+                  this.worldParcel = result;
 
-          if (this.worldParcel.parcel_list) {
+                  if (this.worldParcel.parcel_list) {
 
-            let change = new MatCheckboxChange();
-            change.checked = true;
-            if (this.worldParcel.building_count > 0 || this.worldParcel.parcel_count == 0) {
-              this.buildingFilterChange.emit(true);             
-              this.filterBuilding(change);              
-            }
-            else {
-              this.parcelFilterChange.emit(true);
-              this.filterParcel(change);
-            }
+                      const change = new MatCheckboxChange();
+                      change.checked = true;
+                      if (this.worldParcel.building_count > 0 || this.worldParcel.parcel_count == 0) {
+                          this.buildingFilterChange.emit(true);             
+                          this.filterBuilding(change);              
+                      }
+                      else {
+                          this.parcelFilterChange.emit(true);
+                          this.filterParcel(change);
+                      }
 
-            this.buildingCount = this.worldParcel.building_count;
-            this.parcelCount = this.worldParcel.parcel_count;
+                      this.buildingCount = this.worldParcel.building_count;
+                      this.parcelCount = this.worldParcel.parcel_count;
 
-            //this.dataSource = new MatTableDataSource<Parcel>(this.worldParcel.parcel_list);
-            //this.dataSource.sort = this.sort;
-          }
-        },
-        error: (error) => { console.error(error) }
-      });
+                      //this.dataSource = new MatTableDataSource<Parcel>(this.worldParcel.parcel_list);
+                      //this.dataSource.sort = this.sort;
+                  }
+              },
+              error: (error) => { console.error(error); }
+          });
 
 
-    return;
+      return;
   }
 
   public applyFilter = (value: string) => {
 
-    this.activeTextFilter = value.trim().toLocaleLowerCase();
-    this.dataSource.filter = value.trim().toLocaleLowerCase();
+      this.activeTextFilter = value.trim().toLocaleLowerCase();
+      this.dataSource.filter = value.trim().toLocaleLowerCase();
 
-  }
+  };
 
 
   filterBuilding(eventCheckbox: MatCheckboxChange) {
 
-    if (!this.worldParcel) {
-      return;
-    }
-
-    var buildings: Parcel[] = new Array;
-    if (!this.isMobileView) {
-      this.displayedColumns = ['district_id', 'building_name', 'owner_name', 'plot_count', 'building_category_id', 'unit_forsale_count', 'last_actionUx', 'pos_x', 'pos_y'];
-    }
-
-    // Use current building view with any applied filters
-    if (this.tableView == null) {
-      this.tableView = this.worldParcel.parcel_list;
-    }
-
-    if (eventCheckbox.checked) {
-      this.parcelFilterChange.emit(false);
-
-      for (var index = 0; index < this.worldParcel.parcel_list.length; index++) {
-        if (this.worldParcel.parcel_list[index].building_category_id > 0) {
-          buildings.push(this.worldParcel.parcel_list[index]);
-        }
+      if (!this.worldParcel) {
+          return;
       }
 
-      this.dataSource = new MatTableDataSource<Parcel>(buildings);
-      this.dataSource.sort = this.sort;
-      this.dataSource.filter = this.activeTextFilter;
-    }
-    else {
-      this.dataSource = new MatTableDataSource<Parcel>(this.tableView);
-      this.dataSource.sort = this.sort;
-      this.dataSource.filter = this.activeTextFilter;
-    }
+      const buildings: Parcel[] = [];
+      if (!this.isMobileView) {
+          this.displayedColumns = ['district_id', 'building_name', 'owner_name', 'plot_count', 'building_category_id', 'unit_forsale_count', 'last_actionUx', 'pos_x', 'pos_y'];
+      }
 
-    this.hidePaginator = buildings.length == 0 || buildings.length < 1000 ? true : false;
-    this.applyFilterPredicate();
+      // Use current building view with any applied filters
+      if (this.tableView == null) {
+          this.tableView = this.worldParcel.parcel_list;
+      }
 
-    return;
+      if (eventCheckbox.checked) {
+          this.parcelFilterChange.emit(false);
+
+          for (let index = 0; index < this.worldParcel.parcel_list.length; index++) {
+              if (this.worldParcel.parcel_list[index].building_category_id > 0) {
+                  buildings.push(this.worldParcel.parcel_list[index]);
+              }
+          }
+
+          this.dataSource = new MatTableDataSource<Parcel>(buildings);
+          this.dataSource.sort = this.sort;
+          this.dataSource.filter = this.activeTextFilter;
+      }
+      else {
+          this.dataSource = new MatTableDataSource<Parcel>(this.tableView);
+          this.dataSource.sort = this.sort;
+          this.dataSource.filter = this.activeTextFilter;
+      }
+
+      this.hidePaginator = buildings.length == 0 || buildings.length < 1000 ? true : false;
+      this.applyFilterPredicate();
+
+      return;
   }
 
   filterParcel(eventCheckbox: MatCheckboxChange) {
 
-    if (this.worldParcel == null) {
-      return;
-    }
-    var buildings: Parcel[] = new Array;
-    if (!this.isMobileView) {
-      this.displayedColumns = ['district_id', 'building_name', 'owner_name', 'plot_count', 'building_category_id', 'last_actionUx', 'pos_x', 'pos_y'];
-    }
-
-    // Use current building view with any applied filters
-    if (this.tableView == null) {
-      this.tableView = this.worldParcel.parcel_list;
-    }
-
-    if (eventCheckbox.checked) {
-      this.buildingFilterChange.emit(false);
-
-      for (var index = 0; index < this.worldParcel.parcel_list.length; index++) {
-        if (this.worldParcel.parcel_list[index].building_category_id == 0) {
-          buildings.push(this.worldParcel.parcel_list[index]);
-        }
+      if (this.worldParcel == null) {
+          return;
+      }
+      const buildings: Parcel[] = [];
+      if (!this.isMobileView) {
+          this.displayedColumns = ['district_id', 'building_name', 'owner_name', 'plot_count', 'building_category_id', 'last_actionUx', 'pos_x', 'pos_y'];
       }
 
-      this.dataSource = new MatTableDataSource<Parcel>(buildings);
-      this.dataSource.sort = this.sort;
-      this.dataSource.filter = this.activeTextFilter;
-    }
-    else {
-      this.dataSource = new MatTableDataSource<Parcel>(this.tableView);
-      this.dataSource.sort = this.sort;
-      this.dataSource.filter = this.activeTextFilter;
-    }
+      // Use current building view with any applied filters
+      if (this.tableView == null) {
+          this.tableView = this.worldParcel.parcel_list;
+      }
 
-    this.hidePaginator = buildings.length == 0 || buildings.length < 1000 ? true : false;
-    this.applyFilterPredicate();
+      if (eventCheckbox.checked) {
+          this.buildingFilterChange.emit(false);
 
-    return;
+          for (let index = 0; index < this.worldParcel.parcel_list.length; index++) {
+              if (this.worldParcel.parcel_list[index].building_category_id == 0) {
+                  buildings.push(this.worldParcel.parcel_list[index]);
+              }
+          }
+
+          this.dataSource = new MatTableDataSource<Parcel>(buildings);
+          this.dataSource.sort = this.sort;
+          this.dataSource.filter = this.activeTextFilter;
+      }
+      else {
+          this.dataSource = new MatTableDataSource<Parcel>(this.tableView);
+          this.dataSource.sort = this.sort;
+          this.dataSource.filter = this.activeTextFilter;
+      }
+
+      this.hidePaginator = buildings.length == 0 || buildings.length < 1000 ? true : false;
+      this.applyFilterPredicate();
+
+      return;
   }
 
   applyFilterPredicate() {
-    this.dataSource.filterPredicate = function (data: Parcel, filter: string): boolean {
-      return data.building_name.toLowerCase().includes(filter)
+      this.dataSource.filterPredicate = function (data: Parcel, filter: string): boolean {
+          return data.building_name.toLowerCase().includes(filter)
         || data.owner_name.toLowerCase().includes(filter)
         || data.owner_matic.toString().includes(filter)
         || data.district_id.toString().includes(filter)
         || data.forsale_price.toString().includes(filter)
         || data.pos_x.toString().includes(filter)
         || data.pos_y.toString().includes(filter);
-    };
+      };
   }
 
   getCustomCategoryName(categoryId: number) {
-    return CUSTOM_BUILDING_CATEGORY[categoryId];
+      return CUSTOM_BUILDING_CATEGORY[categoryId];
   }
   getLastActionType(lastActionType: number) {
-    return EVENT_TYPE[lastActionType];
+      return EVENT_TYPE[lastActionType];
   }
 
 }

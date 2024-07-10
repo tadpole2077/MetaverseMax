@@ -21,5 +21,5 @@ interface GraphSeries {
 }
 
 export {
-  GraphData
-}
+    GraphData
+};

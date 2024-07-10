@@ -12,6 +12,6 @@ export function maxBalanceValidator(): ValidatorFn {
         }
 
 
-      return value < 100 ? { lessMaxBalance: true } : null ;
-    }
+        return value < 100 ? { lessMaxBalance: true } : null ;
+    };
 }

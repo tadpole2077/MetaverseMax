@@ -5,133 +5,133 @@ import { By } from '@angular/platform-browser';
 import { NumberDecimalDirective } from './number-decimal-only.directive';
 
 @Component({
-  standalone: true,
-  template: ` <h2>Number Decimal Only</h2>
+    standalone: true,
+    template: ` <h2>Number Decimal Only</h2>
               <input #numberTest [numbersDecimalOnly] type='text' value='1.1' />`,
-  imports: [NumberDecimalDirective],
+    imports: [NumberDecimalDirective],
 })
 class TestNumberDecimalComponent {}
 
 describe('NumberDecimalDirective', () => {
-  let component: TestNumberDecimalComponent;
-  let fixture: ComponentFixture<TestNumberDecimalComponent>;
-  let des: DebugElement[]; // only one element w/ the directive
+    let component: TestNumberDecimalComponent;
+    let fixture: ComponentFixture<TestNumberDecimalComponent>;
+    let des: DebugElement[]; // only one element w/ the directive
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(TestNumberDecimalComponent);
-    //fixture = TestBed.configureTestingModule({
-    //  imports: [NumberDecimalDirective, TestNumberDecimalComponent],
-    //}).createComponent(TestNumberDecimalComponent);
-    component = fixture.componentInstance;
+    beforeEach(() => {
+        fixture = TestBed.createComponent(TestNumberDecimalComponent);
+        //fixture = TestBed.configureTestingModule({
+        //  imports: [NumberDecimalDirective, TestNumberDecimalComponent],
+        //}).createComponent(TestNumberDecimalComponent);
+        component = fixture.componentInstance;
 
-    fixture.detectChanges(); // initial binding
+        fixture.detectChanges(); // initial binding
 
-    // all elements with an attached NumberDecimalDirective
-    des = fixture.debugElement.queryAll(By.directive(NumberDecimalDirective));
-    //des = fixture.nativeElement.querySelector('input');
+        // all elements with an attached NumberDecimalDirective
+        des = fixture.debugElement.queryAll(By.directive(NumberDecimalDirective));
+        //des = fixture.nativeElement.querySelector('input');
 
 
     // the h2 without the HighlightDirective
     //bareH2 = fixture.debugElement.query(By.css('h2:not([highlight])'));
-  });
+    });
 
-  it('should have value 1.1', () => {
+    it('should have value 1.1', () => {
     // easier to work with nativeElement
-    const input = des[0].nativeElement as HTMLInputElement;
-    expect(input.value).toBe('1.1');
-  });
+        const input = des[0].nativeElement as HTMLInputElement;
+        expect(input.value).toBe('1.1');
+    });
 
-  it('change imput value to 1.1a, should have 1.1', () => {
+    it('change imput value to 1.1a, should have 1.1', () => {
     // easier to work with nativeElement
-    const input = des[0].nativeElement as HTMLInputElement;
+        const input = des[0].nativeElement as HTMLInputElement;
 
-    input.value = '1.1a';
+        input.value = '1.1a';
 
-    // Dispatch a DOM event so that Angular responds to the input value change.
-    input.dispatchEvent(new Event('input'));
+        // Dispatch a DOM event so that Angular responds to the input value change.
+        input.dispatchEvent(new Event('input'));
 
-    expect(input.value).toBe('1.1');
-  });
+        expect(input.value).toBe('1.1');
+    });
 
-  it('change imput value to a1a.a1a, should have 1.1', () => {
+    it('change imput value to a1a.a1a, should have 1.1', () => {
     // easier to work with nativeElement
-    const input = des[0].nativeElement as HTMLInputElement;
+        const input = des[0].nativeElement as HTMLInputElement;
 
-    input.value = 'a1a.a1a';
+        input.value = 'a1a.a1a';
 
-    // Dispatch a DOM event so that Angular responds to the input value change.
-    input.dispatchEvent(new Event('input'));
+        // Dispatch a DOM event so that Angular responds to the input value change.
+        input.dispatchEvent(new Event('input'));
 
-    expect(input.value).toBe('1.1');
-  });
+        expect(input.value).toBe('1.1');
+    });
 
-  it('change imput value to aaa.a1a0, should have 0.1', () => {
+    it('change imput value to aaa.a1a0, should have 0.1', () => {
 
-    const input = des[0].nativeElement as HTMLInputElement;
+        const input = des[0].nativeElement as HTMLInputElement;
 
-    input.value = 'aaa.a1a0';
+        input.value = 'aaa.a1a0';
 
-    // Dispatch a DOM event so that Angular responds to the input value change.
-    input.dispatchEvent(new Event('input'));
+        // Dispatch a DOM event so that Angular responds to the input value change.
+        input.dispatchEvent(new Event('input'));
 
-    expect(input.value).toBe('.10');
-  });
+        expect(input.value).toBe('.10');
+    });
 
-  it('change imput value to aaa.a1a.20, should have 0.12', () => {
+    it('change imput value to aaa.a1a.20, should have 0.12', () => {
 
-    const input = des[0].nativeElement as HTMLInputElement;
+        const input = des[0].nativeElement as HTMLInputElement;
 
-    input.value = 'aaa.a1a.20';
+        input.value = 'aaa.a1a.20';
 
-    // Dispatch a DOM event so that Angular responds to the input value change.
-    input.dispatchEvent(new Event('input'));
+        // Dispatch a DOM event so that Angular responds to the input value change.
+        input.dispatchEvent(new Event('input'));
 
-    expect(input.value).toBe('NaN');
-  });
+        expect(input.value).toBe('NaN');
+    });
 
-  it('Enforce 4 decimal places, change input value to 1.202234, should have 1.2022', () => {
+    it('Enforce 4 decimal places, change input value to 1.202234, should have 1.2022', () => {
     // easier to work with nativeElement
-    const input = des[0].nativeElement as HTMLInputElement;
+        const input = des[0].nativeElement as HTMLInputElement;
 
-    input.value = '1.202234';
+        input.value = '1.202234';
 
-    // Dispatch a DOM event so that Angular responds to the input value change.
-    input.dispatchEvent(new Event('input'));
+        // Dispatch a DOM event so that Angular responds to the input value change.
+        input.dispatchEvent(new Event('input'));
 
-    expect(input.value).toBe('1.2022');
-  });
+        expect(input.value).toBe('1.2022');
+    });
 
-  it('fraction only, change input value to 0.002, should have 0.002', () => {
+    it('fraction only, change input value to 0.002, should have 0.002', () => {
 
-    const input = des[0].nativeElement as HTMLInputElement;
+        const input = des[0].nativeElement as HTMLInputElement;
 
-    input.value = '0.002';
+        input.value = '0.002';
 
-    // Dispatch a DOM event so that Angular responds to the input value change.
-    input.dispatchEvent(new Event('input'));
+        // Dispatch a DOM event so that Angular responds to the input value change.
+        input.dispatchEvent(new Event('input'));
 
-    expect(input.value).toBe('0.002');
-  });
+        expect(input.value).toBe('0.002');
+    });
 
-  // Interesting test case of checking for preventDefault triggered by keypress of period char.
-  it('keydown should preventDefault when char(.) is pressed and input already contains a char(.)', () => {
+    // Interesting test case of checking for preventDefault triggered by keypress of period char.
+    it('keydown should preventDefault when char(.) is pressed and input already contains a char(.)', () => {
 
-    const input = des[0].nativeElement as HTMLInputElement;
-    input.value = '1.2';
+        const input = des[0].nativeElement as HTMLInputElement;
+        input.value = '1.2';
 
-    // Create period keypress test event
-    const event = new KeyboardEvent('keydown', { bubbles: true, key: "." });
+        // Create period keypress test event
+        const event = new KeyboardEvent('keydown', { bubbles: true, key: '.' });
 
-    // Use spyOn to check if preventDefault was triggered.
-    const preventDefaultSpy = spyOn(event, 'preventDefault').and.stub();
-    input.dispatchEvent(event);
+        // Use spyOn to check if preventDefault was triggered.
+        const preventDefaultSpy = spyOn(event, 'preventDefault').and.stub();
+        input.dispatchEvent(event);
 
-    expect(preventDefaultSpy).toHaveBeenCalled();
-  });
+        expect(preventDefaultSpy).toHaveBeenCalled();
+    });
 });
 
 
-  /*
+/*
   // color tests
   it('should have three highlighted elements', () => {
     expect(des.length).toBe(3);

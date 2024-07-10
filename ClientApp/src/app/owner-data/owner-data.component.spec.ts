@@ -8,39 +8,39 @@ import { Application } from '../common/global-var';
 import { OwnerDataComponent } from './owner-data.component';
 
 describe('OwnerDataComponent', () => {
-  let component: OwnerDataComponent;
-  let fixture: ComponentFixture<OwnerDataComponent>;
+    let component: OwnerDataComponent;
+    let fixture: ComponentFixture<OwnerDataComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ OwnerDataComponent ]
-    })
-    .compileComponents();
-  });
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+            declarations: [ OwnerDataComponent ]
+        })
+            .compileComponents();
+    });
 
-  beforeEach(() => {
+    beforeEach(() => {
 
-    fixture = TestBed
-      .configureTestingModule({
-        imports: [MatBottomSheetModule, //RouterModule,
-          //{
-       //     import: ActivatedRoute, useClass: new ActivatedRoute()
-       //   }
-        ],
-        providers: [Application, HttpClient, HttpHandler//,
-          //{
-          //    provide: ActivatedRoute, useClass: null
-          //}
-        ],
-        declarations: []
-      })
-      .createComponent(OwnerDataComponent);
+        fixture = TestBed
+            .configureTestingModule({
+                imports: [MatBottomSheetModule, //RouterModule,
+                    //{
+                    //     import: ActivatedRoute, useClass: new ActivatedRoute()
+                    //   }
+                ],
+                providers: [Application, HttpClient, HttpHandler//,
+                    //{
+                    //    provide: ActivatedRoute, useClass: null
+                    //}
+                ],
+                declarations: []
+            })
+            .createComponent(OwnerDataComponent);
 
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });

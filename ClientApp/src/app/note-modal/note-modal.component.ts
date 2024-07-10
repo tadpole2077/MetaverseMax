@@ -5,9 +5,9 @@ import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browse
 
 //@Pipe({ name: 'safeHtml' })
 @Component({
-  selector: 'app-note-modal',
-  templateUrl: './note-modal.component.html',
-  styleUrls: ['./note-modal.component.css']
+    selector: 'app-note-modal',
+    templateUrl: './note-modal.component.html',
+    styleUrls: ['./note-modal.component.css']
 })
 //export class NoteModalComponent implements PipeTransform, AfterViewInit {
 export class NoteModalComponent implements PipeTransform, AfterViewInit {
@@ -29,18 +29,18 @@ export class NoteModalComponent implements PipeTransform, AfterViewInit {
 
   public adShow(passedText: string, startDate: string, endDate: string) {
 
-    this.displayDateTitle = startDate.substring(0, 11) + (endDate == "" ? "" : " - " + endDate.substring(0,11));
-    this.displayTextSafe = this.displayDateTitle + "<br\>" + passedText;
+      this.displayDateTitle = startDate.substring(0, 11) + (endDate == '' ? '' : ' - ' + endDate.substring(0,11));
+      this.displayTextSafe = this.displayDateTitle + '<br\>' + passedText;
 
-    return;
+      return;
   }
 
   transform(value) {
-    //return this.sanitized.bypassSecurityTrustHtml(value);
+      //return this.sanitized.bypassSecurityTrustHtml(value);
   }
 
   setHide() {
-    this.hideAdEvent.emit(true);
+      this.hideAdEvent.emit(true);
   }
 
 }

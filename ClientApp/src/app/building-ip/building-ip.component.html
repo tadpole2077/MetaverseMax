@@ -339,7 +339,7 @@
         <span matBadge="B" matBadgePosition="above before" matBadgeSize="small" class="long-text">IP Efficiency %</span>
         <span matBadge="B" matBadgePosition="above before" matBadgeSize="small" class="short-text">IP Eff%</span>
       </th>
-      <td mat-cell *matCellDef="let row" [style.height]="row.warn != '' ? '5.1rem' :'0'">
+      <td mat-cell *matCellDef="let row" [style.height]="row.warn !== '' ? '5.1rem' :'0'">
         <span class="rankEff">{{row.rank}}%</span>
 
         <a class="magnifyHistoryPosition" *ngIf="buildingType>=3 && buildingType<=7" role="button" (click)="showHistory(row.id, row.pos_x, row.pos_y, buildingType, row.rank)">
@@ -350,7 +350,7 @@
           <i *ngIf="showIPAlert" [ngClass]="{'far':row.al==0, 'fas': row.al==1}" class="fa-bell ipAlert"><span [ngClass]="{'shake1': row.al==1}"></span><span [ngClass]="{'shake2': row.al==1}"></span></i>
         </a>
 
-        <div class="rowWarning" *ngIf="row.warn != ''">
+        <div class="rowWarning" *ngIf="row.warn !== ''">
           <mat-icon>warning</mat-icon>
           <span>{{row.warn}}</span>
         </div>
@@ -401,8 +401,8 @@
         <img *ngIf="row.nid ==0" src="./images/MysteryOwner.png" class="ownerImgCol mysteryImg" height="50" style="margin-top:2px" />
 
         <a class="lineAnim" [routerLink]="['/', globals.worldCode, 'owner-data']" [queryParams]="{matic: row.name_m}" title="{{ row.name }}">
-          <span *ngIf="row.name !=''">{{ row.name }}</span>
-          <span class="maticLink" *ngIf="row.name==''">{{ row.name_m.substring(0,14) }}</span>
+          <span *ngIf="row.name !==''">{{ row.name }}</span>
+          <span class="maticLink" *ngIf="row.name===''">{{ row.name_m.substring(0,14) }}</span>
         </a>
       </td>
     </ng-container>

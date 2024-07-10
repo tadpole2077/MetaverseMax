@@ -46,6 +46,7 @@
   <ItemGroup>
     <None Remove="ClientApp\src\app\alert-bottom\alert-bottom.component.ts" />
     <None Remove="ClientApp\src\app\alert-menu\alert-menu.component.ts" />
+    <None Remove="ClientApp\src\app\app.component.spec.ts" />
     <None Remove="ClientApp\src\app\balance-log\balance-log.component.ts" />
     <None Remove="ClientApp\src\app\balance-manage-dialog\balance-manage-dialog.component.ts" />
     <None Remove="ClientApp\src\app\balance\balance.component.ts" />
@@ -77,6 +78,7 @@
     <None Remove="ClientApp\src\app\graph-damage\graph-damage.component.ts" />
     <None Remove="ClientApp\src\app\graph-fund\data-fund-test.ts" />
     <None Remove="ClientApp\src\app\mission-desk\mission-desk.component.ts" />
+    <None Remove="ClientApp\src\app\mocks\mock-owner-data.ts" />
     <None Remove="ClientApp\src\app\numberonly.directive.ts" />
     <None Remove="ClientApp\src\app\owner-data\owner-data-filter.service.spec.ts" />
     <None Remove="ClientApp\src\app\owner-data\owner-data-filter.service.ts" />
@@ -85,12 +87,14 @@
     <None Remove="ClientApp\src\app\graph-tax\data-produce.ts" />
     <None Remove="ClientApp\src\app\owner-data\owner-data.component.spec.ts" />
     <None Remove="ClientApp\src\app\pack-modal\pack-modal.component.ts" />
-    <None Remove="ClientApp\src\app\pipe\public-hash-pipe.ts" />
+    <None Remove="ClientApp\src\app\pipe\public-hash.pipe.spec.ts" />
+    <None Remove="ClientApp\src\app\pipe\public-hash.pipe.ts" />
     <None Remove="ClientApp\src\app\player-menu\player-menu.component.ts" />
     <None Remove="ClientApp\src\app\tab-container-lazy\tab-container-lazy.component.ts" />
     <None Remove="ClientApp\src\app\transfer-asset\transfer-asset.component.ts" />
     <None Remove="ClientApp\src\app\validator\max-balance.validator.ts" />
     <None Remove="ClientApp\src\app\world\world.component.ts" />
+    <None Remove="ClientApp\src\testing\wrapper-testbed.ts" />
     <None Remove="ClientApp\tsconfig.json" />
   </ItemGroup>
   <ItemGroup>

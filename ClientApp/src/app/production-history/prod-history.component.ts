@@ -35,26 +35,26 @@ interface BuildingHistory {
 }
 
 @Component({
-  selector: 'app-prod-history',
-  templateUrl: './prod-history.component.html',
-  styleUrls: ['./prod-history.component.css'],
-  animations: [
-    trigger('detailExpand', [
-      state('collapsed', style({ height: '0px', minHeight: '0' })),
-      state('expanded', style({ height: '*' })),
-      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
-    ]),
-    trigger('predictionDetailExpand', [
-      state('collapsed', style({ height: '0px', minHeight: '0', margin:'0' })),
-      state('expanded', style({ height: '*', visibility:'visible' })),
-      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
-    ]),
-    trigger('predictionDetailBonusExpand', [
-      state('collapsed', style({ height: '0px', minHeight: '0' })),
-      state('expanded', style({ height: '*', visibility: 'visible' })),
-      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
-    ]),    
-  ],
+    selector: 'app-prod-history',
+    templateUrl: './prod-history.component.html',
+    styleUrls: ['./prod-history.component.css'],
+    animations: [
+        trigger('detailExpand', [
+            state('collapsed', style({ height: '0px', minHeight: '0' })),
+            state('expanded', style({ height: '*' })),
+            transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+        ]),
+        trigger('predictionDetailExpand', [
+            state('collapsed', style({ height: '0px', minHeight: '0', margin:'0' })),
+            state('expanded', style({ height: '*', visibility:'visible' })),
+            transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+        ]),
+        trigger('predictionDetailBonusExpand', [
+            state('collapsed', style({ height: '0px', minHeight: '0' })),
+            state('expanded', style({ height: '*', visibility: 'visible' })),
+            transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+        ]),    
+    ],
 })
 export class ProdHistoryComponent implements AfterViewInit {
 
@@ -64,20 +64,20 @@ export class ProdHistoryComponent implements AfterViewInit {
   public hidePaginator: boolean;
   public plot: { x: number, y: number };
   public historyBuildingType: number;
-  public isMobileView: boolean = false;
+  public isMobileView = false;
   public expandedHistory: Detail;
-  public showCalcDetail: boolean = false;
-  public showCalcDetailBonus: boolean = false;
-  public ipEfficiency: number = -1;
+  public showCalcDetail = false;
+  public showCalcDetailBonus = false;
+  public ipEfficiency = -1;
   public notifySubscription: Subscription = null;
-  public forceClose: boolean = false;
-  citizensOnlyView: boolean = false;
+  public forceClose = false;
+  citizensOnlyView = false;
 
-  refresh_state: string = "Refresh Prediction";
-  processingActive: boolean = false;
-  showFan: boolean = false;
-  refreshActive: boolean = true;
-  refreshVisible: boolean = false;
+  refresh_state = 'Refresh Prediction';
+  processingActive = false;
+  showFan = false;
+  refreshActive = true;
+  refreshVisible = false;
 
   assetId: number;
   httpClient: HttpClient;
@@ -102,233 +102,233 @@ export class ProdHistoryComponent implements AfterViewInit {
 
   constructor(public globals: Application, public _elementRef: ElementRef, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {//, cdr: ChangeDetectorRef) {
 
-    this.httpClient = http;
-    this.baseUrl = baseUrl + "api/" + globals.worldCode;
+      this.httpClient = http;
+      this.baseUrl = baseUrl + 'api/' + globals.worldCode;
 
-    this.history = null;
-    this.plot = { x: 0, y: 0 };
-    this.historyBuildingType = 99;
+      this.history = null;
+      this.plot = { x: 0, y: 0 };
+      this.historyBuildingType = 99;
 
-    // Mobile View - remove secondary columns
-    if (this.width < 768) {
-      this.isMobileView = true;
-      this.displayedColumns = this.columnsStandardMobile;
-    }    
+      // Mobile View - remove secondary columns
+      if (this.width < 768) {
+          this.isMobileView = true;
+          this.displayedColumns = this.columnsStandardMobile;
+      }    
   }
 
   // Paginator wont render until loaded in call to ngAfterViewInit, as its a  @ViewChild decalare
   // AfterViewInit called after the View has been rendered, hook to this method via the implements class hook
   ngAfterViewInit() {
 
-    //this.cdr.detectChanges();
-    //this.dataSourceHistory = new MatTableDataSource<Detail>(HISTORY_ASSETS);
-    //this.dataSourceHistory.paginator = this.paginator;
+      //this.cdr.detectChanges();
+      //this.dataSourceHistory = new MatTableDataSource<Detail>(HISTORY_ASSETS);
+      //this.dataSourceHistory.paginator = this.paginator;
   }
 
   // Triggered on each contentcheck event.
   ngAfterViewChecked() {
-    // Show/Hide the prediction link depending on Account Privilege
-    // if (this.predictControl) {
-    //  if (this.globals.ownerAccount.pro_tools_enabled) {
-    //    this.predictControl.nativeElement.classList.remove("hideLink");
-    //  }
-    //  else {
-    //    this.predictControl.nativeElement.classList.add("hideLink");
-    //  }
-    //}
+      // Show/Hide the prediction link depending on Account Privilege
+      // if (this.predictControl) {
+      //  if (this.globals.ownerAccount.pro_tools_enabled) {
+      //    this.predictControl.nativeElement.classList.remove("hideLink");
+      //  }
+      //  else {
+      //    this.predictControl.nativeElement.classList.add("hideLink");
+      //  }
+      //}
 
-    //this.checkRefresh();
+      //this.checkRefresh();
   }
 
   ngOnDestroy() {
-    //Prevent multi subscriptions relating to router change events
-    if (this.notifySubscription) {
-      this.notifySubscription.unsubscribe();
-    }
+      //Prevent multi subscriptions relating to router change events
+      if (this.notifySubscription) {
+          this.notifySubscription.unsubscribe();
+      }
   }
 
   public get width() {
-    return window.innerWidth;
+      return window.innerWidth;
   }
 
   public searchHistory(asset_id: number, pos_x: number, pos_y: number, building_type: number, refresh: boolean) {
 
-    if (this.history && refresh == true) {
+      if (this.history && refresh == true) {
       // Prevent repeat processing while current refresh search active
-      if (this.refreshActive == false) {
-        return;
+          if (this.refreshActive == false) {
+              return;
+          }
+
+          this.history.slowdown = 120;   // apply hard 2 minute slowdown on click.
+          this.checkRefresh();
       }
 
-      this.history.slowdown = 120;   // apply hard 2 minute slowdown on click.
-      this.checkRefresh();
-    }
 
+      this.showCalcDetail = refresh;  // Reset on each search
+      this.history = null;
+      let params = new HttpParams();
+      this.plot = {
+          x: pos_x,
+          y: pos_y
+      };
 
-    this.showCalcDetail = refresh;  // Reset on each search
-    this.history = null;
-    let params = new HttpParams();
-    this.plot = {
-      x: pos_x,
-      y: pos_y
-    };
+      this.assetId = asset_id;
+      this.historyBuildingType = building_type;
 
-    this.assetId = asset_id;
-    this.historyBuildingType = building_type;
+      this.citizensOnlyView = building_type == BUILDING.OFFICE || building_type == BUILDING.COMMERCIAL ? true : false;
+      this.ipEfficiency = 0;
 
-    this.citizensOnlyView = building_type == BUILDING.OFFICE || building_type == BUILDING.COMMERCIAL ? true : false;
-    this.ipEfficiency = 0;
+      params = params.append('token_id', asset_id.toString());
+      params = params.append('full_refresh', refresh ? '1' : '0');
+      params = params.append('requester', this.globals.ownerAccount.matic_key);
 
-    params = params.append('token_id', asset_id.toString());
-    params = params.append('full_refresh', refresh ? "1" : "0");
-    params = params.append('requester', this.globals.ownerAccount.matic_key);
+      //this.graphDamage.loadGraph(null);
 
-    //this.graphDamage.loadGraph(null);
-
-    this.httpClient.get<BuildingHistory>(this.baseUrl + '/assethistory', { params: params })
-      .subscribe({
-        next: (result) => {
+      this.httpClient.get<BuildingHistory>(this.baseUrl + '/assethistory', { params: params })
+          .subscribe({
+              next: (result) => {
           
-          // Only show the refresh link after first load of table, and Pro Tools enabled.
-          if (this.globals.ownerAccount.pro_tools_enabled) {
-            this.refreshVisible = true;
-          }
-          else {            
-            this.refreshVisible = false;
-          }     
+                  // Only show the refresh link after first load of table, and Pro Tools enabled.
+                  if (this.globals.ownerAccount.pro_tools_enabled) {
+                      this.refreshVisible = true;
+                  }
+                  else {            
+                      this.refreshVisible = false;
+                  }     
 
-          this.history = result;        
+                  this.history = result;        
         
-          if (this.history.detail != null) {
+                  if (this.history.detail != null) {
 
-            //OFFICE
-            if (this.citizensOnlyView ) {
-              this.displayedColumns = this.columnsOffice;
-            }
-            //FACTORY
-            else if (this.history.current_building_id == 10) {
-              this.displayedColumns = this.isMobileView == true ? this.columnsFactoryMobile : this.columnsFactory;
-            }
-            else if (this.isMobileView){
-              this.displayedColumns = this.columnsStandardMobile;
-            }
-            else{
-              this.displayedColumns = this.columnsStandard
-            }
+                      //OFFICE
+                      if (this.citizensOnlyView ) {
+                          this.displayedColumns = this.columnsOffice;
+                      }
+                      //FACTORY
+                      else if (this.history.current_building_id == 10) {
+                          this.displayedColumns = this.isMobileView == true ? this.columnsFactoryMobile : this.columnsFactory;
+                      }
+                      else if (this.isMobileView){
+                          this.displayedColumns = this.columnsStandardMobile;
+                      }
+                      else{
+                          this.displayedColumns = this.columnsStandard;
+                      }
 
-            this.dataSourceHistory = new MatTableDataSource<Detail>(this.history.detail);
-            this.hidePaginator = this.history.detail == null || this.history.detail.length < 5 ? true : false;
+                      this.dataSourceHistory = new MatTableDataSource<Detail>(this.history.detail);
+                      this.hidePaginator = this.history.detail == null || this.history.detail.length < 5 ? true : false;
 
-            this.dataSourceHistory.paginator = this.paginator;
-            if (this.dataSourceHistory.paginator) {
-              this.dataSourceHistory.paginator.firstPage();
-            }
+                      this.dataSourceHistory.paginator = this.paginator;
+                      if (this.dataSourceHistory.paginator) {
+                          this.dataSourceHistory.paginator.firstPage();
+                      }
 
-            this.dataSourceHistory.sort = this.sort;
+                      this.dataSourceHistory.sort = this.sort;
 
-            // Add custom date column sort
-            this.dataSourceHistory.sortingDataAccessor = (item: Detail, property) => {
-              switch (property) {
-                case 'run_datetime': return item.run_datetime == "" ? new Date(0) : new Date(item.run_datetime);
-                default: return item[property];
-              }
-            };
+                      // Add custom date column sort
+                      this.dataSourceHistory.sortingDataAccessor = (item: Detail, property) => {
+                          switch (property) {
+                          case 'run_datetime': return item.run_datetime == '' ? new Date(0) : new Date(item.run_datetime);
+                          default: return item[property];
+                          }
+                      };
 
-            this.sort.sort({ id: null, start: 'desc', disableClear: false });         // Clear any prior sort - reset sort arrows. best option to reset on each load.
-            //this.sort.sort({ id: 'run_datetime', start: 'desc', disableClear: true });          
+                      this.sort.sort({ id: null, start: 'desc', disableClear: false });         // Clear any prior sort - reset sort arrows. best option to reset on each load.
+                      //this.sort.sort({ id: 'run_datetime', start: 'desc', disableClear: true });          
           
-          }
-          else {
-            this.dataSourceHistory = new MatTableDataSource<Detail>(null);
-          }
+                  }
+                  else {
+                      this.dataSourceHistory = new MatTableDataSource<Detail>(null);
+                  }
          
-          if (refresh == true) {
-            this.refresh_state = "Completed - Cooldown 2 mins";
-            this.showFan = true;
-            this.processingActive = false;
-          }
+                  if (refresh == true) {
+                      this.refresh_state = 'Completed - Cooldown 2 mins';
+                      this.showFan = true;
+                      this.processingActive = false;
+                  }
 
-        },
-        error: (error) => { console.error(error) }
-      });
+              },
+              error: (error) => { console.error(error); }
+          });
 
-    return;
+      return;
   }
 
   checkRefresh() {
 
-    if (this.history && this.history.slowdown >0) {
+      if (this.history && this.history.slowdown >0) {
 
-      this.refresh_state = "Processing ...";
-      this.refreshActive = false;
-      this.processingActive = true;
+          this.refresh_state = 'Processing ...';
+          this.refreshActive = false;
+          this.processingActive = true;
 
-      //Showing fan, countdown controls when to remove cooldown period
-      if (this.notifySubscription == null) {
+          //Showing fan, countdown controls when to remove cooldown period
+          if (this.notifySubscription == null) {
 
-        //this.notifySubscription = interval(this.history.slowdown).subscribe(x => {
-        this.notifySubscription = interval(this.history.slowdown * 1000).subscribe(x => {
+              //this.notifySubscription = interval(this.history.slowdown).subscribe(x => {
+              this.notifySubscription = interval(this.history.slowdown * 1000).subscribe(x => {
 
-          this.showFan = false;
-          this.refreshActive = true;
+                  this.showFan = false;
+                  this.refreshActive = true;
 
-          this.refresh_state = "Refresh Prediction";
-          this.history.slowdown = 0;
+                  this.refresh_state = 'Refresh Prediction';
+                  this.history.slowdown = 0;
 
-          this.notifySubscription.unsubscribe();
-          this.notifySubscription = null;
-        });
-      }      
-    }
+                  this.notifySubscription.unsubscribe();
+                  this.notifySubscription = null;
+              });
+          }      
+      }
 
   }
 
   setHide() {    
-    this.hideHistoryEvent.emit(true);
-    this.showCalcDetailBonus = false;
-    this.showCalcDetail = false;
+      this.hideHistoryEvent.emit(true);
+      this.showCalcDetailBonus = false;
+      this.showCalcDetail = false;
   }
 
   getCitizenData(historyItem: Detail, rowIndex: number) {
 
-    this.forceClose = false;    // Reset if previously se to true - due to use of refresh with auto closes any opened cit child table
-    const subTable = this.citizenTables.filter((element) => element.index === rowIndex)[0];
-    subTable.search(this.assetId, historyItem.run_datetimeDT);
+      this.forceClose = false;    // Reset if previously se to true - due to use of refresh with auto closes any opened cit child table
+      const subTable = this.citizenTables.filter((element) => element.index === rowIndex)[0];
+      subTable.search(this.assetId, historyItem.run_datetimeDT);
 
-    return;
+      return;
   }
 
   // Event trigger by parent table pagination click event - by setting the expandedHistory var to null, this triggers the animation [@detailExpand]
   // whose value will now set to 'collapsed' via the html trigger expression which depends on expandedHistory having a row item  assigned.
   paginationCloseAllExpanded(pageEvent: PageEvent) {
 
-    this.expandedHistory = null;
+      this.expandedHistory = null;
 
   }
 
   toggleDetail(event: Event) {
 
-    this.showCalcDetail = !this.showCalcDetail;
-    //this.checkRefresh();
-    //console.log('value:', (event.target as HTMLAnchorElement).innerHTML);
+      this.showCalcDetail = !this.showCalcDetail;
+      //this.checkRefresh();
+      //console.log('value:', (event.target as HTMLAnchorElement).innerHTML);
     
-    //(event.target as HTMLAnchorElement).innerHTML = this.showCalcDetail ? "Hide Calculation" : "Show Calculation";
-    return;
+      //(event.target as HTMLAnchorElement).innerHTML = this.showCalcDetail ? "Hide Calculation" : "Show Calculation";
+      return;
   }
 
   toggleDetailBonus(event: Event) {
 
-    this.showCalcDetailBonus = !this.showCalcDetailBonus;
+      this.showCalcDetailBonus = !this.showCalcDetailBonus;
 
-    return;
+      return;
   }
 
   refresh() {
-    // Close any open citizen child-table
-    this.forceClose = true;
-    this.expandedHistory = null;
+      // Close any open citizen child-table
+      this.forceClose = true;
+      this.expandedHistory = null;
     
-    this.searchHistory(this.assetId, this.plot.x, this.plot.y, this.historyBuildingType, true);
+      this.searchHistory(this.assetId, this.plot.x, this.plot.y, this.historyBuildingType, true);
 
-    return;
+      return;
   }
 }

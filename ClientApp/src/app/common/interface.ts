@@ -79,10 +79,10 @@ interface Transaction {
 }
 
 export {
-  Parcel,
-  ParcelCollection,
-  Mission,
-  MissionCollection,
-  Transaction,
-  TransactionCollection
-}
+    Parcel,
+    ParcelCollection,
+    Mission,
+    MissionCollection,
+    Transaction,
+    TransactionCollection
+};

@@ -25,8 +25,8 @@
                 <img *ngIf="offer.buyer_avatar_id==0" src="./images/MysteryOwner.png" class="ownerImgCol mysteryImg" height="33" style="margin-top:-4px" />
 
                 <a class="text-dark lineAnim" [routerLink]="['/', globals.worldCode, 'owner-data']" [queryParams]="{matic: offer.buyer_matic_key}" title="{{ offer.buyer_owner_name }}">
-                  <span *ngIf="offer.buyer_owner_name != ''">{{ offer.buyer_owner_name }}</span>
-                  <span class="maticLink" *ngIf="offer.buyer_owner_name ==''">{{ offer.buyer_matic_key.substring(0,14) }}</span>
+                  <span *ngIf="offer.buyer_owner_name !== ''">{{ offer.buyer_owner_name }}</span>
+                  <span class="maticLink" *ngIf="offer.buyer_owner_name ===''">{{ offer.buyer_matic_key.substring(0,14) }}</span>
                 </a>
               </td>
             </ng-container>
@@ -78,8 +78,8 @@
                   <img *ngIf="offer.buyer_avatar_id==0" src="./images/MysteryOwner.png" class="ownerImgCol mysteryImg" height="33" style="margin-top:-4px" />
 
                   <a class="text-dark lineAnim" [routerLink]="['/', globals.worldCode, 'owner-data']" [queryParams]="{matic: offer.buyer_matic_key}" title="{{ offer.buyer_owner_name }}">
-                    <span *ngIf="offer.buyer_owner_name != ''">{{ offer.buyer_owner_name }}</span>
-                    <span class="maticLink" *ngIf="offer.buyer_owner_name ==''">{{ offer.buyer_matic_key.substring(0,14) }}</span>
+                    <span *ngIf="offer.buyer_owner_name !== ''">{{ offer.buyer_owner_name }}</span>
+                    <span class="maticLink" *ngIf="offer.buyer_owner_name ===''">{{ offer.buyer_matic_key.substring(0,14) }}</span>
                   </a>
                 </td>
               </ng-container>

@@ -1,34 +1,33 @@
 import { Component, HostBinding, NgZone } from '@angular/core';
 import { OverlayContainer } from '@angular/cdk/overlay';
-import { Application, WORLD } from './common/global-var';
+import { Application } from './common/global-var';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html'
+    selector: 'app-root',
+    templateUrl: './app.component.html'
 })
 export class AppComponent {
-  title = 'app';
-  @HostBinding('class') className = '';
 
-  constructor(public globals: Application, private overlay: OverlayContainer, private zone: NgZone) {
-    globals.appComponentInstance = this;
-  }
+    title = 'MetaverseMax';
+    @HostBinding('class') className = '';     // Data binding to component 'class' DOM attribute, if/when changed updates the DOM on 'change detection' event cycle 
 
-  darkModeChange(darkModeEnabled: boolean) {
+    constructor(public globals: Application, private overlay: OverlayContainer, private zone: NgZone) {
+        globals.appComponentInstance = this;
+    }
 
-    let x:number = 1;
+    darkModeChange(darkModeEnabled: boolean) {
     
-    const darkClassName = "darkMode";
-    this.className = darkModeEnabled ? darkClassName : '';
+        const darkClassName = 'darkMode';
+        this.className = darkModeEnabled ? darkClassName : '';
 
-    // apply theme change to parent and all child components.
-    this.zone.run(() => {
-      // Need to apply class to root body - as no material root control used.
-      if (darkModeEnabled) {
-        this.overlay.getContainerElement().parentElement.classList.add(darkClassName);
-      } else {
-        this.overlay.getContainerElement().parentElement.classList.remove(darkClassName);
-      }
-    });
-  }
+        // apply theme change to parent and all child components.
+        this.zone.run(() => {
+            // Need to apply class to root body - as no material root control used.
+            if (darkModeEnabled) {
+                this.overlay.getContainerElement().parentElement.classList.add(darkClassName);
+            } else {
+                this.overlay.getContainerElement().parentElement.classList.remove(darkClassName);
+            }
+        });
+    }
 }

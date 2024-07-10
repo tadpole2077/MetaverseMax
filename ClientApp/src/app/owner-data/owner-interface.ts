@@ -8,7 +8,9 @@ interface IOwnerLandData extends ICoordinates, ILandType
   building_category: number;
   building_desc: string;
   building_img: string;
+  action_type: number;
   last_action: string;
+  last_actionUx: number;
   plot_ip: number;
   ip_info: number;
   ip_bonus: number;
@@ -45,7 +47,11 @@ interface ICoordinates {
 
 interface IOwnerData
 {
+  /**
+   * Owner name may be empty - typically using owner_matic_key when empty.
+   */
   owner_name: string;
+
   owner_url: string;
   owner_matic_key: string;
   last_action: string;
@@ -155,6 +161,9 @@ interface IPortfolioCitizen {
   citizen: ICitizen[];
 }
 
+/**
+ * Count of each building type used for filter icons
+ */
 interface IFilterCount {
   empty: number;
   industry: number;
@@ -169,18 +178,21 @@ interface IFilterCount {
 }
 
 
+/**
+ * Owner Land type set
+ */
 export
 {
-  IOwnerLandData,
-  IOwnerData,
-  IOffer,
-  ICoordinates,
-  IDistrictPlot,
-  IPet,
-  IPortfolioPet,
-  ICitizen,
-  IPortfolioCitizen,
-  IFilterCount,
-  IPack,
-  ILandType
-}
+    IOwnerLandData,
+    IOwnerData,
+    IOffer,
+    ICoordinates,
+    IDistrictPlot,
+    IPet,
+    IPortfolioPet,
+    ICitizen,
+    IPortfolioCitizen,
+    IFilterCount,
+    IPack,
+    ILandType
+};

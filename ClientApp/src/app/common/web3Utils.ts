@@ -5,9 +5,9 @@ import { padLeft, toHex, toBigInt, toWei, ChunkResponseParser, Eip1193Provider, 
 // Web3 Optimisation >> Tree shaking >> https://docs.web3js.org/guides/advanced/web3_tree_shaking_support_guide/
 export class Web3Utils {
 
-  padLeft: typeof padLeft = padLeft;
-  toHex: typeof toHex = toHex;
-  toBigInt: typeof toBigInt = toBigInt;
-  toWei: typeof toWei = toWei;
+    padLeft: typeof padLeft = padLeft;
+    toHex: typeof toHex = toHex;
+    toBigInt: typeof toBigInt = toBigInt;
+    toWei: typeof toWei = toWei;
   
 }

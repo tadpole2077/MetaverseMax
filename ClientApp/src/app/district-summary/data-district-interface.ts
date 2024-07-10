@@ -84,7 +84,7 @@ interface TaxChange {
 }
 
 export { 
-  OwnerSummary,
-  District,
-  TaxChange
-}
+    OwnerSummary,
+    District,
+    TaxChange
+};

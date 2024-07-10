@@ -4,9 +4,9 @@
   <div style="margin-bottom:6px;">
 
     <div ngbDropdown class="d-inline-block;display:none">
-      <button mat-raised-button color="primary" class="buttonEffect" [ngClass]="{'expandHeight':globals.walletKeyFormated!=''}" ngbDropdownToggle>
+      <button mat-raised-button color="primary" class="buttonEffect" [ngClass]="{'expandHeight':globals.walletKeyFormated!==''}" ngbDropdownToggle>
         <span class="worldText">{{selectedWorldName}}</span>
-        <span [ngClass]="{'formatedKey':globals.walletKeyFormated!=''}" >{{ globals.walletKeyFormated }} </span>
+        <span [ngClass]="{'formatedKey':globals.walletKeyFormated!==''}" >{{ globals.walletKeyFormated }} </span>
       </button>
 
       <div ngbDropdownMenu aria-labelledby="dropdownBasic1">     

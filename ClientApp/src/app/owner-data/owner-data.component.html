@@ -65,7 +65,7 @@
           <button #citizenBtn mat-raised-button color="primary" class="smallBtn" (click)="showCitizen()">{{ owner.citizen_count }} X Citizen</button>
         </div>
 
-        <div class="offerBtnDiv" style="display:none">
+        <div class="offerBtnDiv" style="">
           <button #packBtn mat-raised-button color="primary" class="smallBtn" (click)="showPack()"><img src="https://play.mcp3d.com/assets/images/resources/brick.png" class="packImg" referrerpolicy="no-referrer" />{{ owner.pack_count }} X Packs</button>
         </div>
       </div>
@@ -132,7 +132,7 @@
       <div #parcelFilter [ngClass]="{'hideFilter': hideParcelFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.PARCEL)"><span matBadge="{{ this.filterCount.parcel }}" matBadgePosition="above after"><img src="./images/Parcel.PNG" /></span></a></div>
     </div>
 
-    <table mat-table [dataSource]="dataSource" matSort matSortStart="desc" (matSortChange)="sortData($event)" class="table table-striped mat-elevation-z8" style="width:100%; display:inline-table">
+    <table mat-table [dataSource]="dataSource" matSort matSortStart="desc" class="table table-striped mat-elevation-z8" style="width:100%; display:inline-table">
       <!--table table-striped-->
       <ng-container matColumnDef="district_id">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> District # </th>

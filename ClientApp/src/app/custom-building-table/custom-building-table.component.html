@@ -82,10 +82,10 @@
         <img *ngIf="row.owner_avatar_id==0" src="./images/MysteryOwner.png" class="mysteryImg" />
 
         <a class="lineAnim maticLinkCol" [routerLink]="['/', globals.worldCode, 'owner-data']" [queryParams]="{matic: row.owner_matic}" title="{{ row.owner_name }}">
-          <span *ngIf="row.owner_name!=''">{{ row.owner_name }}</span>
+          <span *ngIf="row.owner_name!==''">{{ row.owner_name }}</span>
 
-          <span class="long-text" *ngIf="row.owner_name==''">{{ row.owner_matic.substring(0,14) }}</span>
-          <span class="short-text" *ngIf="row.owner_name==''">{{ row.owner_matic.substring(0,10) }}</span>
+          <span class="long-text" *ngIf="row.owner_name===''">{{ row.owner_matic.substring(0,14) }}</span>
+          <span class="short-text" *ngIf="row.owner_name===''">{{ row.owner_matic.substring(0,10) }}</span>
         </a>
         <div class="mobileView lastAction">
           <mat-icon>update</mat-icon>
@@ -161,7 +161,7 @@
           <span class="datePart">{{ row.last_action.substring(0, row.last_action.length - 8) }}</span>
           <span class="timePart">{{ row.last_action.substring(row.last_action.length - 8) }}</span>
         </div>
-        <span *ngIf="row.last_action =='Empty Plot'">{{ row.last_action }}</span>
+        <span *ngIf="row.last_action ==='Empty Plot'">{{ row.last_action }}</span>
       </td>
     </ng-container>
 

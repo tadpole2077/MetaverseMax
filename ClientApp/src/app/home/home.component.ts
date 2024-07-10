@@ -5,43 +5,43 @@ import { OwnerAccount, Application, WORLD } from '../common/global-var';
 
 
 @Component({
-  selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
+    selector: 'app-home',
+    templateUrl: './home.component.html',
+    styleUrls: ['./home.component.css']
 })
 export class HomeComponent {
 
-  private httpClient: HttpClient;
-  private baseUrl: string;
+    private httpClient: HttpClient;
+    private baseUrl: string;
 
-  public worldName: string;
-  public worldCode: string;
+    public worldName: string;
+    public worldCode: string;
 
 
-  constructor(private cdf: ChangeDetectorRef, public globals: Application, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
+    constructor(private cdf: ChangeDetectorRef, public globals: Application, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
     
-    this.httpClient = http;
-    this.worldCode = (globals.selectedWorld == WORLD.TRON ? "trx" : globals.selectedWorld == WORLD.BNB ? "bnb" : "eth")
-    this.worldName = (globals.selectedWorld == WORLD.TRON ? "Tron" : globals.selectedWorld == WORLD.BNB ? "BSC" : "Ethereum");
-    this.baseUrl = baseUrl + "api/" + this.worldCode;
+        this.httpClient = http;
+        this.worldCode = (globals.selectedWorld == WORLD.TRON ? 'trx' : globals.selectedWorld == WORLD.BNB ? 'bnb' : 'eth');
+        this.worldName = (globals.selectedWorld == WORLD.TRON ? 'Tron' : globals.selectedWorld == WORLD.BNB ? 'BSC' : 'Ethereum');
+        this.baseUrl = baseUrl + 'api/' + this.worldCode;
 
-    globals.homeCDF = cdf;
-  }
+        globals.homeCDF = cdf;
+    }
 
-  // Copy to clipboard on Clip of Wallet key link.
-  copyMessage(val: string){
-      const selBox = document.createElement('textarea');
-      selBox.style.position = 'fixed';
-      selBox.style.left = '0';
-      selBox.style.top = '0';
-      selBox.style.opacity = '0';
-      selBox.value = val;
-      document.body.appendChild(selBox);
-      selBox.focus();
-      selBox.select();
-      document.execCommand('copy');
-      document.body.removeChild(selBox);
-  }
+    // Copy to clipboard on Clip of Wallet key link.
+    copyMessage(val: string){
+        const selBox = document.createElement('textarea');
+        selBox.style.position = 'fixed';
+        selBox.style.left = '0';
+        selBox.style.top = '0';
+        selBox.style.opacity = '0';
+        selBox.value = val;
+        document.body.appendChild(selBox);
+        selBox.focus();
+        selBox.select();
+        document.execCommand('copy');
+        document.body.removeChild(selBox);
+    }
 
 
 }

@@ -102,10 +102,10 @@
           <img *ngIf="row.owner_avatar_id==0" src="./images/MysteryOwner.png" class="mysteryImg" />
           <div>
             <a class="lineAnim" [routerLink]="['/', globals.worldCode, 'owner-data']" [queryParams]="{matic: row.owner_matic}" title="{{ row.owner_name }}">
-              <span *ngIf="row.owner_name!=''">{{ row.owner_name }}</span>
+              <span *ngIf="row.owner_name!==''">{{ row.owner_name }}</span>
 
-              <span class="long-text" *ngIf="row.owner_name==''">{{ row.owner_matic.substring(0,14) }}</span>
-              <span class="short-text" *ngIf="row.owner_name==''">{{ row.owner_matic.substring(0,10) }}</span>
+              <span class="long-text" *ngIf="row.owner_name===''">{{ row.owner_matic.substring(0,14) }}</span>
+              <span class="short-text" *ngIf="row.owner_name===''">{{ row.owner_matic.substring(0,10) }}</span>
             </a>
           </div>
         </div>

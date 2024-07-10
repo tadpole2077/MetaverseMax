@@ -17,7 +17,7 @@ import { defer } from 'rxjs';
  * after a JS engine turn
  */
 export function asyncData<T>(data: T) {
-  return defer(() => Promise.resolve(data));
+    return defer(() => Promise.resolve(data));
 }
 
 /**
@@ -25,7 +25,7 @@ export function asyncData<T>(data: T) {
  * after a JS engine turn
  */
 export function asyncError<T>(errorObject: any) {
-  return defer(() => Promise.reject(errorObject));
+    return defer(() => Promise.reject(errorObject));
 }
 
 

@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, ErrorHandler } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -50,7 +50,6 @@ import { DirectDepositDialogComponent } from './direct-deposit-dialog/direct-dep
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NumberDirective } from './directive/numberonly.directive';
-import { NumberDecimalDirective } from './directive/number-decimal-only.directive';
 import { TabExtractedBodyDirective } from './directive/tab-extracted-body.directive';
 import { ImageFallbackDirective } from './directive/image-fallback.directive';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
@@ -78,137 +77,139 @@ import { Application } from './common/global-var';
 import { MapData } from './common/map-data';
 import { Alert } from './common/alert';
 
-import { PublicHashPipe } from './pipe/public-hash-pipe';
+import { TestInterceptorService } from './service/test-interceptor.service';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    AccountApproveComponent,
-    AlertMenuComponent,
-    AlertBottomComponent,
-    AlertHistoryComponent,
-    NavMenuComponent,
-    NavMenuWorldComponent,
-    NavMenuOwnerComponent,
-    HomeComponent,
-    SearchPlotComponent,
-    SearchDistrictComponent,
-    TaxChangeComponent,
-    GraphTaxComponent,
-    GraphFundComponent,
-    GraphDamageComponent,
-    OwnerDataComponent,
-    NoteModalComponent,
-    PetModalComponent,
-    PackModalComponent,
-    TransferAssetComponent,
-    CitizenModalComponent,
-    CitizenBuildingTableComponent,
-    OfferModalComponent,
-    ProdHistoryComponent,
-    PlayerMenuComponent,
-    DistrictListComponent,
-    DistrictSummaryComponent,
-    DistrictNotificationComponent,
-    BuildingIPComponent,
-    BuildingFilterComponent,
-    WorldComponent,
-    CustomBuildingComponent,
-    CustomBuildingTableComponent,
-    MissionDeskComponent,
-    NumberDirective,
-    TabExtractedBodyDirective,
-    ImageFallbackDirective,
-    TabContainerLazyComponent,
-    TESTBankManageComponent,
-    BalanceComponent,
-    BalanceLogComponent,
-    BalanceManageDialogComponent,
-    DirectDepositDialogComponent,
-    PublicHashPipe
-  ],
-  imports: [
-    BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
-    HttpClientModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatAutocompleteModule,
-    MatTableModule,
-    MatSortModule,
-    MatPaginatorModule,
-    MatProgressBarModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatExpansionModule,
-    MatIconModule,
-    MatCheckboxModule,
-    MatTabsModule,
-    MatButtonToggleModule,
-    MatButtonModule,
-    MatBadgeModule,
-    MatBottomSheetModule,
-    MatSlideToggleModule,
-    MatListModule,
-    MatDialogModule,
-    DragDropModule,
-    NgbDropdownModule,
-    NgxChartsModule,
-    RouterModule.forRoot([
-      { path: '', component: HomeComponent, pathMatch: 'full' },
-      { path: 'bnb', component: HomeComponent, pathMatch: 'full' },
-      { path: 'trx', component: HomeComponent, pathMatch: 'full' },
-      { path: 'eth', component: HomeComponent, pathMatch: 'full' },
+    declarations: [
+        AppComponent,
+        AccountApproveComponent,
+        AlertMenuComponent,
+        AlertBottomComponent,
+        AlertHistoryComponent,
+        NavMenuComponent,
+        NavMenuWorldComponent,
+        NavMenuOwnerComponent,
+        HomeComponent,
+        SearchPlotComponent,
+        SearchDistrictComponent,
+        TaxChangeComponent,
+        GraphTaxComponent,
+        GraphFundComponent,
+        GraphDamageComponent,
+        OwnerDataComponent,
+        NoteModalComponent,
+        PetModalComponent,
+        PackModalComponent,
+        TransferAssetComponent,
+        CitizenModalComponent,
+        CitizenBuildingTableComponent,
+        OfferModalComponent,
+        ProdHistoryComponent,
+        PlayerMenuComponent,
+        DistrictListComponent,
+        DistrictSummaryComponent,
+        DistrictNotificationComponent,
+        BuildingIPComponent,
+        BuildingFilterComponent,
+        WorldComponent,
+        CustomBuildingComponent,
+        CustomBuildingTableComponent,
+        MissionDeskComponent,
+        NumberDirective,
+        TabExtractedBodyDirective,
+        ImageFallbackDirective,
+        TabContainerLazyComponent,
+        TESTBankManageComponent,
+        BalanceComponent,
+        BalanceLogComponent,
+        BalanceManageDialogComponent,
+        DirectDepositDialogComponent
+    ],
+    imports: [
+        BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
+        HttpClientModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatAutocompleteModule,
+        MatTableModule,
+        MatSortModule,
+        MatPaginatorModule,
+        MatProgressBarModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatExpansionModule,
+        MatIconModule,
+        MatCheckboxModule,
+        MatTabsModule,
+        MatButtonToggleModule,
+        MatButtonModule,
+        MatBadgeModule,
+        MatBottomSheetModule,
+        MatSlideToggleModule,
+        MatListModule,
+        MatDialogModule,
+        DragDropModule,
+        NgbDropdownModule,
+        NgxChartsModule,
+        RouterModule.forRoot([
+            { path: '', component: HomeComponent, pathMatch: 'full' },
+            { path: 'bnb', component: HomeComponent, pathMatch: 'full' },
+            { path: 'trx', component: HomeComponent, pathMatch: 'full' },
+            { path: 'eth', component: HomeComponent, pathMatch: 'full' },
 
-      { path: 'owner-data', component: OwnerDataComponent },
-      { path: 'bnb/owner-data', component: OwnerDataComponent },
-      { path: 'trx/owner-data', component: OwnerDataComponent },
-      { path: 'eth/owner-data', component: OwnerDataComponent },
+            { path: 'owner-data', component: OwnerDataComponent },
+            { path: 'bnb/owner-data', component: OwnerDataComponent },
+            { path: 'trx/owner-data', component: OwnerDataComponent },
+            { path: 'eth/owner-data', component: OwnerDataComponent },
 
-      { path: 'district-list', component: DistrictListComponent },
-      { path: 'bnb/district-list', component: DistrictListComponent },
-      { path: 'trx/district-list', component: DistrictListComponent },
-      { path: 'eth/district-list', component: DistrictListComponent },
+            { path: 'district-list', component: DistrictListComponent },
+            { path: 'bnb/district-list', component: DistrictListComponent },
+            { path: 'trx/district-list', component: DistrictListComponent },
+            { path: 'eth/district-list', component: DistrictListComponent },
 
-      { path: 'district-summary', component: DistrictSummaryComponent },
-      { path: 'bnb/district-summary', component: DistrictSummaryComponent },
-      { path: 'trx/district-summary', component: DistrictSummaryComponent },
-      { path: 'eth/district-summary', component: DistrictSummaryComponent },
+            { path: 'district-summary', component: DistrictSummaryComponent },
+            { path: 'bnb/district-summary', component: DistrictSummaryComponent },
+            { path: 'trx/district-summary', component: DistrictSummaryComponent },
+            { path: 'eth/district-summary', component: DistrictSummaryComponent },
 
-      { path: 'district-notification', component: DistrictNotificationComponent },
-      { path: 'bnb/district-notification', component: DistrictNotificationComponent },
-      { path: 'trx/district-notification', component: DistrictNotificationComponent },
-      { path: 'eth/district-notification', component: DistrictNotificationComponent },
+            { path: 'district-notification', component: DistrictNotificationComponent },
+            { path: 'bnb/district-notification', component: DistrictNotificationComponent },
+            { path: 'trx/district-notification', component: DistrictNotificationComponent },
+            { path: 'eth/district-notification', component: DistrictNotificationComponent },
 
-      { path: 'building-ip', component: BuildingIPComponent },
-      { path: 'bnb/building-ip', component: BuildingIPComponent },
-      { path: 'trx/building-ip', component: BuildingIPComponent },
-      { path: 'eth/building-ip', component: BuildingIPComponent },
+            { path: 'building-ip', component: BuildingIPComponent },
+            { path: 'bnb/building-ip', component: BuildingIPComponent },
+            { path: 'trx/building-ip', component: BuildingIPComponent },
+            { path: 'eth/building-ip', component: BuildingIPComponent },
 
-      { path: 'world', component: WorldComponent },
-      { path: 'bnb/world', component: WorldComponent },
-      { path: 'trx/world', component: WorldComponent },
-      { path: 'eth/world', component: WorldComponent },
+            { path: 'world', component: WorldComponent },
+            { path: 'bnb/world', component: WorldComponent },
+            { path: 'trx/world', component: WorldComponent },
+            { path: 'eth/world', component: WorldComponent },
 
-      { path: 'bank-manage', component: TESTBankManageComponent },
-      { path: 'bnb/bank-manage', component: TESTBankManageComponent  },
-      { path: 'trx/bank-manage', component: TESTBankManageComponent  },
-      { path: 'eth/bank-manage', component: TESTBankManageComponent  }
-    ]),
-    BrowserAnimationsModule,
-    ClipboardModule
-  ],
-  providers: [
-    Application,
-    MapData,
-    Alert,
-    {
-      provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' }
-    },
-    {
-      provide: ErrorHandler, useClass: ErrorMetadataService   // Overriding with custom service.
-    }
+            { path: 'bank-manage', component: TESTBankManageComponent },
+            { path: 'bnb/bank-manage', component: TESTBankManageComponent  },
+            { path: 'trx/bank-manage', component: TESTBankManageComponent  },
+            { path: 'eth/bank-manage', component: TESTBankManageComponent  }
+        ]),
+        BrowserAnimationsModule,
+        ClipboardModule
+    ],
+    providers: [
+        Application,
+        MapData,
+        Alert,
+        {
+            provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' }
+        },
+        {
+            provide: ErrorHandler, useClass: ErrorMetadataService   // Overriding with custom service.
+        },
+        {
+            provide: HTTP_INTERCEPTORS, useClass: TestInterceptorService, multi:true    // intercept http REST calls for use with Unit Tests.
+        },
 
-  ],
-  bootstrap: [AppComponent]
+    ],
+    bootstrap: [AppComponent]
 })
 export class AppModule { }
