@@ -1,13 +1,12 @@
-import { ElementRef, Component, Inject, ViewChild, Output, EventEmitter, ChangeDetectorRef, AfterViewInit, QueryList, ViewChildren } from '@angular/core';
-import { interval, Observable, Subscription } from 'rxjs';
+import { ElementRef, Component, Inject, ViewChild, Output, EventEmitter, QueryList, ViewChildren, OnDestroy } from '@angular/core';
+import { interval, Subscription } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { DragDrop } from '@angular/cdk/drag-drop';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { CitizenBuildingTableComponent } from '../citizen-building-table/citizen-building-table.component';
-import { Application, WORLD } from '../common/global-var';
+import { Application } from '../common/global-var';
 import { BUILDING } from '../common/enum';
 
 interface Detail {
@@ -56,7 +55,7 @@ interface BuildingHistory {
         ]),    
     ],
 })
-export class ProdHistoryComponent implements AfterViewInit {
+export class ProdHistoryComponent implements OnDestroy {
 
   @Output() hideHistoryEvent = new EventEmitter<boolean>();
 
@@ -114,30 +113,6 @@ export class ProdHistoryComponent implements AfterViewInit {
           this.isMobileView = true;
           this.displayedColumns = this.columnsStandardMobile;
       }    
-  }
-
-  // Paginator wont render until loaded in call to ngAfterViewInit, as its a  @ViewChild decalare
-  // AfterViewInit called after the View has been rendered, hook to this method via the implements class hook
-  ngAfterViewInit() {
-
-      //this.cdr.detectChanges();
-      //this.dataSourceHistory = new MatTableDataSource<Detail>(HISTORY_ASSETS);
-      //this.dataSourceHistory.paginator = this.paginator;
-  }
-
-  // Triggered on each contentcheck event.
-  ngAfterViewChecked() {
-      // Show/Hide the prediction link depending on Account Privilege
-      // if (this.predictControl) {
-      //  if (this.globals.ownerAccount.pro_tools_enabled) {
-      //    this.predictControl.nativeElement.classList.remove("hideLink");
-      //  }
-      //  else {
-      //    this.predictControl.nativeElement.classList.add("hideLink");
-      //  }
-      //}
-
-      //this.checkRefresh();
   }
 
   ngOnDestroy() {
