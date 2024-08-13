@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, Inject, NgZone, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, Inject, NgZone, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { AbstractControl, FormControl, Validators } from '@angular/forms';
 import { HttpClient, HttpParams } from '@angular/common/http';
@@ -23,7 +23,7 @@ import { BalanceLogComponent } from '../balance-log/balance-log.component';
     styleUrls: ['./balance-manage-dialog.component.css'],
     templateUrl: './balance-manage-dialog.component.html',
 })
-export class BalanceManageDialogComponent implements OnInit{
+export class BalanceManageDialogComponent implements OnInit, OnDestroy{
 
     readonly MEGA_DECIMALS = 1e18;
     readonly MEGA_DECIMALS_COUNT = 18;

@@ -1,11 +1,10 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable, ElementRef, ChangeDetectorRef, Inject } from '@angular/core';
+import { Injectable, ChangeDetectorRef, Inject } from '@angular/core';
 import { Subscription, interval, Subject } from 'rxjs';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { AccountApproveComponent } from '../account-approve/account-approve.component';
 import { OwnerDataComponent } from '../owner-data/owner-data.component';
 import { AppComponent } from '../app.component';
-import DetectEthereumProvider from '@metamask/detect-provider';
 //import TronLink from 'tronWeb';
 //import TronWebProvider from 'tronweb';*/    // Massive package 599kb included in main.js file - only needed on server side Tron apps i think
 import { Router, UrlSegmentGroup, PRIMARY_OUTLET, UrlSegment, UrlTree, ActivatedRoute } from '@angular/router';
@@ -76,6 +75,12 @@ const APPROVAL_TYPE = {
     ACCOUNT_WITH_NO_PLOTS: 2
 };
 
+enum APPROVE_STATE {
+  UPDATE = 0,
+  SHOW = 1,
+  HIDE = 2
+}
+
 
 @Injectable()
 export class Application {
@@ -132,6 +137,9 @@ export class Application {
     private networkChangeSubject = new Subject<string>();
     public networkChange$ = this.networkChangeSubject.asObservable();
 
+    private approveSwitchSubject = new Subject<APPROVE_STATE>();
+    public approveSwitch$ = this.approveSwitchSubject.asObservable();
+
     constructor(private httpClient: HttpClient, private alertSheet: MatBottomSheet, public router: Router, private location: Location, private route: ActivatedRoute, @Inject('BASE_URL') rootBaseUrl: string) {
 
         this.rootBaseUrl = rootBaseUrl;     // Unknow world type at this point, checkWorldFromURL will identify.
@@ -148,10 +156,12 @@ export class Application {
         // Trigger any Approve component to update
         if (changed && this.approveSwitchComponent) {
             if (value) {
-                this.approveSwitchComponent.show();
+                this.approveSwitchSubject.next(APPROVE_STATE.SHOW);
+                //this.approveSwitchComponent.show();
             }
             else {
-                this.approveSwitchComponent.hide();
+                this.approveSwitchSubject.next(APPROVE_STATE.HIDE);
+                //this.approveSwitchComponent.hide();
             }
         }
     //console.log("RequestApprove:", this._requestApprove);
@@ -190,7 +200,6 @@ export class Application {
     // Check Metamask Provider :  Supporting Metamask & CoinbaseWallet  
     set walletApproved(value) {
 
-        const changed = this._walletApproved != value;
         this._walletApproved = value;
         const publicHashPipe = new PublicHashPipe();
 
@@ -249,8 +258,6 @@ export class Application {
 
             if (value.info.name === 'MetaMask') {
 
-                const web3 = new Web3(value.provider);
-
                 this.metaMask = value.provider;
 
                 this.setEventListeners(system);
@@ -271,7 +278,7 @@ export class Application {
     setEventListeners = async (system: number) => {
 
         // On wallet account change - recheck linked account    
-        const provider = await DetectEthereumProvider();      // incudes 3 second timeout - useful to initiate ethereum object on client load.
+        //const provider = await DetectEthereumProvider();      // incudes 3 second timeout - useful to initiate ethereum object on client load.
         const ethereum = globalThis.ethereum;
 
         // Remove all prior listeners
@@ -318,12 +325,18 @@ export class Application {
 
         const ethereum = globalThis.ethereum;
 
-        const approved = (this.metaMask || ethereum.isTrustWallet || ethereum.isCoinbaseWallet);
-
-        //const provider = await DetectEthereumProvider();
-        //const ethereum = (window as any).ethereum;
-
-        //const approved = provider && (provider.isMetaMask || ethereum.isTrustWallet || ethereum.isCoinbaseWallet);
+        let approved = false;
+        
+        // EIP1193Provider active check
+        if (this.metaMask) {
+            approved = true;
+        }
+        else if (ethereum == null) {
+            approved =false;   // legacy ethereum compatible plugin not found
+        }
+        else {
+            approved =ethereum.isTrustWallet || ethereum.isCoinbaseWallet;
+        }
 
         if (approved) {
 
@@ -558,7 +571,6 @@ export class Application {
   // Triggered by (a) Change World Type (b) On initial load of page or redirect load
   getEthereumAccounts = async (baseUrl: string, checkMyPortfolio: boolean) => {
 
-      const provider = await DetectEthereumProvider();
       const ethereum = (window as any).ethereum;
       const walletExtension = this.metaMask != null ? this.metaMask : ethereum;
 
@@ -653,15 +665,16 @@ export class Application {
 
   requestApproveRefresh() {
       if (this.approveSwitchComponent) {
-          this.approveSwitchComponent.update();
+          this.approveSwitchSubject.next(APPROVE_STATE.UPDATE);
+          //this.approveSwitchComponent.update();
       }
 
-      if (this.menuCDF) {
-          this.menuCDF.detectChanges();
-      }
-      if (this.homeCDF) {
-          this.homeCDF.detectChanges();   // show/hide buttons based on account settings.
-      }
+      //if (this.menuCDF) {
+      //    this.menuCDF.detectChanges();
+      //}
+      //if (this.homeCDF) {
+      //    this.homeCDF.detectChanges();   // show/hide buttons based on account settings.
+      //}
 
   }
 
@@ -824,5 +837,6 @@ export {
     AlertPendingManager,
     AlertCollection,
     JSend,
-    APPROVAL_TYPE
+    APPROVAL_TYPE,
+    APPROVE_STATE
 };

@@ -13,6 +13,7 @@ export class AppComponent {
 
     constructor(public globals: Application, private overlay: OverlayContainer, private zone: NgZone) {
         globals.appComponentInstance = this;
+        this.darkModeChange(true);      // default theme - darkmode enabled.
     }
 
     darkModeChange(darkModeEnabled: boolean) {

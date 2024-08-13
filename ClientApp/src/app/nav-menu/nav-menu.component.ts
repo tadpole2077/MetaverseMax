@@ -81,13 +81,9 @@ export class NavMenuComponent {
 
       const worldCode = (worldId == WORLD.TRON ? 'trx' : worldId == WORLD.BNB ? 'bnb' : 'eth');
       this.baseUrl = this.rootBaseUrl + 'api/' + worldCode;
-      let segmentList: UrlSegment[];
       const routeTree: UrlTree = this.router.parseUrl(this.location.path());
       let lastComponentName = '/';
-      let hasWorldTypeChanged = false;
-
-      hasWorldTypeChanged = this.globals.selectedWorld != worldId;
-      segmentList = this.globals.extractPathComponents(this.location.path());
+      const segmentList = this.globals.extractPathComponents(this.location.path());
 
       // Change page URL to match world type
       if (segmentList != null) {
@@ -152,25 +148,26 @@ export class NavMenuComponent {
       }
   }
 
-  registerOwnerKey()
-  {
-      this.globals.getProviders(this.globals.selectedWorld);
+  // Async function - need to await widget providers identification before proceeding with account eval.
+  registerOwnerKey = async () => {
+
+      await this.globals.getProviders(this.globals.selectedWorld);
 
       if (this.globals.selectedWorld == WORLD.TRON) {
-      
-          this.globals.requestApprove = false;
-          this.globals.getTronAccounts(this.baseUrl);
-      
-      }
-      else if (this.globals.selectedWorld == WORLD.BNB || this.globals.selectedWorld == WORLD.ETH ) {
 
           this.globals.requestApprove = false;
-          this.globals.getEthereumAccounts(this.baseUrl, false);      
+          this.globals.getTronAccounts(this.baseUrl);
+
+      }
+      else if (this.globals.selectedWorld == WORLD.BNB || this.globals.selectedWorld == WORLD.ETH) {
+
+          this.globals.requestApprove = false;
+          this.globals.getEthereumAccounts(this.baseUrl, false);
 
       }
 
       //this.setEventListeners(this.globals.selectedWorld);
-  }
+  };
 
   collapse() {
       this.isExpanded = false;
