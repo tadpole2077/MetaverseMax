@@ -68,8 +68,8 @@ export class OwnerDataComponent implements AfterViewInit, OnDestroy {
     displayedColumnsMobile: string[] = ['district_id', 'pos_x', 'building_type', 'building_level', 'last_action', 'current_influence_rank', 'condition', 'plot_ip', 'citizen_count',/* 'token_id', */'alert'];
  
     constructor(private ownerDataFilter: OwnerDataFilterService, private httpOwnerDataService: HttpOwnerDataService, private cdf: ChangeDetectorRef,
-    public globals: Application, public mapdata: MapData, private location: Location, public router: Router, private route: ActivatedRoute,
-    private elem: ElementRef)
+        public globals: Application, public mapdata: MapData, private location: Location, public router: Router, private route: ActivatedRoute,
+        private elem: ElementRef)
     {
     
         this.setInitVar();

@@ -14,7 +14,7 @@ export class HttpOwnerDataService {
 
     constructor(public globals: Application, private http: HttpClient, @Inject('BASE_URL') private baseUrl: string)
     {
-        this.baseUrl = baseUrl + 'api/' + globals.worldCode;
+
     }
 
     // Return observable of async get promise
@@ -24,7 +24,9 @@ export class HttpOwnerDataService {
         params = params.append('plotX', plotPos.pos_x);
         params = params.append('plotY', plotPos.pos_y);
 
-        return this.http.get<IOwnerData>(this.baseUrl + '/OwnerData', { params: params });
+        const url = this.baseUrl + 'api/' + this.globals.worldCode;        // need to rebuild url incase of world change, service obj is reused.
+
+        return this.http.get<IOwnerData>(url + '/OwnerData', { params: params });
 
     }
 
@@ -33,8 +35,10 @@ export class HttpOwnerDataService {
         let params = new HttpParams();
         params = params.append('owner_matic_key', ownerMatic);
 
-        return this.http.get<IOwnerData>(this.baseUrl + '/ownerdata/getusingmatic', { params: params });
-    //return this.http.get<IOwnerData>('/mock/api/');
+        const url = this.baseUrl + 'api/' + this.globals.worldCode;        // need to rebuild url incase of world change, service obj is reused.
+
+        return this.http.get<IOwnerData>(url + '/ownerdata/getusingmatic', { params: params });
+        //return this.http.get<IOwnerData>('/mock/api/');
     }
 
 }
