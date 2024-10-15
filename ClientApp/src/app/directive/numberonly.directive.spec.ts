@@ -6,14 +6,14 @@ import { NumberDirective } from './numberonly.directive';
 
 @Component({
     //standalone: true,
-    template: ` <h2>Number Only</h2>
-              <input #numberTest [numbersOnly] type='text' value='1' />`,
+    template: `<h2>Number Only</h2>
+               <input #numberTest [numbersOnly] type='text' value='1' />`,
     //imports: [NumberDirective],
 })
 class TestNumberOnlyComponent {}
 
 describe('NumberDirective', () => {
-    let component: TestNumberOnlyComponent;
+    //let component: TestNumberOnlyComponent;
     let fixture: ComponentFixture<TestNumberOnlyComponent>;
     let des: DebugElement[]; // only one elements w/ the directive
 

@@ -13,7 +13,6 @@ import { NumberDecimalDirective } from './number-decimal-only.directive';
 class TestNumberDecimalComponent {}
 
 describe('NumberDecimalDirective', () => {
-    let component: TestNumberDecimalComponent;
     let fixture: ComponentFixture<TestNumberDecimalComponent>;
     let des: DebugElement[]; // only one element w/ the directive
 
@@ -22,7 +21,8 @@ describe('NumberDecimalDirective', () => {
         //fixture = TestBed.configureTestingModule({
         //  imports: [NumberDecimalDirective, TestNumberDecimalComponent],
         //}).createComponent(TestNumberDecimalComponent);
-        component = fixture.componentInstance;
+
+        //let component = fixture.componentInstance;
 
         fixture.detectChanges(); // initial binding
 

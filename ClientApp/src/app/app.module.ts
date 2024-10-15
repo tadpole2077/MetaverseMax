@@ -2,7 +2,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, ErrorHandler } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { RouterModule } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppComponent } from './app.component';
@@ -78,6 +77,7 @@ import { MapData } from './common/map-data';
 import { Alert } from './common/alert';
 
 import { TestInterceptorService } from './service/test-interceptor.service';
+import { AppRoutingModule } from './app-routing.module';
 
 @NgModule({
     declarations: [
@@ -150,50 +150,10 @@ import { TestInterceptorService } from './service/test-interceptor.service';
         MatDialogModule,
         DragDropModule,
         NgbDropdownModule,
-        NgxChartsModule,
-        RouterModule.forRoot([
-            { path: '', component: HomeComponent, pathMatch: 'full' },
-            { path: 'bnb', component: HomeComponent, pathMatch: 'full' },
-            { path: 'trx', component: HomeComponent, pathMatch: 'full' },
-            { path: 'eth', component: HomeComponent, pathMatch: 'full' },
-
-            { path: 'owner-data', component: OwnerDataComponent },
-            { path: 'bnb/owner-data', component: OwnerDataComponent },
-            { path: 'trx/owner-data', component: OwnerDataComponent },
-            { path: 'eth/owner-data', component: OwnerDataComponent },
-
-            { path: 'district-list', component: DistrictListComponent },
-            { path: 'bnb/district-list', component: DistrictListComponent },
-            { path: 'trx/district-list', component: DistrictListComponent },
-            { path: 'eth/district-list', component: DistrictListComponent },
-
-            { path: 'district-summary', component: DistrictSummaryComponent },
-            { path: 'bnb/district-summary', component: DistrictSummaryComponent },
-            { path: 'trx/district-summary', component: DistrictSummaryComponent },
-            { path: 'eth/district-summary', component: DistrictSummaryComponent },
-
-            { path: 'district-notification', component: DistrictNotificationComponent },
-            { path: 'bnb/district-notification', component: DistrictNotificationComponent },
-            { path: 'trx/district-notification', component: DistrictNotificationComponent },
-            { path: 'eth/district-notification', component: DistrictNotificationComponent },
-
-            { path: 'building-ip', component: BuildingIPComponent },
-            { path: 'bnb/building-ip', component: BuildingIPComponent },
-            { path: 'trx/building-ip', component: BuildingIPComponent },
-            { path: 'eth/building-ip', component: BuildingIPComponent },
-
-            { path: 'world', component: WorldComponent },
-            { path: 'bnb/world', component: WorldComponent },
-            { path: 'trx/world', component: WorldComponent },
-            { path: 'eth/world', component: WorldComponent },
-
-            { path: 'bank-manage', component: TESTBankManageComponent },
-            { path: 'bnb/bank-manage', component: TESTBankManageComponent  },
-            { path: 'trx/bank-manage', component: TESTBankManageComponent  },
-            { path: 'eth/bank-manage', component: TESTBankManageComponent  }
-        ]),
+        NgxChartsModule,        
         BrowserAnimationsModule,
-        ClipboardModule
+        ClipboardModule,
+        AppRoutingModule
     ],
     providers: [
         Application,

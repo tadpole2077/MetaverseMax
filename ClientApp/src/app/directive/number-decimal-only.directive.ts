@@ -27,9 +27,8 @@ export class NumberDecimalDirective {
 
   inputEvent(event) {
 
-      const returnValue = false;
       const initalValue = this._el.nativeElement.value;
-      const valueFourDecimalPlaces = 0;    
+      //const valueFourDecimalPlaces = 0;    
 
       const filteredValue = initalValue.replace(/[^0-9.]/g, '');
 

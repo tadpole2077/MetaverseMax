@@ -4,7 +4,7 @@ describe(('PublicHashPipe'), () => {
     const pipe = new PublicHashPipe();
 
     it('create an instance', () => {  
-        expect(pipe).toBeTruthy();
+        expect(pipe).toBeTruthy();      // not 0, null, NaN, undefined
     });
 
     it('convert public key', () => {    

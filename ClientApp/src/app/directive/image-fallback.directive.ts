@@ -1,4 +1,5 @@
-import {Directive, Input, HostBinding} from '@angular/core';
+import { Directive, Input, HostBinding } from '@angular/core';
+
 @Directive({
     selector: 'img[imgfallback]',
     host: {

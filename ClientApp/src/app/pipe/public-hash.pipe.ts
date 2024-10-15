@@ -1,5 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
+/// USE { walletKeyVar | public-hash-pipe }
 @Pipe({
     name: 'public-hash-pipe'
 })

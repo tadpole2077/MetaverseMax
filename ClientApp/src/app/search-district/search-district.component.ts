@@ -1,8 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Component, Output, EventEmitter, Inject } from '@angular/core';
-import { NgbDropdown } from '@ng-bootstrap/ng-bootstrap';
-import { Router, ActivatedRoute, Params } from '@angular/router';
-import { Application, WORLD } from '../common/global-var';
+import { Router } from '@angular/router';
+import { Application } from '../common/global-var';
 
 
 @Component({
