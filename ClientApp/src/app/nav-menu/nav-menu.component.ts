@@ -1,7 +1,7 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Inject, NgZone, Output, ViewChild } from '@angular/core';
-import { PRIMARY_OUTLET, UrlSegment, UrlSegmentGroup, UrlTree, ActivatedRoute, NavigationEnd, RouterEvent, Router, Params } from '@angular/router';
-import { OwnerAccount, Application, WORLD } from '../common/global-var';
+import { PRIMARY_OUTLET, UrlSegment, UrlSegmentGroup, UrlTree, ActivatedRoute, Router } from '@angular/router';
+import { Application, WORLD } from '../common/global-var';
 import { NavMenuWorldComponent } from '../nav-menu-world/nav-menu-world.component';
 import { Location } from '@angular/common';
 
@@ -13,16 +13,14 @@ import { Location } from '@angular/common';
 })
 export class NavMenuComponent {
 
-    private subscriptionRouterEvent: any;
     private httpClient: HttpClient;
     private baseUrl: string;
     private rootBaseUrl: string;
     public worldName: string;
-    private that: any = this;
 
     isExpanded = false;
-  @Output() selectWorldEvent = new EventEmitter<any>();
-  @Output() darkModeChangeEvent = new EventEmitter<any>();
+
+  @Output() darkModeChangeEvent = new EventEmitter<boolean>();
   @ViewChild(NavMenuWorldComponent, { static: true }) menuWorld: NavMenuWorldComponent;
   @ViewChild('menuOwner', { static: false }) menuOwner: ElementRef;
 

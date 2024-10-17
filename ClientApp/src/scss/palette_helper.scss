@@ -37,15 +37,27 @@
   @return $modified-theme;
 }
 
-
+//  theme: ( color: ( foreground: (seondary-text: XXX .. ))
 @function mat-set-custom-table($theme, $table-header-color) {
 
   $theme-color: map-get($theme, color);
 
+  // Test of Merge and return updated theme - should not trigger a dup style warning on compile run.
+  //$modified-theme: map-merge($theme, (color: $theme-color));
+  //@return $modified-theme;
+
   // Table header color
+  // Step 1 extract the current foreground color collection
   $color-foreground-palette: map-get($theme-color, foreground);
+
+  // Step 2 merge UPDATED color(param 2) within the foreground color collection
   $color-foreground-palette: map-merge($color-foreground-palette, (secondary-text: $table-header-color));
-  $modified-theme: map-merge($theme-color, (foreground: $color-foreground-palette));
+
+  // Step 3 merge foreground-color back into $theme-color collection.
+  $modified-theme-color: map-merge($theme-color, (foreground: $color-foreground-palette));
+
+  // step 4 merge $theme-color back into $theme 
+  $modified-theme: map-merge($theme, (color: $modified-theme-color));
 
   @return $modified-theme;
 }

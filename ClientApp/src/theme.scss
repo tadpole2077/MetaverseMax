@@ -17,6 +17,9 @@
 //@include mat.all-legacy-component-typographies();
 @include mat.core();
 
+// block dup style warnings in output
+//mat.$theme-ignore-duplication-warnings: true;
+
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker hue.
 // Available color palettes: https://material.io/design/color/
@@ -40,18 +43,23 @@ $light-app-theme: mat.define-light-theme((
 
 // Additional theme styling used for table and light.
 //      secondary-text >> color >> para2 >> used: header font color
+//      Note these additional custom styles - thow a dup style errors on compile : @angular\material\core\theming\_theming.scss 403:3
 $light-app-theme: palette-helper.mat-set-custom-table($light-app-theme, #343a40);
 
 
-// Emit theme-dependent styles for common features used across multiple components.  TEMP - remove when full upgrade to V3 Material components completed
+// TEMP - remove when full upgrade to V3 Material components completed
 //@include mat.all-legacy-component-themes($light-app-theme);
 //@include mat.all-component-typographies($light-app-theme);
 
+
 @include mat.typography-hierarchy($light-typography);
+// Emit theme-dependent styles for common features used across multiple components.
 @include mat.core-theme($light-app-theme);
+// emit styles to all 35 components of Material Library
 @include mat.all-component-themes($light-app-theme);
 
 
+// Custom Project Mixin Directives
 // Home Page & Links
 $app-button-bg: rgba(196, 198, 209, 0.2);
 $app-button-color: mat.get-color-from-palette($light-app-primary);
@@ -112,6 +120,8 @@ $foreground: map-get($dark-app-theme, foreground);
   // Use the `-color` mixins to only apply color styles without reapplying the same typography and density styles.
   // Not using dark mode on all Material components - some use same as light mode.
   // List : material/core/theming/_all-theme.scss
+  // NOTES :
+  //        Avoid duplicate theme style packaging by targeting mat.foocontrol-color($my-theme) per control versus the higher level mat.foocontrol.theme()
   @include mat.core-color($dark-app-theme);
   @include mat.table-color($dark-app-theme);
   @include mat.sort-color($dark-app-theme);
@@ -129,17 +139,12 @@ $foreground: map-get($dark-app-theme, foreground);
   //@include mat.button-color($light-theme);
   //@include mat.all-legacy-component-themes($dark-app-theme);
   /*@include mat.all-component-themes($dark-app-theme15);*/
+
+  // Custom Mixin 
   @include mode.home($dark-app-button-bg, $app-button-hover-bg, $dark-app-button-color);
   @include mode.link($dark-app-button-color, #FFF, #FFF);
+  @include mode.dropdown($dark-menu-bg, $dark-menu-hover-bg, $dark-inner-bg);
 
-  // dropdown-menu - Alert component
-  .dropdown-menu {
-    background-color: $dark-menu-bg;
-  }
-
-  .menuItem:hover {
-    background-color: $dark-menu-hover-bg /*6% lighter then #303339*/
-  }
 
   .gradientBar {
     background: linear-gradient(270deg, rgb(21, 101, 192) 0%, rgba(140, 180, 224, 0.7) 28%, rgba(227, 237, 247, 0.24) 42%, rgba(26, 28, 39, 0) 100%);
@@ -371,26 +376,6 @@ $foreground: map-get($dark-app-theme, foreground);
   // building-ip component
   .mat-column-id .activeProduce, .mat-column-id .staminaOutImg {
     background-color: $dark-inner-bg;
-  }
-
-
-  .dropdown-menu .dropdown-item {
-    color: white;
-    margin-left: 4px;
-    margin-right: 4px;
-    text-indent: -4px;
-    width: -moz-available;
-    width: -webkit-fill-available;
-    width: fill-available;
-  }
-
-  .dropdown-menu mat-icon, .dropdown-menu .mat-slide-toggle-content {
-    color: white;
-  }
-
-  .dropdown-menu .dropdown-item:hover {
-    background-color: $dark-inner-bg;
-    border-radius: 6px;
   }
 
   .deleteAlert {

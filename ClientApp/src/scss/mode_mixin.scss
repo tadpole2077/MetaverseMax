@@ -41,3 +41,34 @@
     background-color: $app-link-underscore;
   }
 }
+
+@mixin link($dark-menu-bg, $dark-menu-hover-bg, $dark-inner-bg) {
+
+  // dropdown-menu - Alert component
+  .dropdown-menu {
+    background-color: $dark-menu-bg;
+  }
+
+  .menuItem:hover {
+    background-color: $dark-menu-hover-bg /*6% lighter then #303339*/
+  }
+
+  .dropdown-menu .dropdown-item {
+    color: white;
+    margin-left: 4px;
+    margin-right: 4px;
+    text-indent: -4px;
+    width: -moz-available;
+    width: -webkit-fill-available;
+    width: fill-available;
+  }
+
+  .dropdown-menu mat-icon, .dropdown-menu .mat-slide-toggle-content {
+    color: white;
+  }
+
+  .dropdown-menu .dropdown-item:hover {
+    background-color: $dark-inner-bg;
+    border-radius: 6px;
+  }
+}
