@@ -6,13 +6,13 @@ https://update.angular.io/?l=2&v=14.0-15.0
 https://angular.io/guide/versions
 
 Node:
-	* (2024-06 active using) Node V18.20.3	- Node 18.20.3 Uses NPM V10.7.0
-												Security Issue with older version of NPM (see below for details) https://www.npmjs.com/package/npm/v/10.7.0
-												(cmd) nvm 18.20.3 ,  nvm use 18.20.3
-	* (Older) Node V16.20.2					- (cmd)nvm list >> V18.10.0 or higher is latest node version required for V15x Angular
+	* (2024-10 acive) Node V16.20.2				- (cmd)nvm list >> V18.10.0 or higher is newest node version compatible with for V15x Angular
 												alt is ^V16.13.0 or higher within V16.x tier also supported (see guide link for more info) https://nodejs.org/en/download/package-manager
 												V16.20.2 Node uses NPM V8.19.4 : https://www.npmjs.com/package/npm/v/8.19.4
 
+	* (2024-06 prior used) Node V18.20.3		- Node 18.20.3 Uses NPM V10.7.0
+												Security Issue with older version of NPM (see below for details) https://www.npmjs.com/package/npm/v/10.7.0
+												(cmd) nvm 18.20.3 ,  nvm use 18.20.3
 	* previously using with V14 Angular : V16.10.0
 
 

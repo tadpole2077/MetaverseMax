@@ -1,0 +1,29 @@
+﻿WHEN: 17/10/2024
+Angular Version: 16.2.16
+
+Links:
+https://update.angular.io/?l=2&v=14.0-15.0
+https://angular.io/guide/versions
+
+Dependencies Options selected:
+- Angular Material
+- Windows
+
+
+Node:
+	V16 compatible with node.js V16 and V18
+	* (2024-10 acive) Node V16.20.2				- (cmd)nvm list  ,  node -v
+
+
+Compatible Packages
+	Typescript V4.9.3 or later					- V4.9.4 version used during upgrade.
+	Zone.js V0.13.x or later					- was V0.11.6 ,  update @angular/core@16 @angular/cli@16 >> updated zone.js to V0.13.3
+
+
+Actions:
+	ng update @angular/core@16 @angular/cli@16		: ran within ClientApp dir.
+		Warning:  Migration failed - Incompatible peer dependencies found : @angular-esline/schematics dependency to @angular/cli  >=15 <=16.0.0
+		Override: ng update @angular/core@16 @angular/cli@16 --force
+		Followup:  Manual upgrade eslint packages later
+
+	ng update @angular/material@16
