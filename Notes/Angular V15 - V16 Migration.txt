@@ -22,8 +22,45 @@ Compatible Packages
 
 Actions:
 	ng update @angular/core@16 @angular/cli@16		: ran within ClientApp dir.
-		Warning:  Migration failed - Incompatible peer dependencies found : @angular-esline/schematics dependency to @angular/cli  >=15 <=16.0.0
+		Warning:  Migration failed - Incompatible peer dependencies found : @angular-eslint/schematics dependency to @angular/cli  >=15 <=16.0.0
 		Override: ng update @angular/core@16 @angular/cli@16 --force
 		Followup:  Manual upgrade eslint packages later
 
 	ng update @angular/material@16
+
+	npm i @ng-bootstrap/ng-bootstrap@15.1.2   (prior version @14.2.0) : https://www.npmjs.com/package/@ng-bootstrap/ng-bootstrap/v/15.1.2
+		- warning same as before with esLint, force install and address eslint upgrade next.
+
+
+Potential Code Changes:
+1) The Event union no longer contains RouterEvent, which means that if you're using the Event type you may have to change the type definition from (e: Event) to (e: Event|RouterEvent)
+
+	Used in Modules:  
+		owner-data.component.ts
+
+2) In addition to NavigationEnd the routerEvent property now also accepts type NavigationSkipped
+
+
+
+
+
+
+
+Test
+	Compile - Run (start via VS2022)
+
+	Throws Error:
+	
+	Error: src/app/owner-data/owner-data.component.ts:91:69 - error TS2769: No overload matches this call.
+	  Overload 1 of 2, '(observerOrNext?: Partial<Observer<Event_2>> | ((value: Event_2) => void)): Subscription', gave the following error.
+		Argument of type '(event: RouterEvent) => void' is not assignable to parameter of type 'Partial<Observer<Event_2>> | ((value: Event_2) => void)'.
+		  Type '(event: RouterEvent) => void' is not assignable to type '(value: Event_2) => void'.
+			Types of parameters 'event' and 'value' are incompatible.
+			  Type 'Event_2' is not assignable to type 'RouterEvent'.
+				Type 'RouteConfigLoadStart' is missing the following properties from type 'RouterEvent': id, url
+	  Overload 2 of 2, '(next?: (value: Event_2) => void, error?: (error: any) => void, complete?: () => void): Subscription', gave the following error.
+		Argument of type '(event: RouterEvent) => void' is not assignable to parameter of type '(value: Event_2) => void'.
+		  Types of parameters 'event' and 'value' are incompatible.
+			Type 'Event_2' is not assignable to type 'RouterEvent'.
+
+	91         this.subscriptionRouterEvent = this.router.events.subscribe((event: RouterEvent) => {

@@ -1,12 +1,9 @@
 import { Component, Inject, ViewChild } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { MatBottomSheet, MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
-import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-toggle';
-
 import { Alert } from '../common/alert';
-import { JSend, AlertCollection, AlertPending, AlertPendingManager, Application, WORLD } from '../common/global-var';
-import { ALERT_TYPE, ALERT_ICON_TYPE, ICON_TYPE_CHANGE, ALERT_ACTION, PENDING_ALERT } from '../common/enum';
-import { RouterEvent } from '@angular/router';
+import { JSend, AlertCollection, AlertPending, AlertPendingManager, Application } from '../common/global-var';
+import { ALERT_TYPE, ALERT_ICON_TYPE, ICON_TYPE_CHANGE, ALERT_ACTION } from '../common/enum';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -34,7 +31,7 @@ export class AlertBottomComponent{
         this.baseUrl = rootBaseUrl + 'api/' + globals.worldCode;
         let firstTimeSheetShown = false;
 
-        if (this.globals.bottomAlertRef == null) {
+        if (this.globals.bottomAlertRef === null) {
             firstTimeSheetShown = true;
         }
         this.globals.bottomAlertRef = bottomSheetRef;   
@@ -75,10 +72,6 @@ export class AlertBottomComponent{
         }
     }
 
-    ngOnDestroy() {
-    
-    }
-
     markDelete(event: MouseEvent, alertKey: number, alertIndex: number): void {       
 
         let params = new HttpParams();
@@ -99,7 +92,7 @@ export class AlertBottomComponent{
                         this.globals.ownerAccount.alert_count = this.alertPendingManager.alert.length;
                     }
 
-                    if (this.alertPendingManager.alert && this.alertPendingManager.alert.length == 0) {
+                    if (this.alertPendingManager.alert && this.alertPendingManager.alert.length === 0) {
                         this.bottomSheetRef.dismiss();
                         event.preventDefault();
                     }
@@ -130,10 +123,10 @@ export class AlertBottomComponent{
         this.alertPendingManager.alert.forEach(a => {
 
             // New Building Alert - store the image id, but the alert trigger used to generate them is generic for all new buildings.
-            if (alert.alert_type == ALERT_TYPE.NEW_BUILDING && a.alert_type == alert.alert_type) {
+            if (alert.alert_type === ALERT_TYPE.NEW_BUILDING && a.alert_type === alert.alert_type) {
                 a.trigger_active = alert.trigger_active;
             }
-            else if (a.alert_type == alert.alert_type && a.alert_id == alert.alert_id) {
+            else if (a.alert_type === alert.alert_type && a.alert_id === alert.alert_id) {
                 a.trigger_active = alert.trigger_active;
             }
 

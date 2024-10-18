@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-inferrable-types */
 import { Component, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { Location } from '@angular/common';
-import { NavigationEnd, RouterEvent, Router, ActivatedRoute } from '@angular/router';
+import { Event, NavigationEnd, Router, ActivatedRoute } from '@angular/router';
 import { interval, Subscription } from 'rxjs';
 import { MatTableDataSource, MatTableDataSourcePaginator } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
@@ -88,7 +88,8 @@ export class OwnerDataComponent implements AfterViewInit, OnDestroy {
     ngAfterViewInit() {
 
         // Check on URL change due to movement between features
-        this.subscriptionRouterEvent = this.router.events.subscribe((event: RouterEvent) => {
+        //  V15 Angular .subscribe((event: RouterEvent) ...
+        this.subscriptionRouterEvent = this.router.events.subscribe((event: Event) => {
             //console.log('current route: ', router.url.toString());
 
             if (event instanceof NavigationEnd) {

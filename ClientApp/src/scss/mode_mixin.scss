@@ -42,7 +42,7 @@
   }
 }
 
-@mixin link($dark-menu-bg, $dark-menu-hover-bg, $dark-inner-bg) {
+@mixin dropdown($dark-menu-bg, $dark-menu-hover-bg, $dark-inner-bg) {
 
   // dropdown-menu - Alert component
   .dropdown-menu {
