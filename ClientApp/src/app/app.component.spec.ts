@@ -4,7 +4,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AppComponent } from './app.component';
 import { Application } from './common/global-var';
-import { NavMenuComponent } from './nav-menu/nav-menu.component';
 
 // creating a stub spy for Application - global service
 // using angular component : app-nav-menu

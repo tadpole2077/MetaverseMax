@@ -314,6 +314,7 @@
         <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detailRow"></tr>
 
       </table>
+
       <mat-paginator [hidden]="hidePaginator" [pageSize]="5" [hidePageSize] [showFirstLastButtons]
                      (page)="paginationCloseAllExpanded($event)"
                      class="paginatorContainer">

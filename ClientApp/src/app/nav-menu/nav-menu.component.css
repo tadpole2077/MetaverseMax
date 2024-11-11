@@ -81,10 +81,47 @@ a.nav-link {
   margin-top: 42px;  
 }
 
-@media only screen and (max-width: 430px) {
-  .navbar{
-    margin-right:2px;
+/* Galaxy S8+ */
+@media only screen and (max-width: 360px) {
+  .alertHistory{
+    font-size: 22px
   }
+  .navbar-brand{
+    font-size: 16px
+  }
+}
+
+@media only screen and (max-width: 430px) {
+
+  .navbar {
+    display: flex;
+    margin-right: 2px;
+  }
+
+  .alertHistory{
+    order:1;
+    position: relative;
+    margin-top: unset;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: unset;
+    top: unset;
+  }
+  .navbar-brand{
+    order:2;
+    margin-right:0;
+  }
+  .navbar-toggler{
+    order:3;
+  }
+  .world{
+    order:4;
+    margin-right: 8px;
+  }
+  .navbar-collapse{
+    order: 6;
+   }
+
   .nav-item{
     width: 50%;
   }
@@ -99,17 +136,6 @@ a.nav-link {
     display:none;
   }
 
-  .world {
-    margin-right: 8px;
-  }
-
-  .alertHistory {
-    position: relative;
-    margin-top: unset;
-    margin-left: 10px;
-    padding-left: unset;
-    top: unset;
-  }
   .balance{
     margin-right: 0;
     position: absolute;
@@ -120,4 +146,5 @@ a.nav-link {
   .show{
     display:unset;
   }
+
 }

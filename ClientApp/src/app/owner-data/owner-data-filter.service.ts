@@ -27,7 +27,8 @@ export class OwnerDataFilterService {
         return filterData;
     }
 
-    public async filterByDistrict<T extends {district_id: K}, K>(listData: T[], filterValue: K): Promise<T[]> {
+    // Async call - that resolves to a Promise to return a T[] (Generic array)
+    public async filterByDistrict< T extends {district_id: K}, K>(listData: T[], filterValue: K): Promise< T[] > {
 
         const filterData: T[] = [];
 

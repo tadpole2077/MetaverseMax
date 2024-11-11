@@ -1,8 +1,8 @@
-import { Component, Inject, ViewChild } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { MatBottomSheet, MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
+import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { Alert } from '../common/alert';
-import { JSend, AlertCollection, AlertPending, AlertPendingManager, Application } from '../common/global-var';
+import { JSend, AlertPending, AlertPendingManager, Application } from '../common/global-var';
 import { ALERT_TYPE, ALERT_ICON_TYPE, ICON_TYPE_CHANGE, ALERT_ACTION } from '../common/enum';
 import { Subscription } from 'rxjs';
 
@@ -45,14 +45,14 @@ export class AlertBottomComponent{
             params = params.append('matic_key', this.globals.ownerAccount.matic_key);
             console.log('Alert vars (a) manualFullActive : ' + this.globals.manualFullActive + ' (b)autoAlertCheckProcessing : ' + this.globals.autoAlertCheckProcessing + ' : ' + new Date());      
 
-            if (this.globals.manualFullActive == true || this.globals.autoAlertCheckProcessing == false) {
+            if (this.globals.manualFullActive || this.globals.autoAlertCheckProcessing === false) {
 
                 this.globals.manualFullActive = false;
                 this.globals.bottomAlertRef = null;                 // Release to reset for a new auto check cycle
 
-                this.httpClient.get<any>(this.baseUrl + '/OwnerData/UpdateRead', { params: params })
+                this.httpClient.get<boolean>(this.baseUrl + '/OwnerData/UpdateRead', { params: params })
                     .subscribe({
-                        next: (result) => {
+                        next: () => {
                             console.log('All alerts marked as Viewed/Read');
 
                         },

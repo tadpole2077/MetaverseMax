@@ -196,26 +196,36 @@ namespace MetaverseMax.ServiceClass
         // Finding match on maticKey as this is the key used by MCP for ownership of assets in-world and within local db's
         // Finding a match using lower case  - note C# wont match with mix case != lower case. IMPORTANT
         public string FindOwnerNameByMatic(string maticKey)
-        {
-            OwnerAccount ownerAccount = null;
-            ref Dictionary<string, OwnerAccount> ownersList = ref GetOwnersListByWorldType();
+        {            
             string accountName = string.Empty;
+         
+            try {
+                OwnerAccount ownerAccount = null;
+                ref Dictionary<string, OwnerAccount> ownersList = ref GetOwnersListByWorldType();
+                
 
-            if (ownersList.TryGetValue(maticKey.ToLower(), out ownerAccount))
-            {                
-                accountName = ownerAccount.name;
+                if (ownersList.TryGetValue(maticKey.ToLower(), out ownerAccount))
+                {                
+                    accountName = ownerAccount.name;
+                }
+
+                if (accountName == string.Empty) {  
+
+                    if (ownerAccount != null && ownerAccount.public_key != string.Empty)
+                    {
+                        // Format wallet key to shorted format 0xAAAA...AAAA
+                        accountName = string.Format("{0}...{1}", ownerAccount.public_key[0..6], ownerAccount.public_key[^4..^0]);
+                    }
+                    else
+                    {
+                        accountName = string.Format("{0}...{1}", maticKey[0..6], maticKey[^4..^0]);
+                    }
+                }
             }
-
-            if (accountName == string.Empty) {  
-
-                if (ownerAccount != null)
-                {
-                        accountName = ownerAccount.public_key.ToLower();
-                }
-                else
-                {
-                    accountName = maticKey.ToLower();
-                }
+            catch (Exception ex)
+            {
+                DBLogger dbLogger = new(_context, worldType);
+                dbLogger.logException(ex, String.Concat("OwnerManage.FindOwnerNameByMatic() : Error extracting Owner name for : ", maticKey));
             }
 
             return accountName;

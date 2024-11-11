@@ -146,6 +146,13 @@ $foreground: map-get($dark-app-theme, foreground);
   @include mode.dropdown($dark-menu-bg, $dark-menu-hover-bg, $dark-inner-bg);
 
 
+  // Mat-badge - Angular V16 - text theme color getting dropped within anchor link
+  a .mat-badge-content {
+    color: #fff
+  }
+
+
+
   .gradientBar {
     background: linear-gradient(270deg, rgb(21, 101, 192) 0%, rgba(140, 180, 224, 0.7) 28%, rgba(227, 237, 247, 0.24) 42%, rgba(26, 28, 39, 0) 100%);
   }

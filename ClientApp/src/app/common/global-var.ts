@@ -7,9 +7,9 @@ import { OwnerDataComponent } from '../owner-data/owner-data.component';
 import { AppComponent } from '../app.component';
 //import TronLink from 'tronWeb';
 //import TronWebProvider from 'tronweb';*/    // Massive package 599kb included in main.js file - only needed on server side Tron apps i think
-import { Router, UrlSegmentGroup, PRIMARY_OUTLET, UrlSegment, UrlTree, ActivatedRoute } from '@angular/router';
+import { UrlSegmentGroup, PRIMARY_OUTLET, UrlSegment, UrlTree, ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
-import { ALERT_TYPE, ALERT_ICON_TYPE, PENDING_ALERT,STATUS, HEX_NETWORK } from '../common/enum';
+import { PENDING_ALERT,STATUS, HEX_NETWORK } from '../common/enum';
 import { AlertBottomComponent } from '../alert-bottom/alert-bottom.component';
 import { PublicHashPipe } from '../pipe/public-hash.pipe';
 import Web3, { EIP1193Provider } from 'web3';
@@ -144,7 +144,9 @@ export class Application {
 
         this.rootBaseUrl = rootBaseUrl;     // Unknow world type at this point, checkWorldFromURL will identify.
         this.initAccount();
+        console.log('1');
         this.getProviders();
+        console.log('3');
     }
 
     // Wallet site link Approval flag
@@ -210,14 +212,15 @@ export class Application {
             this._walletKeyFormated = '';
         }
     }
+    get walletApproved() {
+        return this._walletApproved;
+    }
 
     // Get formated Public key in shorthand text for use within Markup UI.
     get walletKeyFormated() {
         return this._walletKeyFormated;
     }
-    get walletApproved() {
-        return this._walletApproved;
-    }
+
     get networkChainId() {
         return this._networkChainId;
     }
@@ -271,6 +274,8 @@ export class Application {
 
             // add logic here for updating UI of your DApp
         });
+        
+        console.log('2');
 
     };
 
@@ -418,7 +423,7 @@ export class Application {
     
     }
 
-  @log('trace')
+  //@log('trace')
   checkUserAccountKey(OwnerPublicKey: string, baseUrl: string, checkMyPortfolio: boolean) {
 
       let params = new HttpParams();
@@ -622,10 +627,10 @@ export class Application {
       return;
   };
 
-  approveTronAccountLink = async (ttpClient: HttpClient, baseUrl: string) => {
+  approveTronAccountLink = async (httpClient: HttpClient, baseUrl: string) => {
 
       const tronWeb = (globalThis).tronWeb;
-      const ownerPublicKey: any = tronWeb.defaultAddress;
+      //const ownerPublicKey: any = tronWeb.defaultAddress;
 
       if (tronWeb && tronWeb.isTronLink) {
           try {
@@ -701,7 +706,7 @@ export class Application {
       const routeTree: UrlTree = this.router.parseUrl(path);
       const routeSegmentGroup: UrlSegmentGroup = routeTree.root.children[PRIMARY_OUTLET];
       let segmentList: UrlSegment[] = null;
-      const lastComponentName = '/';
+      //const lastComponentName = '/';
 
       if (routeSegmentGroup != undefined) {
           segmentList = routeSegmentGroup.segments;

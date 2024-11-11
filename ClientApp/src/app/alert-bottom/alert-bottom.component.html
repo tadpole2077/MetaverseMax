@@ -5,17 +5,17 @@
     <div class="flexCellFirst">
       <span class="alertDate">{{ alert.last_updated }}</span>
       <div>
-        <mat-icon *ngIf="alert.icon_type == ALERT_ICON_TYPE.INFO" class="warningIcon">info</mat-icon>
-        <i *ngIf="alert.icon_type == ALERT_ICON_TYPE.NEW_OFFER" class="fas fa-comments-dollar msgIcon moneyIcon"></i>
-        <img *ngIf="alert.icon_type == ALERT_ICON_TYPE.STAMINA" src="./assets/OutOfStamina.png" class="msgIconStamina">
-        <img *ngIf="alert.icon_type == ALERT_ICON_TYPE.NEW_BUILDING" imgfallback default="./images/construction.png" [src]="getBuildingImg(alert.alert_id)" class="msgIconBuilding">
+        <mat-icon *ngIf="alert.icon_type === ALERT_ICON_TYPE.INFO" class="warningIcon">info</mat-icon>
+        <i *ngIf="alert.icon_type === ALERT_ICON_TYPE.NEW_OFFER" class="fas fa-comments-dollar msgIcon moneyIcon"></i>
+        <img *ngIf="alert.icon_type === ALERT_ICON_TYPE.STAMINA" src="./assets/OutOfStamina.png" class="msgIconStamina">
+        <img *ngIf="alert.icon_type === ALERT_ICON_TYPE.NEW_BUILDING" imgfallback default="./images/construction.png" [src]="getBuildingImg(alert.alert_id)" class="msgIconBuilding">
 
         <div class="multiIcon">
-          <mat-icon *ngIf="alert.icon_type == ALERT_ICON_TYPE.TAX" class="warningIcon smallMatIcon">account_balance</mat-icon>
-          <img *ngIf="alert.icon_type == ALERT_ICON_TYPE.RANKING" src="./assets/magnify_history{{ globals.ownerAccount.dark_mode ? '_dark' : '' }}.png" class="msgIconMagnify" />
+          <mat-icon *ngIf="alert.icon_type === ALERT_ICON_TYPE.TAX" class="warningIcon smallMatIcon">account_balance</mat-icon>
+          <img *ngIf="alert.icon_type === ALERT_ICON_TYPE.RANKING" src="./assets/magnify_history{{ globals.ownerAccount.dark_mode ? '_dark' : '' }}.png" class="msgIconMagnify" />
 
-          <i *ngIf="alert.icon_type_change == ICON_TYPE_CHANGE.INCREASE" class="fas fa-arrow-up supportIcon"></i>
-          <i *ngIf="alert.icon_type_change == ICON_TYPE_CHANGE.DECREASE" class="fas fa-arrow-down supportIcon"></i>
+          <i *ngIf="alert.icon_type_change === ICON_TYPE_CHANGE.INCREASE" class="fas fa-arrow-up supportIcon"></i>
+          <i *ngIf="alert.icon_type_change === ICON_TYPE_CHANGE.DECREASE" class="fas fa-arrow-down supportIcon"></i>
         </div>
       </div>
       <div id="alignfiller"></div>

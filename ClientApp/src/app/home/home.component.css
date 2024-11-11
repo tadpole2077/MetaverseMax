@@ -19,8 +19,8 @@ h3{
 
 .logoImg {
   position: absolute;
-  margin-left: 330px;
-  margin-top: -120px;
+  margin-left: 350px;
+  margin-top: -140px;
 }
 
 .widgetLogo-6zH6Nv:hover {
@@ -210,6 +210,7 @@ h3{
 
 
 @media only screen and (max-width: 430px) {
+
   H2 {
     font-size: 1.5rem;
   }
@@ -223,10 +224,19 @@ h3{
   }
 
   .logoImg {
-    right: .3rem;
+    right: 8px;
     height: 80px;
-    margin-top: -140px;
+    margin-top: -150px;
   }
+
+  .actionPanel{
+    flex-direction: column;
+    row-gap: 14px;
+  }
+    .action{
+      margin: 0;
+      margin-right: 12px;
+    }
 
   .homeContent {
     font-size: 13px;
@@ -253,6 +263,11 @@ h3{
   .promoImg {
     max-width: 340px;
     height: auto;
+  }
+
+  .socialButtons{
+    margin-top: 20px;
+    margin-bottom: 26px  
   }
 
   #twitter-widget-0 {
@@ -293,4 +308,12 @@ h3{
     margin-right: 0.3rem;
   }
 
+  .partnerLinkBlock{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .partnerLink{
+    margin-right: unset;
+  }
 }

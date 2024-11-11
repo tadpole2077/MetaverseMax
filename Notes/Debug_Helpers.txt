@@ -1,0 +1,5 @@
+﻿
+1)  Trace "Call Stack" Log to console
+- To trace to console the call tree stack of any target function, 
+- add decriptor //@log('trace')  before the function.
+- log() Fn defined in global-var.ts

@@ -30,8 +30,21 @@ Actions:
 
 	npm i @ng-bootstrap/ng-bootstrap@15.1.2   (prior version @14.2.0) : https://www.npmjs.com/package/@ng-bootstrap/ng-bootstrap/v/15.1.2
 		- warning same as before with esLint, force install and address eslint upgrade next.
+		- existing bootstrap@5.2.3 is valid for V16 Angular
 
+	eslint - manual update of packages ( @angular-eslint ) to latest version compatible with V16 Angular, then run npm install
+		    "@angular-eslint/builder": "16.3.1",
+			"@angular-eslint/eslint-plugin": "16.3.1",
+			"@angular-eslint/eslint-plugin-template": "16.3.1",
+			"@angular-eslint/schematics": "16.3.1",
+			"@angular-eslint/template-parser": "16.3.1",
 
+	
+	rxjs : prior V15 version compatible 7.8.1  - no change : https://angular.dev/reference/versions
+
+	npm i @swimlane/ngx-charts@20.5.0	:  https://swimlane.gitbook.io/ngx-charts/changelog , https://www.npmjs.com/package/@swimlane/ngx-charts [ >1 year old, min support currently :/ ]
+
+===============================
 Potential Code Changes:
 1) The Event union no longer contains RouterEvent, which means that if you're using the Event type you may have to change the type definition from (e: Event) to (e: Event|RouterEvent)
 
@@ -42,10 +55,18 @@ Potential Code Changes:
 
 
 
+================================
+Styling Issues (introduced from upgrade [i think])
+File: src\theme.scss
+1) mat-badge - text color
+Issues:  bell alert count,  My Portfolio > Plot count badge
 
 
 
 
+
+
+==================================
 Test
 	Compile - Run (start via VS2022)
 

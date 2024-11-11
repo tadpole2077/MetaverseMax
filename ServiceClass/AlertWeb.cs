@@ -20,6 +20,7 @@ namespace MetaverseMax.ServiceClass
         public short icon_type { get; set; }
         public short icon_type_change { get; set; }
         public bool trigger_active { get; set; }
+        public string owner { get; set; }
 
     }
 }

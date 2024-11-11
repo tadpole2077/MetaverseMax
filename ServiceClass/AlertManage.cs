@@ -75,7 +75,7 @@ namespace MetaverseMax.ServiceClass
                         icon_type_change = alert.icon_type_change,
                         last_updated = common.DateFormatStandard(alert.last_updated),
                         trigger_active = alertTriggerList.Where(x => x.key_type == alert.alert_type && x.id == getAlertId(alert.alert_id, (ALERT_TYPE)alert.alert_type)).Count() == 1,
-                        alert_id = alert.alert_id,
+                        alert_id = alert.alert_id
                     };
                 }).ToList();
             }

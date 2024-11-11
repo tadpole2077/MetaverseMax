@@ -36,7 +36,6 @@ export class AlertHistoryComponent {
     showHistory(event: Event) {
 
         let params = new HttpParams();
-        const that = this;
 
         params = params.append('matic_key', this.globals.ownerAccount.matic_key);
         params = params.append('pending_alert', PENDING_ALERT.ALL);
@@ -53,11 +52,11 @@ export class AlertHistoryComponent {
                             this.globals.systemShutdownPending = result.data.app_shutdown_warning_alert;
 
                             // Close and remove existing bottom sheet
-                            if (that.bottomAlertRef != null) {
-                                that.bottomAlertRef.dismiss();
+                            if (this.bottomAlertRef != null) {
+                                this.bottomAlertRef.dismiss();
                             }
 
-                            that.bottomAlertRef = that.alertSheet.open(AlertBottomComponent, {
+                            this.bottomAlertRef = this.alertSheet.open(AlertBottomComponent, {
                                 data: this.alertPendingManager,
                             });
 
