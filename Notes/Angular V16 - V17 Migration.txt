@@ -31,4 +31,9 @@ Actions:
 	npm i zone.js@0.14.10
 
 	ng update @angular/core@17 @angular/cli@17 @angular-eslint/schematics@17
+	*** Note this includes the eslint upgrade as per V17.0.0 guidence https://github.com/angular-eslint/angular-eslint/releases?page=2
 
+	ng update @angular/material@17
+
+Update Notes:
+- Angular v17 introduces a new control flow syntax that uses the @ and } characters, V17 update automaticaly replacing prior syntax
