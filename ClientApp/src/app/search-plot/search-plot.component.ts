@@ -1,5 +1,4 @@
-import { Component, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { ICoordinates } from '../owner-data/owner-interface';
 
 @Component({

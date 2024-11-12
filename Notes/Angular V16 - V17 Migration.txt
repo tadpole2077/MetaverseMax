@@ -37,3 +37,5 @@ Actions:
 
 Update Notes:
 - Angular v17 introduces a new control flow syntax that uses the @ and } characters, V17 update automaticaly replacing prior syntax
+
+- Angular Material V17 :  Cant upgrade due to use of legacy Material components. 
