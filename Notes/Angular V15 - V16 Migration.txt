@@ -44,6 +44,8 @@ Actions:
 
 	npm i @swimlane/ngx-charts@20.5.0	:  https://swimlane.gitbook.io/ngx-charts/changelog , https://www.npmjs.com/package/@swimlane/ngx-charts [ >1 year old, min support currently :/ ]
 
+
+
 ===============================
 Potential Code Changes:
 1) The Event union no longer contains RouterEvent, which means that if you're using the Event type you may have to change the type definition from (e: Event) to (e: Event|RouterEvent)
@@ -60,7 +62,6 @@ Styling Issues (introduced from upgrade [i think])
 File: src\theme.scss
 1) mat-badge - text color
 Issues:  bell alert count,  My Portfolio > Plot count badge
-
 
 
 

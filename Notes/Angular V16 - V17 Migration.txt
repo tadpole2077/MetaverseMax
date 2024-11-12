@@ -1,0 +1,34 @@
+﻿WHEN: 11/11/2024
+Angular Version: 17.3.c
+
+Links:
+https://update.angular.io/?l=2&v=14.0-15.0
+https://v17.angular.io/guide/versions
+
+
+Dependencies Options selected:
+- Angular Material
+- Windows
+
+Change CMD Directory:  ..\MetaverseMax\clientApp
+
+Node:
+	V17 compatible with node.js ^18.13.0 || ^20.9.0			- CHANGED to 18.20.3
+	* (2024-11 previously active) Node V16.20.2				- (cmd)nvm list  ,  node -v
+
+
+Compatible Packages
+	Typescript >=5.2.0 <5.5.0					- 4.9.4 version installed pre-upgrade.	 Upgrade required  5.4.5
+												https://www.npmjs.com/package/typescript/v/5.5.4
+	RXJS ^6.5.3 || ^7.4.0						- 7.8.1 version installed pre-upgrade.   No upgrade required.
+	Zone.js V0.14.x or later					- 0.13.3 version installed pre-upgrade.	 Upgrade required 0.14.10
+												https://www.npmjs.com/package/zone.js/v/0.14.10
+
+
+Actions:
+	npm i typescript@5.4.5 --save-dev
+
+	npm i zone.js@0.14.10
+
+	ng update @angular/core@17 @angular/cli@17 @angular-eslint/schematics@17
+
