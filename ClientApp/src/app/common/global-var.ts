@@ -96,7 +96,6 @@ export class Application {
     public approveSwitchComponent: AccountApproveComponent;
     public homeCDF: ChangeDetectorRef = null;
     public menuCDF: ChangeDetectorRef = null;
-    public ownerCDF: ChangeDetectorRef = null;
     public ownerComponent: OwnerDataComponent = null;
     public appComponentInstance: AppComponent = null;
     public alertSub: Subscription;

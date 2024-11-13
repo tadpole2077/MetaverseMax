@@ -38,4 +38,9 @@ Actions:
 Update Notes:
 - Angular v17 introduces a new control flow syntax that uses the @ and } characters, V17 update automaticaly replacing prior syntax
 
-- Angular Material V17 :  Cant upgrade due to use of legacy Material components. 
+- Angular Material V17 :  Cant upgrade due to use of legacy Material components.  Action: Removed unused reference to legacy control.
+
+
+Compile Errors:
+1)  error TS2724: '"@angular/material/table"' has no exported member named 'MatTableDataSourcePaginator'. Did you mean 'MatTableDataSource'?
+Used within : owner-data/owner-data.component.ts

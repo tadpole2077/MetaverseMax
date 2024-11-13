@@ -96,23 +96,26 @@ a.mobileView{
 
 
 .alertBtns i {
-  font-size: 1rem;
-  margin-left: 8px;
+  font-size: 15px;
+  margin-left: 4px;
   margin-top: 10px;
   position: absolute;
   color: white;
   z-index: 1;
 }
+
+.alertBtns .fa-paw {
+  margin-left: 6px;
+  font-size: 16px;
+}
+.alertBtns .fa-users {
+}
 .alertBtns .fa-comments-dollar {
-  font-size: 1.2rem;
-  margin-left: 7px;
-  margin-top: 6px;  
+  font-size: 16px;
+  margin-left: 5px;
+  margin-top: 8px; 
 }
-.fa-users, .fa-paw {
-  font-size: 1.1rem;
-  margin-left: 8px;
-  margin-top: 6px;
-}
+
 
 .btnAlert {
   animation: glowBtnAlert 1.4s ease-in-out infinite alternate;

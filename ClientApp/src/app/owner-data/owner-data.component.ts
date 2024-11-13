@@ -3,7 +3,7 @@ import { Component, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit, OnD
 import { Location } from '@angular/common';
 import { Event, NavigationEnd, Router, ActivatedRoute } from '@angular/router';
 import { interval, Subscription } from 'rxjs';
-import { MatTableDataSource, MatTableDataSourcePaginator } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatButton } from '@angular/material/button';
 import { ProdHistoryComponent } from '../production-history/prod-history.component';
@@ -75,7 +75,6 @@ export class OwnerDataComponent implements AfterViewInit, OnDestroy {
         this.setInitVar();
         this.initFilterCount();    
 
-        globals.ownerCDF = cdf;
         globals.ownerComponent = this;    
 
     }
@@ -87,7 +86,7 @@ export class OwnerDataComponent implements AfterViewInit, OnDestroy {
     // Need the Plot Search component loaded to change its flags
     ngAfterViewInit() {
 
-        // Check on URL change due to movement between features
+        // Check on URL change due to movement between features : eg user click on owner wallet key to load portfolio of owner
         //  V15 Angular .subscribe((event: RouterEvent) ...
         this.subscriptionRouterEvent = this.router.events.subscribe((event: Event) => {
             //console.log('current route: ', router.url.toString());
@@ -352,7 +351,7 @@ export class OwnerDataComponent implements AfterViewInit, OnDestroy {
             this.sort.direction = 'desc';
             this.dataSource.sort = this.sort;
             // Add custom sort callback
-            this.applySortDataAsccessor(this.dataSource);
+            this.applySortDataAsccessor(this.dataSource as MatTableDataSource<IOwnerLandData>);
             this.sort.sortChange.emit(this.sort);   // trigger default sort
 
             //this.sort.sort(({ id: 'last_action', start: 'desc' }) as MatSortable);        // Default sort order on date
@@ -386,10 +385,11 @@ export class OwnerDataComponent implements AfterViewInit, OnDestroy {
         return;
     }
 
-    applySortDataAsccessor(targetDataSource: MatTableDataSource<unknown, MatTableDataSourcePaginator>) {
+    applySortDataAsccessor(targetDataSource: MatTableDataSource<IOwnerLandData>) {
 
         this.staminaView = false;
-        // Add custom date column sort
+        // Add custom date column sort via overriding the base class method (MatTableDataSource class)
+        // Returns either string | number  used in sort comparision.
         targetDataSource.sortingDataAccessor = (item: IOwnerLandData, property) => {
 
             this.staminaView = false;
@@ -399,7 +399,10 @@ export class OwnerDataComponent implements AfterViewInit, OnDestroy {
             case 'building_type': return item.building_type * 10 + item.resource;
             case 'current_influence_rank': return item.building_type == 0 && this.sort.direction == 'asc' ? 1000 : item.current_influence_rank;   // Only sort plots with buildings
             case 'condition': return item.building_type == 0 && this.sort.direction == 'asc' ? 1000 : item.condition;   // Only sort plots with buildings
-            case 'alert': return item.c_r == true ||  item.c_d >0 || item.c_h >0 || item.c_m >0  ? 1 - (item.c_d/7)  - (item.c_h/24/7) - (item.c_m/3600) : item.citizen_stamina_alert == true ? .001 : 0;
+            case 'alert':
+                // sort by run time remaining assending 
+                // citizen_stamina_alert flag true then sort with leading alert active rows
+                return item.c_r == true || item.c_d > 0 || item.c_h > 0 || item.c_m > 0 ? 1 - (item.c_d / 7) - (item.c_h / 24 / 7) - (item.c_m / 3600) : item.citizen_stamina_alert == true ? .001 : 0; 
             default: return item[property];
             }
         };
@@ -431,7 +434,7 @@ export class OwnerDataComponent implements AfterViewInit, OnDestroy {
             this.dataSource = new MatTableDataSource<IOwnerLandData>(sortbyAlert);
             this.sort.active = '';
             this.dataSource.sort = this.sort;
-            this.applySortDataAsccessor(this.dataSource);
+            this.applySortDataAsccessor(this.dataSource as MatTableDataSource<IOwnerLandData> );
 
             this.staminaView = true;
 
@@ -511,7 +514,7 @@ export class OwnerDataComponent implements AfterViewInit, OnDestroy {
         // Assign filtered dataset
         this.dataSource = new MatTableDataSource<IOwnerLandData>(filterbyMulti);
         this.dataSource.sort = this.sort;
-        this.applySortDataAsccessor(this.dataSource);
+        this.applySortDataAsccessor(this.dataSource as MatTableDataSource<IOwnerLandData>);
         this.sort.sortChange.emit(this.sort);   // Apply current sort order (last used)    
 
         return;
