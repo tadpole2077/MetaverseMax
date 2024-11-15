@@ -12,7 +12,7 @@ import { ICoordinates, IOwnerData } from '../owner-data/owner-interface';
 })
 export class HttpOwnerDataService {
 
-    constructor(public globals: Application, private http: HttpClient, @Inject('BASE_URL') private baseUrl: string)
+    constructor(public app: Application, private http: HttpClient, @Inject('BASE_URL') private baseUrl: string)
     {
 
     }
@@ -24,7 +24,7 @@ export class HttpOwnerDataService {
         params = params.append('plotX', plotPos.pos_x);
         params = params.append('plotY', plotPos.pos_y);
 
-        const url = this.baseUrl + 'api/' + this.globals.worldCode;        // need to rebuild url incase of world change, service obj is reused.
+        const url = this.baseUrl + 'api/' + this.app.worldCode;        // need to rebuild url incase of world change, service obj is reused.
 
         return this.http.get<IOwnerData>(url + '/OwnerData', { params: params });
 
@@ -35,7 +35,7 @@ export class HttpOwnerDataService {
         let params = new HttpParams();
         params = params.append('owner_matic_key', ownerMatic);
 
-        const url = this.baseUrl + 'api/' + this.globals.worldCode;        // need to rebuild url incase of world change, service obj is reused.
+        const url = this.baseUrl + 'api/' + this.app.worldCode;        // need to rebuild url incase of world change, service obj is reused.
 
         return this.http.get<IOwnerData>(url + '/ownerdata/getusingmatic', { params: params });
         //return this.http.get<IOwnerData>('/mock/api/');

@@ -359,12 +359,10 @@ export class DirectDepositDialogComponent {
 
   async checkBNBTestnet() {
 
-      let chainIdHex: string;
       let bnbSmartChainTestNet = false;
 
-      const connected = await this.checkNetwork(HEX_NETWORK.BINANCE_TESTNET_ID, 'BNB Smart Chain - Testnet');
-
-      chainIdHex = await this.ethereum.request({ method: 'eth_chainId', params: [] });
+      const connected: boolean = await this.checkNetwork(HEX_NETWORK.BINANCE_TESTNET_ID, 'BNB Smart Chain - Testnet');
+      const chainIdHex: string = await this.ethereum.request({ method: 'eth_chainId', params: [] });
 
       if (connected && chainIdHex == HEX_NETWORK.BINANCE_TESTNET_ID && this.provider) {
           bnbSmartChainTestNet = true;

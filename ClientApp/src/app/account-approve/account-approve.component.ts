@@ -54,10 +54,10 @@ export class AccountApproveComponent implements OnDestroy{
     async clickAccountLink() {
 
         if (this.globals.selectedWorld == WORLD.TRON) {
-            this.globals.approveTronAccountLink(this.httpClient, this.baseUrl);
+            this.globals.approveTronAccountLink();
         }
         else if (this.globals.selectedWorld == WORLD.BNB || this.globals.selectedWorld == WORLD.ETH) {
-            this.globals.approveEthereumAccountLink(this.httpClient, this.baseUrl);
+            this.globals.approveEthereumAccountLink();
         }
 
         return;

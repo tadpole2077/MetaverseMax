@@ -5,12 +5,12 @@ import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-shee
 import { AccountApproveComponent } from '../account-approve/account-approve.component';
 import { OwnerDataComponent } from '../owner-data/owner-data.component';
 import { AppComponent } from '../app.component';
+import { AlertManagerService } from '../service/alert-manager.service';
 //import TronLink from 'tronWeb';
 //import TronWebProvider from 'tronweb';*/    // Massive package 599kb included in main.js file - only needed on server side Tron apps i think
 import { UrlSegmentGroup, PRIMARY_OUTLET, UrlSegment, UrlTree, ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
-import { PENDING_ALERT,STATUS, HEX_NETWORK } from '../common/enum';
-import { AlertBottomComponent } from '../alert-bottom/alert-bottom.component';
+import { STATUS, HEX_NETWORK } from '../common/enum';
 import { PublicHashPipe } from '../pipe/public-hash.pipe';
 import Web3, { EIP1193Provider } from 'web3';
 import { EIP6963ProviderDetail } from 'web3/lib/commonjs/web3_eip6963';
@@ -40,26 +40,6 @@ interface RequestAccountsResponse {
 interface JSend<dataObject> {
   status: string;
   data: dataObject;
-}
-interface AlertCollection {
-  history_count: number,
-  app_shutdown_warning_alert: boolean,
-  alert: AlertPending[]
-}
-interface AlertPending {
-  alert_pending_key: number,
-  last_updated: string,
-  alert_message: string,
-  alert_type: number,
-  alert_id: number,
-  icon_type: number,
-  icon_type_change: number,
-  trigger_active: boolean,  
-}
-
-interface AlertPendingManager {
-  manage: boolean,  
-  alert: AlertPending[]
 }
 
 enum WORLD {
@@ -98,10 +78,6 @@ export class Application {
     public menuCDF: ChangeDetectorRef = null;
     public ownerComponent: OwnerDataComponent = null;
     public appComponentInstance: AppComponent = null;
-    public alertSub: Subscription;
-    public manualFullActive = false;
-    public autoAlertCheckProcessing = false;
-    public bottomAlertRef: MatBottomSheetRef = null;
 
     public systemShutdownPending = false;
 
@@ -139,15 +115,19 @@ export class Application {
     private approveSwitchSubject = new Subject<APPROVE_STATE>();
     public approveSwitch$ = this.approveSwitchSubject.asObservable();
 
-    constructor(private httpClient: HttpClient, private alertSheet: MatBottomSheet, public router: Router, private location: Location, private route: ActivatedRoute, @Inject('BASE_URL') rootBaseUrl: string) {
+    // Subscription notifications within services
+    private subscriptionAlertCount$: Subscription;
+    private subscriptionSystemShutdownPending$: Subscription;
+
+    constructor(private httpClient: HttpClient, private alertManagerService: AlertManagerService,  private alertSheet: MatBottomSheet, public router: Router, private location: Location, private route: ActivatedRoute, @Inject('BASE_URL') rootBaseUrl: string) {
 
         this.rootBaseUrl = rootBaseUrl;     // Unknow world type at this point, checkWorldFromURL will identify.
-        this.initAccount();
-        console.log('1');
+        this.initAccount();        
         this.getProviders();
-        console.log('3');
+        
     }
 
+    
     // Wallet site link Approval flag
     set requestApprove(value) {    
 
@@ -245,6 +225,24 @@ export class Application {
             balance_visible: false,
             app_shutdown_warning_alert: false
         };    
+
+        // Release any prior subscribed sub, active wallet accounts may change
+        if (this.subscriptionAlertCount$) {
+            this.subscriptionAlertCount$.unsubscribe();
+            this.subscriptionAlertCount$ = null;
+        }
+        if (this.subscriptionSystemShutdownPending$) {
+            this.subscriptionSystemShutdownPending$.unsubscribe();
+            this.subscriptionSystemShutdownPending$ = null;
+        }
+        // Subscribe to observables relted to account
+        this.subscriptionAlertCount$ = this.alertManagerService.alertCount$.subscribe(count => {
+            this.ownerAccount.alert_count = count;
+        });
+
+        this.subscriptionSystemShutdownPending$ = this.alertManagerService.systemShutdownPending$.subscribe(shutdown => {
+            this.systemShutdownPending = shutdown;
+        });
 
     }
 
@@ -429,10 +427,8 @@ export class Application {
       params = params.append('owner_public_key', OwnerPublicKey);
 
       // Clear any prior alert subscription - due to switching worlds.
-      if (this.alertSub && !this.alertSub.closed) {
-          this.alertSub.unsubscribe();
-          this.alertSub = null;
-      }
+      this.alertManagerService.disableAlertChecker();
+
 
       this.httpClient.get<JSend<OwnerAccount>>(baseUrl + '/OwnerData/CheckHasPortfolio', { params: params })
           .subscribe({
@@ -446,7 +442,11 @@ export class Application {
                       if (this.ownerAccount.wallet_active_in_world) {
               
                           this.approvalType = APPROVAL_TYPE.NONE;
-                          this.enableAlertChecker(baseUrl, this.ownerAccount.matic_key);               // Interval account alert checker job
+
+                          // Interval account alert checker job
+                          this.alertManagerService.enableAlertChecker(baseUrl, this.ownerAccount.matic_key).then();
+
+                          // Trigger account active observable flag 
                           this.accountActiveSubject.next(true);
                       }
                       else {              
@@ -479,10 +479,10 @@ export class Application {
   getTronAccounts = async (baseUrl: string) => {
 
       let attempts = 0;
-      let subTron: Subscription;
+      //const subTron: Subscription;
       //const TronWeb = require('tronweb')
       //const tronWebProvider = await TronWebProvider;
-      let requestAccountsResponse: RequestAccountsResponse;
+      //let requestAccountsResponse: RequestAccountsResponse;
       //const TronWeb = require('tronweb')
       //const HttpProvider = TronWeb.providers.HttpProvider;
 
@@ -504,7 +504,7 @@ export class Application {
 
 
       // Delay check on Tron Widget load and init, must be a better way of hooking into it.  Try to find Tron account 5 times - 1 per 500ms, on find run WS or end.
-      subTron = interval(500)
+      const subTron: Subscription = interval(500)
           .subscribe(
               async (val) => {
 
@@ -626,7 +626,8 @@ export class Application {
       return;
   };
 
-  approveTronAccountLink = async (httpClient: HttpClient, baseUrl: string) => {
+  // Check if TronLink Wallet enabled, and site approved.
+  approveTronAccountLink = async () => {
 
       const tronWeb = (globalThis).tronWeb;
       //const ownerPublicKey: any = tronWeb.defaultAddress;
@@ -642,7 +643,8 @@ export class Application {
       }
   };
 
-  approveEthereumAccountLink = async (httpClient: HttpClient, baseUrl: string) => {
+  // Check if Ethemeum Wallet enabled, and account - site linked.
+  approveEthereumAccountLink = async () => {
 
       const ethereum = globalThis.ethereum;
 
@@ -714,64 +716,6 @@ export class Application {
       return segmentList;
   }
 
-  enableAlertChecker(baseUrl: string, ownerMaticKey: string) {
-    
-      const that = this;
-      const alertPendingManager: AlertPendingManager = {
-          alert: null,
-          manage: false
-      };
-      let params = new HttpParams();    
-
-      params = params.append('matic_key', ownerMaticKey);
-      params = params.append('pending_alert', PENDING_ALERT.UNREAD);
-
-      // Defencive coding - Dont run double interval
-      if (this.alertSub != null) {
-          return;
-      }
-
-      // 3 min interval checking alerts
-      this.alertSub = interval(180000)
-          .subscribe(
-              async (val) => {
-
-                  console.log('Account Alert Check : ' + new Date());
-
-                  // Skip interval check if full history is currently and manually open
-                  if (that.bottomAlertRef != null && that.manualFullActive == true) {
-                      console.log('Alert full History currently Open - skip new alert check : ' + new Date());
-                      return;
-                  }
-
-                  this.httpClient.get<JSend<AlertCollection>>(baseUrl + '/OwnerData/GetPendingAlert', { params: params })
-                      .subscribe({
-                          next: (result) => {
-                              if (result.status == STATUS.SUCCESS) {
-
-                                  alertPendingManager.alert = result.data.alert;
-                                  that.ownerAccount.alert_count = result.data.history_count;
-                                  that.systemShutdownPending = result.data.app_shutdown_warning_alert;
-                                  that.autoAlertCheckProcessing = true;
-
-                                  if (alertPendingManager.alert && alertPendingManager.alert.length > 0) {
-
-                                      that.bottomAlertRef = that.alertSheet
-                                          .open(AlertBottomComponent, {
-                                              data: alertPendingManager,
-                                          });
-
-                                  }
-                              }
-                          },
-                          error: (error) => {
-                              console.error('WARNING Account Alert Check ERROR : ' + error);
-                          }
-                      });
-              }
-          );
-    
-  }
 
 }
 
@@ -837,9 +781,6 @@ export function log2(target: any, property: string, descriptor?: PropertyDescrip
 export {
     OwnerAccount,
     WORLD,
-    AlertPending,
-    AlertPendingManager,
-    AlertCollection,
     JSend,
     APPROVAL_TYPE,
     APPROVE_STATE

@@ -1,277 +1,278 @@
 <div class="innerContainer">
-  <div *ngIf="!owner.owner_matic_key" class="introSection">
-    <h3>Plot Owner Report</h3>
-    <img src="{{ globals.worldURLPath }}citizen/{{ globals.firstCitizen }}" class="introImg" height="160" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <span>Search for an Owner, Enter Plot X and Y position, click Find Owner.</span>
-  </div>
-
-  <div [ngClass]="{'blink': searchBlinkOnce }" (animationend)="searchBlinkOnce=false" class="searchWithProfile">
-    <img *ngIf="owner.owner_matic_key && owner.owner_matic_key.length > 0" src="{{ owner.owner_url }}" [ngClass]="{'mysteryImg': owner.plot_count == -1 || owner.owner_url=='./images/MysteryOwner.png', 'noOwner': owner.plot_count == -1}" class="ownerImg" height="160" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <div *ngIf="owner.registered_date" class="slideOutLeft">
-      <p aria-live="polite">
-        Player Registered On:
-        <span>{{ owner.registered_date }}</span>
-      </p>
-      <p aria-live="polite" style="display:none">
-        Last Visit On:
-        <span>{{ owner.last_visit }}</span>
-      </p>
-    </div>
-    <app-search-plot (searchPlotEvent)="searchPlot($event)" class="searchComponent"></app-search-plot>
-  </div>
-
-  <h3 *ngIf="owner.last_action" id="tableLabel">Plot Owner Report</h3>
-
-  <p *ngIf="!owner"><em>Loading...</em></p>
-
-  <div>
-    <div *ngIf="owner && owner.search_info" class="ownerSection">
-      <span class="ownerLabel">Search Result: </span>
-      <span>{{ owner.search_info }}</span>
+    <div *ngIf="!owner.owner_matic_key" class="introSection">
+        <h3>Plot Owner Report</h3>
+        <img src="{{ globals.worldURLPath }}citizen/{{ globals.firstCitizen }}" class="introImg" height="160" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <span>Search for an Owner, Enter Plot X and Y position, click Find Owner.</span>
     </div>
 
-    <div *ngIf="owner.owner_name || owner.owner_matic_key">
-      <div class="ownerSection ownerName">
-        Owner: <span>{{ owner.owner_name == "" ? "(unknown)" : owner.owner_name }}</span>
-      </div>
-
-      <div *ngIf="owner.owner_matic_key && owner.owner_matic_key.length > 0" class="ownerSection ownerKey">
-        Owner Key:
-        <a class="showMaticKeySmall" target="_blank" href="https://explorer-mainnet.maticvigil.com/address/{{ owner.owner_matic_key }}/tokens">Matic Explorer</a>
-        <a class="showMaticKeyLarge lineAnim" target="_blank" href="https://explorer-mainnet.maticvigil.com/address/{{ owner.owner_matic_key }}/tokens">( MATIC ) {{ owner.owner_matic_key }}</a>
-      </div>
+    <div [ngClass]="{'blink': searchBlinkOnce }" (animationend)="searchBlinkOnce=false" class="searchWithProfile">
+        <img *ngIf="owner.owner_matic_key && owner.owner_matic_key.length > 0" src="{{ owner.owner_url }}" [ngClass]="{'mysteryImg': owner.plot_count == -1 || owner.owner_url=='./images/MysteryOwner.png', 'noOwner': owner.plot_count == -1}" class="ownerImg" height="160" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <div *ngIf="owner.registered_date" class="slideOutLeft">
+            <p aria-live="polite">
+                Player Registered On:
+                <span>{{ owner.registered_date }}</span>
+            </p>
+            <p aria-live="polite" style="display:none">
+                Last Visit On:
+                <span>{{ owner.last_visit }}</span>
+            </p>
+        </div>
+        <app-search-plot (searchPlotEvent)="searchPlot($event)" class="searchComponent"></app-search-plot>
     </div>
 
-    <div [hidden]="owner.plot_count == -1">
+    <h3 *ngIf="owner.last_action" id="tableLabel">Plot Owner Report</h3>
+    <p *ngIf="!owner"><em>Loading...</em></p>
 
-      <div class="alertBtns">
-        <div class="offerBtnDiv">
-          <i class="fas fa-ambulance"></i>
-          <button #lowStaminaBtn mat-raised-button color="primary" (click)="sortTableAlertShowingStaminaFirst()">{{ owner.stamina_alert_count }} X Low Stamina</button>
-        </div>
-
-        <div class="offerBtnDiv">
-          <i class="fas fa-comments-dollar"></i>
-          <button #offerDetailsBtn mat-raised-button color="primary" (click)="showOffer()">{{ owner.offer_count }} X Active Offers</button>
+    <div>
+        <div *ngIf="owner && owner.search_info" class="ownerSection">
+            <span class="ownerLabel">Search Result: </span>
+            <span>{{ owner.search_info }}</span>
         </div>
 
-        <div class="offerBtnDiv">
-          <i class="fas fa-paw"></i>
-          <button #petBtn mat-raised-button color="primary" class="smallBtn" (click)="showPet()">{{ owner.pet_count }} X Pets</button>
+        <div *ngIf="owner.owner_name || owner.owner_matic_key">
+            <div class="ownerSection ownerName">
+                Owner: <span>{{ owner.owner_name == "" ? "(unknown)" : owner.owner_name }}</span>
+            </div>
+
+            <div *ngIf="owner.owner_matic_key && owner.owner_matic_key.length > 0" class="ownerSection ownerKey">
+                Owner Key:
+                <a class="showMaticKeySmall" target="_blank" href="https://explorer-mainnet.maticvigil.com/address/{{ owner.owner_matic_key }}/tokens">Matic Explorer</a>
+                <a class="showMaticKeyLarge lineAnim" target="_blank" href="https://explorer-mainnet.maticvigil.com/address/{{ owner.owner_matic_key }}/tokens">( MATIC ) {{ owner.owner_matic_key }}</a>
+            </div>
         </div>
 
-        <div class="offerBtnDiv">
-          <i class="fas fa-users"></i>
-          <button #citizenBtn mat-raised-button color="primary" class="smallBtn" (click)="showCitizen()">{{ owner.citizen_count }} X Citizen</button>
-        </div>
+        <div [hidden]="owner.plot_count == -1">
 
-        <div class="offerBtnDiv" style="display:none">
-          <button #packBtn mat-raised-button color="primary" class="smallBtn" (click)="showPack()"><img src="https://play.mcp3d.com/assets/images/resources/brick.png" class="packImg" referrerpolicy="no-referrer" />{{ owner.pack_count }} X Packs</button>
-        </div>
-      </div>
+            <div class="alertBtns">
+                <div class="offerBtnDiv">
+                    <i class="fas fa-ambulance"></i>
+                    <button #lowStaminaBtn mat-raised-button color="primary" (click)="sortTableAlertShowingStaminaFirst()">{{ owner.stamina_alert_count }} X Low Stamina</button>
+                </div>
 
-      <app-offer-modal [hidden]="!this.offerShow" (hideOfferEvent)="hideOffer($event)"></app-offer-modal>
-      <app-pet-modal [hidden]="!this.petShow" (hidePetEvent)="hidePet($event)"></app-pet-modal>
-      <app-citizen-modal [hidden]="!this.citizenShow" (hideCitizenEvent)="hideCitizen($event)"></app-citizen-modal>
-      <app-pack-modal [hidden]="!this.packShow" (hidePackEvent)="hidePack($event)"></app-pack-modal>
+                <div class="offerBtnDiv">
+                    <i class="fas fa-comments-dollar"></i>
+                    <button #offerDetailsBtn mat-raised-button color="primary" (click)="showOffer()">{{ owner.offer_count }} X Active Offers</button>
+                </div>
 
-      <div class="ownerPlotSection" aria-live="polite">
-        <div>
-          <span class="mediaLarge">Owned Plots: </span>
-          <span class="media415">Owned: </span>
-          <strong>{{ owner.plot_count }}</strong>
-        </div>
-        <div>
-          <span class="mediaLarge">Developed Plots: </span>
-          <span class="media415">Developed: </span>
-          <strong>{{ owner.developed_plots }}</strong>
-        </div>
-        <div>
-          <span>For Sale: </span>
-          <a role="button" class="lineAnim" (click)="sortTableForSale()"><span><strong>{{ owner.plots_for_sale }}</strong></span></a>
-        </div>
-      </div>
+                <div class="offerBtnDiv">
+                    <i class="fas fa-paw"></i>
+                    <button #petBtn mat-raised-button color="primary" class="smallBtn" (click)="showPet()">{{ owner.pet_count }} X Pets</button>
+                </div>
 
-      <div class="districtPlots">
-        <div class="districtHeader">
-          <span class="districtLabel">District Plots:</span>
-          <div class="boxOutline showAllContainer" [hidden]="!this.buttonShowAll">
-            <a role="button" (click)="filterTable($event, 0, BUILDING.NO_FILTER)" class="showAllLink lineAnim">
-              <span class="districtNum">Remove Filter</span>
-              <i class="fas fa-times"></i>
-            </a>
-          </div>
+                <div class="offerBtnDiv">
+                    <i class="fas fa-users"></i>
+                    <button #citizenBtn mat-raised-button color="primary" class="smallBtn" (click)="showCitizen()">{{ owner.citizen_count }} X Citizen</button>
+                </div>
+
+                <div class="offerBtnDiv" style="display:none">
+                    <button #packBtn mat-raised-button color="primary" class="smallBtn" (click)="showPack()"><img src="https://play.mcp3d.com/assets/images/resources/brick.png" class="packImg" referrerpolicy="no-referrer" />{{ owner.pack_count }} X Packs</button>
+                </div>
+            </div>
+
+            <app-offer-modal [hidden]="!this.offerShow" (hideOfferEvent)="hideOffer($event)"></app-offer-modal>
+            <app-pet-modal [hidden]="!this.petShow" (hidePetEvent)="hidePet($event)"></app-pet-modal>
+            <app-citizen-modal [hidden]="!this.citizenShow" (hideCitizenEvent)="hideCitizen($event)"></app-citizen-modal>
+            <app-pack-modal [hidden]="!this.packShow" (hidePackEvent)="hidePack($event)"></app-pack-modal>
+
+            <div class="ownerPlotSection" aria-live="polite">
+                <div>
+                    <span class="mediaLarge">Owned Plots: </span>
+                    <span class="media415">Owned: </span>
+                    <strong>{{ owner.plot_count }}</strong>
+                </div>
+                <div>
+                    <span class="mediaLarge">Developed Plots: </span>
+                    <span class="media415">Developed: </span>
+                    <strong>{{ owner.developed_plots }}</strong>
+                </div>
+                <div>
+                    <span>For Sale: </span>
+                    <a role="button" class="lineAnim" (click)="sortTableForSale()"><span><strong>{{ owner.plots_for_sale }}</strong></span></a>
+                </div>
+            </div>
+
+            <div class="districtPlots">
+                <div class="districtHeader">
+                    <span class="districtLabel">District Plots:</span>
+                    <div class="boxOutline showAllContainer" [hidden]="!this.buttonShowAll">
+                        <a role="button" (click)="filterTable($event, 0, BUILDING.NO_FILTER)" class="showAllLink lineAnim">
+                            <span class="districtNum">Remove Filter</span>
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="districtBox">
+                    <div class="districtEle" *ngFor="let district of owner.district_plots" (click)="filterTable($event, district.district[0], BUILDING.NO_FILTER)">
+                        <a role="button" class="districtLink lineAnim"><span class="districtNum">#{{district.district[0]}}:</span></a>
+                        <span class="districtCount"> {{district.district[1]}}</span>
+                        <span class="districtSell" [hidden]="!district.district[2]">({{district.district[2]}})</span>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="districtBox">
-          <div class="districtEle" *ngFor="let district of owner.district_plots" (click)="filterTable($event, district.district[0], BUILDING.NO_FILTER)">
-            <a role="button" class="districtLink lineAnim"><span class="districtNum">#{{district.district[0]}}:</span></a>
-            <span class="districtCount"> {{district.district[1]}}</span>
-            <span class="districtSell" [hidden]="!district.district[2]">({{district.district[2]}})</span>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
 
-  <div [hidden]="!owner.last_action" class="lastPlotAction" aria-live="polite"><span>Owner Last Plot Action: <strong>{{ owner.last_action }}</strong></span></div>
+    <div [hidden]="!owner.last_action" class="lastPlotAction" aria-live="polite"><span>Owner Last Plot Action: <strong>{{ owner.last_action }}</strong></span></div>
 
-  <div class="table-container" [hidden]="!owner.owner_land">
+    <div class="table-container" [hidden]="!owner.owner_land">
 
-    <app-prod-history [hidden]="!this.historyShow" (hideHistoryEvent)="hideHistory($event)"></app-prod-history>
+        <app-prod-history [hidden]="!this.historyShow" (hideHistoryEvent)="hideHistory($event)"></app-prod-history>
 
-    <div class="typeFilter">
-      <div #emptyPlotFilter [ngClass]="{'hideFilter': hideEmptyFilter }"><a role="button" (click)="filterTable($event, 0, BUILDING.EMPTYPLOT)"><span matBadge="{{ this.filterCount.empty }}" matBadgePosition="above after"><img src="https://mcp3d.com/api/image/land/2" crossorigin="anonymous" referrerpolicy="no-referrer" /></span></a></div>
-      <div #industrialFilter [ngClass]="{'hideFilter': hideIndFilter }"><a role="button" (click)="filterTable($event, 0, BUILDING.INDUSTRIAL)"><span matBadge="{{ this.filterCount.industry }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/MetalSmelterFactory_V2_LVL1-1.png" /></span></a></div>
-      <div #productionFilter [ngClass]="{'hideFilter': hideProdFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.PRODUCTION)"><span matBadge="{{ this.filterCount.production }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/ConcreteMill_Mega-1.png" /></span></a></div>
-      <div #energyFilter [ngClass]="{'hideFilter': hideEngFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.ENERGY)"><span matBadge="{{ this.filterCount.energy }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/WaterPlant_LVL1-1.png" /></span></a></div>
-      <div #officeFilter [ngClass]="{'hideFilter': hideOffFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.OFFICE)"><span matBadge="{{ this.filterCount.office }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/OfficeRing_LVL1-1.png" /></span></a></div>
-      <div #residentialFilter [ngClass]="{'hideFilter': hideResFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.RESIDENTIAL)"><span matBadge="{{ this.filterCount.residential }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/Residential2_LVL1-1.png" /></span></a></div>
-      <div #commercialFilter [ngClass]="{'hideFilter': hideComFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.COMMERCIAL)"><span matBadge="{{ this.filterCount.commercial }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/Supermarket_V2_LVL1-1.png" /></span></a></div>
-      <div #municipalFilter [ngClass]="{'hideFilter': hideMuniFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.MUNICIPAL)"><span matBadge="{{ this.filterCount.municipal }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/Hospital_V2_LVL4-1.png" /></span></a></div>
-      <div #aoiFilter [ngClass]="{'hideFilter': hideAOIFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.AOI)"><span matBadge="{{ this.filterCount.poi }}" matBadgePosition="above after"><img src="./images/IndustrialMonument.PNG" /></span></a></div>
-      <div #parcelFilter [ngClass]="{'hideFilter': hideParcelFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.PARCEL)"><span matBadge="{{ this.filterCount.parcel }}" matBadgePosition="above after"><img src="./images/Parcel.PNG" /></span></a></div>
+        <div class="typeFilter">
+            <div #emptyPlotFilter [ngClass]="{'hideFilter': hideEmptyFilter }"><a role="button" (click)="filterTable($event, 0, BUILDING.EMPTYPLOT)"><span matBadge="{{ this.filterCount.empty }}" matBadgePosition="above after"><img src="https://mcp3d.com/api/image/land/2" crossorigin="anonymous" referrerpolicy="no-referrer" /></span></a></div>
+            <div #industrialFilter [ngClass]="{'hideFilter': hideIndFilter }"><a role="button" (click)="filterTable($event, 0, BUILDING.INDUSTRIAL)"><span matBadge="{{ this.filterCount.industry }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/MetalSmelterFactory_V2_LVL1-1.png" /></span></a></div>
+            <div #productionFilter [ngClass]="{'hideFilter': hideProdFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.PRODUCTION)"><span matBadge="{{ this.filterCount.production }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/ConcreteMill_Mega-1.png" /></span></a></div>
+            <div #energyFilter [ngClass]="{'hideFilter': hideEngFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.ENERGY)"><span matBadge="{{ this.filterCount.energy }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/WaterPlant_LVL1-1.png" /></span></a></div>
+            <div #officeFilter [ngClass]="{'hideFilter': hideOffFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.OFFICE)"><span matBadge="{{ this.filterCount.office }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/OfficeRing_LVL1-1.png" /></span></a></div>
+            <div #residentialFilter [ngClass]="{'hideFilter': hideResFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.RESIDENTIAL)"><span matBadge="{{ this.filterCount.residential }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/Residential2_LVL1-1.png" /></span></a></div>
+            <div #commercialFilter [ngClass]="{'hideFilter': hideComFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.COMMERCIAL)"><span matBadge="{{ this.filterCount.commercial }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/Supermarket_V2_LVL1-1.png" /></span></a></div>
+            <div #municipalFilter [ngClass]="{'hideFilter': hideMuniFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.MUNICIPAL)"><span matBadge="{{ this.filterCount.municipal }}" matBadgePosition="above after"><img src="https://play.mcp3d.com/assets/images/buildings/Hospital_V2_LVL4-1.png" /></span></a></div>
+            <div #aoiFilter [ngClass]="{'hideFilter': hideAOIFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.AOI)"><span matBadge="{{ this.filterCount.poi }}" matBadgePosition="above after"><img src="./images/IndustrialMonument.PNG" /></span></a></div>
+            <div #parcelFilter [ngClass]="{'hideFilter': hideParcelFilter}"><a role="button" (click)="filterTable($event, 0, BUILDING.PARCEL)"><span matBadge="{{ this.filterCount.parcel }}" matBadgePosition="above after"><img src="./images/Parcel.PNG" /></span></a></div>
+        </div>
+
+        <table mat-table [dataSource]="dataSource" matSort matSortStart="desc" class="table table-striped mat-elevation-z8" style="width:100%; display:inline-table">
+            <!--table table-striped-->
+            <ng-container matColumnDef="district_id">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> District # </th>
+                <td mat-cell *matCellDef="let land">
+                    <span class="salepos" *ngIf="land.forsale_price > 0">{{ land.forsale_price.toLocaleString() }}</span>
+                    <img class="rented" *ngIf="land.rented==true" src="./images/rented.png" />
+                    <a class="lineAnim districtCol" [routerLink]="['/', globals.worldCode, 'district-summary']" [queryParams]="{district_id: land.district_id}" title="{{ land.district_id }}">
+                        <span>{{ land.district_id }}</span>
+                    </a>
+                </td>
+            </ng-container>
+            <ng-container matColumnDef="pos_x">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Pos </th>
+                <td mat-cell *matCellDef="let land">
+                    <span>X:{{ land.pos_x}} Y:{{ land.pos_y }}</span>
+                    <a class="lineAnim mobileView" target="_blank" href="https://play.mcp3d.com/{{ globals.worldName.toLowerCase() }}/land?x={{ land.pos_x }}&y={{ land.pos_y }}">MAP</a>
+                </td>
+            </ng-container>
+            <ng-container matColumnDef="pos_y">
+                <th mat-header-cell *matHeaderCellDef disabled> Link </th>
+                <td mat-cell *matCellDef="let land" class="linkCol">
+                    <a class="lineAnim" target="_blank" href="https://play.mcp3d.com/{{ globals.worldName.toLowerCase() }}/land?x={{ land.pos_x }}&y={{ land.pos_y }}">Map</a>
+                </td>
+            </ng-container>
+            <ng-container matColumnDef="building_type">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
+                <td mat-cell *matCellDef="let land">
+                    <div class="buildingContain">
+                        <span *ngIf="land.buildingCategory > 0" class="buildingCategory">{{ getCustomCategoryName(land.building_category) }}</span>
+                        <span class="buildingNum">{{ land.token_id }}</span>
+                        <img *ngIf="land.building_type == 0" src="{{ land.building_img }}" class="buildingImg" crossorigin="anonymous" referrerpolicy="no-referrer">
+                        <div *ngIf="land.building_type != 0" [ngClass]="{'buildingZoom': land.building_category == 0}">
+                            <img src="{{ land.building_img }}" imgfallback default="./images/construction.png" class="buildingImg" SameSite="Lax">
+                        </div>
+                    </div>
+                    <div *ngIf="land.building_type==10" class="buildDescParcel">
+                        <div class="flexVertCenter">
+                            <!-- complex align styling needs containers to valign within valign depending on content-->
+                            <div>
+                                <span> {{ land.building_desc }} </span>
+                                <span *ngIf="land.unit>0" class="units"> Units: {{ land.unit }} </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="land.building_type<3 && land.building_type>7 && land.building_type!=10" class="buildDesc">
+                        <span> {{ land.building_desc }} </span>
+                        <span *ngIf="land.resource>0" class="resource"> R:{{ land.resource }} </span>
+                    </div>
+                    <div *ngIf="land.building_type>=3 && land.building_type<=7 " class="buildDesc">
+                        <a class="lineAnim buildingMaglink" role="button" (click)="showHistory(land.token_id, land.pos_x, land.pos_y, land.building_type, land.current_influence_rank)">
+                            <span>
+                                <span> {{ land.building_desc }} <span *ngIf="land.resource>0" class="resource" [ngClass]="{'hideTag':!mobileView}"> R:{{ land.resource }} </span></span>
+                                <span *ngIf="land.resource>0" class="resource" [ngClass]="{'hideTag':mobileView}"> R:{{ land.resource }} </span>
+                            </span>
+                            <span class="magnifyHistoryPosition">
+                                <img src="./assets/magnify_history_dark.png" class="magnifyHistoryIcon" />
+                            </span>
+                        </a>
+                    </div>
+
+                </td>
+            </ng-container>
+            <ng-container matColumnDef="building_level">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> LvL </th>
+                <td mat-cell *matCellDef="let land" class="boldfield industryLvlCol">{{ land.building_level}}</td>
+            </ng-container>
+            <ng-container matColumnDef="last_action">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Last Action GMT </th>
+                <td mat-cell *matCellDef="let land">
+                    <div *ngIf="land.last_action !=='Empty Plot'">
+                        <span>{{ land.last_action.substring(0, land.last_action.length - 8) }}</span>
+                        <span class="timePart">{{ land.last_action.substring(land.last_action.length - 8) }}</span>
+                    </div>
+                    <span *ngIf="land.last_action =='Empty Plot'">{{ land.last_action }}</span>
+                </td>
+            </ng-container>
+            <ng-container matColumnDef="current_influence_rank">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> IP Eff%</th>
+                <td mat-cell *matCellDef="let land"><span *ngIf="land.building_type!=0">{{ land.current_influence_rank }}%</span></td>
+            </ng-container>
+            <ng-container matColumnDef="condition">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Dmg%</th>
+                <td mat-cell *matCellDef="let land">
+                    <div *ngIf="land.building_type!=0">
+                        <span *ngIf="land.condition==100" style="color:green">{{ 100-land.condition }}%</span>
+                        <span *ngIf="land.condition>60 && land.condition<100" style="color:darkorange">{{ 100-land.condition }}%</span>
+                        <span *ngIf="land.condition<=60" style="color:red">{{ 100-land.condition }}%</span>
+                    </div>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="plot_ip">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> IP + Bonus </th>
+                <td mat-cell *matCellDef="let land">
+                    <span>{{ land.plot_ip }}</span>
+                    <span class="ipBonus">+ {{ land.ip_bonus }}</span>
+                </td>
+            </ng-container>
+            <ng-container matColumnDef="citizen_count">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Cit. </th>
+                <td mat-cell *matCellDef="let land">
+                    <span class="citCount" *ngIf="land.citizen_count">{{ land.citizen_count }} X </span>
+                    <img *ngIf="land.citizen_count" src="{{ land.citizen_url }}" title="Lowest stamina citizen : {{ land.citizen_stamina }}" class="citizenImg" crossorigin="anonymous" referrerpolicy="no-referrer" />
+                </td>
+            </ng-container>
+            <!--<ng-container matColumnDef="token_id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Token ID </th>
+            <td mat-cell *matCellDef="let land"> {{ land.token_id }}</td>
+            </ng-container>-->
+            <ng-container matColumnDef="alert">
+                at
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Alerts</th>
+                <td mat-cell *matCellDef="let land">
+
+                    <div [ngClass]="{'staminaView':staminaView}">
+                        <div class="collect" *ngIf="land.c_r">
+                            <img src="./assets/{{ mapdata.getImageName(land.product_id) }}" height="32" title="{{ mapdata.getProductName(land.product_id) }}" />
+                            <span class="ready">Ready</span>
+                        </div>
+                        <div class="collect" *ngIf="land.c_d > 0 || land.c_h >0 || land.c_m > 0">
+                            <img class="product" src="./assets/{{ mapdata.getImageName(land.product_id) }}" height="32" title="{{ mapdata.getProductName(land.product_id) }}" />
+                            <span *ngIf="land.c_d > 0 || land.c_h >0">{{ land.c_d }}d {{ land.c_h }}h</span>
+                            <span *ngIf="land.c_m > 0">{{ land.c_m }} min.</span>
+                        </div>
+                    </div>
+                    <i style="display:none" *ngIf="land.active == 1" class="fas fa-running activeProduce"></i>
+
+                    <div *ngIf="land.citizen_stamina_alert" [ngClass]="{'collection': land.c_r || land.c_d > 0 || land.c_h >0 || land.c_m > 0}" class="alertContainer">
+                        <div [ngClass]="{'staminaStop': stoppedWork(land.citizen_stamina, land.building_type)}">
+                            <span class="staminaLow">S: {{ land.citizen_stamina }}</span>
+                            <img src="{{ getStaminaImg(land.citizen_stamina, land.building_type) }}" height="60" class="staminaOutImg" title="Out of Stamina">
+                        </div>
+                    </div>
+
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
     </div>
-
-    <table mat-table [dataSource]="dataSource" matSort matSortStart="desc" class="table table-striped mat-elevation-z8" style="width:100%; display:inline-table">
-      <!--table table-striped-->
-      <ng-container matColumnDef="district_id">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> District # </th>
-        <td mat-cell *matCellDef="let land">
-          <span class="salepos" *ngIf="land.forsale_price > 0">{{ land.forsale_price.toLocaleString() }}</span>
-          <img class="rented" *ngIf="land.rented==true" src="./images/rented.png" />
-          <a class="lineAnim districtCol" [routerLink]="['/', globals.worldCode, 'district-summary']" [queryParams]="{district_id: land.district_id}" title="{{ land.district_id }}">
-            <span>{{ land.district_id }}</span>
-          </a>
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="pos_x">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Pos </th>
-        <td mat-cell *matCellDef="let land">
-          <span>X:{{ land.pos_x}} Y:{{ land.pos_y }}</span>
-          <a class="lineAnim mobileView" target="_blank" href="https://play.mcp3d.com/{{ globals.worldName.toLowerCase() }}/land?x={{ land.pos_x }}&y={{ land.pos_y }}">MAP</a>
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="pos_y">
-        <th mat-header-cell *matHeaderCellDef disabled> Link </th>
-        <td mat-cell *matCellDef="let land" class="linkCol">
-          <a class="lineAnim" target="_blank" href="https://play.mcp3d.com/{{ globals.worldName.toLowerCase() }}/land?x={{ land.pos_x }}&y={{ land.pos_y }}">Map</a>
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="building_type">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
-        <td mat-cell *matCellDef="let land">
-          <div class="buildingContain">
-            <span *ngIf="land.buildingCategory > 0" class="buildingCategory">{{ getCustomCategoryName(land.building_category) }}</span>
-            <span class="buildingNum">{{ land.token_id }}</span>
-            <img *ngIf="land.building_type == 0" src="{{ land.building_img }}" class="buildingImg" crossorigin="anonymous" referrerpolicy="no-referrer">
-            <div *ngIf="land.building_type != 0" [ngClass]="{'buildingZoom': land.building_category == 0}">
-              <img src="{{ land.building_img }}" imgfallback default="./images/construction.png" class="buildingImg" SameSite="Lax">
-            </div>
-          </div>
-          <div *ngIf="land.building_type==10" class="buildDescParcel">
-            <div class="flexVertCenter"> <!-- complex align styling needs containers to valign within valign depending on content-->
-              <div>
-                <span> {{ land.building_desc }} </span>
-                <span *ngIf="land.unit>0" class="units"> Units: {{ land.unit }} </span>
-              </div>
-            </div>
-          </div>
-          <div *ngIf="land.building_type<3 && land.building_type>7 && land.building_type!=10" class="buildDesc">
-            <span> {{ land.building_desc }} </span>
-            <span *ngIf="land.resource>0" class="resource"> R:{{ land.resource }} </span>
-          </div>
-          <div *ngIf="land.building_type>=3 && land.building_type<=7 " class="buildDesc">
-            <a class="lineAnim buildingMaglink" role="button" (click)="showHistory(land.token_id, land.pos_x, land.pos_y, land.building_type, land.current_influence_rank)">
-              <span>
-                <span> {{ land.building_desc }} <span *ngIf="land.resource>0" class="resource" [ngClass]="{'hideTag':!mobileView}"> R:{{ land.resource }} </span></span>
-                <span *ngIf="land.resource>0" class="resource" [ngClass]="{'hideTag':mobileView}"> R:{{ land.resource }} </span>
-              </span>
-              <span class="magnifyHistoryPosition">
-                <img src="./assets/magnify_history_dark.png" class="magnifyHistoryIcon" />
-              </span>
-            </a>
-          </div>
-
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="building_level">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> LvL </th>
-        <td mat-cell *matCellDef="let land" class="boldfield industryLvlCol">{{ land.building_level}}</td>
-      </ng-container>
-      <ng-container matColumnDef="last_action">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Last Action GMT </th>
-        <td mat-cell *matCellDef="let land">
-          <div *ngIf="land.last_action !=='Empty Plot'">
-            <span>{{ land.last_action.substring(0, land.last_action.length - 8) }}</span>
-            <span class="timePart">{{ land.last_action.substring(land.last_action.length - 8) }}</span>
-          </div>
-          <span *ngIf="land.last_action =='Empty Plot'">{{ land.last_action }}</span>
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="current_influence_rank">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> IP Eff%</th>
-        <td mat-cell *matCellDef="let land"><span *ngIf="land.building_type!=0">{{ land.current_influence_rank }}%</span></td>
-      </ng-container>
-      <ng-container matColumnDef="condition">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Dmg%</th>
-        <td mat-cell *matCellDef="let land">
-          <div *ngIf="land.building_type!=0">
-            <span *ngIf="land.condition==100" style="color:green">{{ 100-land.condition }}%</span>
-            <span *ngIf="land.condition>60 && land.condition<100" style="color:darkorange">{{ 100-land.condition }}%</span>
-            <span *ngIf="land.condition<=60" style="color:red">{{ 100-land.condition }}%</span>
-          </div>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="plot_ip">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> IP + Bonus </th>
-        <td mat-cell *matCellDef="let land">
-          <span>{{ land.plot_ip }}</span>
-          <span class="ipBonus">+ {{ land.ip_bonus }}</span>
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="citizen_count">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Cit. </th>
-        <td mat-cell *matCellDef="let land">
-          <span class="citCount" *ngIf="land.citizen_count">{{ land.citizen_count }} X </span>
-          <img *ngIf="land.citizen_count" src="{{ land.citizen_url }}" title="Lowest stamina citizen : {{ land.citizen_stamina }}" class="citizenImg" crossorigin="anonymous" referrerpolicy="no-referrer" />
-        </td>
-      </ng-container>
-      <!--<ng-container matColumnDef="token_id">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Token ID </th>
-      <td mat-cell *matCellDef="let land"> {{ land.token_id }}</td>
-      </ng-container>-->
-      <ng-container matColumnDef="alert">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Alerts</th>
-        <td mat-cell *matCellDef="let land">
-
-          <div [ngClass]="{'staminaView':staminaView}">
-            <div class="collect" *ngIf="land.c_r">
-              <img src="./assets/{{ mapdata.getImageName(land.product_id) }}" height="32" title="{{ mapdata.getProductName(land.product_id) }}" />
-              <span class="ready">Ready</span>
-            </div>
-            <div class="collect" *ngIf="land.c_d > 0 || land.c_h >0 || land.c_m > 0">
-              <img class="product" src="./assets/{{ mapdata.getImageName(land.product_id) }}" height="32" title="{{ mapdata.getProductName(land.product_id) }}" />
-              <span *ngIf="land.c_d > 0 || land.c_h >0">{{ land.c_d }}d {{ land.c_h }}h</span>
-              <span *ngIf="land.c_m > 0">{{ land.c_m }} min.</span>
-            </div>
-          </div>
-          <i style="display:none" *ngIf="land.active == 1" class="fas fa-running activeProduce"></i>
-
-          <div *ngIf="land.citizen_stamina_alert" [ngClass]="{'collection': land.c_r || land.c_d > 0 || land.c_h >0 || land.c_m > 0}"  class="alertContainer">
-            <div [ngClass]="{'staminaStop': stoppedWork(land.citizen_stamina, land.building_type)}">
-              <span class="staminaLow">S: {{ land.citizen_stamina }}</span>
-              <img src="{{ getStaminaImg(land.citizen_stamina, land.building_type) }}" height="60" class="staminaOutImg" title="Out of Stamina">
-            </div>
-          </div>
-
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
-
-  </div>
 
 </div>

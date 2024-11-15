@@ -11,6 +11,7 @@ import { Injectable, ErrorHandler } from '@angular/core';
 export class ErrorMetadataService implements ErrorHandler{
 
     handleError(error: any): void {
+
         const date = new Date();
 
         console.error({
