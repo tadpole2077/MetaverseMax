@@ -30,7 +30,7 @@
     "@angular/router": "17.3.12",
     "@fortawesome/fontawesome-free": "^5.15.3",
     "@metamask/detect-provider": "^2.0.0",
-    "@ng-bootstrap/ng-bootstrap": "^15.1.2",
+    "@ng-bootstrap/ng-bootstrap": "^16.0.0",
     "@nodelib/fs.macchiato": "^1.0.3",
     "@popperjs/core": "^2.11.8",
     "@swimlane/ngx-charts": "^20.5.0",

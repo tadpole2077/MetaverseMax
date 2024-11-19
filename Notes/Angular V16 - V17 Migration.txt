@@ -35,6 +35,10 @@ Actions:
 
 	ng update @angular/material@17
 
+	ng update @ng-bootstrap@16.0.0				- Prior version ^15.1.2  ,   based on bootstrap V5 https://getbootstrap.com/ , no longer dependent on jQuery lib.
+												- Compatible packages https://www.npmjs.com/package/@ng-bootstrap/ng-bootstrap/v/17.0.1?activeTab=readme
+
+
 Update Notes:
 - Angular v17 introduces a new control flow syntax that uses the @ and } characters, V17 update automaticaly replacing prior syntax
 

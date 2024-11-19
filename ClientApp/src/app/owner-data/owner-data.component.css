@@ -88,10 +88,10 @@ a.mobileView{
 
 .alertBtns button {
   margin-right: 20px;
-  width: 130px;
+  min-width: 140px;
   padding-right: 0px;
-  font-size: .7rem;
-  padding-left: 20px;
+  font-size: 11px;
+  padding-left: 26px;
 }
 
 
@@ -127,7 +127,10 @@ a.mobileView{
   border-color: #B60024;
 }
 .alertBtns .smallBtn{
-  width: 110px;
+  min-width: 100px;
+  padding-left: 30px;
+  padding-right: 10px;
+  text-align: center;
 }
 
 

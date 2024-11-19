@@ -136,9 +136,8 @@ td.mat-column-efficiency_industry, td.mat-column-efficiency_production, td.mat-c
 }
 
 .copy {
-  font-size: .74rem;
-  width: 148px;
-  padding-left: 1.7rem;
+  font-size: .74rem;  
+  padding-left: 30px;
   white-space: nowrap
 }
 .topBtnDiv i {
@@ -274,11 +273,23 @@ td.mat-column-efficiency_energy_water span {
     display:inline-block
   }
 
+  .topBtnDiv{
+    height: 44px;
+  }
+  .copy {
+    font-size: 11px;  
+    padding-left: 30px;
+    white-space: nowrap
+  }
+
   .mat-button-toggle-group {
     margin-left: unset;
     float: right;
     vertical-align: top;
   }
+    .topBtnDiv ::ng-deep .mat-button-toggle-label-content {
+        font-size: 12px;
+      }
 
   .table-container {
     margin-bottom: 20px
@@ -304,7 +315,7 @@ td.mat-column-efficiency_energy_water span {
   }
   .count {
     left: 85vw;
-    top: 30px;
+    top: 42hpx;
     display: inline-block;
     position: absolute;
     margin-right: 0;
@@ -322,6 +333,7 @@ td.mat-column-efficiency_energy_water span {
     position: absolute;
     margin-top: -8px;
   }
+
   .mat-column-header-row-second-group{
     text-align:right;
   }
