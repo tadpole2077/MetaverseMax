@@ -48,3 +48,16 @@ Update Notes:
 Compile Errors:
 1)  error TS2724: '"@angular/material/table"' has no exported member named 'MatTableDataSourcePaginator'. Did you mean 'MatTableDataSource'?
 Used within : owner-data/owner-data.component.ts
+
+
+
+VS & .NET Upgrade:
+1)  2024_11_22 upgrade to .NET V9,  and related Nuget packages upgraded 
+
+2)  Download .NET 9 on Dev machine:  SDK 9.0.100 > Window x64 Installer 
+	https://dotnet.microsoft.com/en-us/download/dotnet/9.0
+	https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-9.0.100-windows-x64-installer
+
+	Requires upgrade to : Visual Studio 2022 (v17.12)
+
+3) MetaverseMax & SyncJob : Change Project Settings >> Target Framework >> .NET 9

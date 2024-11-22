@@ -1,7 +1,6 @@
-import { ChangeDetectorRef, Component, Inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Subscription, Observable } from 'rxjs';
-import { OwnerAccount, Application, WORLD } from '../common/global-var';
+import { Component, Inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Application, WORLD } from '../common/global-var';
 
 
 @Component({
@@ -18,14 +17,12 @@ export class HomeComponent {
     public worldCode: string;
 
 
-    constructor(private cdf: ChangeDetectorRef, public globals: Application, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
+    constructor(public globals: Application, http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
     
         this.httpClient = http;
         this.worldCode = (globals.selectedWorld == WORLD.TRON ? 'trx' : globals.selectedWorld == WORLD.BNB ? 'bnb' : 'eth');
         this.worldName = (globals.selectedWorld == WORLD.TRON ? 'Tron' : globals.selectedWorld == WORLD.BNB ? 'BSC' : 'Ethereum');
         this.baseUrl = baseUrl + 'api/' + this.worldCode;
-
-        globals.homeCDF = cdf;
     }
 
     // Copy to clipboard on Clip of Wallet key link.

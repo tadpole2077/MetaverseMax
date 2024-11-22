@@ -684,7 +684,7 @@ td.mat-column-rank .rowWarning {
   padding-left: 4px
 }
 .staminaOutImg {
-  padding: 0;
+  padding: 8px 0px 8px 0;
   margin-top: 10px;
 }
 .staminaOutImg img{

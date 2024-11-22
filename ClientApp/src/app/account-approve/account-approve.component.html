@@ -1,34 +1,43 @@
 
-<div [hidden]="!showFlag" class="barContainer">
+@if (this.app.approveSwitch() === APPROVE_STATE.SHOW){
+  <div class="barContainer">
 
     <div class="promptLink container">
       <i class="fas fa-hand-point-right moveLeftRight"></i>
       <span class="promptText">
-
-        <span [hidden]="!showEthConnectFlag" (click)="clickAccountLink()" class="approve">
-          <button class="walletButton buttonEffect" mat-raised-button color="primary">
-            <span class="buttonText">Connect Wallet</span>
-          </button>
-          <span>Click to Approve account link to enable MyAccount and Ranking features</span>
-        </span>
-
-        <span [hidden]="!showEthApproveFlag" (click)="clickAccountLink()" class="approve">
-          <button class="walletButton buttonEffect" mat-raised-button color="primary">
-            <span class="buttonText">Wallet Site Approve</span>
-          </button>
-          <span>Click to Approve account link to enable MyAccount and Ranking features</span>
-        </span>
-
-        <span [hidden]="!showTronLinkLoginFlag" (click)="clickAccountLink()" class="connect">
-          <button class="walletButton buttonEffect" mat-raised-button color="primary">
-            <span class="buttonText">Connect Wallet</span>
-          </button>
-          Log into your Tron link Wallet to enable MyAccount and Ranking features
-        </span>
-
-        <span [hidden]="!showTronLinkNoPlotsFlag" (click)="clickAccountLink()">Your Tron link Wallet owns no Plots on Tron MegaWorld - MyAccount and Ranking features disabled</span>
-
+        @switch(this.app.promptType()){
+          @case (PROMPT_TYPE.ETH_CONNECT) {
+            <span (click)="clickAccountLink()" class="approve">
+              <button class="walletButton buttonEffect" mat-raised-button color="primary">
+                <span class="buttonText">Connect Wallet</span>
+              </button>
+              <span>Click to Approve account link to enable MyAccount and Ranking features</span>
+            </span>
+          }
+          @case (PROMPT_TYPE.ETH_APPROVE) {
+            <span (click)="clickAccountLink()" class="approve">
+              <button class="walletButton buttonEffect" mat-raised-button color="primary">
+                <span class="buttonText">Wallet Site Approve</span>
+              </button>
+              <span>Click to Approve account link to enable MyAccount and Ranking features</span>
+            </span>
+          }
+          @case (PROMPT_TYPE.TRON_LOGIN) {
+            <span (click)="clickAccountLink()" class="connect">
+              <button class="walletButton buttonEffect" mat-raised-button color="primary">
+                <span class="buttonText">Connect Wallet</span>
+              </button>
+              Log into your Tron link Wallet to enable MyAccount and Ranking features
+            </span>
+          }
+          @case  (PROMPT_TYPE.NO_PLOT) {
+            <span (click)="clickAccountLink()">Your linked Wallet owns no Plots on Tron MegaWorld - MyAccount and Ranking features disabled</span>
+          }
+          @case (PROMPT_TYPE.DEFAULT){
+          }
+        }
       </span>
     </div>
 
-</div>
+  </div>
+}

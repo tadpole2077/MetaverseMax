@@ -1,8 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable, ChangeDetectorRef, Inject } from '@angular/core';
+import { Injectable, Inject, signal } from '@angular/core';
 import { Subscription, interval, Subject } from 'rxjs';
-import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { AccountApproveComponent } from '../account-approve/account-approve.component';
 import { OwnerDataComponent } from '../owner-data/owner-data.component';
 import { AppComponent } from '../app.component';
 import { AlertManagerService } from '../service/alert-manager.service';
@@ -43,10 +41,10 @@ interface JSend<dataObject> {
 }
 
 enum WORLD {
-  UNKNOWN = 0,
-  TRON = 1,
-  BNB = 2,
-  ETH = 3
+    UNKNOWN = 0,
+    TRON = 1,
+    BNB = 2,
+    ETH = 3
 }
 
 const APPROVAL_TYPE = {
@@ -56,13 +54,22 @@ const APPROVAL_TYPE = {
 };
 
 enum APPROVE_STATE {
-  UPDATE = 0,
-  SHOW = 1,
-  HIDE = 2
+    UPDATE = 0,
+    SHOW = 1,
+    HIDE = 2
 }
 
+enum PROMPT_TYPE {
+    NONE,
+    ETH_CONNECT,
+    ETH_APPROVE,
+    TRON_LOGIN,
+    NO_PLOT,
+}
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class Application {
 
     metaMask: EIP1193Provider<unknown> = null;
@@ -73,9 +80,6 @@ export class Application {
     public worldName = 'BSC';
     public worldURLPath = 'https://mcp3d.com/bsc/api/image/';   //Default BNB
     public firstCitizen = 24;   // Default BNB
-    public approveSwitchComponent: AccountApproveComponent;
-    public homeCDF: ChangeDetectorRef = null;
-    public menuCDF: ChangeDetectorRef = null;
     public ownerComponent: OwnerDataComponent = null;
     public appComponentInstance: AppComponent = null;
 
@@ -86,7 +90,6 @@ export class Application {
 
     // Flag tracks wallet allowed access to this site
     private _walletApproved = false;
-    private _connectWallet = false;
     private _networkChainId: string;
     private _walletKeyFormated = '';
 
@@ -94,8 +97,6 @@ export class Application {
 
     private _worldCode  = 'bnb';  // Default Bnb - Smartnet
     private rootBaseUrl: string;
-
-    public approvalType: number = APPROVAL_TYPE.NONE;
 
     // ********** Observables ******************************
     // Service to capture when an account become active - used by components to update/enable account specific features
@@ -112,56 +113,36 @@ export class Application {
     private networkChangeSubject = new Subject<string>();
     public networkChange$ = this.networkChangeSubject.asObservable();
 
-    private approveSwitchSubject = new Subject<APPROVE_STATE>();
-    public approveSwitch$ = this.approveSwitchSubject.asObservable();
+    public approveSwitch = signal(APPROVE_STATE.HIDE);
+    public promptType = signal(PROMPT_TYPE.NONE);
 
     // Subscription notifications within services
     private subscriptionAlertCount$: Subscription;
     private subscriptionSystemShutdownPending$: Subscription;
 
-    constructor(private httpClient: HttpClient, private alertManagerService: AlertManagerService,  private alertSheet: MatBottomSheet, public router: Router, private location: Location, private route: ActivatedRoute, @Inject('BASE_URL') rootBaseUrl: string) {
+    constructor(private httpClient: HttpClient, private alertManagerService: AlertManagerService,  public router: Router, private location: Location, private route: ActivatedRoute, @Inject('BASE_URL') rootBaseUrl: string) {
 
         this.rootBaseUrl = rootBaseUrl;     // Unknow world type at this point, checkWorldFromURL will identify.
         this.initAccount();        
-        this.getProviders();
-        
+        this.getProviders();        
     }
-
     
     // Wallet site link Approval flag
     set requestApprove(value) {    
 
-        const changed = this._requestApprove != value;
         this._requestApprove = value;
 
-        // Trigger any Approve component to update
-        if (changed && this.approveSwitchComponent) {
-            if (value) {
-                this.approveSwitchSubject.next(APPROVE_STATE.SHOW);
-                //this.approveSwitchComponent.show();
-            }
-            else {
-                this.approveSwitchSubject.next(APPROVE_STATE.HIDE);
-                //this.approveSwitchComponent.hide();
-            }
+        if (value) {
+            this.approveSwitch.set(APPROVE_STATE.SHOW);
         }
-    //console.log("RequestApprove:", this._requestApprove);
+        else {
+            this.approveSwitch.set(APPROVE_STATE.HIDE);
+            this.promptType.set(PROMPT_TYPE.NONE);
+        }
+        
     }
     get requestApprove() {
         return this._requestApprove;
-    }
-
-    set connectWallet(value) {
-        this._connectWallet = value;
-        if (value) {
-            this.approveSwitchComponent.show();
-        }
-        else {
-            this.approveSwitchComponent.hide();
-        }
-    }
-    get connectWallet() {
-        return this._connectWallet;
     }
 
     set worldCode(value) {
@@ -440,9 +421,6 @@ export class Application {
 
                       this.requestApprove = false;
                       if (this.ownerAccount.wallet_active_in_world) {
-              
-                          this.approvalType = APPROVAL_TYPE.NONE;
-
                           // Interval account alert checker job
                           this.alertManagerService.enableAlertChecker(baseUrl, this.ownerAccount.matic_key).then();
 
@@ -450,11 +428,9 @@ export class Application {
                           this.accountActiveSubject.next(true);
                       }
                       else {              
-                          this.approvalType = APPROVAL_TYPE.ACCOUNT_WITH_NO_PLOTS;
-                          this.accountActiveSubject.next(false);
+                          this.promptType.set(PROMPT_TYPE.NO_PLOT);                                          
+                          this.accountActiveSubject.next(false);                          
                       }
-
-                      this.requestApproveRefresh();
 
                       if (checkMyPortfolio) {
                           this.checkMyPortfolio();
@@ -558,10 +534,8 @@ export class Application {
           //this.appComponentInstance.darkModeChange(false);
           this.accountActiveSubject.next(false);              // Mark account status as false to any monitors of this observable
 
+          this.promptType.set(PROMPT_TYPE.TRON_LOGIN);
           this.requestApprove = true;
-          this.approvalType = APPROVAL_TYPE.NO_WALLET_ENABLED;
-
-          this.requestApproveRefresh();
 
           if (checkMyPortfolio) {
               this.checkMyPortfolio();
@@ -596,7 +570,7 @@ export class Application {
               this.requestApprove = false;
               this.public_key = selectedAddress;
               this.walletApproved = true;
-              this.connectWallet = false;
+              //this.connectWallet = false;
               this._networkChainId = chainId;
 
               // trigger subscribed event handlers
@@ -612,8 +586,9 @@ export class Application {
               this.accountActiveSubject.next(false);              // Mark account status as false to any monitors of this observable
 
               // Zone update components impacted by no connected wallet        
-              this.connectWallet = true;
-              this.requestApproveRefresh();
+              //this.connectWallet = true;
+              this.promptType.set(PROMPT_TYPE.ETH_CONNECT);
+              this.approveSwitch.set(APPROVE_STATE.SHOW);
 
               if (checkMyPortfolio) {
                   this.checkMyPortfolio();
@@ -658,31 +633,17 @@ export class Application {
           console.log('Key = ', accountAddress);
 
           this.ownerAccount.public_key = accountAddress;
-          this.requestApprove = false;      
+          this.requestApprove = false;          
       }
       else {
           console.log('>>>No Ethereum Account linked<<<');
           console.log('ChainId = ', chainId);
           this.requestApprove = true;
+          this.promptType.set(PROMPT_TYPE.ETH_APPROVE);
       }
 
       return accountAddress;
   };
-
-  requestApproveRefresh() {
-      if (this.approveSwitchComponent) {
-          this.approveSwitchSubject.next(APPROVE_STATE.UPDATE);
-          //this.approveSwitchComponent.update();
-      }
-
-      //if (this.menuCDF) {
-      //    this.menuCDF.detectChanges();
-      //}
-      //if (this.homeCDF) {
-      //    this.homeCDF.detectChanges();   // show/hide buttons based on account settings.
-      //}
-
-  }
 
   checkMyPortfolio() {
 
@@ -783,5 +744,6 @@ export {
     WORLD,
     JSend,
     APPROVAL_TYPE,
-    APPROVE_STATE
+    APPROVE_STATE,
+    PROMPT_TYPE
 };

@@ -47,14 +47,11 @@ $light-app-theme: mat.define-light-theme((
 $light-app-theme: palette-helper.mat-set-custom-table($light-app-theme, #343a40);
 
 
-// TEMP - remove when full upgrade to V3 Material components completed
-//@include mat.all-legacy-component-themes($light-app-theme);
-//@include mat.all-component-typographies($light-app-theme);
-
-
 @include mat.typography-hierarchy($light-typography);
-// Emit theme-dependent styles for common features used across multiple components.
+
+// Emit theme-dependent styles for common features used across multiple components.  src/material/core/_core.scss
 @include mat.core-theme($light-app-theme);
+
 // emit styles to all 35 components of Material Library
 @include mat.all-component-themes($light-app-theme);
 

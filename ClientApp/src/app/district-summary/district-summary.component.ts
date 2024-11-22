@@ -1,6 +1,6 @@
-import { Component, Inject, ViewChild, EventEmitter, ElementRef, ContentChild, ContentChildren , AfterViewInit } from '@angular/core';
+import { Component, Inject, ViewChild, ElementRef , AfterViewInit } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Router, ActivatedRoute, Params } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';

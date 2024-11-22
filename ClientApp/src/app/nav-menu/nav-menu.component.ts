@@ -25,11 +25,10 @@ export class NavMenuComponent {
   @ViewChild('menuOwner', { static: false }) menuOwner: ElementRef;
 
 
-  constructor(private zone: NgZone, private cdf: ChangeDetectorRef, private location: Location, public globals: Application, public activatedRoute: ActivatedRoute, private router: Router, http: HttpClient, @Inject('BASE_URL') rootBaseUrl: string) {
+  constructor(private zone: NgZone, private location: Location, public globals: Application, public activatedRoute: ActivatedRoute, private router: Router, http: HttpClient, @Inject('BASE_URL') rootBaseUrl: string) {
 
       this.rootBaseUrl = rootBaseUrl;     // Unknow world type at this point, checkWorldFromURL will identify.
       this.httpClient = http;
-      globals.menuCDF = cdf;
 
       this.checkWorldFromURL();
 
