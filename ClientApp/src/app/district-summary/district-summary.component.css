@@ -1,4 +1,9 @@
 
+.ds-container{
+  display: flex;
+  flex-direction: column;
+}
+
 .header {
   /* Dark Header - User preference
     padding: 10px 16px;
@@ -104,13 +109,10 @@
   display:none
 }
 .searchBottom {
-  float: right;
-  width: 8.8rem;
+  align-self: end;
+  margin-top: 12px;
 }
-.searchDistrict {
-  position: absolute;
-  margin-top: 1rem;
-  z-index: 101;
+.searchDistrict {  
 }
 
 #taxChangeAccordion .mat-expansion-panel-header {
@@ -206,14 +208,16 @@
   vertical-align: top;
   display: inline-block;
   width: 430px;
-  height: 210px
+  height: 210px;
+  padding-top: 8px;
 }
 .taxGraphDistrictProduce {
   vertical-align: top;
   display: inline-block;
   /*width: 330px; /* Less then actual size, used to force 2nd grid to stay on same line until legend is nearly hiden*/
   width: 420px;
-  height: 210px;
+  height: 216px;
+  padding-top: 8px;
   margin-right: 1.4rem;
 }
 .fundGraph {
@@ -322,7 +326,7 @@
 
 .table-container {
   clear: both;
-  margin-top: .8rem;
+  margin-top: -40px;
   display: inline-table;
   /* or height: calc(100vh - 155px);
     depending on your need change overflow: auto;*/
@@ -616,12 +620,42 @@ th.mat-column-owned_plots{
 
 @media only screen and (max-width: 426px) {
 
-  h3 {
-    font-size: 1.3rem;
+  .districtHeader{
+    order: 1;
+    position: relative;
+    display: block;
+    vertical-align: unset;
+    margin-top: unset;
   }
 
-  .searchTop {
+  .districtImgContainer {
+    order: 2;
+    position: relative;
+    right: unset;
+    width: auto;
+    margin: 0px auto 8px auto;    
+  }
+
+  .searchTop{
+    order: 3;
     display: block;
+    margin-top: -18px;
+    align-self: end;
+    margin-right: 10px;
+    z-index: 100;
+  }
+
+  .districtDetailsSection{
+    order: 4;
+    padding-top: 0px;
+  }
+  .table-container{
+    order: 5;
+  }
+
+
+  h3 {
+    font-size: 1.3rem;
   }
 
   .searchBottom {
@@ -629,22 +663,11 @@ th.mat-column-owned_plots{
   }
 
   .searchDistrict {
-    position: absolute;
     margin-top: 20px;
     right: 10px;
   }
 
-  .districtImgContainer {
-    text-align: center;
-    position: relative;
-    right: unset;
-    width: unset;
-    margin-top: -20px;
-    margin-bottom: 8px;
-    width: auto;
-    margin-left: auto;
-    margin-right: auto;
-  }
+  
 
   .innerDistrictImgContainer {
     float: unset;
@@ -654,7 +677,7 @@ th.mat-column-owned_plots{
 
   .districtImg {
     height: 190px;
-    margin-top: unset;
+    margin-top: -20px;
     float: none;
     width: auto;
   }
@@ -696,7 +719,8 @@ th.mat-column-owned_plots{
   }
 
   .tableFilter {
-    vertical-align: top
+    vertical-align: top;
+    margin-right: 12px;
   }
 
   .mat-column-owner_name .arrivalIcon, .mat-column-owner_name .arrivalIcon2 {
@@ -754,6 +778,8 @@ th.mat-column-owned_plots{
 
   .arrivalCheckboxGroup {
     font-size: .7rem;
+    margin-left: 0;
+    margin-top: -18px;
   }
 
   #arrivalCheckboxMonth {

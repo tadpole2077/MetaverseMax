@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using MetaverseMax.Database;
 using MetaverseMax.BaseClass;
+using System.Net.Security;
 
 namespace MetaverseMax.ServiceClass
 {
@@ -32,8 +33,18 @@ namespace MetaverseMax.ServiceClass
 
         public SocketsHttpHandler getSocketHandler()
         {
+            // Option to skip SSL cert check - invalid certs accepted (debug or backend api cert fault)
+            // https://dev.to/tswiftma/switching-from-httpclienthandler-to-socketshttphandler-17h3
+            var sslOptions = new SslClientAuthenticationOptions
+            {
+                // Leave certs unvalidated for debugging
+                RemoteCertificateValidationCallback = delegate { return true; },
+            };
+
             // POST from User/Get REST WS
-            SocketsHttpHandler socketsHandler = new();
+            SocketsHttpHandler socketsHandler = new() { 
+                SslOptions = ServiceCommon.endpointSSLDisabled ? sslOptions : null , 
+            };
 
             watch = Stopwatch.StartNew();
             serviceStartTime = DateTime.Now;
@@ -55,7 +66,7 @@ namespace MetaverseMax.ServiceClass
 
                 await s.ConnectAsync(context.DnsEndPoint, token);
 
-                s.NoDelay = true;
+                s.NoDelay = true;                
 
                 return new NetworkStream(s, ownsSocket: true);
             };

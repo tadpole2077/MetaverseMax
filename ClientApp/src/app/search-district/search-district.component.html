@@ -1,15 +1,10 @@
 
 
 <div class="search">
-  <div style="margin-bottom:6px">
-
     <div ngbDropdown class="d-inline-block">
-      <button mat-raised-button color="primary" class="buttonEffect" id="dropdownBasic1" ngbDropdownToggle>Select District</button>
-      <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+        <button mat-raised-button color="primary" class="buttonEffect" id="dropdownBasic1" ngbDropdownToggle>Select District</button>
+        <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
         <button *ngFor="let districtId of districtId_list" ngbDropdownItem (click)="getDistrictData(districtId)" ><span> {{districtId}}</span></button>      
-      </div>
+        </div>
     </div>
-
-  </div>
-
 </div>

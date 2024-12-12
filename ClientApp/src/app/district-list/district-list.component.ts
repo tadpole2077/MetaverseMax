@@ -5,6 +5,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 
 import { Application } from '../common/global-var';
+//import { SearchDistrictComponent } from '../search-district/search-district.component';
 
 interface District {
   update_instance: number;
@@ -43,6 +44,7 @@ interface District {
 }
 
 @Component({
+    //imports: [SearchDistrictComponent],
     selector: 'app-district-list',
     templateUrl: './district-list.component.html',
     styleUrls: ['./district-list.component.css']

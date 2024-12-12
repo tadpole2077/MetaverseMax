@@ -12,6 +12,7 @@ namespace MetaverseMax.ServiceClass
         public static bool pendingShutdown { get; set; }
         public static bool isDevelopment { get; set; }
         public static string serverIP { get; set; }
+        public static bool endpointSSLDisabled { get; set; }
         public static bool logServiceInfo { get; set; }
         public static bool showPrediction { get; set; }
         public static int jobFundRepeatCount { get; set; }
@@ -38,6 +39,7 @@ namespace MetaverseMax.ServiceClass
 
             // Hook into the appsettings.json file to pull database and app settings used by services - within published site pulling from web.config
             serverIP = configuration["ServerIP"];
+            endpointSSLDisabled = configuration.GetValue("endpointSSLDisabled", false);           // skip validation check of SSL within backend API HTTPS calls
             logServiceInfo = configuration["logServiceInfo"] == "1";
             showPrediction = configuration["showPrediction"] == "1";
             jobFundRepeatCount = Convert.ToInt32(configuration["jobFundRepeatCount"]);

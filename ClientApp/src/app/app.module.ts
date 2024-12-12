@@ -15,7 +15,6 @@ import { NavMenuWorldComponent } from './nav-menu-world/nav-menu-world.component
 import { NavMenuOwnerComponent } from './nav-menu-owner/nav-menu-owner.component';
 import { HomeComponent } from './home/home.component';
 import { SearchPlotComponent } from './search-plot/search-plot.component';
-import { SearchDistrictComponent } from './search-district/search-district.component';
 import { GraphTaxComponent } from './graph-tax/graph-tax.component';
 import { GraphDamageComponent } from './graph-damage/graph-damage.component';
 import { GraphFundComponent } from './graph-fund/graph-fund.component';
@@ -78,6 +77,7 @@ import { Alert } from './common/alert';
 
 import { TestInterceptorService } from './service/test-interceptor.service';
 import { AppRoutingModule } from './app-routing.module';
+import { SearchDistrictComponent } from './search-district/search-district.component';
 
 @NgModule({
     declarations: [
@@ -90,8 +90,7 @@ import { AppRoutingModule } from './app-routing.module';
         NavMenuWorldComponent,
         NavMenuOwnerComponent,
         HomeComponent,
-        SearchPlotComponent,
-        SearchDistrictComponent,
+        SearchPlotComponent,        
         TaxChangeComponent,
         GraphTaxComponent,
         GraphFundComponent,
@@ -153,7 +152,9 @@ import { AppRoutingModule } from './app-routing.module';
         NgxChartsModule,        
         BrowserAnimationsModule,
         ClipboardModule,
-        AppRoutingModule
+        AppRoutingModule,
+
+        SearchDistrictComponent
     ],
     providers: [
         Application,

@@ -1,5 +1,5 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable, Inject, signal } from '@angular/core';
+import { Injectable, Inject, signal, effect } from '@angular/core';
 import { Subscription, interval, Subject } from 'rxjs';
 import { OwnerDataComponent } from '../owner-data/owner-data.component';
 import { AppComponent } from '../app.component';
@@ -117,14 +117,20 @@ export class Application {
     public promptType = signal(PROMPT_TYPE.NONE);
 
     // Subscription notifications within services
-    private subscriptionAlertCount$: Subscription;
+    //private subscriptionAlertCount$: Subscription;
     private subscriptionSystemShutdownPending$: Subscription;
 
     constructor(private httpClient: HttpClient, private alertManagerService: AlertManagerService,  public router: Router, private location: Location, private route: ActivatedRoute, @Inject('BASE_URL') rootBaseUrl: string) {
 
         this.rootBaseUrl = rootBaseUrl;     // Unknow world type at this point, checkWorldFromURL will identify.
         this.initAccount();        
-        this.getProviders();        
+        this.getProviders();
+
+        // Actions triggered by Signal Changes
+        effect(() => {
+            this.ownerAccount.alert_count = this.alertManagerService.alertCount();
+            //console.log(`alert count is : ${ this.alertManagerService.alertCount() }`);
+        });
     }
     
     // Wallet site link Approval flag
@@ -208,18 +214,19 @@ export class Application {
         };    
 
         // Release any prior subscribed sub, active wallet accounts may change
-        if (this.subscriptionAlertCount$) {
-            this.subscriptionAlertCount$.unsubscribe();
-            this.subscriptionAlertCount$ = null;
-        }
+        //if (this.subscriptionAlertCount$) {
+        //    this.subscriptionAlertCount$.unsubscribe();
+        //    this.subscriptionAlertCount$ = null;
+        //}
         if (this.subscriptionSystemShutdownPending$) {
             this.subscriptionSystemShutdownPending$.unsubscribe();
             this.subscriptionSystemShutdownPending$ = null;
         }
-        // Subscribe to observables relted to account
-        this.subscriptionAlertCount$ = this.alertManagerService.alertCount$.subscribe(count => {
-            this.ownerAccount.alert_count = count;
-        });
+
+        // Subscribe to observables related to account
+        //this.subscriptionAlertCount$ = this.alertManagerService.alertCount$.subscribe(count => {
+        //    this.ownerAccount.alert_count = this.alertManagerService.alertCount();
+        //});
 
         this.subscriptionSystemShutdownPending$ = this.alertManagerService.systemShutdownPending$.subscribe(shutdown => {
             this.systemShutdownPending = shutdown;
@@ -431,6 +438,9 @@ export class Application {
                           this.promptType.set(PROMPT_TYPE.NO_PLOT);                                          
                           this.accountActiveSubject.next(false);                          
                       }
+
+                      // Update alert count signal on init retrival of user account.
+                      this.alertManagerService.alertCount.set(this.ownerAccount.alert_count);
 
                       if (checkMyPortfolio) {
                           this.checkMyPortfolio();

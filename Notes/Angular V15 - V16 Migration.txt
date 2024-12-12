@@ -21,7 +21,9 @@ Compatible Packages
 
 
 Actions:
-	ng update @angular/core@16 @angular/cli@16		: ran within ClientApp dir.
+	npm i zone.js@0.13.03
+
+	ng update @angular/core@16 @angular/cli@16 : ran within ClientApp dir.
 		Warning:  Migration failed - Incompatible peer dependencies found : @angular-eslint/schematics dependency to @angular/cli  >=15 <=16.0.0
 		Override: ng update @angular/core@16 @angular/cli@16 --force
 		Followup:  Manual upgrade eslint packages later

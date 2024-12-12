@@ -20,5 +20,8 @@ if (environment.production) {
     enableProdMode();
 }
 
-platformBrowserDynamic(providers).bootstrapModule(AppModule)
+// modules flow - non standalone, can add standalone component as additional.
+platformBrowserDynamic(providers).bootstrapModule(AppModule, {
+    //providers: [],
+})
     .catch(err => console.log(err));

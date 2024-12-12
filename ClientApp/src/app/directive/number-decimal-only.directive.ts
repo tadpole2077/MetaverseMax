@@ -3,7 +3,7 @@ import { Directive, ElementRef, HostListener } from '@angular/core';
 
 @Directive({
     standalone: true,
-    selector: 'input[numbersDecimalOnly]'
+    selector: 'input[numbersDecimalOnly]',
 })
 export class NumberDecimalDirective {
 

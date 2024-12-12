@@ -1,11 +1,10 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Inject } from '@angular/core';
-import { Injectable } from '@angular/core';
+import { Inject, signal, Injectable } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { Subscription, interval, Subject, async, Observable } from 'rxjs';
+import { Subscription, interval, Subject } from 'rxjs';
 import { AlertBottomComponent } from '../alert-bottom/alert-bottom.component';
 import { PENDING_ALERT, STATUS } from '../common/enum';
-import { Application, JSend } from '../common/global-var';
+import { JSend } from '../common/global-var';
 
 interface AlertCollection {
   history_count: number,
@@ -40,9 +39,10 @@ export class AlertManagerService {
     public manualFullActive = false;
     public autoAlertCheckProcessing = false;
 
+    public alertCount = signal(0);
     // Observable events exposed by this service - notifies observable subscribers
-    private alertCount = new Subject<number>();
-    public alertCount$ = this.alertCount.asObservable();
+    //private alertCount = new Subject<number>();
+    //public alertCount$ = this.alertCount.asObservable();
 
     private systemShutdownPending = new Subject<boolean>();
     public systemShutdownPending$ = this.systemShutdownPending.asObservable();
@@ -109,8 +109,11 @@ export class AlertManagerService {
 
                         alertPendingManager.alert = result.data.alert;
 
+                        // Update reactive signals
+                        this.alertCount.set(result.data.history_count);
+
                         // update observers, trigger notification to any subscribed features.
-                        this.alertCount.next(result.data.history_count);
+                        //this.alertCount.next(result.data.history_count);      
                         this.systemShutdownPending.next(result.data.app_shutdown_warning_alert);
 
                         this.manualFullActive = manualFullActive;

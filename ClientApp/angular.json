@@ -33,7 +33,7 @@
                             "src/theme.scss"
                         ],
                         "scripts": [
-                            "src/notification_test.js"
+                            /*"src/notification_test.js"*/
                         ],
                         "aot": false,
                         "vendorChunk": true,

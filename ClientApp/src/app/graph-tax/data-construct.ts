@@ -1,4 +1,4 @@
-export var graphDataConstruct = {
+export const graphDataConstruct = {
     xAxisLabel: 'Construction',
     yAxisLabel: 'Tax%',
     legendTitle: 'History',

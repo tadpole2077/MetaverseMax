@@ -920,7 +920,7 @@ namespace MetaverseMax.ServiceClass
                     HttpResponseMessage response;
                     using (var client = new HttpClient(getSocketHandler()) { Timeout = new TimeSpan(0, 0, 60) })
                     {
-                        StringContent stringContent = new StringContent("{\"address\": \"" + ownerMaticKey + "\",\"dapper\": false,\"sign\": null }", Encoding.UTF8, "application/json");
+                        StringContent stringContent = new StringContent("{\"address\": \"" + ownerMaticKey + "\",\"dapper\": false,\"sign\": null }", Encoding.UTF8, "application/json");                        
 
                         response = await client.PostAsync(
                             serviceUrl,

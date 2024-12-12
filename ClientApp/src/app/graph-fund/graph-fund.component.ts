@@ -1,8 +1,7 @@
-import { Component, NgModule, ViewEncapsulation, Input, ElementRef, ViewChild } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { Component, ViewEncapsulation, Input, ElementRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { graphDataFundTest } from './data-fund-test';
 import { GraphData } from '../common/graph-interface';
+import { ChangeDetectorRef } from '@angular/core';
 
 // Browser warning in Brave - due to loading this graph type (both Fund & Distributoin period) : Example Eth - district 152
 // The animation trigger "animationState" is attempting to animate the following not animatable properties: strokeDashoffset
@@ -13,7 +12,8 @@ import { GraphData } from '../common/graph-interface';
     selector: 'app-graph-fund',
     templateUrl: './graph-fund.component.html',
     styleUrls: ['./graph-fund.component.css'],
-    encapsulation: ViewEncapsulation.None           // removes encapsulation alias from autobuild styles allowing easier access
+    encapsulation: ViewEncapsulation.None,           // removes encapsulation alias from autobuild styles allowing easier access
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GraphFundComponent {
 
@@ -54,7 +54,7 @@ export class GraphFundComponent {
       domain: []
   };
 
-  constructor( private elem: ElementRef) {
+  constructor( private elem: ElementRef, private cdf: ChangeDetectorRef) {
       //this.view = [ 500, 200 ]; // default sizing helps on page initial render.
       //this.loadGraph();
   }
@@ -83,6 +83,8 @@ export class GraphFundComponent {
       Object.assign(this, this.multi);
     
       this.graphFund.nativeElement.classList.add('showTrans');
+
+      this.cdf.detectChanges();     // Push detection
 
   }
 

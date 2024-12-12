@@ -61,3 +61,6 @@ VS & .NET Upgrade:
 	Requires upgrade to : Visual Studio 2022 (v17.12)
 
 3) MetaverseMax & SyncJob : Change Project Settings >> Target Framework >> .NET 9
+
+4) Server Install
+   Recommended:  ASP.NET Core Runtime 9.0.0 > Hosting Bundle, which includes the .NET Runtime and IIS support.

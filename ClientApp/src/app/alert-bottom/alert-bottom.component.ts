@@ -92,7 +92,8 @@ export class AlertBottomComponent{
                         // Reindex array
                         this.alertPendingManager.alert = this.alertPendingManager.alert.filter(_ => true);
 
-                        this.globals.ownerAccount.alert_count = this.alertPendingManager.alert.length;
+                        //this.globals.ownerAccount.alert_count = this.alertPendingManager.alert.length;
+                        this.alertManagerService.alertCount.set(this.alertPendingManager.alert.length);
                     }
 
                     if (this.alertPendingManager.alert && this.alertPendingManager.alert.length === 0) {

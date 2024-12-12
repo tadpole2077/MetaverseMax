@@ -1,9 +1,7 @@
-import { Component, NgModule, ViewEncapsulation, Input } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { ChangeDetectorRef } from '@angular/core';
+import { Component, ViewEncapsulation, Input, ChangeDetectionStrategy } from '@angular/core';
 //import { graphDataConstruct } from './data-construct';
 //import { graphDataProduce } from './data-produce';
-import { OwnerSummary, District } from '../district-summary/data-district-interface';
 import { GraphData } from '../common/graph-interface';
 
 
@@ -11,7 +9,8 @@ import { GraphData } from '../common/graph-interface';
     selector: 'app-graph-tax',
     templateUrl: './graph-tax.component.html',
     styleUrls: ['./graph-tax.component.css'],
-    encapsulation: ViewEncapsulation.None
+    encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GraphTaxComponent {
 
@@ -42,7 +41,7 @@ export class GraphTaxComponent {
       domain: []
   };
 
-  constructor() {
+  constructor(private cdf: ChangeDetectorRef) {
   }
 
   // Databound Inputs passed by Parent comp are only accessible from OnInit stage.
@@ -58,7 +57,7 @@ export class GraphTaxComponent {
       const multiData = this.multi = graphTax.graphColumns;
 
       Object.assign(this, { multiData });
-
+      this.cdf.detectChanges();     // Push detection
   }
 
   setPrecentLabel(val) {

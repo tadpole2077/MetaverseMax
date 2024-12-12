@@ -1,9 +1,9 @@
 import { Injectable, Inject} from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
 
-import { Application, WORLD } from '../common/global-var';
-import { ALERT_TYPE, ALERT_ACTION } from '../common/enum';
+import { Application } from '../common/global-var';
+//import { ALERT_TYPE, ALERT_ACTION } from '../common/enum';
 
 interface OwnerAlert {
   key_type: number
@@ -31,10 +31,10 @@ export class Alert {
 
         if (this.globals.ownerAccount.wallet_active_in_world) {
 
-            this.httpClient.get<Object>(this.baseUrl + '/OwnerData/UpdateOwnerAlert', { params: params })
+            this.httpClient.get(this.baseUrl + '/OwnerData/UpdateOwnerAlert', { params: params })
                 .subscribe({
-                    next: (result) => {
-                    },
+                    //next: () => {
+                    //},
                     error: (error) => { console.error(error); }
                 });
 
