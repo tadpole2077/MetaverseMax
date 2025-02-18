@@ -1,7 +1,8 @@
 # MetaverseMax
-Innovative solution for Metaverse digital asset owners to evaluate, collaborate and trade assets using Angular V17, Rest API, C# MS SQL backend, Solidity contracts, with CICD process and GIT with 220 deploy cycle invokes (as of 07/2024)
-Generated a smart data warehouse with nightly sync data analysis spanning 4 blockchain 
-Get insights into building's IP ranking, production predictions, history and the owner’s portfolio. Maximize your performance and create strategic partnerships with other players using MetavaseMax.
+Innovative solution for Metaverse digital asset owners to evaluate, collaborate and trade assets using Angular V17, Rest API, C# MS SQL backend, Solidity contracts, GIT CICD process, over 220 PRD deploy cycle invokes (as of 07/2024)
+Backend utilises a smart data warehouse with nightly sync data analysis spanning 4 blockchain 
+Get insights into building's IP ranking, production predictions, history and the owner’s portfolio. 
+Maximize your performance and create strategic partnerships with other players using MetaverseMax.
 
 
 ### Main Contributer
